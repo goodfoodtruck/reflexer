@@ -1,0 +1,16 @@
+{
+  "name": "reflexer",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @repo/game dev",
+    "test": "pnpm --filter @repo/engine test",
+    "build": "pnpm --filter @repo/engine build && pnpm --filter @repo/game build"
+  },
+  "keywords": [],
+  "author": "Louis DRIFFORT, Clément MARTINI, Celina CHABANE",
+  "license": "ISC",
+  "packageManager": "pnpm@10.20.0",
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}
