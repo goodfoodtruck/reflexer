@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+@keyframes pan-grid {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 64px 64px; }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(10vh) scale(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-50vh) scale(1.5); opacity: 0; }
+}
+
+.animate-grid {
+  animation: pan-grid 3s linear infinite;
+}

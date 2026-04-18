@@ -34,3 +34,7 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
+
+myDox.txt
+architecture.md
+directives.md
