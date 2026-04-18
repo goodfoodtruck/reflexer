@@ -1,8 +1,8 @@
 import { PlayingEntityID, PlayingEntity } from "@fight/fight.types"
 import { FightMap } from "@fight/FightMap"
-import { InitiativeOrderIndex } from "./value-objects/InitiativeOrderIndex"
-import { IFightContextReader } from "./context/IFightContextReader"
-import { IFightContextMutator } from "./context/IFightContextMutator"
+import { InitiativeOrderIndex } from "../value-objects/InitiativeOrderIndex"
+import { IFightContextReader } from "./IFightContextReader"
+import { IFightContextMutator } from "./IFightContextMutator"
 
 export class FightContext implements IFightContextReader, IFightContextMutator {
 

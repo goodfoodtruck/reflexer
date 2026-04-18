@@ -1,4 +1,4 @@
-import { FightContext } from "@fight/FightContext"
+import { FightContext } from "@fight/context/FightContext"
 import { FightResult } from "@fight/fight.types"
 import { FightStateResolver } from "@fight/FightStateResolver"
 import { TurnController } from "@fight/TurnController"

@@ -1,5 +1,5 @@
 import { ActionLog, PlayingEntityID, TurnLog } from "./fight.types";
-import { FightContext } from "./FightContext";
+import { FightContext } from "./context/FightContext";
 import { EntityActionExecutor } from "./turn-executors/EntityActionExecutor";
 import { EntityMovementExecutor } from "./turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "./turn-executors/EntityPassiveExecutor";

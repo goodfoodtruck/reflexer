@@ -1,4 +1,4 @@
-import { FightContext } from "@fight/FightContext"
+import { FightContext } from "@fight/context/FightContext"
 import { FightState, TurnLog } from "./fight.types";
 
 export class FightStateResolver {

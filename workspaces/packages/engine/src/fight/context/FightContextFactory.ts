@@ -1,5 +1,5 @@
 import { FightMapConfig, FightMapSpawnPoints, PlayerContext, PlayingEntity } from "@fight/fight.types";
-import { FightContext } from "@fight/FightContext";
+import { FightContext } from "@fight/context/FightContext";
 import { FightMap } from "@fight/FightMap";
 
 export class FightContextFactory {

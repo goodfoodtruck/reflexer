@@ -1,5 +1,5 @@
 import { ActionLog, PlayingEntity } from "@fight/fight.types";
-import { FightContext } from "@fight/FightContext";
+import { FightContext } from "@fight/context/FightContext";
 
 export class EntityPassiveExecutor {
     constructor() {}
