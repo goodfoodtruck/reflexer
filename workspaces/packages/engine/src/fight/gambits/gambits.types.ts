@@ -19,14 +19,17 @@ export type Gambit = {
     intent: GambitIntent
 }
 
+export type ActionIntent = { kind: "ACTION"; actionId: string }
+export type MovementIntent = { kind: "MOVEMENT"; strategy: MovementStrategy }
+
 /**
  * Ce que l'entité fait quand le gambit est résolu.
  * - ACTION : exécute une action définie dans l'ActionRepository
  * - MOVEMENT : demande un déplacement selon une stratégie
  */
-type GambitIntent =
-    | { kind: "ACTION";   actionId: string }
-    | { kind: "MOVEMENT"; strategy: MovementStrategy }
+type GambitIntent = ActionIntent | MovementIntent
+
+
 
 /**
  * Stratégie de déplacement adoptée par l'entité.
@@ -34,7 +37,7 @@ type GambitIntent =
  * - FLEE : s'éloigner de la cible résolue
  * - STAY : rester sur place
  */
-type MovementStrategy = "APPROACH" | "FLEE" | "STAY"
+export type MovementStrategy = "APPROACH" | "FLEE" | "STAY"
 
 /**
  * Arbre de décisions évalué avant de chercher une cible.
