@@ -15,11 +15,11 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
     constructor(entities: PlayingEntity[], map: FightMap) {
         this.turnIndex = 0
         this.map = map
-        this.currentInitiativeIndex = new InitiativeOrderIndex(0)
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
         this.initiativeOrder = [...entities].map(entity => entity.id)
+        this.currentInitiativeIndex = new InitiativeOrderIndex(0, this.initiativeOrder.length)
     }
 
     nextEntityTurn(): void {
