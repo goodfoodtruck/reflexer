@@ -6,10 +6,11 @@
 }
 
 @keyframes float-up {
-  0% { transform: translateY(10vh) scale(0); opacity: 0; }
-  20% { opacity: 0.8; }
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  10% { opacity: 0; } 
+  30% { opacity: 0.8; }
   80% { opacity: 0.6; }
-  100% { transform: translateY(-50vh) scale(1.5); opacity: 0; }
+  100% { transform: translateY(-80vh) scale(2.5); opacity: 0; }
 }
 
 .animate-grid {

@@ -10,7 +10,6 @@ export function AnimatedBackground() {
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden bg-slate-950 pointer-events-none">
-      
       <div 
         className="absolute inset-[-50%] opacity-20 animate-grid"
         style={{
@@ -25,7 +24,7 @@ export function AnimatedBackground() {
       {particles.map((p) => (
         <div
           key={p.id}
-          className="absolute bottom-0 bg-amber-400 rounded-full shadow-[0_0_10px_#f59e0b]"
+          className="absolute -bottom-10 bg-amber-400 rounded-full shadow-[0_0_10px_#f59e0b]"
           style={{
             left: p.left,
             width: p.size,
@@ -36,8 +35,7 @@ export function AnimatedBackground() {
           }}
         />
       ))}
-    
-      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-blue-950/80 to-transparent blur-xl" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black via-black/80 to-transparent" />
     </div>
   );
 }

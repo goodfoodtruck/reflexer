@@ -1,8 +1,14 @@
-import { MainMenuScreen } from "./features/home/MainMenuScreen";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HomePage } from "./pages/home/HomePage";
 
 export default function App() {
-
   return (
-    <MainMenuScreen />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/team"/>
+        <Route path="/editor/:heroId" />
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -1,10 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import { AnimatedBackground } from "../../components/ui/AnimatedBackground";
 import { MenuButton } from "../../components/ui/MenuButton";
 import herosImage from "../../assets/images/heros.png";
 
-export function MainMenuScreen() {
+export function HomePage() {
+  const navigate = useNavigate();
+
+  const onStartGame = () => {
+    navigate("/team");
+  };
+
   return (
-    <div className="w-screen h-screen font-sans relative overflow-hidden flex flex-col selection:bg-amber-500/30">
+    <div className="w-screen h-screen font-sans relative overflow-hidden flex flex-col selection:bg-amber-500/30 bg-black">
       <AnimatedBackground />
       <div className="relative z-10 flex flex-col h-full">
   
@@ -31,11 +38,11 @@ export function MainMenuScreen() {
         </div>
 
         <div className="absolute bottom-32 left-20 flex flex-col gap-6">
-          <MenuButton>Nouvelle partie</MenuButton>
+          <MenuButton onClick={onStartGame}>Nouvelle partie</MenuButton>
           <MenuButton>Historique</MenuButton>
           <MenuButton>Options</MenuButton>
         </div>
-        </div>
       </div>
+    </div>
   );
 }
