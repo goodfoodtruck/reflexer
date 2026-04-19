@@ -6,7 +6,8 @@
     "paths": {
         "@helpers/*": ["./src/helpers/*"],
         "@fight/*": ["./src/fight/*"],
-        "@gambits/*": ["./src/fight/gambits/*"]
+        "@gambits/*": ["./src/fight/gambits/*"],
+        "@test-utils/*": ["./src/test-utils/*"]
     }
   },
   "include": ["src"]
