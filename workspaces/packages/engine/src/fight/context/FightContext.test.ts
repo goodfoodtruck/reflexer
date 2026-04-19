@@ -16,7 +16,7 @@ const buildContext = (playerOverrides: Partial<PlayingEntity>[] = [{}], enemyOve
 
 
 
-describe('FightContext.nextEntityTurn', () => {
+describe("Avancement du combat dans l'ordre d'initiative", () => {
 
     it("avance l'index d'initiative au suivant", () => {
         const context = buildContext([{ id: 'player_a' }], [{ id: 'enemy_a' }])
@@ -60,7 +60,7 @@ describe('FightContext.nextEntityTurn', () => {
 
 
 
-describe('FightContext.getActingEntity', () => {
+describe("Récupérer l'entité dont c'est le tour de jouer", () => {
     
     it("retourne la première entité dans l'ordre d'initiative", () => {
         const context = buildContext([{ id: 'player_a' }], [{ id: 'enemy_a' }])

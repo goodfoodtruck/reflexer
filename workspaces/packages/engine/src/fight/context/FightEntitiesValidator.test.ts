@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { FightEntitiesValidator } from './FightEntitiesValidator'
 import { buildPlayingEntity } from '@test-utils/builders/PlayingEntityBuilder'
 
-describe('FightEntitiesValidator', () => {
+describe("Un combat ne peut démarrer qu'avec des équipes valides", () => {
 
     const validator = new FightEntitiesValidator()
 
