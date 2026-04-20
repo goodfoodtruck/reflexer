@@ -1,7 +1,16 @@
 import { Gambit } from "@gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
+import { ProcessorConfig } from "@processors/processor.types";
 
 export type ActionID = string
+
+type ActionCategory = "attack" | "heal" | "status";
+
+export type Action = {
+    id: Readonly<ActionID>;
+    type: Readonly<ActionCategory>;
+    processorConfigs: Readonly<ProcessorConfig[]>;
+};
 
 export type ActionLog = {}
 
