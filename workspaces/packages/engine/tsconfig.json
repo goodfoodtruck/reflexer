@@ -7,7 +7,9 @@
         "@helpers/*": ["./src/helpers/*"],
         "@fight/*": ["./src/fight/*"],
         "@gambits/*": ["./src/fight/gambits/*"],
-        "@test-utils/*": ["./src/test-utils/*"]
+        "@test-utils/*": ["./src/test-utils/*"],
+        "@processors/*": ["./src/fight/processors/*"],
+        "@data/*": ["./src/data/*"],
     }
   },
   "include": ["src"]
