@@ -3,7 +3,7 @@ import { FightContext } from "./context/FightContext";
 import { EntityActionExecutor } from "./turn-executors/EntityActionExecutor";
 import { EntityMovementExecutor } from "./turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "./turn-executors/EntityPassiveExecutor";
-import { EntityActionResolver } from "./turn-resolvers/EntityActionResolver";
+import { EntityGambitActionResolver } from "./turn-resolvers/EntityGambitActionResolver";
 import { EntityMovementResolver } from "./turn-resolvers/EntityMovementResolver";
 
 export class TurnController {
@@ -11,7 +11,7 @@ export class TurnController {
         private readonly passivesExecutor: EntityPassiveExecutor,
         private readonly movementResolver: EntityMovementResolver,
         private readonly movementExecutor: EntityMovementExecutor,
-        private readonly actionResolver: EntityActionResolver,
+        private readonly gambitActionResolver: EntityGambitActionResolver,
         private readonly actionExecutor: EntityActionExecutor
     ) {}
 
@@ -49,9 +49,9 @@ export class TurnController {
         // executer action
         const entityBeforeAction = fightContext.getAliveEntityOrThrow(entityId)
 
-        const actionId = this.actionResolver.resolve(entityBeforeAction, fightContext)
-        if (actionId) {
-            const actionLogs = this.actionExecutor.execute(entityBeforeAction, actionId, fightContext)
+        const actionExecutionContext = this.gambitActionResolver.resolve(entityBeforeAction.gambits, fightContext)
+        if (actionExecutionContext) {
+            const actionLogs = this.actionExecutor.execute(actionExecutionContext, fightContext)
             entityTurnLogs.push(...actionLogs)
         }
 
