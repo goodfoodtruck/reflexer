@@ -1,6 +1,28 @@
 import { Gambit } from "@gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
+import {IStatus} from "@fight/context/IStatus";
+
+
+export interface DamageReceivedEvent {
+    readonly ownerId: PlayingEntityID      // porteur du statut
+    readonly attackerId: PlayingEntityID   // qui a infligé les dégâts
+    readonly amount: number                // dégâts effectivement subis (après résistances)
+    readonly isReaction: boolean           // true si les dégâts viennent déjà d'une réaction
+}
+
+export interface DamageDealtEvent {
+    readonly ownerId: PlayingEntityID
+    readonly targetId: PlayingEntityID
+    readonly amount: number
+}
+
+export interface TurnEvent {
+    readonly ownerId: PlayingEntityID
+    readonly turnIndex: number
+}
+
+export type StatusID = string
 
 export type ActionID = string
 
@@ -45,7 +67,6 @@ export type PlayerContext = {
 
 export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
-export type PassiveEffectID = string
 
 export type EntityTag =
     | "PLAYER"
@@ -61,7 +82,8 @@ export type PlayingEntity = {
     baseStats: Readonly<EntityStats>
     currentStats: EntityStats
     gambits: Gambit[]
-    passives: PassiveEffectID[]
+    statuses: Readonly<IStatus[]>
+    takeDamage(amount: number): number
     isDead: boolean
 }
 

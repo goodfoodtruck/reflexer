@@ -3,6 +3,7 @@ import { FightContext } from "@fight/context/FightContext"
 import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
 import { ActionRegistry } from "@data/ActionRegistry";
 import { ProcessorChain } from "@processors/ProcessorChain";
+import { ProcessorFactory } from "@processors/ProcessorFactory";
 
 export class EntityActionExecutor {
     constructor(
@@ -12,6 +13,11 @@ export class EntityActionExecutor {
 
     execute(ctx: ExecutionContext, fightContext: FightContext): ActionLog[] {
         const action = this.actionRegistry.get(ctx.actionId);
-        return this.processorChain.execute(ctx, action.processorConfigs, fightContext);
+
+        const processors = [...action.processorConfigs]
+            .sort((a, b) => a.order - b.order)
+            .map(config => ProcessorFactory.create(config));
+
+        return this.processorChain.execute(ctx, processors, fightContext);
     }
 }

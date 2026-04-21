@@ -1,7 +1,7 @@
-import { Action } from "@fight/fight.types";
+import {Action, ActionID} from "@fight/fight.types";
 
 export class ActionRegistry {
-    private actions: Map<string, Action>;
+    private actions: Map<ActionID, Action>;
 
     constructor(actions: Action[]) {
         this.actions = new Map(actions.map(a => [a.id, a]));

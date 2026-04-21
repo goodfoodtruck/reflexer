@@ -1,7 +1,7 @@
-import { Position } from "@helpers/types/helpers.types";
+import { ActionID, PlayingEntityID } from "@fight/fight.types";
 
 export type ExecutionContext = {
-    casterId: Readonly<string>;
-    actionId: Readonly<string>;
-    targetCell: Readonly<Position>;
+    casterId: Readonly<PlayingEntityID>;
+    actionId: Readonly<ActionID>;
+    targetId: Readonly<PlayingEntityID>;
 };

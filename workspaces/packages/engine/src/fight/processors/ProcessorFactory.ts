@@ -1,17 +1,19 @@
-import { DamageProcessor } from "@processors/DamageProcessor";
-import { CheckEnergyProcessor } from "@processors/CheckEnergyProcessor";
-import { ProcessorId } from "@processors/processor.types";
+import { ProcessorConfig } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
+import { DamageProcessor } from "@processors/DamageProcessor";
+
+type ProcessorBuilder<C extends ProcessorConfig> = (params: C['params']) => IProcessor;
 
 export class ProcessorFactory {
-    private static readonly map: Record<ProcessorId, () => IProcessor> = {
-        check_energy: () => new CheckEnergyProcessor(),
-        damage:     () => new DamageProcessor(),
+    private static readonly builders: {
+        [K in ProcessorConfig['processorId']]: ProcessorBuilder<Extract<ProcessorConfig, { processorId: K }>>
+    } = {
+        damage: (params) => new DamageProcessor(params.damage_value)
     }
 
-    static create(id: ProcessorId): IProcessor {
-        const factory = this.map[id];
-        if (!factory) throw new Error(`Processor inconnu : ${id}`);
-        return factory();
+    static create(config: ProcessorConfig): IProcessor {
+        const builder = this.builders[config.processorId] as ProcessorBuilder<typeof config>
+        if (!builder) throw new Error(`Processor inconnu : ${config.processorId}`)
+        return builder(config.params)
     }
 }
