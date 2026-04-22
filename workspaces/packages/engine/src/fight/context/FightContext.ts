@@ -110,7 +110,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
             ownerId: params.targetId,
             attackerId: params.sourceId,
             amount: actualDamage,
-            isReaction: params.isReaction ?? false,
+            reactionDepth: params.reactionDepth ?? 0,
         }
 
         for (const status of target.statuses) {
@@ -126,7 +126,7 @@ type ApplyDamageParams = {
     targetId: PlayingEntityID;
     sourceId: PlayingEntityID;
     amount: number;
-    isReaction: boolean;
+    reactionDepth: number;
 }
 
 type ApplyDamageResult = {

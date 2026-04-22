@@ -19,6 +19,7 @@ export class DamageProcessor implements IProcessor {
             sourceId: ctx.casterId,
             targetId: ctx.targetId,
             amount: this.damageValue,
+            reactionDepth: ctx.reactionDepth,
         })
 
         const logs: ActionLog[] = [{

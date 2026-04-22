@@ -8,7 +8,7 @@ export interface DamageReceivedEvent {
     readonly ownerId: PlayingEntityID      // porteur du statut
     readonly attackerId: PlayingEntityID   // qui a infligé les dégâts
     readonly amount: number                // dégâts effectivement subis (après résistances)
-    readonly isReaction: boolean           // true si les dégâts viennent déjà d'une réaction
+    readonly reactionDepth: number         // défaut 0 pour les dégâts directs
 }
 
 export interface DamageDealtEvent {
