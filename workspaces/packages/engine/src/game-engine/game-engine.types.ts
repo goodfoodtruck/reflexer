@@ -1,3 +1,13 @@
+import { IChestCommandHandler, IFightCommandHandler, IMapCommandHandler, IMapGenerator, IShopCommandHandler } from "@game-engine/command-handlers/handlers.interfaces"
+
+export type GameEngineDeps = {
+    mapGenerator: IMapGenerator
+    mapCommandHandler: IMapCommandHandler
+    fightHandler: IFightCommandHandler
+    shopHandler: IShopCommandHandler
+    chestHandler: IChestCommandHandler
+}
+
 export type PlayerData = {
     playerFloorIndex: number,
     gold: number

@@ -1,22 +1,16 @@
-import { MapData, PlayerData, RunState } from "./game-engine.types";
+import { GameEngineDeps, MapData, PlayerData, RunState } from "./game-engine.types";
 import { FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "./api.types";
-import { IMapCommandHandler, IFightCommandHandler, IShopCommandHandler, IChestCommandHandler, IMapGenerator } from "./command-handlers/handlers.interfaces";
+
 
 export class GameEngine {
 
     private runState: RunState | null = null
 
-    constructor(
-        private readonly mapGenerator: IMapGenerator,
-        private readonly mapCommandHandler: IMapCommandHandler,
-        private readonly fightHandler: IFightCommandHandler,
-        private readonly shopHandler: IShopCommandHandler,
-        private readonly chestHandler: IChestCommandHandler
-    ) {}
+    constructor(private readonly deps: GameEngineDeps) {}
 
     startNewGame(playerData: PlayerData): MapData {
-        const mapData = this.mapGenerator.generate()
+        const mapData = this.deps.mapGenerator.generate()
 
         this.runState = {
             playerData,
@@ -33,7 +27,7 @@ export class GameEngine {
         if (! runState.activeChest)
             return { success: false, reason: "CHEST_NOT_ACTIVE" }
 
-        const result: Result<PlayerData, ChestError> = this.chestHandler.selectReward(itemId, runState.activeChest, runState.playerData)
+        const result: Result<PlayerData, ChestError> = this.deps.chestHandler.selectReward(itemId, runState.activeChest, runState.playerData)
 
         if (! result.success) return result
 
@@ -52,7 +46,7 @@ export class GameEngine {
         if (! runState.activeShop)
             return { success: false, reason: "SHOP_NOT_ACTIVE" }
 
-        const result: Result<BuyShopItemValue, ShopError> = this.shopHandler.buyItem(itemId, runState.activeShop, runState.playerData)
+        const result: Result<BuyShopItemValue, ShopError> = this.deps.shopHandler.buyItem(itemId, runState.activeShop, runState.playerData)
 
         if (! result.success) return result
 
@@ -68,7 +62,7 @@ export class GameEngine {
 
     selectMapNode(nodeId: string): Result<SelectMapNodeValue, MapError> {
         const runState = this.getRunStateOrThrow()
-        const result: Result<SelectMapNodeValue, MapError> = this.mapCommandHandler.selectMapNode(nodeId, runState.mapData, runState.playerData.playerFloorIndex)
+        const result: Result<SelectMapNodeValue, MapError> = this.deps.mapCommandHandler.selectMapNode(nodeId, runState.mapData, runState.playerData.playerFloorIndex)
 
         if (! result.success) return result
 
@@ -84,13 +78,13 @@ export class GameEngine {
 
     playFight(fightMapId: string): Result<FightResult, FightError> {
         const runState = this.getRunStateOrThrow()
-        const result: Result<FightResult, FightError> = this.fightHandler.playFight(fightMapId, runState.playerData)
+        const result: Result<FightResult, FightError> = this.deps.fightHandler.playFight(fightMapId, runState.playerData)
 
         if (! result.success) return result
 
         this.runState = {
             ...runState,
-            playerData: this.fightHandler.applyFightResultOnPlayer(runState.playerData, result.value)
+            playerData: this.deps.fightHandler.applyFightResultOnPlayer(runState.playerData, result.value)
         }
 
         return result
@@ -99,5 +93,9 @@ export class GameEngine {
     private getRunStateOrThrow(): RunState {
         if (! this.runState) throw new Error("ERROR: GameEngine has no RunState.")
         return this.runState
+    }
+
+    getPlayerData(): PlayerData {
+        return this.getRunStateOrThrow().playerData
     }
 }
