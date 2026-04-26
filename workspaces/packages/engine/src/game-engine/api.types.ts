@@ -1,4 +1,4 @@
-import { ShopData, ChestData, PlayerData } from "./game-engine.types"
+import { ShopData, ChestData, PlayerData } from "@game-engine/game-engine.types"
 
 export type GameError = 
     | "MAP_GENERATION_FAILED"

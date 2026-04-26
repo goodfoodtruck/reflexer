@@ -1,6 +1,6 @@
-import { GameEngineDeps, MapData, PlayerData, RunState } from "./game-engine.types";
+import { GameEngineDeps, MapData, PlayerData, RunState } from "@game-engine/game-engine.types";
 import { FightResult } from "@fight/fight.types";
-import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "./api.types";
+import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
 
 
 export class GameEngine {
