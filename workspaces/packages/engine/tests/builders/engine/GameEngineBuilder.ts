@@ -1,6 +1,6 @@
 import { GameEngineDeps } from "@game-engine/game-engine.types"
 import { GameEngine } from "@game-engine/GameEngine"
-import { buildPlayerData } from "@tests/builders/PlayerDataBuilder"
+import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder"
 
 const defaultDeps: GameEngineDeps = {
     mapGenerator: { 

@@ -1,5 +1,5 @@
-import { buildEngine } from "@tests/builders/GameEngineBuilder";
-import { buildPlayerData } from "@tests/builders/PlayerDataBuilder";
+import { buildEngine } from "@tests/builders/engine/GameEngineBuilder";
+import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder";
 import { describe, expect, it } from "vitest";
 
 describe("Exécuter un combat complet", () => {

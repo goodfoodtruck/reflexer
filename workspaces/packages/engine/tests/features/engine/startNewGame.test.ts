@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { buildPlayerData } from "@tests/builders/PlayerDataBuilder";
-import { buildEngine } from "@tests/builders/GameEngineBuilder";
+import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder";
+import { buildEngine } from "@tests/builders/engine/GameEngineBuilder";
 
 describe('Démarrer une nouvelle partie', () => {
 
