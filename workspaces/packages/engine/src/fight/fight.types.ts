@@ -26,7 +26,7 @@ export type StatusID = string
 
 export type ActionID = string
 
-type ActionCategory = "attack" | "heal" | "status";
+export type ActionCategory = "attack" | "heal" | "status";
 
 export type Action = {
     id: Readonly<ActionID>;
@@ -34,7 +34,48 @@ export type Action = {
     processorConfigs: Readonly<ProcessorConfig[]>;
 };
 
-export type ActionLog = {}
+export type ActionLog =
+    | DamageDealtLog
+    | DamageSkippedLog
+    | EntityDiedLog
+    | ActionFailedLog
+    | AreaResolvedLog
+    | ReactionCascadeOverflowLog
+
+export interface DamageDealtLog {
+    readonly type: 'damage_dealt'
+    readonly sourceId: PlayingEntityID
+    readonly targetId: PlayingEntityID
+    readonly amount: number
+    readonly reactionDepth: number
+}
+
+export interface DamageSkippedLog {
+    readonly type: 'damage_skipped'
+    readonly targetId: PlayingEntityID
+    readonly reason: 'target_already_dead' | string
+}
+
+export interface EntityDiedLog {
+    readonly type: 'entity_died'
+    readonly entityId: PlayingEntityID
+}
+
+export interface ActionFailedLog {
+    readonly type: 'action_failed'
+    readonly reason: string
+}
+
+export interface AreaResolvedLog {
+    readonly type: 'area_resolved'
+    readonly affectedIds: readonly PlayingEntityID[]
+    readonly epicenter: { readonly x: number; readonly y: number }
+}
+
+export interface ReactionCascadeOverflowLog {
+    readonly type: 'reaction_cascade_overflow'
+    readonly reason: 'reaction_cascade_overflow'
+}
 
 export type TurnLog = {
     turnIndex: number
