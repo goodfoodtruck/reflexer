@@ -2,16 +2,16 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "paths": {
         "@game-engine/*": ["./src/game-engine/*"],
         "@helpers/*": ["./src/helpers/*"],
         "@fight/*": ["./src/fight/*"],
         "@gambits/*": ["./src/fight/gambits/*"],
-        "@test-utils/*": ["./src/test-utils/*"],
+        "@tests/*": ["./tests/*"],
         "@processors/*": ["./src/fight/processors/*"],
         "@data/*": ["./src/data/*"],
     }
   },
-  "include": ["src"]
+  "include": ["src", "tests"]
 }

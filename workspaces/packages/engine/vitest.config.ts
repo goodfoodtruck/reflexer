@@ -7,14 +7,14 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@fight':       resolve(__dirname, 'src/fight'),
+            '@game-engine': resolve(__dirname, 'src/game-engine'),
             '@data':        resolve(__dirname, 'src/data'),
-            '@processors':  resolve(__dirname, 'src/fight/processors'),
-            '@context':     resolve(__dirname, 'src/fight/context'),
-            '@game-engine': resolve(__dirname, 'src/game-state'),
+            '@fight':       resolve(__dirname, 'src/fight'),
             '@helpers':     resolve(__dirname, 'src/helpers'),
             '@gambits':     resolve(__dirname, 'src/fight/gambits'),
-            '@tests':       resolve(__dirname, 'tests'),
+            '@processors':  resolve(__dirname, 'src/fight/processors'),
+            '@context':     resolve(__dirname, 'src/fight/context'),
+            '@tests':       resolve(__dirname, 'tests')
         }
     }
 })

@@ -6,7 +6,6 @@ export type PlayerData = {
 export type ShopData = {}
 export type ChestData = {}
 
-
 export type MapData = {}
 
 export type RunState = {

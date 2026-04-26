@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { buildEngine } from "@test-utils/builders/GameEngineBuilder"
-import { buildPlayerData } from "@test-utils/builders/PlayerDataBuilder"
+import { buildPlayerData } from "@tests/builders/PlayerDataBuilder";
+import { buildEngine } from "@tests/builders/GameEngineBuilder";
 
 describe('Démarrer une nouvelle partie', () => {
 
@@ -12,10 +12,10 @@ describe('Démarrer une nouvelle partie', () => {
 
     it("lève une erreur si on tente une action sans avoir démarré de partie", () => {
         const engine = buildEngine()
-        expect(() => engine.selectMapNode("node_1")).toThrow("Aucune partie en cours — appeler startNewGame() d'abord")
-        expect(() => engine.playFight("map_1")).toThrow("Aucune partie en cours — appeler startNewGame() d'abord")
-        expect(() => engine.buyShopItem("item_1")).toThrow("Aucune partie en cours — appeler startNewGame() d'abord")
-        expect(() => engine.selectChestReward("item_1")).toThrow("Aucune partie en cours — appeler startNewGame() d'abord")
+        expect(() => engine.selectMapNode("node_1")).toThrow("ERROR: GameEngine has no RunState.")
+        expect(() => engine.playFight("map_1")).toThrow("ERROR: GameEngine has no RunState.")
+        expect(() => engine.buyShopItem("item_1")).toThrow("ERROR: GameEngine has no RunState.")
+        expect(() => engine.selectChestReward("item_1")).toThrow("ERROR: GameEngine has no RunState.")
     })
 
     it("réinitialise la carte au démarrage d'une nouvelle partie", () => {

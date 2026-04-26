@@ -1,5 +1,5 @@
-import { GameEngine } from "@game-engine/GameEngine";
-import { buildPlayerData } from "./PlayerDataBuilder";
+import { GameEngine } from "@game-engine/GameEngine"
+import { buildPlayerData } from "@tests/builders/PlayerDataBuilder"
 
 export const buildEngine = (): GameEngine => new GameEngine(
     { 

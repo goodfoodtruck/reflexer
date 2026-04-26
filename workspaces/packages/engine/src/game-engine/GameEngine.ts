@@ -97,7 +97,7 @@ export class GameEngine {
     }
 
     private getRunStateOrThrow(): RunState {
-        if (! this.runState) throw new Error("Aucune partie en cours — appeler startNewGame() d'abord")
+        if (! this.runState) throw new Error("ERROR: GameEngine has no RunState.")
         return this.runState
     }
 }
