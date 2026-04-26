@@ -1,7 +1,8 @@
-import { BuyShopItemValue, Result, ShopError } from "@game-engine/api.type";
+import { BuyShopItemValue, Result, ShopError } from "@game-engine/api.types";
 import { PlayerData, ShopData } from "@game-engine/game-engine.types";
+import { IShopCommandHandler } from "./handlers.interfaces";
 
-export class ShopCommandHandler {
+export class ShopCommandHandler implements IShopCommandHandler {
 
     buyItem(itemId: string, shopData: ShopData, playerData: PlayerData): Result<BuyShopItemValue, ShopError> {
         return {

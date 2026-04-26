@@ -1,11 +1,12 @@
-import { MapError, Result, SelectMapNodeValue } from "@game-engine/api.type"
+import { MapError, Result, SelectMapNodeValue } from "@game-engine/api.types"
 import { ChestData, MapData, ShopData } from "@game-engine/game-engine.types"
+import { IMapCommandHandler } from "./handlers.interfaces"
 
 interface IShopGenerator { generate(floorIndex: number): ShopData }
 interface IChestGenerator { generate(floorIndex: number): ChestData }
 type NodeType = "COMBAT" | "SHOP" | "CHEST"
 
-export class MapCommandHandler {
+export class MapCommandHandler implements IMapCommandHandler {
     constructor(
         private readonly shopGenerator: IShopGenerator,
         private readonly chestGenerator: IChestGenerator

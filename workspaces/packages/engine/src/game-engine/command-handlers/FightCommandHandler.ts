@@ -2,9 +2,10 @@ import { FightContextFactory } from "@fight/context/FightContextFactory";
 import { FightMapConfig, FightResult } from "@fight/fight.types";
 import { FightOrchestrator } from "@fight/FightOrchestrator";
 import { PlayerData } from "../game-engine.types";
-import { FightError, Result } from "@game-engine/api.type";
+import { FightError, Result } from "@game-engine/api.types";
+import { IFightCommandHandler } from "./handlers.interfaces";
 
-export class FightCommandHandler {
+export class FightCommandHandler implements IFightCommandHandler {
 
     constructor(
         private readonly fightOrchestrator: FightOrchestrator,

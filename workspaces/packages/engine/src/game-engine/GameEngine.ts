@@ -1,14 +1,7 @@
-import { ChestCommandHandler } from "./command-handlers/ChestCommandHandler";
-import { MapCommandHandler } from "./command-handlers/MapCommandHandler";
-import { FightCommandHandler } from "./command-handlers/FightCommandHandler";
-import { ShopCommandHandler } from "./command-handlers/ShopCommandHandler";
 import { MapData, PlayerData, RunState } from "./game-engine.types";
 import { FightResult } from "@fight/fight.types";
-import { BuyShopItemValue, ChestError, FightError, GameError, MapError, Result, SelectMapNodeValue, ShopError } from "./api.type";
-
-interface IMapGenerator {
-    generate(): MapData
-}
+import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "./api.types";
+import { IMapCommandHandler, IFightCommandHandler, IShopCommandHandler, IChestCommandHandler, IMapGenerator } from "./command-handlers/handlers.interfaces";
 
 export class GameEngine {
 
@@ -16,10 +9,10 @@ export class GameEngine {
 
     constructor(
         private readonly mapGenerator: IMapGenerator,
-        private readonly mapCommandHandler: MapCommandHandler,
-        private readonly fightHandler: FightCommandHandler,
-        private readonly shopHandler: ShopCommandHandler,
-        private readonly chestHandler: ChestCommandHandler
+        private readonly mapCommandHandler: IMapCommandHandler,
+        private readonly fightHandler: IFightCommandHandler,
+        private readonly shopHandler: IShopCommandHandler,
+        private readonly chestHandler: IChestCommandHandler
     ) {}
 
     startNewGame(playerData: PlayerData): MapData {

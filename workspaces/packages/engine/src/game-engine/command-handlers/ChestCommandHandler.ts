@@ -1,7 +1,8 @@
-import { ChestError, Result } from "@game-engine/api.type";
+import { ChestError, Result } from "@game-engine/api.types";
 import { ChestData, PlayerData } from "@game-engine/game-engine.types";
+import { IChestCommandHandler } from "./handlers.interfaces";
 
-export class ChestCommandHandler {
+export class ChestCommandHandler implements IChestCommandHandler {
 
     selectReward(
         itemId: string, 
