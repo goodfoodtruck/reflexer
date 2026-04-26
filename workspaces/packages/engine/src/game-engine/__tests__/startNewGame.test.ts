@@ -1,20 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { GameEngine } from "./GameEngine"
-import { PlayerData } from "./game-engine.types"
-
-const buildPlayerData = (overrides: Partial<PlayerData> = {}): PlayerData => ({
-    playerFloorIndex: 1,
-    gold: 0,
-    ...overrides
-})
-
-const buildEngine = (): GameEngine => new GameEngine(
-    { generate: () => ({}) },
-    { selectMapNode: () => ({ success: true, value: { nodeType: "COMBAT", fightMapId: "map_1" } }) },
-    { playFight: () => ({ success: true, value: { endState: "WON", logs: [] } }), applyFightResultOnPlayer: (p) => p },
-    { buyItem: () => ({ success: true, value: { updatedPlayerData: buildPlayerData(), updatedShopData: {} } }) },
-    { selectReward: () => ({ success: true, value: buildPlayerData() }) }
-)
+import { buildEngine } from "@test-utils/builders/GameEngineBuilder"
+import { buildPlayerData } from "@test-utils/builders/PlayerDataBuilder"
 
 describe('Démarrer une nouvelle partie', () => {
 
