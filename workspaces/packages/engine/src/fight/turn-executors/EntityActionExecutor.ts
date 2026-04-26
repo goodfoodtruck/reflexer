@@ -1,13 +1,13 @@
 import { ActionLog } from "@fight/fight.types"
 import { FightContext } from "@fight/context/FightContext"
 import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
-import { ActionRegistry } from "@data/ActionRegistry";
+import { IActionRegistry } from "@data/IActionRegistry";
 import { ProcessorChain } from "@processors/ProcessorChain";
 import { ProcessorFactory } from "@processors/ProcessorFactory";
 
 export class EntityActionExecutor {
     constructor(
-        private readonly actionRegistry: ActionRegistry,
+        private readonly actionRegistry: IActionRegistry,
         private readonly processorChain: ProcessorChain
     ) {}
 
