@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "rootDir": ".",
+        "noEmit": true,
+        "paths": {
+            "@fight/*": ["src/fight/*"],
+            "@data/*": ["src/data/*"],
+            "@tests/*": ["tests/*"]
+        }
+    },
+    "include": ["src", "tests"]
+}
