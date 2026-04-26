@@ -1,7 +1,7 @@
 import { FightMapConfig, FightMapSpawnPoints, PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { FightMap } from "@fight/FightMap";
-import { PlayerData } from "@game-state/game-state.types";
+import { PlayerData } from "../../game-engine/game-engine.types";
 
 export class FightContextFactory {
     private constructor() {}

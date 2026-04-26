@@ -4,7 +4,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "paths": {
-        "@game-state/*": ["./src/game-state/*"],
+        "@game-engine/*": ["./src/game-engine/*"],
         "@helpers/*": ["./src/helpers/*"],
         "@fight/*": ["./src/fight/*"],
         "@gambits/*": ["./src/fight/gambits/*"],
