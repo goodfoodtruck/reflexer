@@ -126,7 +126,7 @@ type ApplyDamageParams = {
     targetId: PlayingEntityID;
     sourceId: PlayingEntityID;
     amount: number;
-    reactionDepth: number;
+    reactionDepth?: number;
 }
 
 type ApplyDamageResult = {
