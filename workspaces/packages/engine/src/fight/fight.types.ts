@@ -39,42 +39,29 @@ export type ActionLog =
     | DamageSkippedLog
     | EntityDiedLog
     | ActionFailedLog
-    | AreaResolvedLog
-    | ReactionCascadeOverflowLog
 
-export interface DamageDealtLog {
-    readonly type: 'damage_dealt'
-    readonly sourceId: PlayingEntityID
-    readonly targetId: PlayingEntityID
-    readonly amount: number
-    readonly reactionDepth: number
+export type DamageDealtLog = {
+    type: Readonly<'damage_dealt'>
+    sourceId: Readonly<PlayingEntityID>
+    targetId: Readonly<PlayingEntityID>
+    amount: Readonly<number>
+    reactionDepth: Readonly<number>
 }
 
-export interface DamageSkippedLog {
-    readonly type: 'damage_skipped'
-    readonly targetId: PlayingEntityID
-    readonly reason: 'target_already_dead' | string
+export type DamageSkippedLog = {
+    type: Readonly<'damage_skipped'>
+    targetId: Readonly<PlayingEntityID>
+    reason: Readonly<'target_already_dead' | string>
 }
 
-export interface EntityDiedLog {
-    readonly type: 'entity_died'
-    readonly entityId: PlayingEntityID
+export type EntityDiedLog = {
+    type: Readonly<'entity_died'>
+    entityId: Readonly<PlayingEntityID>
 }
 
-export interface ActionFailedLog {
-    readonly type: 'action_failed'
-    readonly reason: string
-}
-
-export interface AreaResolvedLog {
-    readonly type: 'area_resolved'
-    readonly affectedIds: readonly PlayingEntityID[]
-    readonly epicenter: { readonly x: number; readonly y: number }
-}
-
-export interface ReactionCascadeOverflowLog {
-    readonly type: 'reaction_cascade_overflow'
-    readonly reason: 'reaction_cascade_overflow'
+export type ActionFailedLog = {
+    type: Readonly<'action_failed'>
+    reason: Readonly<string>
 }
 
 export type TurnLog = {
