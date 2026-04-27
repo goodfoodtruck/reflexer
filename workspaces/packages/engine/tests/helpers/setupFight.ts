@@ -1,8 +1,8 @@
 import { ProcessorChain } from '@fight/processors/ProcessorChain'
 import { Action, ActionID, PlayingEntity } from '@fight/fight.types'
-import { buildFightContext } from '../builders/FightContextBuilder'
 import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor"
 import { InMemoryActionRegistry } from "@data/InMemoryActionRegistry"
+import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 
 interface SetupFightConfig {
     players?: Partial<PlayingEntity>[]

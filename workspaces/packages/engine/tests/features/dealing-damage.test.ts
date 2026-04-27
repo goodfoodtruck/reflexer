@@ -3,7 +3,7 @@ import { ActionID } from '@fight/fight.types'
 import { setupFight } from "@tests/helpers/setupFight";
 import { makeCtx } from "@tests/helpers/makeCtx";
 import { buildAction } from "@tests/helpers/buildAction";
-import { buildFightContext } from "@tests/builders/FightContextBuilder";
+import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 
 describe('Infliger des dégâts', () => {
     it('réduit les PV de la cible du montant infligé', () => {

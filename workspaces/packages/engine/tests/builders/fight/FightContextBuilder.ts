@@ -3,7 +3,7 @@ import { PlayingEntity } from "@fight/fight.types"
 import { buildFightMap } from "@tests/builders/fight/FightMapBuilder"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
 
-export const buildContext = (
+export const buildFightContext = (
     playerOverrides: Partial<PlayingEntity>[] = [{}], 
     enemyOverrides: Partial<PlayingEntity>[] = [{}]
 ): FightContext => {
