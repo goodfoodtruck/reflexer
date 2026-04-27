@@ -6,7 +6,7 @@ describe("Exécuter un combat complet", () => {
     
     it("Renvoie une erreur si aucune partie n'est en cours", () => {
         const engine = buildEngine()
-        expect(() => engine.playFight("map_1")).toThrow("ERROR: GameEngine has no RunState.")
+        expect(() => engine.playFight("map_1")).toThrow("GameEngine has no RunState.")
     })
 
     it("Renvoie une erreur si la map n'existe pas", () => {

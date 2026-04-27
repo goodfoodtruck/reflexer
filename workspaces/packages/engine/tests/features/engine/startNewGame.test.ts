@@ -12,10 +12,10 @@ describe('Démarrer une nouvelle partie', () => {
 
     it("lève une erreur si on tente une action sans avoir démarré de partie", () => {
         const engine = buildEngine()
-        expect(() => engine.selectMapNode("node_1")).toThrow("ERROR: GameEngine has no RunState.")
-        expect(() => engine.playFight("map_1")).toThrow("ERROR: GameEngine has no RunState.")
-        expect(() => engine.buyShopItem("item_1")).toThrow("ERROR: GameEngine has no RunState.")
-        expect(() => engine.selectChestReward("item_1")).toThrow("ERROR: GameEngine has no RunState.")
+        expect(() => engine.selectMapNode("node_1")).toThrow("GameEngine has no RunState.")
+        expect(() => engine.playFight("map_1")).toThrow("GameEngine has no RunState.")
+        expect(() => engine.buyShopItem("item_1")).toThrow("GameEngine has no RunState.")
+        expect(() => engine.selectChestReward("item_1")).toThrow("GameEngine has no RunState.")
     })
 
     it("réinitialise la carte au démarrage d'une nouvelle partie", () => {
