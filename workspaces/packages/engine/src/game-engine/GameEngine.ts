@@ -1,6 +1,7 @@
-import { GameEngineDeps, MapData, PlayerData, RunState } from "@game-engine/game-engine.types";
+import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData } from "@game-engine/game-engine.types";
 import { FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
+import { InvalidStateError } from "./errors/InvalidStateError";
 
 
 export class GameEngine {
@@ -24,10 +25,10 @@ export class GameEngine {
 
     selectChestReward(itemId: string): Result<PlayerData, ChestError> {
         const runState = this.getRunStateOrThrow()
-        if (! runState.activeChest)
-            return { success: false, reason: "CHEST_NOT_ACTIVE" }
+        this.assertNotActiveShop()
+        const activeChest = this.getActiveChestOrThrow()
 
-        const result: Result<PlayerData, ChestError> = this.deps.chestHandler.selectReward(itemId, runState.activeChest, runState.playerData)
+        const result: Result<PlayerData, ChestError> = this.deps.chestHandler.selectReward(itemId, activeChest, runState.playerData)
 
         if (! result.success) return result
 
@@ -43,10 +44,10 @@ export class GameEngine {
 
     buyShopItem(itemId: string): Result<BuyShopItemValue, ShopError> {
         const runState = this.getRunStateOrThrow()
-        if (! runState.activeShop)
-            return { success: false, reason: "SHOP_NOT_ACTIVE" }
+        this.assertNotActiveChest()
+        const activeShop = this.getActiveShopOrThrow()
 
-        const result: Result<BuyShopItemValue, ShopError> = this.deps.shopHandler.buyItem(itemId, runState.activeShop, runState.playerData)
+        const result: Result<BuyShopItemValue, ShopError> = this.deps.shopHandler.buyItem(itemId, activeShop, runState.playerData)
 
         if (! result.success) return result
 
@@ -78,6 +79,9 @@ export class GameEngine {
 
     playFight(fightMapId: string): Result<FightResult, FightError> {
         const runState = this.getRunStateOrThrow()
+        this.assertNotActiveChest()
+        this.assertNotActiveShop()
+        
         const result: Result<FightResult, FightError> = this.deps.fightHandler.playFight(fightMapId, runState.playerData)
 
         if (! result.success) return result
@@ -90,12 +94,38 @@ export class GameEngine {
         return result
     }
 
-    private getRunStateOrThrow(): RunState {
-        if (! this.runState) throw new Error("ERROR: GameEngine has no RunState.")
+    getRunStateOrThrow(): RunState {
+        if (! this.runState) throw new InvalidStateError("GameEngine has no RunState.")
         return this.runState
     }
 
     getPlayerData(): PlayerData {
         return this.getRunStateOrThrow().playerData
+    }
+
+    private assertNotActiveChest(): void {
+        if (this.getRunStateOrThrow().activeChest !== null)
+            throw new InvalidStateError("Cannot perform action while a chest is active.")
+    }
+
+    private assertNotActiveShop(): void {
+        if (this.getRunStateOrThrow().activeShop !== null)
+            throw new InvalidStateError("Cannot perform action while a shop is active.")
+    }
+
+    private getActiveChestOrThrow(): ChestData {
+        const activeChest = this.getRunStateOrThrow().activeChest
+        if (! activeChest)
+            throw new InvalidStateError("No active chest.")
+
+        return activeChest
+    }
+
+    private getActiveShopOrThrow(): ShopData {
+        const activeShop = this.getRunStateOrThrow().activeShop
+        if (! activeShop)
+            throw new InvalidStateError("No active shop.")
+
+        return activeShop
     }
 }
