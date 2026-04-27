@@ -1,24 +1,28 @@
-import { PlayingEntityID, PlayingEntity } from "@fight/fight.types"
+import {PlayingEntityID, PlayingEntity, DamageReceivedEvent} from "@fight/fight.types"
 import { FightMap } from "@fight/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { FightEntitiesValidator } from "./FightEntitiesValidator"
 import { IFightContextMutator } from "./IFightContextMutator"
 import { IFightContextReader } from "./IFightContextReader"
+import {IReactiveContext} from "@fight/context/IFightContextReactive";
+import { QueuedProcessor } from "@processors/processor.types";
 
-export class FightContext implements IFightContextReader, IFightContextMutator {
+export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
 
     private turnIndex: number
     private entities: Map<PlayingEntityID, PlayingEntity>
     private initiativeOrder: PlayingEntityID[]
     private currentInitiativeIndex: InitiativeOrderIndex
     private readonly map: FightMap
+    private reactionQueue: QueuedProcessor[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
         const validator = new FightEntitiesValidator()
         validator.validate(entities)
-        
+
         this.turnIndex = 0
         this.map = map
+        this.reactionQueue = []
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
@@ -53,7 +57,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
                 continue
 
             const entity = this.entities.get(entityId)
-            if (! entity || entity.isDead) 
+            if (! entity || entity.isDead)
                 continue
 
             return entity
@@ -76,7 +80,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
 
     getAliveEntityOrThrow(entityId: PlayingEntityID): PlayingEntity {
         const entity = this.getEntityById(entityId)
-        if (! entity || entity.isDead) 
+        if (! entity || entity.isDead)
             throw new Error(`Entity ${entityId} not found or dead`)
 
         return entity
@@ -89,4 +93,43 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
     nextTurn(): void {
         this.turnIndex++
     }
+
+    queueReaction(r: QueuedProcessor): void { this.reactionQueue.push(r) }
+
+    drainReactions(): QueuedProcessor[] {
+        const out = this.reactionQueue
+        this.reactionQueue = []
+        return out
+    }
+
+    applyDamage(params: ApplyDamageParams): ApplyDamageResult {
+        const target = this.getAliveEntityOrThrow(params.targetId)
+        const actualDamage = target.takeDamage(params.amount)
+
+        const event: DamageReceivedEvent = {
+            ownerId: params.targetId,
+            attackerId: params.sourceId,
+            amount: actualDamage,
+            reactionDepth: params.reactionDepth ?? 0,
+        }
+
+        for (const status of target.statuses) {
+            const reaction = status.onDamageReceived?.(event)
+            if (reaction) this.queueReaction(reaction)
+        }
+
+        return { actualDamage, isDead: this.isEntityDead(target.id) }
+    }
+}
+
+type ApplyDamageParams = {
+    targetId: PlayingEntityID;
+    sourceId: PlayingEntityID;
+    amount: number;
+    reactionDepth?: number;
+}
+
+type ApplyDamageResult = {
+    actualDamage: number;
+    isDead: boolean;
 }

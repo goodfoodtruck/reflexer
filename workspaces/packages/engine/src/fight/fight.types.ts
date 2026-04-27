@@ -1,9 +1,68 @@
 import { Gambit } from "@gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
+import { ProcessorConfig } from "@processors/processor.types";
+import {IStatus} from "@fight/context/IStatus";
+
+
+export interface DamageReceivedEvent {
+    readonly ownerId: PlayingEntityID      // porteur du statut
+    readonly attackerId: PlayingEntityID   // qui a infligé les dégâts
+    readonly amount: number                // dégâts effectivement subis (après résistances)
+    readonly reactionDepth: number         // défaut 0 pour les dégâts directs
+}
+
+export interface DamageDealtEvent {
+    readonly ownerId: PlayingEntityID
+    readonly targetId: PlayingEntityID
+    readonly amount: number
+}
+
+export interface TurnEvent {
+    readonly ownerId: PlayingEntityID
+    readonly turnIndex: number
+}
+
+export type StatusID = string
 
 export type ActionID = string
 
-export type ActionLog = {}
+export type ActionCategory = "attack" | "heal" | "status";
+
+export type Action = {
+    id: Readonly<ActionID>;
+    type: Readonly<ActionCategory>;
+    processorConfigs: Readonly<ProcessorConfig[]>;
+};
+
+export type ActionLog =
+    | DamageDealtLog
+    | DamageSkippedLog
+    | EntityDiedLog
+    | ActionFailedLog
+
+export type DamageDealtLog = {
+    type: Readonly<'damage_dealt'>
+    sourceId: Readonly<PlayingEntityID>
+    targetId: Readonly<PlayingEntityID>
+    amount: Readonly<number>
+    reactionDepth: Readonly<number>
+}
+
+export type DamageSkippedLog = {
+    type: Readonly<'damage_skipped'>
+    targetId: Readonly<PlayingEntityID>
+    reason: Readonly<'target_already_dead' | string>
+}
+
+export type EntityDiedLog = {
+    type: Readonly<'entity_died'>
+    entityId: Readonly<PlayingEntityID>
+}
+
+export type ActionFailedLog = {
+    type: Readonly<'action_failed'>
+    reason: Readonly<string>
+}
 
 export type TurnLog = {
     turnIndex: number
@@ -36,7 +95,6 @@ export type PlayerContext = {
 
 export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
-export type PassiveEffectID = string
 
 export type EntityTag =
     | "PLAYER"
@@ -52,7 +110,8 @@ export type PlayingEntity = {
     baseStats: Readonly<EntityStats>
     currentStats: EntityStats
     gambits: Gambit[]
-    passives: PassiveEffectID[]
+    statuses: Readonly<IStatus[]>
+    takeDamage(amount: number): number
     isDead: boolean
 }
 

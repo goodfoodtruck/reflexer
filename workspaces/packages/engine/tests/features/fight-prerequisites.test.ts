@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { FightEntitiesValidator } from './FightEntitiesValidator'
-import { buildPlayingEntity } from '@test-utils/builders/PlayingEntityBuilder'
+import { FightEntitiesValidator } from '@fight/context/FightEntitiesValidator'
+import {buildPlayingEntity} from "@tests/builders/PlayingEntityBuilder";
 
 describe("Un combat ne peut démarrer qu'avec des équipes valides", () => {
 
