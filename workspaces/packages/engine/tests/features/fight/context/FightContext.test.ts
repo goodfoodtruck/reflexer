@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {buildFightContext} from "@tests/builders/FightContextBuilder";
+import { buildFightContext } from '@tests/builders/fight/FightContextBuilder'
 
 
 describe("Avancement du combat dans l'ordre d'initiative", () => {
@@ -47,7 +47,7 @@ describe("Avancement du combat dans l'ordre d'initiative", () => {
 
 
 describe("Récupérer l'entité dont c'est le tour de jouer", () => {
-
+    
     it("retourne la première entité dans l'ordre d'initiative", () => {
         const context = buildFightContext([{ id: 'player_a' }], [{ id: 'enemy_a' }])
         expect(context.getActingEntity()).not.toBeNull()

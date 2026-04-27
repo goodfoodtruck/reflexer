@@ -86,13 +86,6 @@ export type FightEndState =
     | { kind: "INTERRUPTED"; reason: "MAX_TURNS_REACHED" | "TURN_LOOP" }
 
 
-
-    
-export type PlayerContext = {
-    playerFloorIndex: number
-}
-
-
 export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
 
