@@ -1,5 +1,5 @@
 import { FightContext } from "@fight/context/FightContext"
-import { FightState, PlayingEntity, TurnLog } from "./fight.types";
+import { FightEndState, FightState, PlayingEntity, TurnLog } from "@fight/fight.types";
 
 export class FightStateResolver {
 
@@ -13,10 +13,22 @@ export class FightStateResolver {
      * (mort de tous les membres d'une équipe, boucle de tours détectée...)
      * ou si il continue de tourner
      */
-    resolve(_fightContext: FightContext, _fightLogs: TurnLog[]): FightState {
-        return {
-            status: "RUNNING"
-        }
+    resolve(fightContext: FightContext, fightLogs: TurnLog[]): FightState {
+        const aliveEntities = fightContext.getAliveEntities()
+        const aliveAllies = aliveEntities.filter(e => e.teamId === "PLAYER")
+        const aliveEnemies = aliveEntities.filter(e => e.teamId === "ENEMY")
+
+        const endState = this.resolveEndState(aliveAllies, aliveEnemies)
+        if (! endState) return { status: "RUNNING" }
+
+        return { status: "ENDED", result: { endState, logs: fightLogs } }
+    }
+
+    resolveEndState(aliveAllies: PlayingEntity[], aliveEnemies: PlayingEntity[]): FightEndState | null {
+        if (this.isFightWon(aliveAllies, aliveEnemies)) return "WON"
+        if (this.isFightLost(aliveAllies)) return "LOST"
+
+        return null
     }
 
     /**
