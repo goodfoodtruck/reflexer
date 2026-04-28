@@ -26,8 +26,25 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
-        this.initiativeOrder = [...entities].map(entity => entity.id)
+        this.initiativeOrder = this.buildInitiativeOrder(entities)
         this.currentInitiativeIndex = new InitiativeOrderIndex(0, this.initiativeOrder.length)
+    }
+
+    private buildInitiativeOrder(entities: PlayingEntity[]): PlayingEntityID[] {
+        const initiativeOrder: PlayingEntityID[] = []
+        const alliesIds: PlayingEntityID[] = entities.filter(entity => entity.teamId === "PLAYER").map(e => e.id)
+        const enemiesIds: PlayingEntityID[] = entities.filter(entity => entity.teamId === "ENEMY").map(e => e.id)
+
+        const max = Math.max(alliesIds.length, enemiesIds.length)
+        for(let i = 0; i < max; i++) {
+            const allyId = alliesIds[i]
+            const enemyId = enemiesIds[i]
+
+            allyId && initiativeOrder.push(allyId)
+            enemyId && initiativeOrder.push(enemyId)
+        }
+
+        return initiativeOrder
     }
 
     nextEntityTurn(): void {
@@ -84,6 +101,10 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
             throw new Error(`Entity ${entityId} not found or dead`)
 
         return entity
+    }
+
+    getInitiativeOrder(): PlayingEntityID[] {
+        return this.initiativeOrder
     }
 
     getTurnIndex(): number {
