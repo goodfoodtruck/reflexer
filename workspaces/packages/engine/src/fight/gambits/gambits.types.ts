@@ -1,5 +1,7 @@
+import { SelfFilter, AllyFilter, EnemyFilter } from "@fight/gambits/targetFilters.types"
+
 /** Statuts pouvant affecter une entité pendant le combat */
-type Status = "POISON" | "BURNT" | "PARALYZED"
+export type Status = "POISON" | "BURNT" | "PARALYZED"
 
 /**
  * Un gambit est une règle comportementale complète.
@@ -80,32 +82,6 @@ type ConditionContext =
     | { kind: "SELF";  filters: SelfFilter[] }
     | { kind: "ALLY";  filters: AllyFilter[] }
     | { kind: "ENEMY"; filters: EnemyFilter[] }
-
-/** Filtres applicables à toute entité vivante (soi-même, allié, ennemi) */
-type LivingEntityFilter =
-    | { type: "HP_BELOW";   threshold: number } // HP courant inférieur à threshold %
-    | { type: "HP_ABOVE";   threshold: number } // HP courant supérieur à threshold %
-    | { type: "HAS_STATUS"; status: Status }    // affectée par ce statut
-    | { type: "IN_RANGE";   range: number }     // à moins de `range` cases de l'entité courante
-
-/**
- * Filtres applicables à soi-même.
- * Alias de LivingEntityFilter — explicite pour l'extensibilité future.
- */
-type SelfFilter = LivingEntityFilter
-
-/** Filtres applicables aux alliés */
-type AllyFilter =
-    | LivingEntityFilter
-    | { type: "ALLY_IN_RANGE_OF_ENEMY"; range: number } // à moins de `range` cases d'un ennemi
-    | { type: "ALLY_IN_RANGE_OF_ALLY";  range: number } // à moins de `range` cases d'un autre allié
-
-/** Filtres applicables aux ennemis */
-type EnemyFilter =
-    | LivingEntityFilter
-    | { type: "ENEMY_IN_RANGE_OF_ALLY"; range: number } // à moins de `range` cases d'un allié
-    | { type: "IS_ATTACKING_ALLY" }                     // attaque un allié ce tour
-    | { type: "IS_ATTACKING_SELF" }                     // attaque l'entité courante ce tour
 
 /**
  * Sélecteur de cible évalué après les conditions.
