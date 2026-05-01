@@ -80,7 +80,6 @@ type ConditionContext =
     | { kind: "SELF";  filters: SelfFilter[] }
     | { kind: "ALLY";  filters: AllyFilter[] }
     | { kind: "ENEMY"; filters: EnemyFilter[] }
-    | { kind: "TILE";  filters: TileFilter[] }
 
 /** Filtres applicables à toute entité vivante (soi-même, allié, ennemi) */
 type LivingEntityFilter =
@@ -108,23 +107,26 @@ type EnemyFilter =
     | { type: "IS_ATTACKING_ALLY" }                     // attaque un allié ce tour
     | { type: "IS_ATTACKING_SELF" }                     // attaque l'entité courante ce tour
 
-/** Filtres applicables aux cases de la grille de combat */
-type TileFilter =
-    | { type: "IS_TRAP" }                       // la case contient un piège
-    | { type: "HAS_EFFECT" }                    // la case a un effet actif
-    | { type: "IN_RANGE"; range: number }       // à moins de `range` cases de l'entité courante
-
 /**
  * Sélecteur de cible évalué après les conditions.
  * Cherche parmi les entités satisfaisant le context,
  * puis sélectionne la meilleure selon le critère de tri.
  * Si aucune cible n'est trouvée, le gambit est ignoré.
  */
-type TargetSelector = {
+export type TargetSelector = {
     /** Pool de candidats : qui peut être ciblé et avec quels critères */
     context: TargetContext
     /** Critère de sélection de la cible finale parmi les candidats */
     sort: TargetSort
+}
+
+/**
+ * Types de cibles que le joueur peut choisir
+ */
+export enum ETargetType {
+    SELF = "SELF",
+    ENEMY = "ENEMY",
+    ALLY = "ALLY"
 }
 
 /**
@@ -133,10 +135,9 @@ type TargetSelector = {
  * SELF n'a pas de filtres — il n'y a qu'une seule entité possible.
  */
 type TargetContext =
-    | { kind: "SELF" }
-    | { kind: "ENEMY"; filters: EnemyFilter[] }
-    | { kind: "ALLY";  filters: AllyFilter[] }
-    | { kind: "TILE";  filters: TileFilter[] }
+    | { targetType: ETargetType.SELF }
+    | { targetType: ETargetType.ENEMY; filters: EnemyFilter[] }
+    | { targetType: ETargetType.ALLY;  filters: AllyFilter[] }
 
 /**
  * Critère de sélection de la cible finale parmi les candidats filtrés.
@@ -146,9 +147,6 @@ type TargetContext =
  * - MOST_DANGEROUS : celle avec la plus haute stat d'attaque
  * - RANDOM : aléatoire parmi les candidats
  */
-type TargetSort =
-    | "NEAREST"
+export type TargetSort =
     | "LOWEST_HP"
     | "HIGHEST_HP"
-    | "MOST_DANGEROUS"
-    | "RANDOM"
