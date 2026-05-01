@@ -1,4 +1,4 @@
-import {PlayingEntityID, PlayingEntity, DamageReceivedEvent} from "@fight/fight.types"
+import {PlayingEntityID, PlayingEntity, DamageReceivedEvent, PlayingTeamID} from "@fight/fight.types"
 import { FightMap } from "@fight/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { FightEntitiesValidator } from "./FightEntitiesValidator"
@@ -89,6 +89,14 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
     getAliveEntities(): PlayingEntity[] {
         return Array.from(this.entities.values()).filter(entity => (! entity.isDead))
+    }
+
+    getAllies(teamId: PlayingTeamID): PlayingEntity[] {
+        return this.getAliveEntities().filter(entity => entity.teamId === teamId)
+    }
+
+    getEnemies(teamId: PlayingTeamID): PlayingEntity[] {
+        return this.getAliveEntities().filter(entity => entity.teamId !== teamId)
     }
 
     getEntityById(entityId: PlayingEntityID): PlayingEntity | null {
