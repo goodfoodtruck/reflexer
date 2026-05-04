@@ -1,36 +1,39 @@
 import { IStatus } from "@fight/context/IStatus";
+import { PlayingEntity } from "@fight/fight.types";
 import { HasStatusFilter } from "@fight/gambits/entityFilters.types";
 import { evaluateHasStatus } from "@fight/turn-resolvers/filters/evaluators/HasStatusEvaluator";
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder";
 import { describe, expect, it } from "vitest";
 
-describe("Vérifier si l'entité est affectée par un status en particulier", () => {
+describe("Vérifier si l'entité est affectée par un statut en particulier", () => {
 
-    it("Retourne true si l'entité est bien affectée par le status", () => {
-        const poisonStatus: IStatus = { id: "POISON", stacks: 1, remainingTurns: 2 }
-        const hasPoisonStatusFilter: HasStatusFilter = { type: "HAS_STATUS", status: poisonStatus }
+    const poison: IStatus = { id: "POISON", stacks: 1, remainingTurns: 2 }
+    const burn: IStatus   = { id: "BURN",   stacks: 1, remainingTurns: 2 }
+    const hasPoisonFilter: HasStatusFilter = { type: "HAS_STATUS", status: poison }
 
-        // le joueur est affecté par le statut POISON
-        const player_affected = buildPlayingEntity({ id: "player_poisoned", statuses: [poisonStatus] })
-        // inutile pour le test, juste pour instancier un fight context
-        const enemy = buildPlayingEntity({ id: "enemy_1" })
+    const buildContext = (player: PlayingEntity) => {
+        const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
+        return buildFightContext([player], [enemy])
+    }
 
-        const context = buildFightContext([player_affected], [enemy])
-        
-        expect(evaluateHasStatus(player_affected, hasPoisonStatusFilter, context)).toBe(true)
+    it("Retourne true si l'entité est affectée par le statut", () => {
+        const player = buildPlayingEntity({ id: "player", statuses: [poison] })
+        expect(evaluateHasStatus(player, hasPoisonFilter, buildContext(player))).toBe(true)
     })
 
-    it("Retourne false si l'entité n'est pas affectée par le status", () => {
-        // le joueur n'est affecté par aucun statut
-        const player = buildPlayingEntity({ id: "player_without_status" })
-        // inutile pour le test, juste pour instancier un fight context
-        const enemy = buildPlayingEntity({ id: "enemy_1" })
+    it("Retourne true si l'entité a plusieurs statuts dont celui recherché", () => {
+        const player = buildPlayingEntity({ id: "player", statuses: [poison, burn] })
+        expect(evaluateHasStatus(player, hasPoisonFilter, buildContext(player))).toBe(true)
+    })
 
-        const context = buildFightContext([player], [enemy])
-        const poisonStatus: IStatus = { id: "POISON", stacks: 1, remainingTurns: 2 }
-        const hasPoisonStatusFilter: HasStatusFilter = { type: "HAS_STATUS", status: poisonStatus }
-        
-        expect(evaluateHasStatus(player, hasPoisonStatusFilter, context)).toBe(false)
+    it("Retourne false si l'entité n'a aucun statut", () => {
+        const player = buildPlayingEntity({ id: "player", statuses: [] })
+        expect(evaluateHasStatus(player, hasPoisonFilter, buildContext(player))).toBe(false)
+    })
+
+    it("Retourne false si l'entité a des statuts mais pas celui recherché", () => {
+        const player = buildPlayingEntity({ id: "player", statuses: [burn] })
+        expect(evaluateHasStatus(player, hasPoisonFilter, buildContext(player))).toBe(false)
     })
 })
