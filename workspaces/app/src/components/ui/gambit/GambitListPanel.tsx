@@ -1,7 +1,10 @@
 import { DndContext, closestCenter, type DragEndEvent, type SensorDescriptor, type SensorOptions } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GambitRow } from './GambitRow';
-import type { RealGambit } from './GambitEditorPage'; 
+import type { RealGambit } from './GambitTypes';
+import { AvatarIcon } from '../icons/IconAvatar';
+import { AddIcon } from '../icons/IconAdd';
+
 
 interface GambitListPanelProps {
   heroId?: string;
@@ -37,7 +40,7 @@ export function GambitListPanel({ heroId, gambits, isEditing, onAddClick, sensor
         <div className={PanelStyles.heroBannerGlow} />
         <div className={PanelStyles.heroHeaderContent}>
           <div className={PanelStyles.heroAvatar}>
-            <svg className={PanelStyles.heroAvatarIcon} fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <AvatarIcon className={PanelStyles.heroAvatarIcon} />
           </div>
           <div>
             <h2 className={PanelStyles.heroTitle}>Agent {heroId || "1"}</h2>
@@ -61,7 +64,7 @@ export function GambitListPanel({ heroId, gambits, isEditing, onAddClick, sensor
 
       <div className={PanelStyles.addButtonWrapper}>
         <button onClick={onAddClick} className={PanelStyles.addButton} disabled={isEditing}>
-          <svg className={PanelStyles.addButtonIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
+          <AddIcon className={PanelStyles.addButtonIcon} />
           Ajouter une règle
         </button>
       </div>

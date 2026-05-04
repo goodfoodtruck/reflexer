@@ -1,67 +1,207 @@
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { motion, AnimatePresence } from "framer-motion";
+import type { RealGambit, GambitCondition, GambitFilter } from "./GambitTypes";
+import { DragIcon } from "../icons/IconDrag";
+import { ChevronIcon } from "../icons/IconChevron";
+import { ArrowRightIcon } from "../icons/IconArrowRight";
 
-export type UIGambit = {
-  id: string;
-  conditionLabel: string;
-  targetLabel: string;
-  actionLabel: string;
+const Styles = {
+  containerBase: "group relative flex flex-col rounded-xl border transition-all duration-200",
+  containerDragging: "bg-[#11131A] border-amber-500 shadow-xl scale-[1.02] z-50",
+  containerOpen: "bg-[#11131A] border-[#2A2E39] shadow-lg",
+  containerClosed: "bg-[#11131A] border-transparent hover:border-[#2A2E39]",
+  headerArea: "flex items-center gap-4 p-4 relative z-10",
+  dragHandle: "text-slate-600 hover:text-amber-500 cursor-grab active:cursor-grabbing focus-visible:outline-none",
+  priorityBadge: "w-7 h-7 rounded bg-[#0A0C10] border border-[#2A2E39] flex-none flex items-center justify-center text-amber-500 font-black text-xs",
+  toggleButton: "flex-1 flex items-center justify-between focus-visible:outline-none text-left cursor-pointer",
+  titleText: "text-slate-200 font-bold tracking-widest uppercase text-sm group-hover:text-white transition-colors",
+  chevronIconBase: "w-5 h-5 text-slate-600 transition-transform duration-300 group-hover:text-amber-500",
+  chevronIconOpen: "rotate-180 text-amber-500",
+  detailsPanel: "mx-4 mb-4 mt-1 bg-[#0A0C10] rounded-lg border border-[#1A1D24] p-5",
+  detailsGrid: "grid grid-cols-[60px_1fr] gap-y-6 items-start",
+  sectionLabel: "text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2",
+  logicConnectorArea: "flex items-center gap-2 ml-4",
+  logicConnectorLine: "w-px h-3 bg-slate-700",
+  logicConnectorText: "text-[10px] font-black text-amber-500/80 tracking-widest uppercase",
+  conditionBox: "flex items-center gap-3 bg-[#1A1D24] border border-[#2A2E39] rounded-md py-1.5 px-2 w-fit",
+  conditionBadgeBase: "text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-sm",
+  conditionSelf: "bg-blue-500/15 text-blue-400",
+  conditionEnemy: "bg-red-500/15 text-red-400",
+  conditionAlly: "bg-emerald-500/15 text-emerald-400",
+  filterText: "text-xs font-bold text-slate-200 pr-2",
+  notContainer: "flex flex-col gap-2",
+  notBox: "flex items-center gap-2 bg-[#1A1D24] border border-red-500/20 rounded-md py-1 px-1.5 w-fit",
+  notBadge: "text-[10px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded-sm bg-red-500/10 text-red-500",
+  targetFlex: "flex items-center gap-3",
+  targetBox: "flex items-center gap-2 bg-[#1A1D24] border border-[#2A2E39] rounded-md py-1.5 px-2",
+  targetKindBadge: "text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-sm bg-slate-800 text-slate-300",
+  targetFilterText: "text-xs font-medium text-slate-400 pr-1",
+  targetArrow: "w-4 h-4 text-slate-600",
+  targetSortBadge: "text-xs font-black tracking-widest text-amber-500 uppercase bg-amber-500/10 px-3 py-1.5 rounded-md border border-amber-500/20",
+  intentBadgeBase: "text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-md border inline-block",
+  intentMovement: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  intentAction: "bg-amber-500/10 text-amber-400 border-amber-500/20"
 };
 
-type GambitRowProps = {
-  gambit: UIGambit;
-  index: number;
-};
-
-const STYLES = {
-  rowBase: "group relative flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
-  rowIdle: "bg-slate-900/60 border-slate-700/50 hover:bg-slate-800/80 hover:border-slate-500 shadow-sm",
-  rowDragging: "bg-slate-800 border-amber-500 shadow-[0_10px_30px_rgba(245,158,11,0.2)] scale-[1.02] z-50",
-  dragHandle: "cursor-grab active:cursor-grabbing text-slate-600 hover:text-amber-500 transition-colors focus-visible:outline-none",
-  priorityBadge: "w-6 h-6 flex-none flex items-center justify-center text-amber-500 font-black text-sm",
-  chip: "flex items-center gap-2 bg-slate-950/50 border border-slate-700/50 px-3 py-1.5 rounded-md shadow-inner",
-  chipText: "text-slate-200 text-xs font-bold tracking-wide",
-  separator: "text-slate-600/50 font-black text-xs tracking-tighter",
-  deleteBtn: "ml-auto opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-red-400 transition-all focus-visible:outline-none"
-};
-
-export function GambitRow({ gambit, index }: GambitRowProps) {
+export function GambitRow({ gambit }: { gambit: RealGambit }) {
+  const [isOpen, setIsOpen] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: gambit.id });
 
-  const dynamicStyle = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.9 : 1,
+  const style = { transform: CSS.Transform.toString(transform), transition };
+
+  const renderFilterText = (filter?: GambitFilter) => {
+    if (!filter) return null;
+    switch (filter.type) {
+      case "HP_BELOW": return `PV < ${filter.threshold}%`;
+      case "HP_ABOVE": return `PV > ${filter.threshold}%`;
+      case "IN_RANGE": return `À portée ${filter.range}`;
+      case "HAS_STATUS": return `Statut : ${filter.status}`;
+      case "IS_TRAP": return `Est un piège`;
+      case "IS_ATTACKING_ALLY": return `Attaque un allié`;
+      default: return filter.type;
+    }
   };
 
-  return (
-    <div ref={setNodeRef} style={dynamicStyle} className={`${STYLES.rowBase} ${isDragging ? STYLES.rowDragging : STYLES.rowIdle}`}>
-      <button {...attributes} {...listeners} className={STYLES.dragHandle} aria-label={`Déplacer`}>
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8h16M4 16h16"/></svg>
-      </button>
-      <div className={STYLES.priorityBadge}>{index}</div>
-      {/* CONDITION */}
-      <div className={STYLES.chip}>
-        <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-        <span className={STYLES.chipText}>{gambit.conditionLabel}</span>
-      </div>
-      <span className={STYLES.separator}>{">>"}</span>
-      {/* CIBLE */}
-      <div className={STYLES.chip}>
-        <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-        <span className={STYLES.chipText}>{gambit.targetLabel}</span>
-      </div>
-      <span className={STYLES.separator}>{">>"}</span>
-      {/* ACTION */}
-      <div className={STYLES.chip}>
-        <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        <span className={STYLES.chipText}>{gambit.actionLabel}</span>
-      </div>
-      {/* Supprimer */}
-      <button className={STYLES.deleteBtn} aria-label="Supprimer">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
+  const renderConditionNode = (node: GambitCondition, index: number = 0, parentOp?: string): React.ReactNode => {
+    if ("type" in node && node.type === "EXISTS") {
+      const kind = node.scope.kind;
+      const filterStr = renderFilterText(node.scope.filter);
       
+      const badgeColor = 
+        kind === "SELF" ? Styles.conditionSelf : 
+        kind === "ENEMY" ? Styles.conditionEnemy : 
+        Styles.conditionAlly;
+
+      return (
+        <div key={`${node.type}-${index}`} className="flex flex-col gap-2">
+          {parentOp && index > 0 && (
+            <div className={Styles.logicConnectorArea}>
+              <div className={Styles.logicConnectorLine}></div>
+              <span className={Styles.logicConnectorText}>
+                {parentOp === "AND" ? "ET" : "OU"}
+              </span>
+            </div>
+          )}
+          <div className={Styles.conditionBox}>
+            <span className={`${Styles.conditionBadgeBase} ${badgeColor}`}>
+              {kind}
+            </span>
+            {filterStr && <span className={Styles.filterText}>{filterStr}</span>}
+          </div>
+        </div>
+      );
+    }
+
+    if ("operator" in node && (node.operator === "AND" || node.operator === "OR")) {
+      return (
+        <div key={`group-${index}`} className="flex flex-col">
+          {node.conditions.map((child, i) => renderConditionNode(child, i, node.operator))}
+        </div>
+      );
+    }
+
+    if ("operator" in node && node.operator === "NOT") {
+      return (
+        <div key={`not-${index}`} className={Styles.notContainer}>
+          {parentOp && index > 0 && (
+            <div className={Styles.logicConnectorArea}>
+              <div className={Styles.logicConnectorLine}></div>
+              <span className={Styles.logicConnectorText}>
+                {parentOp === "AND" ? "ET" : "OU"}
+              </span>
+            </div>
+          )}
+          <div className={Styles.notBox}>
+            <span className={Styles.notBadge}>NON</span>
+            <div className="pr-1">
+              {renderConditionNode(node.condition, 0)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const dynamicContainerStyle = isDragging ? Styles.containerDragging : isOpen ? Styles.containerOpen : Styles.containerClosed;
+  const dynamicChevronStyle = isOpen ? Styles.chevronIconOpen : "";
+  const dynamicIntentStyle = gambit.intent.kind === "MOVEMENT" ? Styles.intentMovement : Styles.intentAction;
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`${Styles.containerBase} ${dynamicContainerStyle}`}
+    >
+      <div className={Styles.headerArea}>
+        <button {...attributes} {...listeners} className={Styles.dragHandle}>
+          <DragIcon className="w-5 h-5" />
+        </button>
+        
+        <div className={Styles.priorityBadge}>
+          {gambit.priority.toString().padStart(2, '0')}
+        </div>
+        
+        <button className={Styles.toggleButton} onClick={() => setIsOpen(!isOpen)}>
+          <span className={Styles.titleText}>
+            {gambit.id.replace(/-/g, ' ')}
+          </span>
+          <ChevronIcon className={`${Styles.chevronIconBase} ${dynamicChevronStyle}`} />
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }} 
+            animate={{ height: "auto", opacity: 1 }} 
+            exit={{ height: 0, opacity: 0 }} 
+            transition={{ duration: 0.2 }} 
+            className="overflow-hidden"
+          >
+            <div className={Styles.detailsPanel}>
+              <div className={Styles.detailsGrid}>
+                
+                <div className={Styles.sectionLabel}>Quand</div>
+                <div className="flex flex-col">
+                  {renderConditionNode(gambit.conditions)}
+                </div>
+
+                <div className={Styles.sectionLabel}>Cibler</div>
+                <div className={Styles.targetFlex}>
+                  <div className={Styles.targetBox}>
+                    <span className={Styles.targetKindBadge}>
+                      {gambit.targetSelector.context.kind}
+                    </span>
+                    {gambit.targetSelector.context.filters?.map((f, i) => (
+                      <span key={i} className={Styles.targetFilterText}>
+                        ({renderFilterText(f)})
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <ArrowRightIcon className={Styles.targetArrow} />
+                  
+                  <span className={Styles.targetSortBadge}>
+                    {gambit.targetSelector.sort.replace(/_/g, ' ')}
+                  </span>
+                </div>
+
+                <div className={Styles.sectionLabel}>Faire</div>
+                <div>
+                  <span className={`${Styles.intentBadgeBase} ${dynamicIntentStyle}`}>
+                    {gambit.intent.kind === "MOVEMENT" ? `DÉPLACEMENT : ${gambit.intent.strategy}` : `ACTION : ${gambit.intent.action.id}`}
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
