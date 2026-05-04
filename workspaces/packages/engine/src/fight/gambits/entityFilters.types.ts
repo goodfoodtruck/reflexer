@@ -4,6 +4,7 @@ import { IStatus } from "@fight/context/IStatus"
 
 /**
  * Type de fonction qui permet de vérifier si une cible rempli un critère
+ * avec TFilter le type du critère correspondant
  */
 export type FilterEvaluator<TFilter> = (
     entity: PlayingEntity,
