@@ -5,37 +5,13 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import heroM from "../../../assets/images/hero-m.png"; 
 import heroW from "../../../assets/images/hero-w.png";
 import { Header } from "../header/Header";
-import { GambitWizard, type DraftGambit } from "./GambitWizard";
 import bgHomeImage from "../../../assets/images/bg-home.png"; 
 import { TacticalMemo } from "./TacticalMemo";
 import { GambitListPanel } from "./GambitListPanel";
+import type { DraftGambit, GambitIntent, RealGambit } from "./GambitTypes";
+import { GambitEdition } from "./GambitEdition";
+import { INITIAL_GAMBITS } from "./mockData";
 
-export interface RealGambit {
-  id: string;
-  priority: number;
-  conditions: { operator: "AND" | "OR" | "NOT"; conditions: any[] };
-  targetSelector: { context: { targetType?: string; kind?: string; filters: any[] }; sort: string };
-  intent: { kind: "ACTION" | "MOVEMENT"; strategy?: string; actionId?: string };
-}
-
-const INITIAL_GAMBITS: RealGambit[] = [
-  {
-    id: "goblin_flee",
-    priority: 1,
-    conditions: {
-      operator: "AND",
-      conditions: [
-        { type: "EXISTS", scope: { kind: "SELF", filters: [{ type: "HP_BELOW", threshold: 25 }] } },
-        { type: "EXISTS", scope: { kind: "ENEMY", filters: [{ type: "IN_RANGE", range: 3 }] } }
-      ]
-    },
-    targetSelector: {
-      context: { targetType: "ENEMY", filters: [{ type: "IN_RANGE", range: 3 }] },
-      sort: "LOWEST_HP"
-    },
-    intent: { kind: "MOVEMENT", strategy: "FLEE" }
-  }
-];
 
 const Styles = {
   bgContainer: "absolute inset-0 z-0",
@@ -79,22 +55,25 @@ export function GambitEditorPage() {
 
   const handleSaveGambit = (draft: DraftGambit) => {
     const backendConditions = draft.conditions.map(c => ({
-      type: "EXISTS",
+      type: "EXISTS" as const,
       scope: {
         kind: c.scopeKind,
-        filters: [{ type: c.filterType, ...(c.filterType === "HP_BELOW" ? { threshold: c.value } : { range: c.value }) }]
+        filter: { 
+          type: c.filterType, 
+          ...(c.filterType === "HP_BELOW" ? { threshold: c.value } : { range: c.value }) 
+        }
       }
     }));
 
-    const backendIntent: any = draft.intentKind === "MOVEMENT" 
+    const backendIntent: GambitIntent = draft.intentKind === "MOVEMENT" 
       ? { kind: "MOVEMENT", strategy: draft.intentValue }
-      : { kind: "ACTION", actionId: draft.intentValue };
+      : { kind: "ACTION", action: { id: draft.intentValue, type: "skill", processorConfigs: [] } };
 
     const newRealGambit: RealGambit = {
       id: draft.name.toLowerCase().replace(/\s+/g, '_') + `_${Date.now()}`,
       priority: gambits.length + 1,
       conditions: { operator: draft.operator, conditions: backendConditions },
-      targetSelector: { context: { targetType: draft.targetKind, filters: [] }, sort: draft.targetSort },
+      targetSelector: { context: { kind: draft.targetKind, filters: [] }, sort: draft.targetSort },
       intent: backendIntent
     };
 
@@ -127,7 +106,6 @@ export function GambitEditorPage() {
 
         <div className={Styles.workspace}>       
           
-          {/* PANNEAU GAUCHE */}
           <GambitListPanel 
             heroId={heroId}
             gambits={gambits}
@@ -137,17 +115,15 @@ export function GambitEditorPage() {
             onDragEnd={handleDragEnd}
           />
 
-          {/* PANNEAU DROITE */}
           {isEditing ? (
             <section className={Styles.rightPanelWizard}>
-              <GambitWizard onCancel={() => setIsEditing(false)} onSave={handleSaveGambit} />
+              <GambitEdition onCancel={() => setIsEditing(false)} onSave={handleSaveGambit} />
             </section>
           ) : (
             <section className={Styles.rightPanelMemo}>
               <TacticalMemo />
             </section>
           )}
-
         </div>
       </div>
     </div>

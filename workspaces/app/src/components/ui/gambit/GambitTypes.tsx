@@ -65,3 +65,22 @@ export type DraftGambit = {
   targetKind: "SELF" | "ALLY" | "ENEMY";
   targetSort: string;
 };
+
+
+export type ActionItem = {
+  id: string;
+  name: string;
+  description: string;
+  kind: "ACTION" | "MOVEMENT";
+  image?: string;
+  cost?: number;
+  cibles?: string;
+  effect?: string;
+};
+
+export type ActionCategory = {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  items: ActionItem[];
+};
