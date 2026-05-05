@@ -24,6 +24,9 @@ export type Gambit = {
 export type ActionIntent = { kind: "ACTION"; actionId: string }
 export type MovementIntent = { kind: "MOVEMENT"; strategy: MovementStrategy }
 
+export type ActionGambit = Gambit & { intent: ActionIntent }
+export type MovementGambit = Gambit & { intent: MovementIntent }
+
 /**
  * Ce que l'entité fait quand le gambit est résolu.
  * - ACTION : exécute une action définie dans l'ActionRepository
@@ -46,7 +49,7 @@ export type MovementStrategy = "APPROACH" | "FLEE" | "STAY"
  * Si l'arbre entier est vrai, on passe au ciblage.
  * Les feuilles de l'arbre sont des ExistsCondition — des requêtes d'existence d'une entité.
  */
-type ConditionGroup =
+export type ConditionGroup =
     | { operator: "AND"; conditions: ConditionGroup[] }
     | { operator: "OR";  conditions: ConditionGroup[] }
     | { operator: "NOT"; condition: ConditionGroup }
@@ -65,35 +68,12 @@ type ConditionGroup =
  * // "il existe au moins 2 ennemis à portée 3"
  * { type: "EXISTS", scope: { kind: "ENEMY", filters: [{ type: "IN_RANGE", range: 3 }] }, threshold: 2 }
  */
-type ExistsCondition = {
+export type ExistsCondition = {
     type: "EXISTS"
     /** Définit qui on cherche et avec quels critères */
     scope: ConditionContext
     /** Nombre minimum d'entités requises pour que la condition soit vraie. Défaut : 1 */
     threshold?: number
-}
-
-/**
- * Discriminant par type d'entité ciblée par la condition.
- * Garantit qu'on ne peut pas appliquer un filtre spécifique à un ennemi sur un allié.
- * Chaque variant porte les filtres valides pour son type.
- */
-type ConditionContext =
-    | { kind: "SELF";  filters: SelfFilter[] }
-    | { kind: "ALLY";  filters: AllyFilter[] }
-    | { kind: "ENEMY"; filters: EnemyFilter[] }
-
-/**
- * Sélecteur de cible évalué après les conditions.
- * Cherche parmi les entités satisfaisant le context,
- * puis sélectionne la meilleure selon le critère de tri.
- * Si aucune cible n'est trouvée, le gambit est ignoré.
- */
-export type TargetSelector = {
-    /** Pool de candidats : qui peut être ciblé et avec quels critères */
-    context: TargetContext
-    /** Critère de sélection de la cible finale parmi les candidats */
-    sort: TargetSort
 }
 
 /**
@@ -106,14 +86,41 @@ export enum ETargetType {
 }
 
 /**
+ * Discriminant par type d'entité ciblée par la condition.
+ * Garantit qu'on ne peut pas appliquer un filtre spécifique à un ennemi sur un allié.
+ * Chaque variant porte les filtres valides pour son type.
+ */
+type ConditionContext =
+    | { targetType: ETargetType.SELF,  filters: SelfFilter[] }
+    | { targetType: ETargetType.ENEMY, filters: AllyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: EnemyFilter[] }
+
+/**
+ * Sélecteur de cible évalué après les conditions.
+ * Cherche parmi les entités satisfaisant le context,
+ * puis sélectionne la meilleure selon le critère de tri.
+ * Si aucune cible n'est trouvée, le gambit est ignoré.
+ */
+export type TargetSelector = {
+    /** Pool de candidats : qui peut être ciblé et avec quels critères */
+    context: TargetContext
+    /** 
+     * Critère de sélection de la cible
+     * 
+     * Par exemple: la plus proche, celle qui a le moins de HP...etc
+     *  */
+    sort: TargetSort
+}
+
+/**
  * Discriminant par type de cible.
  * Les filtres réduisent le pool avant application du tri.
  * SELF n'a pas de filtres — il n'y a qu'une seule entité possible.
  */
 type TargetContext =
     | { targetType: ETargetType.SELF }
-    | { targetType: ETargetType.ENEMY; filters: EnemyFilter[] }
-    | { targetType: ETargetType.ALLY;  filters: AllyFilter[] }
+    | { targetType: ETargetType.ENEMY, filters: EnemyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: AllyFilter[] }
 
 /**
  * Critère de sélection de la cible finale parmi les candidats filtrés.
