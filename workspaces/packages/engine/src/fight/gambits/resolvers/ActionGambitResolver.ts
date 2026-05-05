@@ -1,7 +1,6 @@
-import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
 import { FightContext } from "@fight/context/FightContext";
 import { GambitTargetResolver } from "./target/GambitTargetResolver";
-import { PlayingEntity } from "@fight/fight.types";
+import { ExecutionContext, PlayingEntity } from "@fight/fight.types";
 import { FilterEvaluatorRegistry } from "@fight/gambits/resolvers/filters/FilterEvaluatorRegistry";
 import { ActionGambit, ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types";
 import { IFightContextReader } from "@fight/context/IFightContextReader";
