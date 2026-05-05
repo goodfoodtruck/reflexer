@@ -1,11 +1,11 @@
-import { ActionLog, PlayingEntityID, TurnLog } from "@fight/fight.types";
+import { ActionLog, PlayingEntity, PlayingEntityID, TurnLog } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecutor";
 import { EntityMovementResolver } from "@fight/gambits/resolvers/MovementGambitResolver";
 import { ActionGambitResolver } from "@fight/gambits/resolvers/ActionGambitResolver";
-import { isActionGambit } from "@helpers/gambits/typeguards";
+import { isActionGambit, isMovementGambit } from "@helpers/gambits/typeguards";
 
 export class TurnController {
     constructor(
@@ -24,39 +24,53 @@ export class TurnController {
     executeEntityTurn(
         turnIndex: Readonly<number>, 
         entityId: PlayingEntityID, 
-        fightContext: FightContext): 
-    TurnLog {
+        fightContext: FightContext
+    ): TurnLog {
         const entityTurnLogs: ActionLog[] = []
         
         // executer les passifs
         const entityBeforePassives = fightContext.getAliveEntityOrThrow(entityId)
-
-        const passiveLogs = this.passivesExecutor.executeEntityPassives(entityBeforePassives, fightContext)
-        entityTurnLogs.push(...passiveLogs)
-
+        entityTurnLogs.push(...this.executeEntityPassives(entityBeforePassives, fightContext))
         if (fightContext.isEntityDead(entityId)) {
             return { turnIndex, actionLogs: entityTurnLogs }
         }
 
         // Checker les gambits de mouvement
         const entityBeforeMovement = fightContext.getAliveEntityOrThrow(entityId)
-
-        const movementStrategy = this.movementResolver.resolve(entityBeforeMovement, fightContext)
-        if (movementStrategy) {
-            const movementLogs = this.movementExecutor.execute(entityBeforeMovement, movementStrategy, fightContext)
-            entityTurnLogs.push(...movementLogs)
+        entityTurnLogs.push(...this.executeEntityMovement(entityBeforeMovement, fightContext))
+        if (fightContext.isEntityDead(entityId)) {
+            return { turnIndex, actionLogs: entityTurnLogs }
         }
 
         // Checker les gambits d'action
-        const entityBeforeAction = fightContext.getAliveEntityOrThrow(entityId)
-        const entityActionGambits = entityBeforeAction.gambits.filter(isActionGambit)
-        
-        const actionExecutionContext = this.actionResolver.resolve(entityBeforeAction, entityActionGambits, fightContext)
-        if (actionExecutionContext) {
-            const actionLogs = this.actionExecutor.execute(actionExecutionContext, fightContext)
-            entityTurnLogs.push(...actionLogs)
-        }
+        const entityBeforeAction = fightContext.getAliveEntityOrThrow(entityId)        
+        entityTurnLogs.push(...this.executeEntityAction(entityBeforeAction, fightContext))
 
         return { turnIndex, actionLogs: entityTurnLogs }
+    }
+
+    private executeEntityPassives(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
+        const passiveLogs = this.passivesExecutor.executeEntityPassives(entity, fightContext)
+        return passiveLogs
+    }
+
+    private executeEntityMovement(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
+        const entityMovementGambits = entity.gambits.filter(isMovementGambit)
+
+        const movementStrategy = this.movementResolver.resolve(entity, fightContext)
+        if (movementStrategy) 
+            return this.movementExecutor.execute(entity, movementStrategy, fightContext)
+        else 
+            return []
+    }
+
+    private executeEntityAction(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
+        const entityActionGambits = entity.gambits.filter(isActionGambit)
+        
+        const actionExecutionContext = this.actionResolver.resolve(entity, entityActionGambits, fightContext)
+        if (actionExecutionContext) 
+            return this.actionExecutor.execute(actionExecutionContext, fightContext)
+        else 
+            return []
     }
 }
