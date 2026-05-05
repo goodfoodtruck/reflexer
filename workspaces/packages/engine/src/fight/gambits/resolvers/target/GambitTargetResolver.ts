@@ -1,8 +1,8 @@
 import { IFightContextReader } from "@fight/context/IFightContextReader";
 import { PlayingEntity, PlayingEntityID } from "@fight/fight.types";
 import { TargetSelector, TargetSort } from "@fight/gambits/gambits.types";
-import { getHighestHpTarget } from "@fight/turn-resolvers/target/extractors/highestHPTarget";
-import { getLowestHpTarget } from "@fight/turn-resolvers/target/extractors/lowestHPTarget";
+import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/highestHPTarget";
+import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/lowestHPTarget";
 import { EntityScopeResolver } from "../EntityScopeResolver";
 
 export class GambitTargetResolver {

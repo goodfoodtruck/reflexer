@@ -1,6 +1,5 @@
-import { ActionLog } from "@fight/fight.types"
+import { ActionLog, ExecutionContext } from "@fight/fight.types"
 import { FightContext } from "@fight/context/FightContext"
-import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
 import { IActionRegistry } from "@data/IActionRegistry";
 import { ProcessorChain } from "@processors/ProcessorChain";
 import { ProcessorFactory } from "@processors/ProcessorFactory";

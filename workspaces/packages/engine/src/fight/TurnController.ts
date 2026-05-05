@@ -3,8 +3,8 @@ import { FightContext } from "@fight/context/FightContext";
 import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecutor";
-import { EntityMovementResolver } from "@fight/turn-resolvers/EntityMovementResolver";
-import { ActionGambitResolver } from "@fight/turn-resolvers/ActionGambitResolver";
+import { EntityMovementResolver } from "@fight/gambits/resolvers/MovementGambitResolver";
+import { ActionGambitResolver } from "@fight/gambits/resolvers/ActionGambitResolver";
 import { isActionGambit } from "@helpers/gambits/typeguards";
 
 export class TurnController {

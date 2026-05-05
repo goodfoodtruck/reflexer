@@ -1,7 +1,7 @@
 import { IStatus } from "@fight/context/IStatus";
 import { PlayingEntity } from "@fight/fight.types";
-import { HasStatusFilter } from "@fight/gambits/entityFilters.types";
-import { evaluateHasStatus } from "@fight/turn-resolvers/filters/evaluators/HasStatusEvaluator";
+import { HasStatusFilter } from "@fight/gambits/resolvers/filters/entityFilters.types";
+import { evaluateHasStatus } from "@fight/gambits/resolvers/filters/evaluators/HasStatusEvaluator";
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder";
 import { describe, expect, it } from "vitest";

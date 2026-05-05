@@ -1,11 +1,11 @@
 import { PlayingEntity } from "@fight/fight.types"
-import { AnyFilter, FilterEvaluator, FilterType } from "@fight/gambits/entityFilters.types"
-import { evaluateHpBelow } from "./evaluators/HpBelowEvaluator"
-import { evaluateHpAbove } from "./evaluators/HpAboveEvaluator"
-import { evaluateHasStatus } from "./evaluators/HasStatusEvaluator"
+import { AnyFilter, FilterEvaluator, FilterType } from "@fight/gambits/resolvers/filters/entityFilters.types"
+import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
+import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
+import { evaluateHasStatus } from "@fight/gambits/resolvers/filters/evaluators/HasStatusEvaluator"
 import { IFightContextReader } from "@fight/context/IFightContextReader"
 
-export class EntityFilterEvaluatorRegistry {
+export class FilterEvaluatorRegistry {
 
     private evaluators = new Map<FilterType, FilterEvaluator<AnyFilter>>()
 
@@ -58,8 +58,8 @@ export class EntityFilterEvaluatorRegistry {
     }
 }
 
-export const buildFilterRegistry = (): EntityFilterEvaluatorRegistry => {
-    const registry = new EntityFilterEvaluatorRegistry()
+export const buildFilterRegistry = (): FilterEvaluatorRegistry => {
+    const registry = new FilterEvaluatorRegistry()
 
     registry.register("HP_BELOW",   evaluateHpBelow)
     registry.register("HP_ABOVE",   evaluateHpAbove)

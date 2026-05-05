@@ -2,17 +2,17 @@ import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types"
 import { FightContext } from "@fight/context/FightContext";
 import { GambitTargetResolver } from "./target/GambitTargetResolver";
 import { PlayingEntity } from "@fight/fight.types";
-import { EntityFilterEvaluatorRegistry } from "./filters/EntityFilterEvaluatorRegistry";
+import { FilterEvaluatorRegistry } from "@fight/gambits/resolvers/filters/FilterEvaluatorRegistry";
 import { ActionGambit, ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types";
 import { IFightContextReader } from "@fight/context/IFightContextReader";
-import { EntityScopeResolver } from "./EntityScopeResolver";
 import { isExistsCondition } from "@helpers/gambits/typeguards";
+import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
 
 export class ActionGambitResolver {
 
     constructor(
         private readonly gambitTargetResolver: GambitTargetResolver,
-        private readonly filterEvaluatorRegistry: EntityFilterEvaluatorRegistry,
+        private readonly filterEvaluatorRegistry: FilterEvaluatorRegistry,
         private readonly entityScopeResolver: EntityScopeResolver
     ) {}
 

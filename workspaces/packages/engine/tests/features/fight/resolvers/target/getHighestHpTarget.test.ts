@@ -1,4 +1,4 @@
-import { getHighestHpTarget } from "@fight/turn-resolvers/target/extractors/highestHPTarget"
+import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/highestHPTarget"
 import { buildPlayingEntity, withCurrentStats } from "@tests/builders/fight/PlayingEntityBuilder"
 import { describe, it, expect } from "vitest"
 

@@ -1,4 +1,4 @@
-import { SelfFilter, AllyFilter, EnemyFilter } from "@fight/gambits/entityFilters.types"
+import { SelfFilter, AllyFilter, EnemyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 
 /** Statuts pouvant affecter une entité pendant le combat */
 export type Status = "POISON" | "BURNT" | "PARALYZED"

@@ -1,4 +1,4 @@
-import { getLowestHpTarget } from "@fight/turn-resolvers/target/extractors/lowestHPTarget"
+import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/lowestHPTarget"
 import { buildPlayingEntity, withCurrentStats } from "@tests/builders/fight/PlayingEntityBuilder"
 import { describe, it, expect } from "vitest"
 
