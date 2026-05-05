@@ -1,6 +1,6 @@
 import { PlayingEntity } from "@fight/fight.types"
-import { FightContext } from "@fight/context/FightContext"
 import { IStatus } from "@fight/context/IStatus"
+import { IFightContextReader } from "@fight/context/IFightContextReader"
 
 /**
  * Type de fonction qui permet de vérifier si une cible rempli un critère
@@ -9,7 +9,7 @@ import { IStatus } from "@fight/context/IStatus"
 export type FilterEvaluator<TFilter> = (
     entity: PlayingEntity,
     filter: TFilter,
-    context: Readonly<FightContext>
+    context: IFightContextReader
 ) => boolean
 
 
@@ -53,6 +53,12 @@ export type EnemyFilter =
     | EnemyInRangeOfAllyFilter
     | IsAttackingAllyFilter
     | IsAttackingSelfFilter
+
+    
+export type AnyFilter = 
+    | EnemyFilter
+    | AllyFilter
+    | SelfFilter
 
 
 // "HP_BELOW" | "HP_ABOVE" | "HAS_STATUS" | "IN_RANGE" | "ALLY_IN_RANGE_OF_ENEMY" | ...

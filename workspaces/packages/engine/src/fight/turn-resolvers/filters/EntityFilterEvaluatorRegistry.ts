@@ -1,13 +1,13 @@
-import { FightContext } from "@fight/context/FightContext"
 import { PlayingEntity } from "@fight/fight.types"
-import { FilterEvaluator, FilterType } from "@fight/gambits/entityFilters.types"
+import { AnyFilter, FilterEvaluator, FilterType } from "@fight/gambits/entityFilters.types"
 import { evaluateHpBelow } from "./evaluators/HpBelowEvaluator"
 import { evaluateHpAbove } from "./evaluators/HpAboveEvaluator"
 import { evaluateHasStatus } from "./evaluators/HasStatusEvaluator"
+import { IFightContextReader } from "@fight/context/IFightContextReader"
 
-class EntityFilterEvaluatorRegistry {
+export class EntityFilterEvaluatorRegistry {
 
-    private evaluators = new Map<FilterType, FilterEvaluator<FilterType>>()
+    private evaluators = new Map<FilterType, FilterEvaluator<AnyFilter>>()
 
     /**
      * Permet d'enregistrer un FilterEvaluator pour un FilterType
@@ -30,13 +30,13 @@ class EntityFilterEvaluatorRegistry {
      */
     evaluate(
         entity: PlayingEntity, 
-        filterType: FilterType, 
-        context: Readonly<FightContext>
+        filter: AnyFilter, 
+        context: IFightContextReader
     ): boolean {
-        const evaluator = this.evaluators.get(filterType)
+        const evaluator = this.evaluators.get(filter.type)
         if (! evaluator) 
-            throw new Error(`Filtre ${filterType} non enregistré`)
-        return evaluator(entity, filterType, context)
+            throw new Error(`Filtre ${filter.type} non enregistré`)
+        return evaluator(entity, filter, context)
     }
 
     /**
@@ -49,8 +49,8 @@ class EntityFilterEvaluatorRegistry {
      */
     applyAll(
         entities: PlayingEntity[], 
-        filters: FilterType[], 
-        context: Readonly<FightContext>
+        filters: AnyFilter[], 
+        context: IFightContextReader
     ): PlayingEntity[] {
         return entities.filter(entity =>
             filters.every(filter => this.evaluate(entity, filter, context))
