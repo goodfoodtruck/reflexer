@@ -1,17 +1,18 @@
-import { ActionLog, PlayingEntityID, TurnLog } from "./fight.types";
-import { FightContext } from "./context/FightContext";
-import { EntityActionExecutor } from "./turn-executors/EntityActionExecutor";
-import { EntityMovementExecutor } from "./turn-executors/EntityMovementExecutor";
-import { EntityPassiveExecutor } from "./turn-executors/EntityPassiveExecutor";
-import { EntityGambitActionResolver } from "./turn-resolvers/EntityGambitActionResolver";
-import { EntityMovementResolver } from "./turn-resolvers/EntityMovementResolver";
+import { ActionLog, PlayingEntityID, TurnLog } from "@fight/fight.types";
+import { FightContext } from "@fight/context/FightContext";
+import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
+import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
+import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecutor";
+import { EntityMovementResolver } from "@fight/turn-resolvers/EntityMovementResolver";
+import { ActionGambitResolver } from "@fight/turn-resolvers/ActionGambitResolver";
+import { isActionGambit } from "@helpers/gambits/typeguards";
 
 export class TurnController {
     constructor(
         private readonly passivesExecutor: EntityPassiveExecutor,
         private readonly movementResolver: EntityMovementResolver,
         private readonly movementExecutor: EntityMovementExecutor,
-        private readonly gambitActionResolver: EntityGambitActionResolver,
+        private readonly actionResolver: ActionGambitResolver,
         private readonly actionExecutor: EntityActionExecutor
     ) {}
 
@@ -37,7 +38,7 @@ export class TurnController {
             return { turnIndex, actionLogs: entityTurnLogs }
         }
 
-        // executer mouvement
+        // Checker les gambits de mouvement
         const entityBeforeMovement = fightContext.getAliveEntityOrThrow(entityId)
 
         const movementStrategy = this.movementResolver.resolve(entityBeforeMovement, fightContext)
@@ -46,10 +47,11 @@ export class TurnController {
             entityTurnLogs.push(...movementLogs)
         }
 
-        // executer action
+        // Checker les gambits d'action
         const entityBeforeAction = fightContext.getAliveEntityOrThrow(entityId)
-
-        const actionExecutionContext = this.gambitActionResolver.resolve(entityBeforeAction.gambits, fightContext)
+        const entityActionGambits = entityBeforeAction.gambits.filter(isActionGambit)
+        
+        const actionExecutionContext = this.actionResolver.resolve(entityBeforeAction, entityActionGambits, fightContext)
         if (actionExecutionContext) {
             const actionLogs = this.actionExecutor.execute(actionExecutionContext, fightContext)
             entityTurnLogs.push(...actionLogs)
