@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { IconGear } from "../icons/IconGear";
+import { IconGear } from "../../../assets/icons/IconGear";
 
 interface AgentCardProps {
   id: number;

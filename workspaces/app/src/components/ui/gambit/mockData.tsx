@@ -9,11 +9,11 @@ import imgCharge from "../../../assets/images/actions/mouvement/Charge.png";
 import imgTeleport from "../../../assets/images/actions/mouvement/Teleport.png";
 import imgBenediction from "../../../assets/images/actions/boost/Bénédiction-du-magicien.png";
 import imgForceTerre from "../../../assets/images/actions/boost/Force-de-la-Terre.png";
-import { AttackIcon } from "../icons/IconAttack";
-import { DefenseIcon } from "../icons/IconDefense";
-import { HealIcon } from "../icons/IconHeal";
-import { MovementIcon } from "../icons/IconMovement";
-import { BoostIcon } from "../icons/IconBoost";
+import { AttackIcon } from "../../../assets/icons/IconAttack";
+import { DefenseIcon } from "../../../assets/icons/IconDefense";
+import { HealIcon } from "../../../assets/icons/IconHeal";
+import { MovementIcon } from "../../../assets/icons/IconMovement";
+import { BoostIcon } from "../../../assets/icons/IconBoost";
 
 export const INSPIRATIONS = [
   "Soin d'urgence", 

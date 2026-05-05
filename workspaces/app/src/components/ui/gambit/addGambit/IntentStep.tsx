@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import type { DraftGambit } from "../GambitTypes";
-import { PlaceholderIcon } from "../../icons/IconPlaceholder";
-import { EmptyDetailsIcon } from "../../icons/IconEmptyDetails";
+import { PlaceholderIcon } from "../../../../assets/icons/IconPlaceholder";
+import { EmptyDetailsIcon } from "../../../../assets/icons/IconEmptyDetails";
 import { ACTION_CATEGORIES } from "../mockData";
 
 const Styles = {

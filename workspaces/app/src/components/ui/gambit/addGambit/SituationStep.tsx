@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { DraftGambit } from "../GambitTypes";
-import { InfoIcon } from "../../icons/IconInfo";
+import { InfoIcon } from "../../../../assets/icons/IconInfo";
 import { INSPIRATIONS } from "../mockData";
 
 const Styles = {

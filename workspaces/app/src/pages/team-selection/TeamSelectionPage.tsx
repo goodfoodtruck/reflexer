@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatedBackground } from "../../components/ui/AnimatedBackground";
 import { Header } from "../../components/ui/header/Header";
-import { IconPause } from "../../components/ui/icons/IconPause";
+import { IconPause } from "../../assets/icons/IconPause";
 import bgHomeImage from "../../assets/images/bg-home.png"; 
 import heroM from "../../assets/images/hero-m.png"; 
 import heroW from "../../assets/images/hero-w.png";
