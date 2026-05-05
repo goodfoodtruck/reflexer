@@ -18,8 +18,8 @@ export class EntityScopeResolver {
     ): PlayingEntity[] {
         switch (scope) {
             case ETargetType.SELF:  return [entity]
-            case ETargetType.ALLY:  return context.getAllies(entity.teamId)
-            case ETargetType.ENEMY: return context.getEnemies(entity.teamId)
+            case ETargetType.ALLY:  return context.getAllies(entity)
+            case ETargetType.ENEMY: return context.getEnemies(entity)
         }
     }
 }

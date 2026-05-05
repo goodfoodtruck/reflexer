@@ -1,7 +1,6 @@
 import {PlayingEntityID, PlayingEntity, DamageReceivedEvent, PlayingTeamID} from "@fight/fight.types"
 import { FightMap } from "@fight/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
-import { FightEntitiesValidator } from "./FightEntitiesValidator"
 import { IFightContextMutator } from "./IFightContextMutator"
 import { IFightContextReader } from "./IFightContextReader"
 import {IReactiveContext} from "@fight/context/IFightContextReactive";
@@ -17,8 +16,8 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
     private reactionQueue: QueuedProcessor[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
-        const validator = new FightEntitiesValidator()
-        validator.validate(entities)
+        //const validator = new FightEntitiesValidator()
+        //validator.validate(entities)
 
         this.turnIndex = 0
         this.map = map
@@ -91,12 +90,15 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         return Array.from(this.entities.values()).filter(entity => (! entity.isDead))
     }
 
-    getAllies(teamId: PlayingTeamID): PlayingEntity[] {
-        return this.getAliveEntities().filter(entity => entity.teamId === teamId)
+    getAllies(entity: PlayingEntity): PlayingEntity[] {
+        return this
+                .getAliveEntities()
+                .filter(e => e.teamId === entity.teamId)
+                .filter(e => e.id !== entity.id)
     }
 
-    getEnemies(teamId: PlayingTeamID): PlayingEntity[] {
-        return this.getAliveEntities().filter(entity => entity.teamId !== teamId)
+    getEnemies(entity: PlayingEntity): PlayingEntity[] {
+        return this.getAliveEntities().filter(e => e.teamId !== entity.teamId)
     }
 
     getEntityById(entityId: PlayingEntityID): PlayingEntity | null {
