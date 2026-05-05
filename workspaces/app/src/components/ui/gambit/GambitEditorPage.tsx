@@ -8,12 +8,12 @@ import { Header } from "../header/Header";
 import bgHomeImage from "../../../assets/images/bg-home.png"; 
 import { TacticalMemo } from "./TacticalMemo";
 import { GambitListPanel } from "./GambitListPanel";
-import type { DraftGambit, GambitIntent, RealGambit } from "./GambitTypes";
+import type { DraftGambit, GambitCondition, GambitFilter, GambitIntent, RealGambit } from "./GambitTypes";
 import { GambitEdition } from "./GambitEdition";
 import { INITIAL_GAMBITS } from "./mockData";
 
-
 const Styles = {
+  // ... (Garde tes styles actuels exactement tels quels)
   bgContainer: "absolute inset-0 z-0",
   bgImage: "w-full h-full object-cover opacity-60",
   container: "w-screen h-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30",
@@ -35,6 +35,9 @@ export function GambitEditorPage() {
   
   const [gambits, setGambits] = useState<RealGambit[]>(INITIAL_GAMBITS);
   const [isEditing, setIsEditing] = useState(false);
+  const [editingGambitId, setEditingGambitId] = useState<string | null>(null); // NOUVEL ÉTAT
+
+  const gambitToEdit = editingGambitId ? gambits.find(g => g.id === editingGambitId) : undefined;
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -53,73 +56,112 @@ export function GambitEditorPage() {
     }
   };
 
-  const handleSaveGambit = (draft: DraftGambit) => {
-    const backendConditions = draft.conditions.map(c => ({
-      type: "EXISTS" as const,
-      scope: {
-        kind: c.scopeKind,
-        filter: { 
-          type: c.filterType, 
-          ...(c.filterType === "HP_BELOW" ? { threshold: c.value } : { range: c.value }) 
-        }
-      }
-    }));
+  // NOUVEAU : Fonction de suppression
+  const handleDeleteGambit = (id: string) => {
+    setGambits((prev) => {
+      const remaining = prev.filter(g => g.id !== id);
+      // On recalcule les priorités (1, 2, 3...) après suppression
+      return remaining.map((g, index) => ({ ...g, priority: index + 1 }));
+    });
+    // Si on supprime celui qu'on était en train d'éditer, on ferme l'éditeur
+    if (editingGambitId === id) {
+      setIsEditing(false);
+      setEditingGambitId(null);
+    }
+  };
 
+  // NOUVEAU : Fonction pour lancer l'édition
+  const handleEditClick = (id: string) => {
+    setEditingGambitId(id);
+    setIsEditing(true);
+  };
+
+const handleSaveGambit = (draft: DraftGambit) => {
+    // 1. Formater les conditions
+    const backendConditionsArr: GambitCondition[] = draft.conditions.map(c => {
+      const filter: GambitFilter = { type: c.filterType as string }; // Cast string pour éviter l'erreur d'overlap
+
+      if (c.filterType === "HP_BELOW" || (c.filterType as string) === "HP_ABOVE") {
+        filter.threshold = Number(c.value);
+      } else if (c.filterType === "IN_RANGE") {
+        filter.range = Number(c.value);
+      } else {
+        filter.status = String(c.value); 
+      }
+
+      return {
+        type: "EXISTS" as const,
+        scope: { kind: c.scopeKind, filter: filter }
+      };
+    });
+
+    // 2. Arbre final
+    let finalConditions: GambitCondition;
+    if (backendConditionsArr.length === 1) {
+      finalConditions = backendConditionsArr[0];
+    } else {
+      finalConditions = { operator: draft.operator, conditions: backendConditionsArr };
+    }
+
+    // 3. Intention
     const backendIntent: GambitIntent = draft.intentKind === "MOVEMENT" 
       ? { kind: "MOVEMENT", strategy: draft.intentValue }
       : { kind: "ACTION", action: { id: draft.intentValue, type: "skill", processorConfigs: [] } };
 
     const newRealGambit: RealGambit = {
-      id: draft.name.toLowerCase().replace(/\s+/g, '_') + `_${Date.now()}`,
-      priority: gambits.length + 1,
-      conditions: { operator: draft.operator, conditions: backendConditions },
-      targetSelector: { context: { kind: draft.targetKind, filters: [] }, sort: draft.targetSort },
+      id: editingGambitId ? editingGambitId : `${draft.name.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`,
+      priority: editingGambitId 
+        ? (gambits.find(g => g.id === editingGambitId)?.priority || gambits.length + 1)
+        : gambits.length + 1,
+      conditions: finalConditions,
+      targetSelector: { 
+        context: { kind: draft.targetKind, filters: [] }, 
+        sort: draft.targetSort 
+      },
       intent: backendIntent
     };
 
-    setGambits([...gambits, newRealGambit]);
+    if (editingGambitId) {
+      setGambits(prev => prev.map(g => g.id === editingGambitId ? newRealGambit : g));
+    } else {
+      setGambits(prev => [...prev, newRealGambit]);
+    }
+    
     setIsEditing(false);
+    setEditingGambitId(null);
   };
 
   return (
     <div className={Styles.container}>
-      <div className={Styles.bgContainer}>
-        <img 
-          src={bgHomeImage} 
-          alt="Reflexer Background" 
-          className={Styles.bgImage}
-        />
-      </div>
-
-      <div className={Styles.bgHeroContainer}>
-        <img 
-          src={currentHeroImage} 
-          alt="Agent Background" 
-          className={`${Styles.bgHeroImageBase} ${isEditing ? Styles.bgHeroEditing : Styles.bgHeroIdle}`} 
-        />
-      </div>
-      
+      {/* ... tes backgrounds ... */}
+      <div className={Styles.bgContainer}><img src={bgHomeImage} alt="Reflexer Background" className={Styles.bgImage}/></div>
+      <div className={Styles.bgHeroContainer}><img src={currentHeroImage} alt="Agent Background" className={`${Styles.bgHeroImageBase} ${isEditing ? Styles.bgHeroEditing : Styles.bgHeroIdle}`} /></div>
       <div className={Styles.overlay} />
 
       <div className={Styles.foreground}>
         <Header title="Éditeur de Gambits" subtitle="Configuration tactique" onBack={() => navigate("/team")} />
 
         <div className={Styles.workspace}>       
-          
           <GambitListPanel 
             heroId={heroId}
             gambits={gambits}
             isEditing={isEditing}
-            onAddClick={() => setIsEditing(true)}
+            onAddClick={() => { setEditingGambitId(null); setIsEditing(true); }} // Assure-toi de vider l'ID d'édition lors d'une création
+            onEdit={handleEditClick}     // <--- NOUVELLE PROP
+            onDelete={handleDeleteGambit} // <--- NOUVELLE PROP
             sensors={sensors}
             onDragEnd={handleDragEnd}
           />
 
           {isEditing ? (
-            <section className={Styles.rightPanelWizard}>
-              <GambitEdition onCancel={() => setIsEditing(false)} onSave={handleSaveGambit} />
-            </section>
-          ) : (
+  <section className={Styles.rightPanelWizard}>
+    <GambitEdition 
+      initialGambit={gambitToEdit} // <--- ON PASSE LA DONNÉE ICI
+      onCancel={() => { setIsEditing(false); setEditingGambitId(null); }} 
+      onSave={handleSaveGambit} 
+    />
+  </section>
+) : (
             <section className={Styles.rightPanelMemo}>
               <TacticalMemo />
             </section>
