@@ -3,9 +3,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion, AnimatePresence } from "framer-motion";
 import type { RealGambit, GambitCondition, GambitFilter } from "./GambitTypes";
-import { DragIcon } from "../icons/IconDrag";
-import { ChevronIcon } from "../icons/IconChevron";
-import { ArrowRightIcon } from "../icons/IconArrowRight";
+import { DragIcon } from "../../../assets/icons/IconDrag";
+import { ChevronIcon } from "../../../assets/icons/IconChevron";
+import { ArrowRightIcon } from "../../../assets/icons/IconArrowRight";
+import { IconEdit } from "../../../assets/icons/IconEdit";
+import { IconTrash } from "../../../assets/icons/IconTrash";
 
 const Styles = {
   containerBase: "group relative flex flex-col rounded-xl border transition-all duration-200",
@@ -15,8 +17,16 @@ const Styles = {
   headerArea: "flex items-center gap-4 p-4 relative z-10",
   dragHandle: "text-slate-600 hover:text-amber-500 cursor-grab active:cursor-grabbing focus-visible:outline-none",
   priorityBadge: "w-7 h-7 rounded bg-[#0A0C10] border border-[#2A2E39] flex-none flex items-center justify-center text-amber-500 font-black text-xs",
-  toggleButton: "flex-1 flex items-center justify-between focus-visible:outline-none text-left cursor-pointer",
+  
+  // MODIFICATION ICI: toggleArea remplace toggleButton pour éviter les conflits HTML
+  toggleArea: "flex-1 flex items-center justify-between focus-visible:outline-none text-left cursor-pointer",
   titleText: "text-slate-200 font-bold tracking-widest uppercase text-sm group-hover:text-white transition-colors",
+  
+  // NOUVEAUX STYLES POUR LES ACTIONS
+  actionsWrapper: "flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity",
+  actionBtnEdit: "p-1.5 text-slate-400 hover:text-amber-500 hover:bg-amber-500/10 rounded-md transition-colors",
+  actionBtnDelete: "p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-md transition-colors",
+  
   chevronIconBase: "w-5 h-5 text-slate-600 transition-transform duration-300 group-hover:text-amber-500",
   chevronIconOpen: "rotate-180 text-amber-500",
   detailsPanel: "mx-4 mb-4 mt-1 bg-[#0A0C10] rounded-lg border border-[#1A1D24] p-5",
@@ -45,7 +55,13 @@ const Styles = {
   intentAction: "bg-amber-500/10 text-amber-400 border-amber-500/20"
 };
 
-export function GambitRow({ gambit }: { gambit: RealGambit }) {
+interface GambitRowProps {
+  gambit: RealGambit;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: gambit.id });
 
@@ -145,12 +161,32 @@ export function GambitRow({ gambit }: { gambit: RealGambit }) {
           {gambit.priority.toString().padStart(2, '0')}
         </div>
         
-        <button className={Styles.toggleButton} onClick={() => setIsOpen(!isOpen)}>
+        <div className={Styles.toggleArea} onClick={() => setIsOpen(!isOpen)}>
           <span className={Styles.titleText}>
             {gambit.id.replace(/-/g, ' ')}
           </span>
-          <ChevronIcon className={`${Styles.chevronIconBase} ${dynamicChevronStyle}`} />
-        </button>
+          
+          <div className="flex items-center gap-4">
+            <div className={Styles.actionsWrapper}>
+              <button 
+                onClick={(e) => { e.stopPropagation(); onEdit(); }} 
+                className={Styles.actionBtnEdit}
+                title="Modifier cette règle"
+              >
+                <IconEdit />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); onDelete(); }} 
+                className={Styles.actionBtnDelete}
+                title="Supprimer cette règle"
+              >
+                <IconTrash />
+              </button>
+            </div>
+            
+            <ChevronIcon className={`${Styles.chevronIconBase} ${dynamicChevronStyle}`} />
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
