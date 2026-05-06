@@ -13,7 +13,6 @@ import { GambitEdition } from "./GambitEdition";
 import { INITIAL_GAMBITS } from "./mockData";
 
 const Styles = {
-  // ... (Garde tes styles actuels exactement tels quels)
   bgContainer: "absolute inset-0 z-0",
   bgImage: "w-full h-full object-cover opacity-60",
   container: "w-screen h-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30",
@@ -35,7 +34,7 @@ export function GambitEditorPage() {
   
   const [gambits, setGambits] = useState<RealGambit[]>(INITIAL_GAMBITS);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingGambitId, setEditingGambitId] = useState<string | null>(null); // NOUVEL ÉTAT
+  const [editingGambitId, setEditingGambitId] = useState<string | null>(null);
 
   const gambitToEdit = editingGambitId ? gambits.find(g => g.id === editingGambitId) : undefined;
 
@@ -56,30 +55,25 @@ export function GambitEditorPage() {
     }
   };
 
-  // NOUVEAU : Fonction de suppression
   const handleDeleteGambit = (id: string) => {
     setGambits((prev) => {
       const remaining = prev.filter(g => g.id !== id);
-      // On recalcule les priorités (1, 2, 3...) après suppression
       return remaining.map((g, index) => ({ ...g, priority: index + 1 }));
     });
-    // Si on supprime celui qu'on était en train d'éditer, on ferme l'éditeur
     if (editingGambitId === id) {
       setIsEditing(false);
       setEditingGambitId(null);
     }
   };
 
-  // NOUVEAU : Fonction pour lancer l'édition
   const handleEditClick = (id: string) => {
     setEditingGambitId(id);
     setIsEditing(true);
   };
 
-const handleSaveGambit = (draft: DraftGambit) => {
-    // 1. Formater les conditions
+  const handleSaveGambit = (draft: DraftGambit) => {
     const backendConditionsArr: GambitCondition[] = draft.conditions.map(c => {
-      const filter: GambitFilter = { type: c.filterType as string }; // Cast string pour éviter l'erreur d'overlap
+      const filter: GambitFilter = { type: c.filterType as string };
 
       if (c.filterType === "HP_BELOW" || (c.filterType as string) === "HP_ABOVE") {
         filter.threshold = Number(c.value);
@@ -95,7 +89,6 @@ const handleSaveGambit = (draft: DraftGambit) => {
       };
     });
 
-    // 2. Arbre final
     let finalConditions: GambitCondition;
     if (backendConditionsArr.length === 1) {
       finalConditions = backendConditionsArr[0];
@@ -103,7 +96,6 @@ const handleSaveGambit = (draft: DraftGambit) => {
       finalConditions = { operator: draft.operator, conditions: backendConditionsArr };
     }
 
-    // 3. Intention
     const backendIntent: GambitIntent = draft.intentKind === "MOVEMENT" 
       ? { kind: "MOVEMENT", strategy: draft.intentValue }
       : { kind: "ACTION", action: { id: draft.intentValue, type: "skill", processorConfigs: [] } };
@@ -133,7 +125,6 @@ const handleSaveGambit = (draft: DraftGambit) => {
 
   return (
     <div className={Styles.container}>
-      {/* ... tes backgrounds ... */}
       <div className={Styles.bgContainer}><img src={bgHomeImage} alt="Reflexer Background" className={Styles.bgImage}/></div>
       <div className={Styles.bgHeroContainer}><img src={currentHeroImage} alt="Agent Background" className={`${Styles.bgHeroImageBase} ${isEditing ? Styles.bgHeroEditing : Styles.bgHeroIdle}`} /></div>
       <div className={Styles.overlay} />
@@ -146,22 +137,22 @@ const handleSaveGambit = (draft: DraftGambit) => {
             heroId={heroId}
             gambits={gambits}
             isEditing={isEditing}
-            onAddClick={() => { setEditingGambitId(null); setIsEditing(true); }} // Assure-toi de vider l'ID d'édition lors d'une création
-            onEdit={handleEditClick}     // <--- NOUVELLE PROP
-            onDelete={handleDeleteGambit} // <--- NOUVELLE PROP
+            onAddClick={() => { setEditingGambitId(null); setIsEditing(true); }}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteGambit}
             sensors={sensors}
             onDragEnd={handleDragEnd}
           />
 
           {isEditing ? (
-  <section className={Styles.rightPanelWizard}>
-    <GambitEdition 
-      initialGambit={gambitToEdit} // <--- ON PASSE LA DONNÉE ICI
-      onCancel={() => { setIsEditing(false); setEditingGambitId(null); }} 
-      onSave={handleSaveGambit} 
-    />
-  </section>
-) : (
+            <section className={Styles.rightPanelWizard}>
+              <GambitEdition 
+                initialGambit={gambitToEdit}
+                onCancel={() => { setIsEditing(false); setEditingGambitId(null); }} 
+                onSave={handleSaveGambit} 
+              />
+            </section>
+          ) : (
             <section className={Styles.rightPanelMemo}>
               <TacticalMemo />
             </section>

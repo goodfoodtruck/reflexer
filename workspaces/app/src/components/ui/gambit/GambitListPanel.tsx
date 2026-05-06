@@ -2,15 +2,16 @@ import { DndContext, closestCenter, type DragEndEvent, type SensorDescriptor, ty
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GambitRow } from './GambitRow';
 import type { RealGambit } from './GambitTypes';
-import { AvatarIcon } from '../icons/IconAvatar';
-import { AddIcon } from '../icons/IconAdd';
-
+import { AvatarIcon } from '../../../assets/icons/IconAvatar';
+import { AddIcon } from '../../../assets/icons/IconAdd';
 
 interface GambitListPanelProps {
   heroId?: string;
   gambits: RealGambit[];
   isEditing: boolean;
   onAddClick: () => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
   sensors: SensorDescriptor<SensorOptions>[];
   onDragEnd: (event: DragEndEvent) => void;
 }
@@ -33,7 +34,7 @@ const PanelStyles = {
   addButtonIcon: "w-4 h-4",
 };
 
-export function GambitListPanel({ heroId, gambits, isEditing, onAddClick, sensors, onDragEnd }: GambitListPanelProps) {
+export function GambitListPanel({ heroId, gambits, isEditing, onAddClick, onEdit, onDelete, sensors, onDragEnd }: GambitListPanelProps) {
   return (
     <section className={`${PanelStyles.base} ${isEditing ? PanelStyles.editing : PanelStyles.idle}`}>
       <div className={PanelStyles.heroBanner}>
@@ -56,13 +57,18 @@ export function GambitListPanel({ heroId, gambits, isEditing, onAddClick, sensor
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={gambits.map(g => g.id)} strategy={verticalListSortingStrategy}>
             {gambits.map((gambit) => (
-              <GambitRow key={gambit.id} gambit={gambit} />
+              <GambitRow 
+                key={gambit.id} 
+                gambit={gambit} 
+                onEdit={() => onEdit(gambit.id)}
+                onDelete={() => onDelete(gambit.id)}
+              />
             ))}
           </SortableContext>
         </DndContext>
       </div>
 
-      <div className={PanelStyles.addButtonWrapper}>
+     <div className={PanelStyles.addButtonWrapper}>
         <button onClick={onAddClick} className={PanelStyles.addButton} disabled={isEditing}>
           <AddIcon className={PanelStyles.addButtonIcon} />
           Ajouter une règle

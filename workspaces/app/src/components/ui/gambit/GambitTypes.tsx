@@ -84,3 +84,6 @@ export type ActionCategory = {
   icon: React.ReactNode;
   items: ActionItem[];
 };
+
+export type ConditionBlock = { categoryId: string; values: string[] };
+export type SavedCondition = { targetId: string; blocks: ConditionBlock[] };
