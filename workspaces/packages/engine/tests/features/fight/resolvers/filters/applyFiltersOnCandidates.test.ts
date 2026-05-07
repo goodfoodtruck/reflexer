@@ -1,5 +1,6 @@
 import { PlayingEntity } from "@fight/fight.types"
 import { AnyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
+import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier"
 import { buildFilterRegistry } from "@fight/gambits/resolvers/filters/FilterEvaluatorRegistry"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { buildPlayingEntity, withBaseStats, withCurrentStats } from "@tests/builders/fight/PlayingEntityBuilder"
@@ -8,6 +9,7 @@ import { describe, it, expect } from "vitest"
 describe("Filtrer une liste d'entités selon des critères", () => {
 
     const registry = buildFilterRegistry()
+    const filterApplier = new FilterApplier(registry)
 
     const buildContext = (players: PlayingEntity[], enemies: PlayingEntity[]) =>
         buildFightContext(players, enemies)
@@ -19,7 +21,7 @@ describe("Filtrer une liste d'entités selon des critères", () => {
         ]
         const context = buildContext([buildPlayingEntity()], enemies)
 
-        expect(registry.applyAll(enemies, [], context)).toHaveLength(2)
+        expect(filterApplier.applyAll(enemies, [], context)).toHaveLength(2)
     })
 
     it("retourne les entités qui matchent avec un seul filtre", () => {
@@ -31,7 +33,7 @@ describe("Filtrer une liste d'entités selon des critères", () => {
         const context = buildContext([buildPlayingEntity()], [weak, strong])
         const filters: AnyFilter[] = [{ type: "HP_BELOW", threshold: 50 }]
 
-        const result = registry.applyAll([weak, strong], filters, context)
+        const result = filterApplier.applyAll([weak, strong], filters, context)
 
         expect(result).toHaveLength(1)
         expect(result[0]!.id).toBe("weak")
@@ -52,7 +54,7 @@ describe("Filtrer une liste d'entités selon des critères", () => {
             { type: "HAS_STATUS", status: { id: "POISON", stacks: 1, remainingTurns: 2 } }
         ]
 
-        const result = registry.applyAll([poisonedWeak, poisonedStrong, healthyWeak], filters, context)        
+        const result = filterApplier.applyAll([poisonedWeak, poisonedStrong, healthyWeak], filters, context)        
 
         expect(result).toHaveLength(1)
         expect(result[0]!.id).toBe("poisoned_weak")
@@ -65,13 +67,13 @@ describe("Filtrer une liste d'entités selon des critères", () => {
         const context = buildContext([buildPlayingEntity()], [strong])
         const filters: AnyFilter[] = [{ type: "HP_BELOW", threshold: 50 }]
 
-        expect(registry.applyAll([strong], filters, context)).toHaveLength(0)
+        expect(filterApplier.applyAll([strong], filters, context)).toHaveLength(0)
     })
 
     it("retourne une liste vide si la liste d'entités est vide", () => {
         const context = buildContext([buildPlayingEntity()], [buildPlayingEntity({ teamId: "ENEMY" })])
         const filters: AnyFilter[] = [{ type: "HP_BELOW", threshold: 50 }]
 
-        expect(registry.applyAll([], filters, context)).toHaveLength(0)
+        expect(filterApplier.applyAll([], filters, context)).toHaveLength(0)
     })
 })

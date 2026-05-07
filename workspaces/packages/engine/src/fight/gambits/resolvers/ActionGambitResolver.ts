@@ -1,17 +1,17 @@
 import { FightContext } from "@fight/context/FightContext";
 import { GambitTargetResolver } from "./target/GambitTargetResolver";
 import { ExecutionContext, PlayingEntity } from "@fight/fight.types";
-import { FilterEvaluatorRegistry } from "@fight/gambits/resolvers/filters/FilterEvaluatorRegistry";
 import { ActionGambit, ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types";
 import { IFightContextReader } from "@fight/context/IFightContextReader";
 import { isExistsCondition } from "@helpers/gambits/typeguards";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
+import { FilterApplier } from "./filters/FilterApplier";
 
 export class ActionGambitResolver {
 
     constructor(
         private readonly gambitTargetResolver: GambitTargetResolver,
-        private readonly filterEvaluatorRegistry: FilterEvaluatorRegistry,
+        private readonly filterApplier: FilterApplier,
         private readonly entityScopeResolver: EntityScopeResolver
     ) {}
 
@@ -73,7 +73,7 @@ export class ActionGambitResolver {
         const candidates = this.entityScopeResolver.resolveScope(condition.scope.targetType, entity, context)
 
         // entités qui matchent avec les critères
-        const matchingEntities = this.filterEvaluatorRegistry.applyAll(candidates, condition.scope.filters, context)
+        const matchingEntities = this.filterApplier.applyAll(candidates, condition.scope.filters, context)
 
         return matchingEntities.length >= 1
     }
