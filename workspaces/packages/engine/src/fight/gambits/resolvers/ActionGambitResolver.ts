@@ -70,10 +70,10 @@ export class ActionGambitResolver {
         context: IFightContextReader
     ): boolean {
         // entités concernée par la condition : SELF, ALLY, ENEMY
-        const candidates = this.entityScopeResolver.resolveScope(condition.scope.targetType, entity, context)
+        const candidates = this.entityScopeResolver.resolveScope(condition.context.targetType, entity, context)
 
         // entités qui matchent avec les critères
-        const matchingEntities = this.filterApplier.applyAll(candidates, condition.scope.filters, context)
+        const matchingEntities = this.filterApplier.applyAll(candidates, condition.context.filters, context)
 
         return matchingEntities.length >= 1
     }

@@ -71,7 +71,7 @@ export type ConditionGroup =
 export type ExistsCondition = {
     type: "EXISTS"
     /** Définit qui on cherche et avec quels critères */
-    scope: ConditionContext
+    context: ConditionContext
     /** Nombre minimum d'entités requises pour que la condition soit vraie. Défaut : 1 */
     threshold?: number
 }
