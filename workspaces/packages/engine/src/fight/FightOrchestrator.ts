@@ -15,7 +15,7 @@ export class FightOrchestrator {
     /**
      * Joue le combat en entier et retourne l'état final ainsi
      * que les logs de tout ce qui s'est passé pendant l'exécution
-     * @param initialContext 
+     * @param context
      */
     playFight(context: FightContext): FightResult {
         while (true) {

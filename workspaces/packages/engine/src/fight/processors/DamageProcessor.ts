@@ -10,8 +10,15 @@ export class DamageProcessor implements IProcessor {
     execute(ctx: ExecutionContext, fightContext: FightContext): ProcessorResult {
         if (fightContext.isEntityDead(ctx.targetId)) {
             return {
-                status: 'ok',
-                logs: [{ type: 'damage_skipped', reason: 'target_already_dead' }],
+                status: 'aborted',
+                reason: 'target_already_dead',
+                logs: [
+                    {
+                        targetId: ctx.targetId,
+                        type: 'damage_skipped',
+                        reason: 'target_already_dead'
+                    }
+                ],
             }
         }
 
@@ -27,6 +34,7 @@ export class DamageProcessor implements IProcessor {
             sourceId: ctx.casterId,
             targetId: ctx.targetId,
             amount: result.actualDamage,
+            reactionDepth: ctx.reactionDepth,
         }]
 
         if (result.isDead) {

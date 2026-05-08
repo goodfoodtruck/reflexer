@@ -12,7 +12,7 @@ describe('Mort d\'une entité', () => {
             actions: {
                 strike: buildAction({
                     id: 'strike',
-                    configs: [{ processorId: 'damage', params: { damage_value: 20 } }],
+                    configs: [{ type: 'damage', order: 1, params: { damage_value: 20 } }],
                 }),
             },
         })
@@ -39,8 +39,8 @@ describe('Mort d\'une entité', () => {
                 doubleStrike: buildAction({
                     id: 'doubleStrike',
                     configs: [
-                        { processorId: 'damage', params: { damage_value: 20 } },
-                        { processorId: 'damage', params: { damage_value: 20 } }
+                        { type: 'damage', order: 1, params: { damage_value: 20 } },
+                        { type: 'damage', order: 2, params: { damage_value: 20 } }
                     ],
                 }),
             },
@@ -66,7 +66,7 @@ describe('Mort d\'une entité', () => {
             actions: {
                 strike: buildAction({
                     id: 'strike',
-                    configs: [{ processorId: 'damage', params: { damage_value: 20 } }],
+                    configs: [{ type: 'damage', order: 1, params: { damage_value: 20 } }],
                 }),
             },
         })

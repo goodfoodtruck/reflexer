@@ -1,27 +1,21 @@
 import { FightContextFactory } from "@fight/context/FightContextFactory";
-import { FightMapConfig, FightResult } from "@fight/fight.types";
+import { FightMapID, FightResult } from "@fight/fight.types";
 import { FightOrchestrator } from "@fight/FightOrchestrator";
 import { PlayerData } from "@game-engine/game-engine.types";
 import { FightError, Result } from "@game-engine/api.types";
 import { IFightCommandHandler } from "@game-engine/command-handlers/handlers.interfaces";
+import { IFightMapRegistry } from "@data/IFightMapRegistry";
 
 export class FightCommandHandler implements IFightCommandHandler {
 
     constructor(
         private readonly fightOrchestrator: FightOrchestrator,
-        private readonly fightContextFactory: FightContextFactory
+        private readonly fightContextFactory: FightContextFactory,
+        private readonly fightMapRegistry: IFightMapRegistry,
     ) {}
 
-    playFight(fightMapId: string, playerData: PlayerData): Result<FightResult, FightError> {
-        // TODO: récupérer la config depuis un registry
-        const fightMapConfig: FightMapConfig = {
-            dimensions: { width: 10, height: 10 },
-            cells: [],
-            spawnPoints: {
-                player: [],
-                enemy: []
-            }
-        }
+    playFight(fightMapId: FightMapID, playerData: PlayerData): Result<FightResult, FightError> {
+        const fightMapConfig = this.fightMapRegistry.getConfig(fightMapId);
 
         const fightContext = this.fightContextFactory.create(fightMapConfig, playerData)
         const fightResult = this.fightOrchestrator.playFight(fightContext)

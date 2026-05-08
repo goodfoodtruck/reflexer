@@ -4,7 +4,7 @@ import {Action, ActionCategory, ActionID} from "@fight/fight.types";
 interface BuildActionOptions {
     id: string
     type?: ActionCategory
-    configs: Omit<ProcessorConfig, 'order'>[]
+    configs: ProcessorConfig[]
 }
 
 export function buildAction(opts: BuildActionOptions): Action {

@@ -8,7 +8,7 @@ export class FightMap {
     constructor(config: FightMapConfig) {
         this.dimensions = config.dimensions
         this.cells = config.cells.map((row, y) =>
-            row.map((cell, x) => ({ ...cell, position: { x, y } }))
+            row.map((cell, x) => ({ type: cell, position: { x, y } }))
         )
     }
 }
