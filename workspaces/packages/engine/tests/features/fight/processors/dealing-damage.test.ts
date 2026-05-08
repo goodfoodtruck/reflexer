@@ -13,7 +13,7 @@ describe('Infliger des dégâts', () => {
             actions: {
                 strike: buildAction({
                     id: 'strike',
-                    configs: [{ processorId: 'damage', params: { damage_value: 20 } }],
+                    configs: [{ type: 'damage', order: 1, params: { damage_value: 20 } }],
                 }),
             },
         })
@@ -64,7 +64,7 @@ describe('Infliger des dégâts', () => {
             actions: {
                 strike: buildAction({
                     id: 'strike',
-                    configs: [{ processorId: 'damage', params: { damage_value: 20 } }],
+                    configs: [{ type: 'damage', order: 1, params: { damage_value: 20 } }],
                 }),
             },
         })

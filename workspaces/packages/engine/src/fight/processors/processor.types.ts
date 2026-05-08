@@ -4,12 +4,17 @@ import { IProcessor } from "@processors/IProcessor";
 
 export type DamageParams = { damage_value: number }
 
-interface BaseProcessorConfig {
-    order: number
-}
+type ProcessorParams =
+    | DamageParams
 
-export type ProcessorConfig =
-    | (BaseProcessorConfig & { processorId: 'damage'; params: DamageParams })
+type ProcessorType =
+    | 'damage'
+
+export type ProcessorConfig = {
+    type: ProcessorType;
+    order: number;
+    params: ProcessorParams;
+}
 
 export type QueuedProcessor = {
     processor: Readonly<IProcessor>;

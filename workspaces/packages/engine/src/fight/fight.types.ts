@@ -113,18 +113,12 @@ export type EntityStats = {
     energy: number
 }
 
+export type FightMapID = string
+
 export enum EObstacleType {
-    HOLE
-}
-
-export type TileEffectConfig = {
-    actionId: ActionID 
-}
-
-export type CellConfig = {
-    walkable: boolean
-    obstacle?: EObstacleType
-    effect?: TileEffectConfig
+    HOLE = "HOLE",
+    WALL = "WALL",
+    FLOOR = "FLOOR",
 }
 
 export type FightMapSpawnPoints = {
@@ -133,9 +127,13 @@ export type FightMapSpawnPoints = {
 }
 
 export type FightMapConfig = {
+    id: FightMapID
     dimensions: Dimensions
-    cells: CellConfig[][]
+    cells: EObstacleType[][]
     spawnPoints: FightMapSpawnPoints
 }
 
-export type MapCell = CellConfig & { position: Position }
+export type MapCell = {
+    position: Position,
+    type: EObstacleType
+}
