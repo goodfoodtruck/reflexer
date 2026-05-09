@@ -1,13 +1,15 @@
 import { IFightContextReader } from "@fight/context/IFightContextReader";
 import { PlayingEntity, PlayingEntityID } from "@fight/fight.types";
-import { TargetSelector, TargetSort } from "@fight/gambits/gambits.types";
+import { ETargetType, TargetSelector, TargetSort } from "@fight/gambits/gambits.types";
 import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/highestHPTarget";
 import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/lowestHPTarget";
-import { EntityScopeResolver } from "../EntityScopeResolver";
+import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier";
+import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
 
 export class GambitTargetResolver {
 
     constructor(
+        private readonly filterApplier: FilterApplier,
         private readonly entityScopeResolver: EntityScopeResolver
     ) {}
 
@@ -23,8 +25,14 @@ export class GambitTargetResolver {
         fightContext: IFightContextReader, 
         selector: TargetSelector
     ): PlayingEntityID | null {
-        const targetedEntities = this.entityScopeResolver.resolveScope(selector.context.targetType, playingEntity, fightContext)
-        const finalTarget = this.getSortedTarget(targetedEntities, selector.sort)
+        let candidates = this.entityScopeResolver.resolveScope(selector.context.targetType, playingEntity, fightContext)
+
+        if (selector.context.targetType !== ETargetType.SELF)
+            candidates = this.filterApplier.applyAll(candidates, selector.context.filters, fightContext)
+
+        if (! candidates.length) return null
+
+        const finalTarget = this.getSortedTarget(candidates, selector.sort)
 
         return finalTarget.id
     }
