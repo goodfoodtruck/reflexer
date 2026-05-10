@@ -107,11 +107,22 @@ export type FightEndState =
 export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
 
-export type EntityTag =
-    | "PLAYER"
+// créer un type à part peut être pour avoir différents types d'alliés ensuite
+// de différents types comme SOIN, DEFENSE...etc
+export type AllyTag = 
+    | "ALLY"
+
+export type EnemyTag = 
     | "ENEMY_MELEE"
     | "ENEMY_RANGED"
+    | "ENEMY_TANK"
     | "ENEMY_BOSS"
+
+export type EntityTag =
+    | AllyTag
+    | EnemyTag
+
+    
 
 export type PlayingEntity = {
     id: PlayingEntityID
