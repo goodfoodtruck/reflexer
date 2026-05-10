@@ -3,7 +3,9 @@ import { Gambit } from "@fight/gambits/gambits.types";
 
 export type EnemyConfig = {
     gambits: Gambit[],
-    baseStats: EntityStats
+    statsByFloorTier: {
+        [tier: number]: EntityStats  // tier 1 = étages 1-3, tier 2 = étages 4-6...
+    }
 }
 
 export interface IEnemyRegistry {

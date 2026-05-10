@@ -40,7 +40,7 @@ export class FightContextFactory {
     ): PlayingEntity[] {
         const nbEnemies = this.nbEnemiesResolver.resolve(playerData.playerFloorIndex)
         const enemyTeamComposition = this.enemyCompositionResolver.resolve(size, nbEnemies)
-        const enemies = this.buildEnemies(enemyTeamComposition, spawnPoints.enemy)
+        const enemies = this.buildEnemies(enemyTeamComposition, spawnPoints.enemy, playerData.playerFloorIndex)
 
         const playerTeamComposition = this.allyCompositionResolver.resolve()
         const players = this.buildAllies(playerTeamComposition, spawnPoints.player)
@@ -48,8 +48,8 @@ export class FightContextFactory {
         return [...players, ...enemies]
     }
 
-    private buildEnemies(teamComposition: EnemyTag[], spawnPoints: Position[]): PlayingEntity[] {
-        return teamComposition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, spawnPoints[i]!, i + 1))
+    private buildEnemies(teamComposition: EnemyTag[], spawnPoints: Position[], floorIndex: number): PlayingEntity[] {
+        return teamComposition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, spawnPoints[i]!, i + 1, floorIndex))
     }
 
     private buildAllies(teamComposition: AllyTag[], spawnPoints: Position[]): PlayingEntity[] {

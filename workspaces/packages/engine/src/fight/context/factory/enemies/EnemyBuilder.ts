@@ -9,23 +9,40 @@ export class EnemyBuilder {
         private readonly enemyRegistry: IEnemyRegistry
     ) {}
 
-    buildEnemy(enemyTag: EnemyTag, position: Position, index: number): PlayingEntity {
+    buildEnemy(enemyTag: EnemyTag, position: Position, index: number, floorIndex: number): PlayingEntity {
         const enemyNames = this.enemyRegistry.getExistingEnemies(enemyTag)
         const randomEnemyName = pickRandom(enemyNames)
         const enemyConfig = this.enemyRegistry.getConfig(randomEnemyName)
+
+        const tier = this.resolveTier(floorIndex)
+        const enemyStats = enemyConfig.statsByFloorTier[tier]!
 
         return {
             id: this.generateEnemyID(enemyTag, index),
             teamId: "ENEMY",
             tags: [enemyTag],
             position: position,
-            baseStats: { ...enemyConfig.baseStats },
-            currentStats: { ...enemyConfig.baseStats },
+            baseStats: { ...enemyStats },
+            currentStats: { ...enemyStats },
             gambits: [...enemyConfig.gambits],
             statuses: [],
             takeDamage: (amount: number) => { return amount },
             isDead: false
         }
+    }
+
+    /**
+     * Retourne dans quel partie de la carte on se trouve.
+     * 
+     * Le tier permet de récupérer les statistiques d'un ennemi selon le degré de difficulté
+     * @param floorIndex 
+     * @returns 
+     */
+    private resolveTier(floorIndex: number): number {
+        if (floorIndex <= 3)  return 1
+        if (floorIndex <= 6)  return 2
+        if (floorIndex <= 10) return 3
+        return 4
     }
 
     private generateEnemyID(enemyTag: EnemyTag, index: number): PlayingEntityID {
