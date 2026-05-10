@@ -1,5 +1,7 @@
+import { SelfFilter, AllyFilter, EnemyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
+
 /** Statuts pouvant affecter une entité pendant le combat */
-type Status = "POISON" | "BURNT" | "PARALYZED"
+export type Status = "POISON" | "BURNT" | "PARALYZED"
 
 /**
  * Un gambit est une règle comportementale complète.
@@ -21,6 +23,9 @@ export type Gambit = {
 
 export type ActionIntent = { kind: "ACTION"; actionId: string }
 export type MovementIntent = { kind: "MOVEMENT"; strategy: MovementStrategy }
+
+export type ActionGambit = Gambit & { intent: ActionIntent }
+export type MovementGambit = Gambit & { intent: MovementIntent }
 
 /**
  * Ce que l'entité fait quand le gambit est résolu.
@@ -44,7 +49,7 @@ export type MovementStrategy = "APPROACH" | "FLEE" | "STAY"
  * Si l'arbre entier est vrai, on passe au ciblage.
  * Les feuilles de l'arbre sont des ExistsCondition — des requêtes d'existence d'une entité.
  */
-type ConditionGroup =
+export type ConditionGroup =
     | { operator: "AND"; conditions: ConditionGroup[] }
     | { operator: "OR";  conditions: ConditionGroup[] }
     | { operator: "NOT"; condition: ConditionGroup }
@@ -63,12 +68,21 @@ type ConditionGroup =
  * // "il existe au moins 2 ennemis à portée 3"
  * { type: "EXISTS", scope: { kind: "ENEMY", filters: [{ type: "IN_RANGE", range: 3 }] }, threshold: 2 }
  */
-type ExistsCondition = {
+export type ExistsCondition = {
     type: "EXISTS"
     /** Définit qui on cherche et avec quels critères */
-    scope: ConditionContext
+    context: ConditionContext
     /** Nombre minimum d'entités requises pour que la condition soit vraie. Défaut : 1 */
     threshold?: number
+}
+
+/**
+ * Types de cibles que le joueur peut choisir
+ */
+export enum ETargetType {
+    SELF = "SELF",
+    ENEMY = "ENEMY",
+    ALLY = "ALLY"
 }
 
 /**
@@ -77,42 +91,9 @@ type ExistsCondition = {
  * Chaque variant porte les filtres valides pour son type.
  */
 type ConditionContext =
-    | { kind: "SELF";  filters: SelfFilter[] }
-    | { kind: "ALLY";  filters: AllyFilter[] }
-    | { kind: "ENEMY"; filters: EnemyFilter[] }
-    | { kind: "TILE";  filters: TileFilter[] }
-
-/** Filtres applicables à toute entité vivante (soi-même, allié, ennemi) */
-type LivingEntityFilter =
-    | { type: "HP_BELOW";   threshold: number } // HP courant inférieur à threshold %
-    | { type: "HP_ABOVE";   threshold: number } // HP courant supérieur à threshold %
-    | { type: "HAS_STATUS"; status: Status }    // affectée par ce statut
-    | { type: "IN_RANGE";   range: number }     // à moins de `range` cases de l'entité courante
-
-/**
- * Filtres applicables à soi-même.
- * Alias de LivingEntityFilter — explicite pour l'extensibilité future.
- */
-type SelfFilter = LivingEntityFilter
-
-/** Filtres applicables aux alliés */
-type AllyFilter =
-    | LivingEntityFilter
-    | { type: "ALLY_IN_RANGE_OF_ENEMY"; range: number } // à moins de `range` cases d'un ennemi
-    | { type: "ALLY_IN_RANGE_OF_ALLY";  range: number } // à moins de `range` cases d'un autre allié
-
-/** Filtres applicables aux ennemis */
-type EnemyFilter =
-    | LivingEntityFilter
-    | { type: "ENEMY_IN_RANGE_OF_ALLY"; range: number } // à moins de `range` cases d'un allié
-    | { type: "IS_ATTACKING_ALLY" }                     // attaque un allié ce tour
-    | { type: "IS_ATTACKING_SELF" }                     // attaque l'entité courante ce tour
-
-/** Filtres applicables aux cases de la grille de combat */
-type TileFilter =
-    | { type: "IS_TRAP" }                       // la case contient un piège
-    | { type: "HAS_EFFECT" }                    // la case a un effet actif
-    | { type: "IN_RANGE"; range: number }       // à moins de `range` cases de l'entité courante
+    | { targetType: ETargetType.SELF,  filters: SelfFilter[] }
+    | { targetType: ETargetType.ENEMY, filters: AllyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: EnemyFilter[] }
 
 /**
  * Sélecteur de cible évalué après les conditions.
@@ -120,10 +101,14 @@ type TileFilter =
  * puis sélectionne la meilleure selon le critère de tri.
  * Si aucune cible n'est trouvée, le gambit est ignoré.
  */
-type TargetSelector = {
+export type TargetSelector = {
     /** Pool de candidats : qui peut être ciblé et avec quels critères */
     context: TargetContext
-    /** Critère de sélection de la cible finale parmi les candidats */
+    /** 
+     * Critère de sélection de la cible
+     * 
+     * Par exemple: la plus proche, celle qui a le moins de HP...etc
+     *  */
     sort: TargetSort
 }
 
@@ -133,10 +118,9 @@ type TargetSelector = {
  * SELF n'a pas de filtres — il n'y a qu'une seule entité possible.
  */
 type TargetContext =
-    | { kind: "SELF" }
-    | { kind: "ENEMY"; filters: EnemyFilter[] }
-    | { kind: "ALLY";  filters: AllyFilter[] }
-    | { kind: "TILE";  filters: TileFilter[] }
+    | { targetType: ETargetType.SELF }
+    | { targetType: ETargetType.ENEMY, filters: EnemyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: AllyFilter[] }
 
 /**
  * Critère de sélection de la cible finale parmi les candidats filtrés.
@@ -146,9 +130,6 @@ type TargetContext =
  * - MOST_DANGEROUS : celle avec la plus haute stat d'attaque
  * - RANDOM : aléatoire parmi les candidats
  */
-type TargetSort =
-    | "NEAREST"
+export type TargetSort =
     | "LOWEST_HP"
     | "HIGHEST_HP"
-    | "MOST_DANGEROUS"
-    | "RANDOM"

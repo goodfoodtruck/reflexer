@@ -1,8 +1,7 @@
-import { ActionLog } from "../fight.types"
-import { FightContext } from "../context/FightContext"
-import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
+import { ActionLog, ExecutionContext } from "@fight/fight.types"
+import { FightContext } from "@fight/context/FightContext"
 import { QueuedProcessor } from "@processors/processor.types";
-import {IProcessor} from "@processors/IProcessor";
+import { IProcessor } from "@processors/IProcessor";
 
 export class ProcessorChain {
     execute(

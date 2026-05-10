@@ -1,4 +1,4 @@
-import { Gambit } from "@gambits/gambits.types"
+import { Gambit } from "@fight/gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
 import {IStatus} from "@fight/context/IStatus";
@@ -21,6 +21,13 @@ export interface TurnEvent {
     readonly ownerId: PlayingEntityID
     readonly turnIndex: number
 }
+
+export type ExecutionContext = {
+    casterId: Readonly<PlayingEntityID>;
+    actionId: Readonly<ActionID>;
+    targetId: Readonly<PlayingEntityID>;
+    reactionDepth: Readonly<number>;
+};
 
 export type StatusID = string
 

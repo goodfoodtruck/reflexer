@@ -4,6 +4,8 @@ export interface IFightContextReader {
     isNewTurn(): boolean
     getActingEntity(): PlayingEntity | null
     getAllEntities(): PlayingEntity[]
+    getAllies(entity: PlayingEntity): PlayingEntity[]
+    getEnemies(entity: PlayingEntity): PlayingEntity[]
     getEntityById(entityId: PlayingEntityID): PlayingEntity | null
     getTurnIndex(): number
 }

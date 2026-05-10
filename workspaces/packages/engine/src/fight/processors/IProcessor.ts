@@ -1,6 +1,6 @@
 import { FightContext } from "@fight/context/FightContext";
+import { ExecutionContext } from "@fight/fight.types";
 import { ProcessorResult } from "@processors/processor.types";
-import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
 
 export interface IProcessor {
     execute(

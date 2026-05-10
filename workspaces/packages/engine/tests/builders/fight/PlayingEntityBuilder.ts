@@ -1,6 +1,6 @@
-import { PlayingEntity } from "@fight/fight.types";
+import { EntityStats, PlayingEntity } from "@fight/fight.types";
 
-export function buildPlayingEntity(overrides: Partial<PlayingEntity> = {}): PlayingEntity {
+export const buildPlayingEntity = (overrides: Partial<PlayingEntity> = {}): PlayingEntity => {
     return {
         id: 'entity_default',
         teamId: 'PLAYER',
@@ -13,7 +13,7 @@ export function buildPlayingEntity(overrides: Partial<PlayingEntity> = {}): Play
         statuses: [],
         takeDamage(amount: number): number {
             if (amount < 0) throw new Error(`takeDamage expects a non-negative amount, got ${amount}`)
-
+            
             const actualDamage = Math.min(amount, this.currentStats.health)
             this.currentStats.health -= actualDamage
 
@@ -22,5 +22,25 @@ export function buildPlayingEntity(overrides: Partial<PlayingEntity> = {}): Play
             return actualDamage
         },
         ...overrides
+    }
+}
+
+export function withCurrentStats(entity: PlayingEntity, stats: Partial<EntityStats>): PlayingEntity {
+    return {
+        ...entity,
+        currentStats: {
+            ...entity.currentStats,
+            ...stats
+        }
+    }
+}
+
+export function withBaseStats(entity: PlayingEntity, stats: Partial<EntityStats>): PlayingEntity {
+    return {
+        ...entity,
+        baseStats: {
+            ...entity.baseStats,
+            ...stats
+        }
     }
 }

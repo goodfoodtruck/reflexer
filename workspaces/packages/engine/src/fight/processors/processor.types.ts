@@ -1,5 +1,4 @@
-import { ActionLog } from "@fight/fight.types";
-import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
+import { ActionLog, ExecutionContext } from "@fight/fight.types";
 import { IProcessor } from "@processors/IProcessor";
 
 export type DamageParams = { damage_value: number }

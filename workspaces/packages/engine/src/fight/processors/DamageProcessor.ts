@@ -1,8 +1,7 @@
 import { FightContext } from "@fight/context/FightContext";
 import { IProcessor } from "@processors/IProcessor";
-import { ExecutionContext } from "@fight/turn-resolvers/execution-context.types";
 import { ProcessorResult } from "@processors/processor.types";
-import { ActionLog } from "@fight/fight.types";
+import { ActionLog, ExecutionContext } from "@fight/fight.types";
 
 export class DamageProcessor implements IProcessor {
     constructor(private readonly damageValue: number) {}
