@@ -1,5 +1,6 @@
 import { IEnemyRegistry } from "@data/IEnemyRegistry";
 import { EnemyTag, PlayingEntity, PlayingEntityID } from "@fight/fight.types";
+import { pickRandom } from "@helpers/shared/helpers.shared";
 import { Position } from "@helpers/types/helpers.types";
 
 export class EnemyBuilder {
@@ -9,23 +10,18 @@ export class EnemyBuilder {
     ) {}
 
     buildEnemy(enemyTag: EnemyTag, position: Position, index: number): PlayingEntity {
-        switch(enemyTag) {
-            case "ENEMY_MELEE": return this.buildMeleeEnemy(position, index)
-            case "ENEMY_TANK": throw new Error("Not implemented.")
-            case "ENEMY_BOSS": throw new Error("Not implemented.")
-            case "ENEMY_RANGED": throw new Error("Not implemented.")
-        }
-    }
+        const enemyNames = this.enemyRegistry.getExistingEnemies(enemyTag)
+        const randomEnemyName = pickRandom(enemyNames)
+        const enemyConfig = this.enemyRegistry.getConfig(randomEnemyName)
 
-    private buildMeleeEnemy(position: Position, index: number): PlayingEntity {
         return {
-            id: this.generateEnemyID("ENEMY_MELEE", index),
+            id: this.generateEnemyID(enemyTag, index),
             teamId: "ENEMY",
-            tags: ["ENEMY_MELEE"],
+            tags: [enemyTag],
             position: position,
-            baseStats: this.enemyRegistry.getBaseStats("ENEMY_MELEE"),
-            currentStats: this.enemyRegistry.getBaseStats("ENEMY_MELEE"),
-            gambits: this.enemyRegistry.getGambits("ENEMY_MELEE"),
+            baseStats: { ...enemyConfig.baseStats },
+            currentStats: { ...enemyConfig.baseStats },
+            gambits: [...enemyConfig.gambits],
             statuses: [],
             takeDamage: (amount: number) => { return amount },
             isDead: false

@@ -118,6 +118,8 @@ export type EnemyTag =
     | "ENEMY_TANK"
     | "ENEMY_BOSS"
 
+export type EnemyName = "ALIEN" | "KNIGHT" | "GOBLIN"
+
 export type EntityTag =
     | AllyTag
     | EnemyTag
