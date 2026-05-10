@@ -1,9 +1,9 @@
 import {PlayingEntityID, PlayingEntity, DamageReceivedEvent, PlayingTeamID} from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
-import { IFightContextMutator } from "./IFightContextMutator"
-import { IFightContextReader } from "./IFightContextReader"
-import { IReactiveContext } from "@fight/context/IFightContextReactive";
+import { IFightContextMutator } from "@fight/context/IFightContextMutator"
+import { IFightContextReader } from "@fight/context/IFightContextReader"
+import {IReactiveContext} from "@fight/context/IFightContextReactive";
 import { QueuedProcessor } from "@processors/processor.types";
 import { Position } from "@helpers/types/helpers.types";
 
