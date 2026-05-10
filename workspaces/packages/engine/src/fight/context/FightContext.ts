@@ -17,9 +17,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
     private reactionQueue: QueuedProcessor[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
-        //const validator = new FightEntitiesValidator()
-        //validator.validate(entities)
-
         this.turnIndex = 0
         this.map = map
         this.reactionQueue = []

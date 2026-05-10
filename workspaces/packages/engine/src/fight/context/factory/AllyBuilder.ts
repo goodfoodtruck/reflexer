@@ -1,17 +1,17 @@
-import { AllyTag, PlayingEntity } from "@fight/fight.types"
+import { AllyTag, PlayingEntity, PlayingEntityID } from "@fight/fight.types"
 import { Position } from "@helpers/types/helpers.types"
 
 export class AllyBuilder {
 
-    buildAlly(enemyTag: AllyTag, position: Position): PlayingEntity {
+    buildAlly(enemyTag: AllyTag, position: Position, index: number): PlayingEntity {
         switch(enemyTag) {
-            case "ALLY": return this.build(position)
+            case "ALLY": return this.build(position, index)
         }
     }
 
-    private build(position: Position): PlayingEntity {
+    private build(position: Position, index: number): PlayingEntity {
         return {
-            id: "", // TODO
+            id: this.generateAllyID("ALLY", index),
             teamId: "PLAYER",
             tags: ["ALLY"],
             position: position,
@@ -24,4 +24,7 @@ export class AllyBuilder {
         }
     }
     
+    private generateAllyID(allyTag: AllyTag, index: number): PlayingEntityID {
+        return `${allyTag}_${index}`
+    }
 }

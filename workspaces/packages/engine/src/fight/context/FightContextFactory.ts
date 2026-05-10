@@ -9,6 +9,7 @@ import { EnemyCompositionResolver } from "@fight/context/factory/EnemyCompositio
 import { AllyBuilder } from "@fight/context/factory/AllyBuilder";
 import { AllyCompositionResolver } from "@fight/context/factory/AllyCompositionResolver";
 import { NbEnemiesResolver } from "@fight/context/factory/NbEnemiesResolver";
+import { FightEntitiesValidator } from "./FightEntitiesValidator";
 
 export class FightContextFactory {
 
@@ -26,6 +27,9 @@ export class FightContextFactory {
     ): FightContext {
         const map = new FightMap(mapConfig)
         const playingEntities = this.buildEntities(mapConfig.size, mapConfig.spawnPoints, playerData)
+
+        const validator = new FightEntitiesValidator()
+        validator.validate(playingEntities)
         return new FightContext(playingEntities, map)
     }
 
@@ -44,17 +48,11 @@ export class FightContextFactory {
         return [...players, ...enemies]
     }
 
-    private buildEnemies(
-        teamComposition: EnemyTag[], 
-        spawnPoints: Position[]
-    ): PlayingEntity[] {
-        return teamComposition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, spawnPoints[i]!))
+    private buildEnemies(teamComposition: EnemyTag[], spawnPoints: Position[]): PlayingEntity[] {
+        return teamComposition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, spawnPoints[i]!, i + 1))
     }
 
-    private buildAllies(
-        teamComposition: AllyTag[], 
-        spawnPoints: Position[]
-    ): PlayingEntity[] {
-        return teamComposition.map((tag, i) => this.allyBuilder.buildAlly(tag, spawnPoints[i]!))
+    private buildAllies(teamComposition: AllyTag[], spawnPoints: Position[]): PlayingEntity[] {
+        return teamComposition.map((tag, i) => this.allyBuilder.buildAlly(tag, spawnPoints[i]!, i + 1))
     }
 }
