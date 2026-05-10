@@ -131,27 +131,3 @@ export type EntityStats = {
     energy: number
 }
 
-export type FightMapID = string
-
-export enum EObstacleType {
-    HOLE = "HOLE",
-    WALL = "WALL",
-    FLOOR = "FLOOR",
-}
-
-export type FightMapSpawnPoints = {
-    player: Position[]
-    enemy: Position[]
-}
-
-export type FightMapConfig = {
-    id: FightMapID
-    dimensions: Dimensions
-    cells: EObstacleType[][]
-    spawnPoints: FightMapSpawnPoints
-}
-
-export type MapCell = {
-    position: Position,
-    type: EObstacleType
-}

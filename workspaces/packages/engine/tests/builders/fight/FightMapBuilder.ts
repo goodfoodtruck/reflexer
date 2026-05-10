@@ -1,4 +1,4 @@
-import { FightMap } from '@fight/FightMap'
+import { FightMap } from '@fight/map/FightMap'
 import { EObstacleType, FightMapConfig } from '@fight/fight.types'
 
 export function buildFightMap(overrides: Partial<FightMapConfig> = {}): FightMap {

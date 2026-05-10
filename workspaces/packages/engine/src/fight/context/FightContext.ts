@@ -1,5 +1,5 @@
-import { PlayingEntityID, PlayingEntity, DamageReceivedEvent } from "@fight/fight.types"
-import { FightMap } from "@fight/FightMap"
+import {PlayingEntityID, PlayingEntity, DamageReceivedEvent, PlayingTeamID} from "@fight/fight.types"
+import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { IFightContextMutator } from "./IFightContextMutator"
 import { IFightContextReader } from "./IFightContextReader"

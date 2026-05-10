@@ -1,7 +1,8 @@
-import { FightMapConfig, FightMapSpawnPoints, PlayingEntity } from "@fight/fight.types";
+import { PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
-import { FightMap } from "@fight/FightMap";
-import { PlayerData } from "../../game-engine/game-engine.types";
+import { FightMap } from "@fight/map/FightMap";
+import { FightMapConfig, FightMapSpawnPoints } from "@fight/map/fight.map.types";
+import { PlayerData } from "@game-engine/game-engine.types";
 
 export class FightContextFactory {
     private constructor() {}
@@ -19,6 +20,7 @@ export class FightContextFactory {
         spawnPoints: FightMapSpawnPoints, 
         playerData: PlayerData
     ): PlayingEntity[] {
+        // récupérer bons types d'ennemis
         return []
     }
 }
