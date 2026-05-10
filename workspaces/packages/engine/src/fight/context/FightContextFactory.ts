@@ -4,11 +4,11 @@ import { FightMap } from "@fight/map/FightMap";
 import { EFightMapSize, FightMapConfig, FightMapSpawnPoints } from "@fight/map/fight.map.types";
 import { PlayerData } from "@game-engine/game-engine.types";
 import { Position } from "@helpers/types/helpers.types";
-import { EnemyBuilder } from "@fight/context/factory/EnemyBuilder";
-import { EnemyCompositionResolver } from "@fight/context/factory/EnemyCompositionResolver";
-import { AllyBuilder } from "@fight/context/factory/AllyBuilder";
-import { AllyCompositionResolver } from "@fight/context/factory/AllyCompositionResolver";
-import { NbEnemiesResolver } from "@fight/context/factory/NbEnemiesResolver";
+import { EnemyBuilder } from "@fight/context/factory/enemies/EnemyBuilder";
+import { EnemyCompositionResolver } from "@fight/context/factory/enemies/EnemyCompositionResolver";
+import { AllyBuilder } from "@fight/context/factory/allies/AllyBuilder";
+import { AllyCompositionResolver } from "@fight/context/factory/allies/AllyCompositionResolver";
+import { NbEnemiesResolver } from "@fight/context/factory/enemies/NbEnemiesResolver";
 import { FightEntitiesValidator } from "./FightEntitiesValidator";
 
 export class FightContextFactory {
