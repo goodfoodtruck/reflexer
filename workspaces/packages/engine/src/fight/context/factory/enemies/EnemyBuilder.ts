@@ -10,10 +10,15 @@ export class EnemyBuilder {
     ) {}
 
     buildEnemy(enemyTag: EnemyTag, position: Position, index: number, floorIndex: number): PlayingEntity {
+        // on récupère les ennemis qui ont ce tag et on en choisit un au hasard 
+        // qui va spawn
         const enemyNames = this.enemyRegistry.getExistingEnemies(enemyTag)
         const randomEnemyName = pickRandom(enemyNames)
         const enemyConfig = this.enemyRegistry.getConfig(randomEnemyName)
 
+        // on récupère dans quelle partie de la carte se trouve le joueur
+        // plus il est avancé dans la partie, plus les stats des ennemis
+        // seront élevées
         const tier = this.resolveTier(floorIndex)
         const enemyStats = enemyConfig.statsByFloorTier[tier]!
 

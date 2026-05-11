@@ -1,10 +1,11 @@
 import { FightContextFactory } from "@fight/context/FightContextFactory";
-import { FightMapID, FightResult } from "@fight/fight.types";
+import { FightResult } from "@fight/fight.types";
 import { FightOrchestrator } from "@fight/FightOrchestrator";
 import { PlayerData } from "@game-engine/game-engine.types";
 import { FightError, Result } from "@game-engine/api.types";
 import { IFightCommandHandler } from "@game-engine/command-handlers/handlers.interfaces";
 import { IFightMapRegistry } from "@data/IFightMapRegistry";
+import { FightMapID } from "@fight/map/fight.map.types";
 
 export class FightCommandHandler implements IFightCommandHandler {
 
