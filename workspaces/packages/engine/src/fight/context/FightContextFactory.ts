@@ -7,7 +7,6 @@ import { Position } from "@helpers/types/helpers.types";
 import { EnemyBuilder } from "@fight/context/factory/enemies/EnemyBuilder";
 import { EnemyCompositionResolver } from "@fight/context/factory/enemies/EnemyCompositionResolver";
 import { AllyBuilder } from "@fight/context/factory/allies/AllyBuilder";
-import { AllyCompositionResolver } from "@fight/context/factory/allies/AllyCompositionResolver";
 import { NbEnemiesResolver } from "@fight/context/factory/enemies/NbEnemiesResolver";
 import { FightEntitiesValidator } from "./FightEntitiesValidator";
 
@@ -18,8 +17,7 @@ export class FightContextFactory {
         private readonly nbEnemiesResolver: NbEnemiesResolver,
         private readonly enemyBuilder: EnemyBuilder,
         private readonly enemyCompositionResolver: EnemyCompositionResolver,
-        private readonly allyBuilder: AllyBuilder,
-        private readonly allyCompositionResolver: AllyCompositionResolver
+        private readonly allyBuilder: AllyBuilder
     ) {}
 
     create(
