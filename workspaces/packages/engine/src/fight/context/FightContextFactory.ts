@@ -1,4 +1,4 @@
-import { AllyTag, EnemyTag, PlayingEntity } from "@fight/fight.types";
+import { AllyName, EnemyTag, PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { FightMap } from "@fight/map/FightMap";
 import { EFightMapSize, FightMapConfig, FightMapSpawnPoints } from "@fight/map/fight.map.types";
@@ -52,7 +52,7 @@ export class FightContextFactory {
         return teamComposition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, spawnPoints[i]!, i + 1, floorIndex))
     }
 
-    private buildAllies(teamComposition: AllyTag[], spawnPoints: Position[]): PlayingEntity[] {
-        return teamComposition.map((tag, i) => this.allyBuilder.buildAlly(tag, spawnPoints[i]!, i + 1))
+    private buildAllies(teamComposition: AllyName[], spawnPoints: Position[]): PlayingEntity[] {
+        return teamComposition.map((name, i) => this.allyBuilder.buildAlly(name, spawnPoints[i]!, i + 1))
     }
 }

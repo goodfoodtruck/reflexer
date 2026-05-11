@@ -1,8 +1,8 @@
-import { AllyTag } from "@fight/fight.types";
+import { AllyName } from "@fight/fight.types";
 
 export class AllyCompositionResolver {
 
-    resolve(): AllyTag[] {
-        return ["ALLY", "ALLY"]
+    resolve(): AllyName[] {
+        return ["CHARACTER_1", "CHARACTER_2"]
     }
 }
