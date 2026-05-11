@@ -1,30 +1,31 @@
-import { AllyTag, PlayingEntity, PlayingEntityID } from "@fight/fight.types"
+import { IAllyRegistry } from "@data/IAllyRegistry"
+import { AllyName, PlayingEntity, PlayingEntityID } from "@fight/fight.types"
 import { Position } from "@helpers/types/helpers.types"
 
 export class AllyBuilder {
 
-    buildAlly(enemyTag: AllyTag, position: Position, index: number): PlayingEntity {
-        switch(enemyTag) {
-            case "ALLY": return this.build(position, index)
-        }
-    }
+    constructor(
+        private readonly allyRegistry: IAllyRegistry
+    ) {}
 
-    private build(position: Position, index: number): PlayingEntity {
+    buildAlly(allyName: AllyName, position: Position, index: number): PlayingEntity {
+        const config = this.allyRegistry.getConfig(allyName)
+
         return {
-            id: this.generateAllyID("ALLY", index),
+            id: this.generateAllyID(allyName, index),
             teamId: "PLAYER",
-            tags: ["ALLY"],
+            tags: [allyName],
             position: position,
-            baseStats: { health: 100, energy: 10 },
-            currentStats: { health: 100, energy: 10 },
-            gambits: [], // récupérer en DB avant et injecter
+            baseStats: { ...config.baseStats },
+            currentStats: { ...config.baseStats },
+            gambits: [...config.gambits], // récupérer en DB avant et injecter
             statuses: [], // récupérer par injection
             takeDamage: (amount: number) => { return amount },
             isDead: false
         }
     }
     
-    private generateAllyID(allyTag: AllyTag, index: number): PlayingEntityID {
-        return `${allyTag}_${index}`
+    private generateAllyID(allyName: AllyName, index: number): PlayingEntityID {
+        return `${allyName}_${index}`
     }
 }
