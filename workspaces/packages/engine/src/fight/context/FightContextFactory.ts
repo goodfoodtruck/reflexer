@@ -13,7 +13,8 @@ import { FightEntitiesValidator } from "./FightEntitiesValidator";
 
 export class FightContextFactory {
 
-    private constructor(
+    constructor(
+        private readonly fightEntitiesValidator: FightEntitiesValidator,
         private readonly nbEnemiesResolver: NbEnemiesResolver,
         private readonly enemyBuilder: EnemyBuilder,
         private readonly enemyCompositionResolver: EnemyCompositionResolver,
@@ -28,8 +29,8 @@ export class FightContextFactory {
         const map = new FightMap(mapConfig)
         const playingEntities = this.buildEntities(mapConfig.size, mapConfig.spawnPoints, playerData)
 
-        const validator = new FightEntitiesValidator()
-        validator.validate(playingEntities)
+        this.fightEntitiesValidator.validate(playingEntities)
+
         return new FightContext(playingEntities, map)
     }
 
@@ -42,10 +43,9 @@ export class FightContextFactory {
         const enemyTeamComposition = this.enemyCompositionResolver.resolve(size, nbEnemies)
         const enemies = this.buildEnemies(enemyTeamComposition, spawnPoints.enemy, playerData.playerFloorIndex)
 
-        const playerTeamComposition = this.allyCompositionResolver.resolve()
-        const players = this.buildAllies(playerTeamComposition, spawnPoints.player)
+        const allies = this.buildAllies(playerData.teamComposition, spawnPoints.player)
 
-        return [...players, ...enemies]
+        return [...allies, ...enemies]
     }
 
     private buildEnemies(teamComposition: EnemyTag[], spawnPoints: Position[], floorIndex: number): PlayingEntity[] {
