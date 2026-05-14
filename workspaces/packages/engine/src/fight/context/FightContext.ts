@@ -1,10 +1,11 @@
-import {PlayingEntityID, PlayingEntity, DamageReceivedEvent, PlayingTeamID} from "@fight/fight.types"
+import { PlayingEntityID, PlayingEntity, DamageReceivedEvent } from "@fight/fight.types"
 import { FightMap } from "@fight/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { IFightContextMutator } from "./IFightContextMutator"
 import { IFightContextReader } from "./IFightContextReader"
-import {IReactiveContext} from "@fight/context/IFightContextReactive";
+import { IReactiveContext } from "@fight/context/IFightContextReactive";
 import { QueuedProcessor } from "@processors/processor.types";
+import { Position } from "@helpers/types/helpers.types";
 
 export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
 
@@ -151,6 +152,28 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
         return { actualDamage, isDead: this.isEntityDead(target.id) }
     }
+
+    moveEntity({ entityId, destination }: MoveEntityParams): void {
+        const entity = this.getAliveEntityOrThrow(entityId)
+
+        if (this.isCellOccupied(destination)) {
+            throw new Error(`La cellule (${destination.x}, ${destination.y}) est déjà occupée`)
+        }
+
+        if (!this.map.isWalkable(destination)) {
+            throw new Error(`La cellule (${destination.x}, ${destination.y}) n'est pas praticable`)
+        }
+
+        entity.position = destination
+    }
+
+    private isCellOccupied(position: Position): boolean {
+        return [...this.entities.values()].some(e =>
+            !e.isDead &&
+            e.position.x === position.x &&
+            e.position.y === position.y
+        )
+    }
 }
 
 type ApplyDamageParams = {
@@ -163,4 +186,9 @@ type ApplyDamageParams = {
 type ApplyDamageResult = {
     actualDamage: number;
     isDead: boolean;
+}
+
+type MoveEntityParams = {
+    entityId: PlayingEntityID,
+    destination: Position
 }

@@ -1,4 +1,4 @@
-import { Gambit } from "@fight/gambits/gambits.types"
+import {Gambit, MovementStrategy} from "@fight/gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
 import {IStatus} from "@fight/context/IStatus";
@@ -20,6 +20,12 @@ export interface DamageDealtEvent {
 export interface TurnEvent {
     readonly ownerId: PlayingEntityID
     readonly turnIndex: number
+}
+
+export type MovementContext = {
+    casterId: Readonly<PlayingEntityID>;
+    strategy: MovementStrategy;
+    targetId: Readonly<PlayingEntityID>;
 }
 
 export type ExecutionContext = {
@@ -46,6 +52,7 @@ export type ActionLog =
     | DamageSkippedLog
     | EntityDiedLog
     | ActionFailedLog
+    | EntityMovedLog
 
 export type DamageDealtLog = {
     type: Readonly<'damage_dealt'>
@@ -76,7 +83,11 @@ export type TurnLog = {
     actionLogs: ActionLog[]
 }
 
-
+export type EntityMovedLog = {
+    type: Readonly<'entity_moved'>
+    entityId: Readonly<PlayingEntityID>
+    cell: Readonly<Position>
+}
 
 export type FightState =
     | { status: "RUNNING" }

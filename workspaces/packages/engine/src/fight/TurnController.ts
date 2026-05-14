@@ -6,6 +6,7 @@ import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecut
 import { EntityMovementResolver } from "@fight/gambits/resolvers/MovementGambitResolver";
 import { ActionGambitResolver } from "@fight/gambits/resolvers/ActionGambitResolver";
 import { isActionGambit, isMovementGambit } from "@helpers/gambits/typeguards";
+import { Position } from "@helpers/types/helpers.types";
 
 export class TurnController {
     constructor(
@@ -57,9 +58,10 @@ export class TurnController {
     private executeEntityMovement(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
         const entityMovementGambits = entity.gambits.filter(isMovementGambit)
 
-        const movementStrategy = this.movementResolver.resolve(entity, fightContext)
-        if (movementStrategy) 
-            return this.movementExecutor.execute(entity, movementStrategy, fightContext)
+        const movementContext = this.movementResolver.resolve(entity, entityMovementGambits, fightContext)
+        const path: Position[] = [];
+        if (movementContext && path)
+            return this.movementExecutor.execute(path, movementContext, fightContext)
         else 
             return []
     }

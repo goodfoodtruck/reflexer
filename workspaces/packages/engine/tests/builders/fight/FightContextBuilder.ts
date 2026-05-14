@@ -1,17 +1,18 @@
 import { FightContext } from "@fight/context/FightContext"
-import { PlayingEntity } from "@fight/fight.types"
+import { FightMapConfig, PlayingEntity } from "@fight/fight.types"
 import { buildFightMap } from "@tests/builders/fight/FightMapBuilder"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
 
 export const buildFightContext = (
-    playerOverrides: Partial<PlayingEntity>[] = [{}], 
-    enemyOverrides: Partial<PlayingEntity>[] = [{}]
+    playerOverrides: Partial<PlayingEntity>[] = [{}],
+    enemyOverrides: Partial<PlayingEntity>[] = [{}],
+    mapOverrides: Partial<FightMapConfig> = {},
 ): FightContext => {
-    const players = playerOverrides.map((playerEntity, i) => 
+    const players = playerOverrides.map((playerEntity, i) =>
         buildPlayingEntity({ id: `player_${i}`, teamId: 'PLAYER', ...playerEntity })
     )
-    const enemies = enemyOverrides.map((enemyEntity, i) => 
+    const enemies = enemyOverrides.map((enemyEntity, i) =>
         buildPlayingEntity({ id: `enemy_${i}`, teamId: 'ENEMY', ...enemyEntity })
     )
-    return new FightContext([...players, ...enemies], buildFightMap())
+    return new FightContext([...players, ...enemies], buildFightMap(mapOverrides))
 }

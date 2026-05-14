@@ -1,13 +1,15 @@
 import { ActionLog, ExecutionContext } from "@fight/fight.types"
-import { FightContext } from "@fight/context/FightContext"
 import { QueuedProcessor } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
+import { IFightContextMutator } from "@fight/context/IFightContextMutator";
+import { IFightContextReader } from "@fight/context/IFightContextReader";
+import { IReactiveContext } from "@fight/context/IFightContextReactive";
 
 export class ProcessorChain {
     execute(
         executionContext: ExecutionContext,
         processors: Readonly<IProcessor[]>,
-        fightContext: FightContext
+        fightContext: IFightContextMutator & IFightContextReader & IReactiveContext
     ): ActionLog[] {
 
         const logs: ActionLog[] = []
