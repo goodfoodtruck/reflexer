@@ -3,6 +3,7 @@ import { ExecutionContext } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { ProcessorResult } from "@processors/processor.types";
 import { Position } from "@helpers/types/helpers.types";
+import { isAdjacent } from "@helpers/map/utils";
 
 export class WalkProcessor implements IProcessor {
     constructor(private readonly cell: Position) {}
@@ -10,12 +11,12 @@ export class WalkProcessor implements IProcessor {
     execute(context: ExecutionContext, fightContext: FightContext): ProcessorResult {
         const caster = fightContext.getAliveEntityOrThrow(context.casterId)
 
-        if (!this.isAdjacent(caster.position, this.cell)){
+        if (!isAdjacent(caster.position, this.cell)) {
             return { status: 'aborted', reason: 'cell_too_far', logs: [] }
         }
 
         try {
-            fightContext.moveEntity(context.casterId, this.cell)
+            fightContext.moveEntity({ entityId: context.casterId, destination: this.cell })
 
         } catch (err) {
             return { status: 'aborted', reason: 'move_failed', logs: [] }
@@ -25,11 +26,5 @@ export class WalkProcessor implements IProcessor {
             status: 'ok',
             logs: [{ type: 'entity_moved', entityId: context.casterId, cell: this.cell }]
         }
-    }
-
-    private isAdjacent(from: Position, to: Position): boolean {
-        const dx = Math.abs(from.x - to.x)
-        const dy = Math.abs(from.y - to.y)
-        return dx + dy === 1
     }
 }

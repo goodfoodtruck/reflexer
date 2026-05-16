@@ -10,7 +10,7 @@ import { WalkProcessor } from "@processors/WalkProcessor";
 
 export class EntityMovementExecutor {
     constructor(
-        private readonly processorChain: ProcessorChain,
+        private readonly moveProcessorChain: ProcessorChain,
     ) {}
 
     execute(
@@ -34,7 +34,7 @@ export class EntityMovementExecutor {
                 new WalkProcessor(cell),
             ];
 
-            const cellLogs = this.processorChain.execute(executionContext, processors, fightContext);
+            const cellLogs = this.moveProcessorChain.execute(executionContext, processors, fightContext);
             logs.push(...cellLogs);
         }
 
