@@ -1,0 +1,1 @@
+export const MOVE_STEP_ACTION_ID = "move_step";

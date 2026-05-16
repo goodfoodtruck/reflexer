@@ -1,5 +1,5 @@
-import { FightMapConfig, MapCell } from "@fight/fight.types"
-import { Dimensions } from "@helpers/types/helpers.types"
+import {EObstacleType, FightMapConfig, MapCell} from "@fight/fight.types"
+import {Dimensions, Position} from "@helpers/types/helpers.types"
 
 export class FightMap {
     private cells: MapCell[][]
@@ -10,5 +10,10 @@ export class FightMap {
         this.cells = config.cells.map((row, y) =>
             row.map((cell, x) => ({ type: cell, position: { x, y } }))
         )
+    }
+
+    isWalkable(position: Position): boolean {
+        const cell = this.cells[position.y]?.[position.x];
+        return cell?.type === EObstacleType.FLOOR
     }
 }

@@ -1,13 +1,17 @@
 import { ActionLog, ExecutionContext } from "@fight/fight.types";
 import { IProcessor } from "@processors/IProcessor";
+import { Position } from "@helpers/types/helpers.types";
 
 export type DamageParams = { damage_value: number }
+export type WalkParams = { cell: Position }
 
-type ProcessorParams =
+export type ProcessorParams =
     | DamageParams
+    | WalkParams
 
-type ProcessorType =
+export type ProcessorType =
     | 'damage'
+    | 'walk'
 
 export type ProcessorConfig = {
     type: ProcessorType;

@@ -2,6 +2,7 @@ import { PlayingEntity, PlayingEntityID } from "@fight/fight.types"
 
 export interface IFightContextReader {
     isNewTurn(): boolean
+    isEntityDead(entityId: PlayingEntityID): boolean
     getActingEntity(): PlayingEntity | null
     getAllEntities(): PlayingEntity[]
     getAllies(entity: PlayingEntity): PlayingEntity[]
