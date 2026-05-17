@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@keyframes pan-grid {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 64px 64px; }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0) scale(0); opacity: 0; }
+  10% { opacity: 0; } 
+  30% { opacity: 0.8; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-80vh) scale(2.5); opacity: 0; }
+}
+
+.animate-grid {
+  animation: pan-grid 3s linear infinite;
+}
+
+@keyframes spark-fly {
+  0% { transform: translateY(0) translateX(0) rotate(25deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(-120vh) translateX(15vw) rotate(25deg); opacity: 0; }
+}
+
+@keyframes ash-drift {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-120vh) translateX(-10vw) rotate(360deg); opacity: 0; }
+}
