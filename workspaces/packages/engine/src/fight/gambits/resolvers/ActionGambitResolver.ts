@@ -2,7 +2,7 @@ import { FightContext } from "@fight/context/FightContext";
 import { GambitTargetResolver } from "./target/GambitTargetResolver";
 import { ExecutionContext, PlayingEntity } from "@fight/fight.types";
 import { ActionGambit, ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types";
-import { IFightContextReader } from "@fight/context/IFightContextReader";
+import { IFightContextReader } from "@fight/fight.types";
 import { isExistsCondition } from "@helpers/gambits/typeguards";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
 import { FilterApplier } from "./filters/FilterApplier";

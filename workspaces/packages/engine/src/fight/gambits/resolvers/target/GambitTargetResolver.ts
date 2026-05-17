@@ -1,4 +1,4 @@
-import { IFightContextReader } from "@fight/context/IFightContextReader";
+import { IFightContextReader } from "@fight/fight.types";
 import { PlayingEntity, PlayingEntityID } from "@fight/fight.types";
 import { ETargetType, TargetSelector, TargetSort } from "@fight/gambits/gambits.types";
 import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/highestHPTarget";

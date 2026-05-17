@@ -1,24 +1,25 @@
-import { AllyName, EnemyTag, PlayingEntity } from "@fight/fight.types";
+import { AllyName, EnemyTag, FightContextFactoryDeps, IAllyBuilder, IEnemyBuilder, IEnemyCompositionResolver, IFightEntitiesValidator, INbEnemiesResolver, PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { FightMap } from "@fight/map/FightMap";
 import { EFightMapSize, FightMapConfig, FightMapSpawnPoints } from "@fight/map/fight.map.types";
 import { PlayerData } from "@game-engine/game-engine.types";
 import { Position } from "@helpers/types/helpers.types";
-import { EnemyBuilder } from "@fight/context/factory/enemies/EnemyBuilder";
-import { EnemyCompositionResolver } from "@fight/context/factory/enemies/EnemyCompositionResolver";
-import { AllyBuilder } from "@fight/context/factory/allies/AllyBuilder";
-import { NbEnemiesResolver } from "@fight/context/factory/enemies/NbEnemiesResolver";
-import { FightEntitiesValidator } from "./FightEntitiesValidator";
 
 export class FightContextFactory {
 
-    constructor(
-        private readonly fightEntitiesValidator: FightEntitiesValidator,
-        private readonly nbEnemiesResolver: NbEnemiesResolver,
-        private readonly enemyBuilder: EnemyBuilder,
-        private readonly enemyCompositionResolver: EnemyCompositionResolver,
-        private readonly allyBuilder: AllyBuilder
-    ) {}
+    private readonly fightEntitiesValidator: IFightEntitiesValidator
+    private readonly nbEnemiesResolver: INbEnemiesResolver
+    private readonly enemyBuilder: IEnemyBuilder
+    private readonly enemyCompositionResolver: IEnemyCompositionResolver
+    private readonly allyBuilder: IAllyBuilder
+
+    constructor(deps: FightContextFactoryDeps) {
+        this.fightEntitiesValidator   = deps.validator
+        this.nbEnemiesResolver        = deps.nbEnemiesResolver
+        this.enemyBuilder             = deps.enemyBuilder
+        this.enemyCompositionResolver = deps.enemyCompositionResolver
+        this.allyBuilder              = deps.allyBuilder
+    }
 
     create(
         mapConfig: FightMapConfig, 

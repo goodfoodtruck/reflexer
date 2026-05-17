@@ -1,9 +1,9 @@
-import { EnemyTag } from "@fight/fight.types";
+import { EnemyTag, IEnemyCompositionResolver } from "@fight/fight.types";
 import { LONG_RANGE_MAP_COMPOSITIONS, MID_RANGE_MAP_COMPOSITIONS, SMALL_RANGE_MAP_COMPOSITIONS } from "@fight/map/enemy-composition-rules";
 import { EFightMapSize } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects/NbPlayerByTeam";
 
-export class EnemyCompositionResolver {
+export class EnemyCompositionResolver implements IEnemyCompositionResolver {
     
    private readonly compositions: Record<EFightMapSize, Record<number, EnemyTag[]>> = {
         [EFightMapSize.SMALL_RANGE]: SMALL_RANGE_MAP_COMPOSITIONS,

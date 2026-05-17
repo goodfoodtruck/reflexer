@@ -1,8 +1,8 @@
 import { IAllyRegistry } from "@data/IAllyRegistry"
-import { AllyName, PlayingEntity, PlayingEntityID } from "@fight/fight.types"
+import { AllyName, IAllyBuilder, PlayingEntity, PlayingEntityID } from "@fight/fight.types"
 import { Position } from "@helpers/types/helpers.types"
 
-export class AllyBuilder {
+export class AllyBuilder implements IAllyBuilder {
 
     constructor(
         private readonly allyRegistry: IAllyRegistry

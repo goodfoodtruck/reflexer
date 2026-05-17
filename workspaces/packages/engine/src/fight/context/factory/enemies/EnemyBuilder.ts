@@ -1,14 +1,16 @@
 import { IEnemyRegistry } from "@data/IEnemyRegistry";
-import { EnemyTag, PlayingEntity, PlayingEntityID } from "@fight/fight.types";
+import { EnemyTag, IEnemyBuilder, PlayingEntity, PlayingEntityID } from "@fight/fight.types";
 import { pickRandom } from "@helpers/shared/helpers.shared";
 import { Position } from "@helpers/types/helpers.types";
 
-export class EnemyBuilder {
+export class EnemyBuilder implements IEnemyBuilder {
 
     constructor(
         private readonly enemyRegistry: IEnemyRegistry
     ) {}
 
+    // TODO: changer le florrIndex par un indice de difficulté de la partie
+    // et l'utiliser pour récupérer les stats
     buildEnemy(enemyTag: EnemyTag, position: Position, index: number, floorIndex: number): PlayingEntity {
         // on récupère les ennemis qui ont ce tag et on en choisit un au hasard 
         // qui va spawn

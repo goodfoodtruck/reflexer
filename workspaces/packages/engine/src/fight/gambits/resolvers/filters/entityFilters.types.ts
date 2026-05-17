@@ -1,6 +1,6 @@
 import { PlayingEntity } from "@fight/fight.types"
 import { IStatus } from "@fight/context/IStatus"
-import { IFightContextReader } from "@fight/context/IFightContextReader"
+import { IFightContextReader } from "@fight/fight.types"
 
 /**
  * Type de fonction qui permet de vérifier si une cible rempli un critère
