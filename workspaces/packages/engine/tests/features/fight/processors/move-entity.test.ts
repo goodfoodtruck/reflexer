@@ -3,7 +3,7 @@ import { ProcessorChain } from "@processors/ProcessorChain";
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
 import { Position } from "@helpers/types/helpers.types";
-import { EObstacleType } from "@fight/fight.types";
+import { EObstacleType } from "@fight/map/fight.map.types";
 
 describe("Exécution d'un mouvement", _ => {
 
