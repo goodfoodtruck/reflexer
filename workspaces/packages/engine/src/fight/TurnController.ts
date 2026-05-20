@@ -28,31 +28,26 @@ export class TurnController {
         fightContext: FightContext
     ): TurnLog {
         const entityTurnLogs: ActionLog[] = []
-        
-        // executer les passifs
-        const entityBeforePassives = fightContext.getAliveEntityOrThrow(entityId)
-        entityTurnLogs.push(...this.executeEntityPassives(entityBeforePassives, fightContext))
-        if (fightContext.isEntityDead(entityId)) {
-            return { turnIndex, actionLogs: entityTurnLogs }
-        }
 
-        // Checker les gambits de mouvement
-        const entityBeforeMovement = fightContext.getAliveEntityOrThrow(entityId)
-        entityTurnLogs.push(...this.executeEntityMovement(entityBeforeMovement, fightContext))
-        if (fightContext.isEntityDead(entityId)) {
-            return { turnIndex, actionLogs: entityTurnLogs }
-        }
+        const entityTurnSteps = [
+            () => this.passivesExecutor.executePassiveTrigger("ON_TURN_START", fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.executeEntityMovement(fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.executeEntityAction(fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.passivesExecutor.executePassiveTrigger("ON_TURN_END", fightContext.getAliveEntityOrThrow(entityId), fightContext)
+        ]
 
-        // Checker les gambits d'action
-        const entityBeforeAction = fightContext.getAliveEntityOrThrow(entityId)        
-        entityTurnLogs.push(...this.executeEntityAction(entityBeforeAction, fightContext))
+        for (const step of entityTurnSteps) {
+            entityTurnLogs.push(...step())
+
+            if (fightContext.isEntityDead(entityId)) {
+                entityTurnLogs.push(...this.passivesExecutor.executePassiveTrigger("ON_DEATH", fightContext.getAliveEntityOrThrow(entityId), fightContext))
+                return { turnIndex, actionLogs: entityTurnLogs }
+            }
+        }
+    
+        // TODO: décrémenter le nombre de tour restants des passifs de l'entité
 
         return { turnIndex, actionLogs: entityTurnLogs }
-    }
-
-    private executeEntityPassives(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
-        const passiveLogs = this.passivesExecutor.executeEntityPassives(entity, fightContext)
-        return passiveLogs
     }
 
     private executeEntityMovement(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
