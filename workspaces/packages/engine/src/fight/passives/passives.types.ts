@@ -43,5 +43,5 @@ export type PassiveTrigger =
  */
 export type ModifierPassive = {
     kind: "MODIFIER"
-    modifier: EntityModifiers
+    modifier: keyof EntityModifiers // un passif par modification de stat
 }
