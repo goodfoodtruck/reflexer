@@ -18,10 +18,20 @@ export class TurnController {
     ) {}
 
     /**
-     * Joue le tour d'une entité: 1. application de ses passifs, 2. mouvement et 3. action
-     * @param entityId l'entité dont on doit exécuter le tour
-     * @returns les logs d'exécution du tour de l'entité
-     */
+     * Joue le tour d'une entité en 4 phases séquentielles :
+     * 1. Passifs déclenchés en début de tour (`ON_TURN_START`)
+     * 2. Mouvement selon les gambits de mouvement
+     * 3. Action selon les gambits d'action
+     * 4. Passifs déclenchés en fin de tour (`ON_TURN_END`)
+     *
+     * Si l'entité meurt à n'importe quelle phase, les passifs `ON_DEATH`
+     * sont exécutés et le tour s'arrête immédiatement.
+     *
+     * @param turnIndex - Index du tour courant dans le combat
+     * @param entityId - Identifiant de l'entité dont c'est le tour
+     * @param fightContext - Contexte mutable du combat
+     * @returns Les logs de toutes les actions exécutées pendant ce tour
+    */
     executeEntityTurn(
         turnIndex: Readonly<number>, 
         entityId: PlayingEntityID, 
