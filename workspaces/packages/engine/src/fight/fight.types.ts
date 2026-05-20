@@ -1,10 +1,10 @@
-import {Gambit, MovementStrategy} from "@fight/gambits/gambits.types"
+import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
-import {IStatus} from "@fight/context/IStatus";
-import {EFightMapSize, FightMapID} from "./map/fight.map.types";
-import { NbPlayerByTeam } from "./value-objects/NbPlayerByTeam";
-
+import { IStatus } from "@fight/context/IStatus";
+import { ActivePassive } from "@fight/passives/passives.types";
+import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
+import { NbPlayerByTeam } from "@fight/value-objects";
 
 export interface DamageReceivedEvent {
     readonly ownerId: PlayingEntityID      // porteur du statut
@@ -48,6 +48,22 @@ export type Action = {
     type: Readonly<ActionCategory>;
     processorConfigs: Readonly<ProcessorConfig[]>;
 };
+
+
+/** Modificateur de statistiques pour une entité: 
+ * 
+ * - Dégats infligés, reçus, réduction de dommages... etc 
+ * 
+ * Une action peut appliquer un ou plusieurs modificateurs à une entité, 
+ * lui permettant ainsi d'augmenter ou de diminuer les dégats reçus, infligés... etc
+ * */
+export type EntityModifiers = {
+    damageDealtModifier:     number  // altère les dégâts que cette entité inflige, en pourcentage
+    damageReceivedModifier:  number  // altère les dégâts que cette entité reçoit, en pourcentage
+    healingReceivedModifier: number  // altère les soins que cette entité reçoit, en pourcentage
+}
+
+
 
 export type ActionLog =
     | DamageDealtLog
@@ -151,6 +167,8 @@ export type PlayingEntity = {
     currentStats: EntityStats
     gambits: Gambit[]
     statuses: Readonly<IStatus[]>
+    passives: ActivePassive[]
+    modifiers: EntityModifiers
     takeDamage(amount: number): number
     isDead: boolean
 }
