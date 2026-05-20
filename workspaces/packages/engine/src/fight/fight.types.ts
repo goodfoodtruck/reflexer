@@ -167,7 +167,7 @@ export type PlayingEntity = {
     currentStats: EntityStats
     gambits: Gambit[]
     statuses: Readonly<IStatus[]>
-    passives: ActivePassive[]
+    activePassives: ActivePassive[]
     takeDamage(amount: number): number
     isDead: boolean
 }

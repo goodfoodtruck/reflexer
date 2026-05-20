@@ -1,4 +1,5 @@
 import { ActionID, EntityModifiers, PlayingEntityID } from "@fight/fight.types"
+import { TargetSelector } from "@fight/gambits/gambits.types"
 
 export type PassiveConfigID = string
 
@@ -8,7 +9,7 @@ export type PassiveConfig =
 
 // Instance active sur l'entité — porte l'état
 export type ActivePassive = {
-    configId: PassiveConfigID
+    passive: Passive
     remainingTurns: number | "PERMANENT"    // combien de tours actifs
     sourceEntityId: PlayingEntityID         // qui a appliqué ce passif
 }
@@ -26,8 +27,9 @@ export type Passive =
 /** Un passif porté par une entité peut-être déclenché par un évènement */
 export type TriggeredPassive = {
     kind: "TRIGGERED"
-    triggerType: PassiveTrigger
-    triggeredAction: ActionID
+    triggerType: PassiveTrigger    // type de déclencheur
+    triggeredActionId: ActionID      // action a exécuté lorsque le passif est déclenché
+    targetSelector: TargetSelector // sur qui l'action déclenchée va s'appliquer
 }
 
 export type PassiveTrigger =
