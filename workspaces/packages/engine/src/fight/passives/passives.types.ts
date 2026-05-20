@@ -43,5 +43,11 @@ export type PassiveTrigger =
  */
 export type ModifierPassive = {
     kind: "MODIFIER"
-    modifier: keyof EntityModifiers // un passif par modification de stat
+    /** Type de modification, une modification de stat par passif.
+     * Pour une attaque qui appliquerait deux modifications de stats par exemple, on appliquerait
+     * deux passifs distincts à l'entité
+    */
+    modifier: keyof EntityModifiers
+    /** valeur en pourcentage, par exemple si modifier est 'damageDealtModifier', alors une valeur à 10 représentera 10% de dommages infligés supplémentaires */
+    value: number                   
 }
