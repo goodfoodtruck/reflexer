@@ -2,6 +2,7 @@ import {Gambit, MovementStrategy} from "@fight/gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
 import {IStatus} from "@fight/context/IStatus";
+import { FightContext } from "./context/FightContext";
 
 
 export interface DamageReceivedEvent {
@@ -154,4 +155,26 @@ export type FightMapConfig = {
 export type MapCell = {
     position: Position,
     type: EObstacleType
+}
+
+export type PathfindingParams = {
+    context: MovementContext;
+    fightContext: FightContext;
+}
+
+export type ApplyDamageParams = {
+    targetId: PlayingEntityID;
+    sourceId: PlayingEntityID;
+    amount: number;
+    reactionDepth?: number;
+}
+
+export type ApplyDamageResult = {
+    actualDamage: number;
+    isDead: boolean;
+}
+
+export type MoveEntityParams = {
+    entityId: PlayingEntityID,
+    destination: Position
 }
