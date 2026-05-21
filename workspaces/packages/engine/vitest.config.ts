@@ -4,6 +4,10 @@ import { resolve } from 'path'
 export default defineConfig({
     test: {
         include: ['tests/**/*.test.ts'],
+        coverage: {
+            include: ['src/**/*.ts'],
+            exclude: ['src/**/*.test.ts', 'src/**/*.types.ts'],
+        },
     },
     resolve: {
         alias: {
