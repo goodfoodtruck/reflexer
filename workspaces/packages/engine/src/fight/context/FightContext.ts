@@ -7,7 +7,9 @@ import {
     FightSnapshot,
     ActionLog,
     EntityModifier,
-    UpdateEnergyParams
+    UpdateEnergyParams,
+    ApplyDamageParams,
+    MoveEntityParams,
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
@@ -335,21 +337,31 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             positions.some(pos => (pos.x === entity.position.x) && (pos.y === entity.position.y))
         )
     }
-}
 
-type ApplyDamageParams = {
-    targetId: PlayingEntityID;
-    sourceId: PlayingEntityID;
-    amount: number;
-    reactionDepth?: number;
-}
+    public isTraversable(position: Position): boolean {
+        if (!this.map.isWalkable(position)) return false;
+        if (this.isCellOccupied(position)) return false;
+        return true;
+    }
 
-type ApplyDamageResult = {
-    actualDamage: number;
-    isDead: boolean;
-}
+    public getObstacles(): Position[] {
+        const obstacles: Position[] = [];
 
-type MoveEntityParams = {
-    entityId: PlayingEntityID,
-    destination: Position
+        this.getAliveEntities().forEach(entity => {
+            obstacles.push(entity.position);
+        });
+
+        const { width, height } = this.map.getDimensions();
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                const currentPos = { x, y };
+                
+                if (!this.map.isWalkable(currentPos)) {
+                    obstacles.push(currentPos);
+                }
+            }
+        }
+
+        return obstacles;
+    }
 }

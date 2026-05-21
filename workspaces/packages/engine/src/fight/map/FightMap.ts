@@ -18,4 +18,8 @@ export class FightMap {
         const cell = this.cells[position.y]?.[position.x];
         return cell?.type === EObstacleType.FLOOR
     }
+
+    getDimensions(): Dimensions {
+    return this.dimensions;
+}
 }

@@ -1,9 +1,10 @@
 import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
-import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
+import { EFightMapSize, EObstacleType, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
+import { FightContext } from "./context/FightContext";
 
 
 export interface DamageReceivedEvent {
@@ -281,3 +282,31 @@ export type AreaType =
 export type AreaCenter =
     | { kind: "TARGET" }    // centrée sur la cible
     | { kind: "CASTER" }    // centrée sur soi même
+
+
+export type MapCell = {
+    position: Position,
+    type: EObstacleType
+}
+
+export type PathfindingParams = {
+    context: MovementContext;
+    fightContext: FightContext;
+}
+
+export type ApplyDamageParams = {
+    targetId: PlayingEntityID;
+    sourceId: PlayingEntityID;
+    amount: number;
+    reactionDepth?: number;
+}
+
+export type ApplyDamageResult = {
+    actualDamage: number;
+    isDead: boolean;
+}
+
+export type MoveEntityParams = {
+    entityId: PlayingEntityID,
+    destination: Position
+}
