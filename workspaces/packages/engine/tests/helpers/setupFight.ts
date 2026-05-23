@@ -3,6 +3,8 @@ import { Action, ActionID, PlayingEntity } from '@fight/fight.types'
 import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor"
 import { InMemoryActionRegistry } from "@data/InMemoryActionRegistry"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
+import { InMemoryPassiveRegistry } from '@data/InMemoryPassiveRegistry';
+import { ProcessorFactory } from '@fight/processors/ProcessorFactory';
 
 interface SetupFightConfig {
     players?: Partial<PlayingEntity>[]
@@ -23,7 +25,10 @@ export function setupFight(config: SetupFightConfig = {}) {
         })),
     )
 
-    const executor = new EntityActionExecutor(registry, new ProcessorChain())
+    const passiveRegistry = new InMemoryPassiveRegistry()
+    const processorFactory = new ProcessorFactory(passiveRegistry)
+
+    const executor = new EntityActionExecutor(processorFactory, registry, new ProcessorChain())
 
     return { fightContext, executor, registry }
 }

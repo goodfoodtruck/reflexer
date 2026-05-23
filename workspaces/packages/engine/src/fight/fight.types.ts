@@ -2,9 +2,9 @@ import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
 import { IStatus } from "@fight/context/IStatus";
-import { ActivePassive } from "@fight/passives/passives.types";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
+import { ActivePassive, PassiveConfigID } from "@fight/passives/passives.types";
 
 export interface DamageReceivedEvent {
     readonly ownerId: PlayingEntityID      // porteur du statut
@@ -71,6 +71,7 @@ export type ActionLog =
     | EntityDiedLog
     | ActionFailedLog
     | EntityMovedLog
+    | PassiveAppliedLog
 
 export type DamageDealtLog = {
     type: Readonly<'damage_dealt'>
@@ -78,6 +79,12 @@ export type DamageDealtLog = {
     targetId: Readonly<PlayingEntityID>
     amount: Readonly<number>
     reactionDepth: Readonly<number>
+}
+
+export type PassiveAppliedLog = {
+    type: Readonly<'passive_applied'>
+    entityId: Readonly<PlayingEntityID>
+    passiveConfigId: Readonly<PassiveConfigID>
 }
 
 export type DamageSkippedLog = {

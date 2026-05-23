@@ -12,6 +12,7 @@ import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { QueuedProcessor } from "@processors/processor.types";
 import { Position } from "@helpers/types/helpers.types";
+import { ActivePassive } from "@fight/passives/passives.types"
 
 export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
 
@@ -176,6 +177,12 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
         return { actualDamage, isDead: this.isEntityDead(target.id) }
     }
+
+    applyPassive(entityId: PlayingEntityID, passive: ActivePassive): void {
+        const entity = this.getAliveEntityOrThrow(entityId)
+        entity.activePassives.push(passive)
+    }
+
 
     moveEntity({ entityId, destination }: MoveEntityParams): void {
         const entity = this.getAliveEntityOrThrow(entityId)

@@ -1,13 +1,25 @@
-import { DamageParams, ProcessorConfig, WalkParams } from "@processors/processor.types";
+import { DamageParams, PassiveParams, ProcessorConfig, WalkParams } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
 import { DamageProcessor } from "@processors/DamageProcessor";
 import { WalkProcessor } from "@processors/WalkProcessor";
+import { PassiveApplierProcessor } from "./PassiveApplierProcessor";
+import { IPassiveRegistry } from "@data/IPassiveRegistry";
 
 export class ProcessorFactory {
-    static create(config: ProcessorConfig): IProcessor {
+
+    constructor(
+        private readonly passiveRegistry: IPassiveRegistry
+    ) {}
+
+    create(config: ProcessorConfig): IProcessor {
         switch (config.type) {
-            case "damage": return new DamageProcessor((config.params as DamageParams).damage_value)
-            case "walk":   return new WalkProcessor((config.params as WalkParams).cell)
+            case "damage":  return new DamageProcessor((config.params as DamageParams).damage_value)
+            case "walk":    return new WalkProcessor((config.params as WalkParams).cell)
+            case "passive": return new PassiveApplierProcessor(
+                this.passiveRegistry,
+                (config.params as PassiveParams).passiveConfigId,
+                (config.params as PassiveParams).duration
+            )
         }
     }
 }

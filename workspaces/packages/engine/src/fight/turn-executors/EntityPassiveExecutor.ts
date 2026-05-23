@@ -16,6 +16,13 @@ export class EntityPassiveExecutor {
         private readonly actionExecutor: EntityActionExecutor
     ) {}
 
+    /**
+     * Exécute les passifs d'une entité qui porte des passifs du type passé en paramètre
+     * @param triggerType le type de passif à exécuter
+     * @param entity l'entité dont on doit exécuter les passifs
+     * @param fightContext 
+     * @returns les logs de l'exécution du ou des passifs concernés
+     */
     executePassiveTrigger(
         triggerType: PassiveTrigger,
         entity: PlayingEntity, 

@@ -6,6 +6,7 @@ import { ProcessorFactory } from "@processors/ProcessorFactory";
 
 export class EntityActionExecutor {
     constructor(
+        private readonly processorFactory: ProcessorFactory,
         private readonly actionRegistry: IActionRegistry,
         private readonly processorChain: ProcessorChain
     ) {}
@@ -15,7 +16,7 @@ export class EntityActionExecutor {
 
         const processors = [...action.processorConfigs]
             .sort((a, b) => a.order - b.order)
-            .map(config => ProcessorFactory.create(config));
+            .map(config => this.processorFactory.create(config));
 
         return this.processorChain.execute(ctx, processors, fightContext);
     }
