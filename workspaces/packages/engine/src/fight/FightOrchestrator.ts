@@ -18,6 +18,8 @@ export class FightOrchestrator {
      * @param context
      */
     playFight(context: FightContext): FightResult {
+        const initialState = context.toSnapshot();
+
         while (true) {
             const turnIndex = context.getTurnIndex()
             const playingEntity = context.getActingEntity()
@@ -32,7 +34,11 @@ export class FightOrchestrator {
             
             const fightState = this.fightStateResolver.resolve(context, this.fightLogger.getLogs())
             if (fightState.status === "ENDED") 
-                return fightState.result
+                return {
+                    initialState,
+                    endState: fightState.endState,
+                    logs: this.fightLogger.getLogs()
+            }
         }
 
         throw new Error("Combat terminé sans résolution — état impossible")

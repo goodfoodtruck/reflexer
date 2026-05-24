@@ -1,8 +1,8 @@
 import {Gambit, MovementStrategy} from "@fight/gambits/gambits.types"
-import { Position, Dimensions } from "@helpers/types/helpers.types"
+import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
 import {IStatus} from "@fight/context/IStatus";
-import { EFightMapSize } from "./map/fight.map.types";
+import {EFightMapSize, FightMapID} from "./map/fight.map.types";
 import { NbPlayerByTeam } from "./value-objects/NbPlayerByTeam";
 
 
@@ -93,11 +93,26 @@ export type EntityMovedLog = {
 
 export type FightState =
     | { status: "RUNNING" }
-    | { status: "ENDED"; result: FightResult }
+    | { status: "ENDED", endState: FightEndState }
 
 export type FightResult = {
+    initialState: FightSnapshot
     endState: FightEndState
     logs: TurnLog[]
+}
+
+export type FightSnapshot = {
+    entities: EntitySnapshot[]
+    mapId: FightMapID
+}
+
+export type EntitySnapshot = {
+    id: PlayingEntityID
+    teamId: PlayingTeamID
+    tags: EntityTag[]
+    position: Position
+    currentStats: EntityStats
+    statuses: StatusID[]
 }
 
 export type FightEndState =
@@ -156,6 +171,7 @@ export interface IFightContextReader {
     getAliveEntitiesByTeam(teamId: PlayingTeamID): PlayingEntity[]
     getEntityById(entityId: PlayingEntityID): PlayingEntity | null
     getTurnIndex(): number
+    toSnapshot(): FightSnapshot
 }
 
 export interface IReactiveContext {
