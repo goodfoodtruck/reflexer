@@ -51,6 +51,10 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         return initiativeOrder
     }
 
+    /**
+     * Augmente l'index de référence de l'entité courante, au prochain appel de 
+     * getActingEntity() on récupèrera donc la prochaine entité
+     */
     nextEntityTurn(): void {
         this.currentInitiativeIndex = this.currentInitiativeIndex.next()
     }
@@ -204,6 +208,23 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
             e.position.x === position.x &&
             e.position.y === position.y
         )
+    }
+
+    tickAllPassives(): void {
+        for (const entity of this.getAliveEntities()) {
+            entity.activePassives = entity.activePassives
+                .map(this.decrementPassive)
+                .filter(this.isPassiveStillActive)
+        }
+    }
+
+    private decrementPassive(passive: ActivePassive): ActivePassive {
+        if (passive.remainingTurns === "PERMANENT") return passive
+        return { ...passive, remainingTurns: passive.remainingTurns - 1 }
+    }
+
+    private isPassiveStillActive(passive: ActivePassive): boolean {
+        return passive.remainingTurns === "PERMANENT" || passive.remainingTurns > 0
     }
 }
 
