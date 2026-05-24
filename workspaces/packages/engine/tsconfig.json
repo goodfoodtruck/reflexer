@@ -1,6 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "outDir": "dist",
     "rootDir": ".",
     "paths": {
@@ -10,7 +11,7 @@
         "@gambits/*": ["./src/fight/gambits/*"],
         "@tests/*": ["./tests/*"],
         "@processors/*": ["./src/fight/processors/*"],
-        "@data/*": ["./src/data/*"],
+        "@data/*": ["./src/data/*"]
     }
   },
   "include": ["src", "tests"]
