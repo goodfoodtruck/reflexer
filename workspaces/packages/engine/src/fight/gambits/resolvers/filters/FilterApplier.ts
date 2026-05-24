@@ -3,7 +3,7 @@ import { AnyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
 import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
 import { evaluateHasStatus } from "@fight/gambits/resolvers/filters/evaluators/HasStatusEvaluator"
-import { IFightContextReader } from "@fight/context/IFightContextReader"
+import { IFightContextReader } from "@fight/fight.types"
 import { FilterEvaluatorRegistry } from "./FilterEvaluatorRegistry"
 
 export class FilterApplier {

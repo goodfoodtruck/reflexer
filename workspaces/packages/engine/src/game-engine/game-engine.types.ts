@@ -1,3 +1,4 @@
+import { AllyName } from "@fight/fight.types"
 import { IChestCommandHandler, IFightCommandHandler, IMapCommandHandler, IMapGenerator, IShopCommandHandler } from "@game-engine/command-handlers/handlers.interfaces"
 
 export type GameEngineDeps = {
@@ -9,6 +10,7 @@ export type GameEngineDeps = {
 }
 
 export type PlayerData = {
+    teamComposition: AllyName[]
     playerFloorIndex: number,
     gold: number
 }

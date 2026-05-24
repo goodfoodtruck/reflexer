@@ -1,6 +1,6 @@
-import { PlayingEntity, PlayingTeamID } from "@fight/fight.types"
+import { IFightEntitiesValidator, PlayingEntity, PlayingTeamID } from "@fight/fight.types"
 
-export class FightEntitiesValidator {
+export class FightEntitiesValidator implements IFightEntitiesValidator {
 
     validate(entities: PlayingEntity[]): void {
         this.ensureNotEmpty(entities)

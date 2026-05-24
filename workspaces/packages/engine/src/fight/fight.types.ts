@@ -1,7 +1,9 @@
 import {Gambit, MovementStrategy} from "@fight/gambits/gambits.types"
 import { Position, Dimensions } from "@helpers/types/helpers.types"
-import { ProcessorConfig } from "@processors/processor.types";
+import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
 import {IStatus} from "@fight/context/IStatus";
+import { EFightMapSize } from "./map/fight.map.types";
+import { NbPlayerByTeam } from "./value-objects/NbPlayerByTeam";
 
 
 export interface DamageReceivedEvent {
@@ -107,11 +109,23 @@ export type FightEndState =
 export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
 
-export type EntityTag =
-    | "PLAYER"
+
+export type AllyName = "CHARACTER_1" | "CHARACTER_2"
+
+export type EnemyTag = 
     | "ENEMY_MELEE"
     | "ENEMY_RANGED"
+    | "ENEMY_TANK"
     | "ENEMY_BOSS"
+
+export type EnemyName = "ALIEN" | "KNIGHT" | "GOBLIN"
+
+/** On indentifie un ennemi par son type et un allié par son nom */
+export type EntityTag =
+    | AllyName
+    | EnemyTag
+
+    
 
 export type PlayingEntity = {
     id: PlayingEntityID
@@ -131,27 +145,53 @@ export type EntityStats = {
     energy: number
 }
 
-export type FightMapID = string
 
-export enum EObstacleType {
-    HOLE = "HOLE",
-    WALL = "WALL",
-    FLOOR = "FLOOR",
+export interface IFightContextReader {
+    isNewTurn(): boolean
+    isEntityDead(entityId: PlayingEntityID): boolean
+    getActingEntity(): PlayingEntity | null
+    getAllEntities(): PlayingEntity[]
+    getAllies(entity: PlayingEntity): PlayingEntity[]
+    getEnemies(entity: PlayingEntity): PlayingEntity[]
+    getAliveEntitiesByTeam(teamId: PlayingTeamID): PlayingEntity[]
+    getEntityById(entityId: PlayingEntityID): PlayingEntity | null
+    getTurnIndex(): number
 }
 
-export type FightMapSpawnPoints = {
-    player: Position[]
-    enemy: Position[]
+export interface IReactiveContext {
+    queueReaction(reaction: QueuedProcessor): void;
+    drainReactions(): QueuedProcessor[];
 }
 
-export type FightMapConfig = {
-    id: FightMapID
-    dimensions: Dimensions
-    cells: EObstacleType[][]
-    spawnPoints: FightMapSpawnPoints
+export interface IFightContextMutator {
+    nextEntityTurn(): void
+    nextTurn(): void
 }
 
-export type MapCell = {
-    position: Position,
-    type: EObstacleType
+export interface IFightEntitiesValidator {
+    validate(entities: PlayingEntity[]): void
+}
+
+export interface INbEnemiesResolver {
+    resolve(floorIndex: number): NbPlayerByTeam
+}
+
+export interface IEnemyBuilder {
+    buildEnemy(tag: EnemyTag, position: Position, index: number, floorIndex: number): PlayingEntity
+}
+
+export interface IEnemyCompositionResolver {
+    resolve(mapSize: EFightMapSize, nbEnemies: NbPlayerByTeam): EnemyTag[]
+}
+
+export interface IAllyBuilder {
+    buildAlly(name: AllyName, position: Position, index: number): PlayingEntity
+}
+
+export type FightContextFactoryDeps = {
+    validator:                IFightEntitiesValidator
+    nbEnemiesResolver:        INbEnemiesResolver
+    enemyBuilder:             IEnemyBuilder
+    enemyCompositionResolver: IEnemyCompositionResolver
+    allyBuilder:              IAllyBuilder
 }

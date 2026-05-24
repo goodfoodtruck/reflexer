@@ -1,5 +1,5 @@
-import {EObstacleType, FightMapConfig, MapCell} from "@fight/fight.types"
 import {Dimensions, Position} from "@helpers/types/helpers.types"
+import { MapCell, FightMapConfig, EObstacleType } from "@fight/map/fight.map.types"
 
 export class FightMap {
     private cells: MapCell[][]
