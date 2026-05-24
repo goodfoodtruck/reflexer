@@ -1,9 +1,8 @@
-import { ActionLog, ExecutionContext } from "@fight/fight.types"
+import { ActionLog, ExecutionContext, IReactiveContext } from "@fight/fight.types"
 import { QueuedProcessor } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
 import { IFightContextMutator } from "@fight/fight.types";
 import { IFightContextReader } from "@fight/fight.types";
-import { IReactiveContext } from "@fight/context/IFightContextReactive";
 
 export class ProcessorChain {
     execute(

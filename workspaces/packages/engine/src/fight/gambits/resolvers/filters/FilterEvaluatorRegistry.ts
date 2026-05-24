@@ -1,7 +1,4 @@
 import { AnyFilter, FilterEvaluator, FilterType } from "@fight/gambits/resolvers/filters/entityFilters.types"
-import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
-import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
-import { evaluateHasStatus } from "@fight/gambits/resolvers/filters/evaluators/HasStatusEvaluator"
 
 export class FilterEvaluatorRegistry {
 
@@ -19,14 +16,4 @@ export class FilterEvaluatorRegistry {
     getEvaluator(type: FilterType): FilterEvaluator<AnyFilter> | undefined {
         return this.evaluators.get(type)
     }
-}
-
-export const buildFilterRegistry = (): FilterEvaluatorRegistry => {
-    const registry = new FilterEvaluatorRegistry()
-
-    registry.register("HP_BELOW",   evaluateHpBelow)
-    registry.register("HP_ABOVE",   evaluateHpAbove)
-    registry.register("HAS_STATUS", evaluateHasStatus)
-
-    return registry
 }

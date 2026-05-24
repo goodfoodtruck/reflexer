@@ -1,7 +1,6 @@
 import { PlayingEntity } from "@fight/fight.types"
 import { AnyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
-import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier"
-import { buildFilterRegistry } from "@fight/gambits/resolvers/filters/FilterEvaluatorRegistry"
+import { FilterApplier, buildFilterRegistry } from "@fight/gambits/resolvers/filters/FilterApplier"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { buildPlayingEntity, withBaseStats, withCurrentStats } from "@tests/builders/fight/PlayingEntityBuilder"
 import { describe, it, expect } from "vitest"

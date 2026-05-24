@@ -32,7 +32,7 @@ export class FightOrchestrator {
             context.nextEntityTurn()
             context.isNewTurn() && context.nextTurn()
             
-            const fightState = this.fightStateResolver.resolve(context, this.fightLogger.getLogs())
+            const fightState = this.fightStateResolver.resolve(context)
             if (fightState.status === "ENDED") 
                 return {
                     initialState,
