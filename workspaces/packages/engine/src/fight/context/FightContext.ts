@@ -1,4 +1,13 @@
-import {PlayingEntityID, PlayingEntity, DamageReceivedEvent, IFightContextMutator, IFightContextReader, IReactiveContext, PlayingTeamID} from "@fight/fight.types"
+import {
+    PlayingEntityID,
+    PlayingEntity,
+    DamageReceivedEvent,
+    IFightContextMutator,
+    IFightContextReader,
+    IReactiveContext,
+    PlayingTeamID,
+    FightSnapshot
+} from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { QueuedProcessor } from "@processors/processor.types";
@@ -121,6 +130,20 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
     getTurnIndex(): number {
         return this.turnIndex
+    }
+
+    toSnapshot(): FightSnapshot {
+        return {
+            mapId: this.map.id,
+            entities: Array.from(this.entities.values()).map(e => ({
+                id: e.id,
+                teamId: e.teamId,
+                tags: [...e.tags],
+                position: { ...e.position },
+                currentStats: { ...e.currentStats },
+                statuses: e.statuses.map(s => s.id)
+            }))
+        }
     }
 
     nextTurn(): void {

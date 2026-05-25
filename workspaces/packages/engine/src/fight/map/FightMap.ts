@@ -2,10 +2,12 @@ import {Dimensions, Position} from "@helpers/types/helpers.types"
 import { MapCell, FightMapConfig, EObstacleType } from "@fight/map/fight.map.types"
 
 export class FightMap {
+    public readonly id: string;
     private cells: MapCell[][]
     private dimensions: Dimensions
 
     constructor(config: FightMapConfig) {
+        this.id = config.id;
         this.dimensions = config.dimensions
         this.cells = config.cells.map((row, y) =>
             row.map((cell, x) => ({ type: cell, position: { x, y } }))

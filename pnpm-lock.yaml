@@ -23,6 +23,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.5)
+      '@reflexer/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
       framer-motion:
         specifier: ^12.38.0
         version: 12.40.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)

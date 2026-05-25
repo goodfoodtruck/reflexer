@@ -1,6 +1,5 @@
-import { IFightContextMutator } from "@fight/fight.types";
+import { IFightContextMutator, IReactiveContext } from "@fight/fight.types";
 import { IFightContextReader } from "@fight/fight.types";
-import { IReactiveContext } from "@fight/context/IFightContextReactive";
 import { ActionLog, ExecutionContext, MovementContext } from "@fight/fight.types";
 import { Position } from "@helpers/types/helpers.types";
 import { ProcessorChain } from "@processors/ProcessorChain";

@@ -5,6 +5,7 @@ import { Gambit } from "@fight/gambits/gambits.types";
 export class EntityMovementResolver {
     
     resolve(entity: PlayingEntity, gambits: Gambit[], fightContext: IFightContextReader): MovementContext {
-        return "APPROACH"
+        /* TODO ==ATTENTION== ce code comble juste le retour de fonction il faut le changer */
+        return { targetId: entity.id, casterId: entity.id, strategy: "APPROACH" }
     }
 }
