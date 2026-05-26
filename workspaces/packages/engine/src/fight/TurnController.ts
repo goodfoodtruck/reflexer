@@ -55,8 +55,6 @@ export class TurnController {
             }
         }
     
-        // TODO: décrémenter le nombre de tour restants des passifs de l'entité
-
         return { turnIndex, actionLogs: entityTurnLogs }
     }
 
