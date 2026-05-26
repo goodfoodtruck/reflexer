@@ -6,6 +6,10 @@ import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveConfigID } from "@fight/passives/passives.types";
 
+export type FightEvent = 
+    | { type: "DAMAGE_RECEIVED", targetId: PlayingEntityID, sourceId: PlayingEntityID, amount: number }
+
+
 export interface DamageReceivedEvent {
     readonly ownerId: PlayingEntityID      // porteur du statut
     readonly attackerId: PlayingEntityID   // qui a infligé les dégâts

@@ -1,4 +1,4 @@
-import { ActionID, EntityModifiers, PlayingEntityID } from "@fight/fight.types"
+import { ActionID, EntityModifiers, FightEvent, PlayingEntityID } from "@fight/fight.types"
 import { TargetSelector } from "@fight/gambits/gambits.types"
 
 export type PassiveConfigID = string
@@ -52,4 +52,9 @@ export type ModifierPassive = {
     modifier: keyof EntityModifiers
     /** valeur en pourcentage, par exemple si modifier est 'damageDealtModifier', alors une valeur à 10 représentera 10% de dommages infligés supplémentaires */
     value: number                   
+}
+
+
+export const EVENT_TO_TRIGGER: Partial<Record<FightEvent["type"], PassiveTrigger>> = {
+    "DAMAGE_RECEIVED": "ON_DAMAGE_RECEIVED",
 }

@@ -1,12 +1,12 @@
 import { ActionLog, PlayingEntity, PlayingEntityID, TurnLog } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
-import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecutor";
 import { EntityMovementResolver } from "@fight/gambits/resolvers/MovementGambitResolver";
 import { ActionGambitResolver } from "@fight/gambits/resolvers/ActionGambitResolver";
 import { isActionGambit, isMovementGambit } from "@helpers/gambits/typeguards";
 import { Position } from "@helpers/types/helpers.types";
+import { ActionChainExecutor } from "@fight/turn-executors/ActionChainExecutor";
 
 export class TurnController {
     constructor(
@@ -14,7 +14,7 @@ export class TurnController {
         private readonly movementResolver: EntityMovementResolver,
         private readonly movementExecutor: EntityMovementExecutor,
         private readonly actionResolver: ActionGambitResolver,
-        private readonly actionExecutor: EntityActionExecutor
+        private readonly actionExecutor: ActionChainExecutor
     ) {}
 
     /**

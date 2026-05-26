@@ -4,7 +4,7 @@ import { Passive, PassiveTrigger, TriggeredPassive } from "@fight/passives/passi
 import { GambitTargetResolver } from "@fight/gambits/resolvers/target/GambitTargetResolver";
 import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
 
-const isTriggeredPassiveOfType = (triggerType: PassiveTrigger) => {
+export const isTriggeredPassiveOfType = (triggerType: PassiveTrigger) => {
         return (passive: Passive): passive is TriggeredPassive =>
         passive.kind === "TRIGGERED" && passive.triggerType === triggerType
 }

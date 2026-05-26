@@ -4,15 +4,16 @@ import {
     DamageReceivedEvent,
     IFightContextMutator,
     IFightContextReader,
-    IReactiveContext,
     PlayingTeamID,
-    FightSnapshot
+    FightSnapshot,
+    FightEvent,
+    IReactiveContext
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
-import { QueuedProcessor } from "@processors/processor.types";
 import { Position } from "@helpers/types/helpers.types";
 import { ActivePassive } from "@fight/passives/passives.types"
+import { QueuedProcessor } from "@fight/processors";
 
 export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
 
@@ -21,17 +22,25 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
     private initiativeOrder: PlayingEntityID[]
     private currentInitiativeIndex: InitiativeOrderIndex
     private readonly map: FightMap
-    private reactionQueue: QueuedProcessor[]
+    private fightEvents: FightEvent[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
         this.turnIndex = 0
         this.map = map
-        this.reactionQueue = []
+        this.fightEvents = []
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
         this.initiativeOrder = this.buildInitiativeOrder(entities)
         this.currentInitiativeIndex = new InitiativeOrderIndex(0, this.initiativeOrder.length)
+    }
+
+    queueReaction(reaction: QueuedProcessor): void {
+        throw new Error("Method not implemented.");
+    }
+
+    drainReactions(): QueuedProcessor[] {
+        throw new Error("Method not implemented.");
     }
 
     private buildInitiativeOrder(entities: PlayingEntity[]): PlayingEntityID[] {
@@ -155,11 +164,11 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         this.turnIndex++
     }
 
-    queueReaction(r: QueuedProcessor): void { this.reactionQueue.push(r) }
+    queueEvent(e: FightEvent): void { this.fightEvents.push(e) }
 
-    drainReactions(): QueuedProcessor[] {
-        const out = this.reactionQueue
-        this.reactionQueue = []
+    drainEvents(): FightEvent[] {
+        const out = this.fightEvents
+        this.fightEvents = []
         return out
     }
 
@@ -167,17 +176,14 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         const target = this.getAliveEntityOrThrow(params.targetId)
         const actualDamage = target.takeDamage(params.amount)
 
-        const event: DamageReceivedEvent = {
-            ownerId: params.targetId,
-            attackerId: params.sourceId,
-            amount: actualDamage,
-            reactionDepth: params.reactionDepth ?? 0,
+        const event: FightEvent = { 
+            type: "DAMAGE_RECEIVED", 
+            targetId: params.targetId, 
+            sourceId: params.sourceId, 
+            amount: actualDamage
         }
 
-        for (const status of target.statuses) {
-            const reaction = status.onDamageReceived?.(event)
-            if (reaction) this.queueReaction(reaction)
-        }
+        this.queueEvent(event)
 
         return { actualDamage, isDead: this.isEntityDead(target.id) }
     }
@@ -225,6 +231,12 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
     private isPassiveStillActive(passive: ActivePassive): boolean {
         return passive.remainingTurns === "PERMANENT" || passive.remainingTurns > 0
+    }
+
+    getAffectedEntityId(event: FightEvent): PlayingEntityID {
+        switch (event.type) {
+            case "DAMAGE_RECEIVED": return event.targetId
+        }
     }
 }
 
