@@ -1,10 +1,11 @@
 import { ProcessorChain } from '@fight/processors/ProcessorChain'
 import { Action, ActionID, PlayingEntity } from '@fight/fight.types'
-import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor"
 import { InMemoryActionRegistry } from "@data/InMemoryActionRegistry"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { InMemoryPassiveRegistry } from '@data/InMemoryPassiveRegistry';
 import { ProcessorFactory } from '@fight/processors/ProcessorFactory';
+import { ActionChainExecutor } from '@fight/turn-executors';
+import { FilterEvaluatorRegistry, FilterApplier, EntityScopeResolver, GambitTargetResolver } from '@fight/gambits';
 
 interface SetupFightConfig {
     players?: Partial<PlayingEntity>[]
@@ -27,8 +28,12 @@ export function setupFight(config: SetupFightConfig = {}) {
 
     const passiveRegistry = new InMemoryPassiveRegistry()
     const processorFactory = new ProcessorFactory(passiveRegistry)
+    const filterEvaluatorRegistry = new FilterEvaluatorRegistry()
+    const filterApplier = new FilterApplier(filterEvaluatorRegistry)
+    const entityScopeResolver = new EntityScopeResolver()
+    const targetResolver = new GambitTargetResolver(filterApplier, entityScopeResolver)
 
-    const executor = new EntityActionExecutor(processorFactory, registry, new ProcessorChain())
+    const executor = new ActionChainExecutor(processorFactory, registry, targetResolver, new ProcessorChain())
 
     return { fightContext, executor, registry }
 }
