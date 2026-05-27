@@ -28,15 +28,11 @@ export type Passive =
 export type TriggeredPassive = {
     kind: "TRIGGERED"
     triggerType: PassiveTrigger    // type de déclencheur
-    triggeredActionId: ActionID      // action a exécuté lorsque le passif est déclenché
+    triggeredActionId: ActionID    // action a exécuter lorsque le passif est déclenché
     targetSelector: TargetSelector // sur qui l'action déclenchée va s'appliquer
 }
 
-export type PassiveTrigger =
-    | "ON_TURN_START" 
-    | "ON_TURN_END"
-    | "ON_DAMAGE_RECEIVED"
-    | "ON_DEATH"
+export type PassiveTrigger = ActionLog["type"]
 
 
 /** Un passif porté par une entité peut apporter une modification sur son prochain tour
@@ -52,10 +48,4 @@ export type ModifierPassive = {
     modifier: keyof EntityModifiers
     /** valeur en pourcentage, par exemple si modifier est 'damageDealtModifier', alors une valeur à 10 représentera 10% de dommages infligés supplémentaires */
     value: number                   
-}
-
-
-export const EVENT_TO_TRIGGER: Partial<Record<ActionLog["type"], PassiveTrigger>> = {
-    "damage_dealt": "ON_DAMAGE_RECEIVED",
-    "entity_died":     "ON_DEATH",
 }

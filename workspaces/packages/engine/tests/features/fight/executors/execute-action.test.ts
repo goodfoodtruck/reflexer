@@ -85,7 +85,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: {
                 context: { targetType: ETargetType.ENEMY, filters: [] },
@@ -161,7 +161,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -223,7 +223,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const explosionPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DEATH",
+            triggerType: "entity_died",
             triggeredActionId: "death_explosion",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -285,7 +285,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         // passif THORNS qui cible un allié — mais le gobelin n'a aucun allié
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: {
                 context: { targetType: ETargetType.ALLY, filters: [] },  // cible un allié
@@ -344,7 +344,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -411,7 +411,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -467,7 +467,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -533,7 +533,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -541,7 +541,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const ragePassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "rage_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -613,7 +613,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const thornsPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DAMAGE_RECEIVED",
+            triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"
@@ -621,7 +621,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
 
         const explosionPassive: PassiveConfig = {
             kind: "TRIGGERED",
-            triggerType: "ON_DEATH",  // ne doit pas se déclencher sur un coup non létal
+            triggerType: "entity_died",  // ne doit pas se déclencher sur un coup non létal
             triggeredActionId: "death_explosion",
             targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
             duration: "PERMANENT"

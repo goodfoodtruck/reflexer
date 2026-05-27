@@ -1,7 +1,6 @@
 import { IActionRegistry } from "@data/IActionRegistry";
 import { FightContext } from "@fight/context/FightContext";
 import { ActionLog, ExecutionContext } from "@fight/fight.types";
-import { EVENT_TO_TRIGGER } from "@fight/passives/passives.types";
 import { ProcessorChain } from "@fight/processors/ProcessorChain";
 import { ProcessorFactory } from "@fight/processors/ProcessorFactory";
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
@@ -49,8 +48,7 @@ export class ActionChainExecutor {
         const reactions: ExecutionContext[] = []
 
         for (const log of logs) {
-            const triggerType = EVENT_TO_TRIGGER[log.type]
-            if (! triggerType) continue
+            const triggerType = log.type
 
             const entityId = fightContext.getAffectedEntityId(log)
             const affectedEntity = fightContext.getEntityById(entityId)
