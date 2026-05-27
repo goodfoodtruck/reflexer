@@ -50,7 +50,6 @@ export class TurnController {
             entityTurnLogs.push(...step())
 
             if (fightContext.isEntityDead(entityId)) {
-                entityTurnLogs.push(...this.passivesExecutor.executePassiveTrigger("ON_DEATH", fightContext.getAliveEntityOrThrow(entityId), fightContext))
                 return { turnIndex, actionLogs: entityTurnLogs }
             }
         }
