@@ -193,9 +193,37 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         return { actualDamage, isDead: this.isEntityDead(target.id) }
     }
 
-    applyPassive(entityId: PlayingEntityID, passive: ActivePassive): void {
+    applyPassive(entityId: PlayingEntityID, newPassive: ActivePassive): void {
+        const strategy = newPassive.passive.config.applicationStrategy
         const entity = this.getAliveEntityOrThrow(entityId)
-        entity.activePassives.push(passive)
+
+        switch (strategy.type) {
+            case "RESET": this.applyResetStrategy(entity, newPassive); break
+            case "STACK": this.applyStackStrategy(entity, newPassive, strategy.maxStack); break
+        }
+    }
+
+    private applyResetStrategy(entity: PlayingEntity, activePassiveToApply: ActivePassive): void {
+        const existing = entity.activePassives.find(p => p.passive.id === activePassiveToApply.passive.id)
+
+        if (existing)
+            existing.remainingTurns = activePassiveToApply.remainingTurns
+        else 
+            entity.activePassives.push(activePassiveToApply)
+    }
+
+    private applyStackStrategy(
+        entity: PlayingEntity, 
+        activePassiveToApply: ActivePassive, 
+        maxStack: number
+    ): void {
+        const currentStackCount = entity.activePassives
+            .filter(p => p.passive.id === activePassiveToApply.passive.id)
+            .length
+
+        if (currentStackCount >= maxStack) return  // ignoré si maxStack atteint
+
+        entity.activePassives.push(activePassiveToApply)
     }
 
 
