@@ -8,6 +8,7 @@ import { ActivePassive, PassiveConfigID } from "@fight/passives/passives.types";
 
 export type FightEvent = 
     | { type: "DAMAGE_RECEIVED", targetId: PlayingEntityID, sourceId: PlayingEntityID, amount: number }
+    | { type: "ENTITY_DIED", entityId: PlayingEntityID }
 
 
 export interface DamageReceivedEvent {

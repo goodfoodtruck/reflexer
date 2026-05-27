@@ -57,4 +57,5 @@ export type ModifierPassive = {
 
 export const EVENT_TO_TRIGGER: Partial<Record<FightEvent["type"], PassiveTrigger>> = {
     "DAMAGE_RECEIVED": "ON_DAMAGE_RECEIVED",
+    "ENTITY_DIED":     "ON_DEATH",
 }

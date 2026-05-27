@@ -185,6 +185,13 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
         this.queueEvent(event)
 
+        if (target.isDead) {
+            this.queueEvent({
+                type: "ENTITY_DIED",
+                entityId: target.id
+            })
+        }
+
         return { actualDamage, isDead: this.isEntityDead(target.id) }
     }
 
@@ -236,6 +243,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
     getAffectedEntityId(event: FightEvent): PlayingEntityID {
         switch (event.type) {
             case "DAMAGE_RECEIVED": return event.targetId
+            case "ENTITY_DIED": return event.entityId
         }
     }
 }
