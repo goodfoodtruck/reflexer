@@ -1,6 +1,6 @@
 import { IActionRegistry } from "@data/IActionRegistry";
 import { FightContext } from "@fight/context/FightContext";
-import { ActionLog, ExecutionContext, FightEvent } from "@fight/fight.types";
+import { ActionLog, ExecutionContext } from "@fight/fight.types";
 import { GambitTargetResolver } from "@fight/gambits";
 import { EVENT_TO_TRIGGER } from "@fight/passives/passives.types";
 import { ProcessorChain } from "@fight/processors/ProcessorChain";
@@ -34,8 +34,8 @@ export class ActionChainExecutor {
             const actionLogs = this.processorChain.execute(ctx, actionProcessors, fightContext)
             logs.push(...actionLogs)
 
-            const events = fightContext.drainEvents()
-            const reactions = this.resolveReactions(events, fightContext, ctx.reactionDepth)
+            const fightLogs = fightContext.drainLogs()
+            const reactions = this.resolveReactions(fightLogs, fightContext, ctx.reactionDepth)
             queue.push(...reactions)
         }
 
@@ -43,17 +43,17 @@ export class ActionChainExecutor {
     }
 
     private resolveReactions(
-        events: FightEvent[],
+        logs: ActionLog[],
         fightContext: FightContext,
         currentDepth: number
     ): ExecutionContext[] {
         const reactions: ExecutionContext[] = []
 
-        for (const event of events) {
-            const triggerType = EVENT_TO_TRIGGER[event.type]
+        for (const log of logs) {
+            const triggerType = EVENT_TO_TRIGGER[log.type]
             if (! triggerType) continue 
 
-            const entityId = fightContext.getAffectedEntityId(event)
+            const entityId = fightContext.getAffectedEntityId(log)
             const affectedEntity = fightContext.getEntityById(entityId)
             if (! affectedEntity) continue
 

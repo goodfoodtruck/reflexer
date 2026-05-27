@@ -1,4 +1,4 @@
-import { ActionID, EntityModifiers, FightEvent, PlayingEntityID } from "@fight/fight.types"
+import { ActionID, ActionLog, EntityModifiers, PlayingEntityID } from "@fight/fight.types"
 import { TargetSelector } from "@fight/gambits/gambits.types"
 
 export type PassiveConfigID = string
@@ -55,7 +55,7 @@ export type ModifierPassive = {
 }
 
 
-export const EVENT_TO_TRIGGER: Partial<Record<FightEvent["type"], PassiveTrigger>> = {
-    "DAMAGE_RECEIVED": "ON_DAMAGE_RECEIVED",
-    "ENTITY_DIED":     "ON_DEATH",
+export const EVENT_TO_TRIGGER: Partial<Record<ActionLog["type"], PassiveTrigger>> = {
+    "damage_dealt": "ON_DAMAGE_RECEIVED",
+    "entity_died":     "ON_DEATH",
 }

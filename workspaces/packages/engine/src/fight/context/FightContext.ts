@@ -1,13 +1,12 @@
 import {
     PlayingEntityID,
     PlayingEntity,
-    DamageReceivedEvent,
     IFightContextMutator,
     IFightContextReader,
     PlayingTeamID,
     FightSnapshot,
-    FightEvent,
-    IReactiveContext
+    IReactiveContext,
+    ActionLog
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
@@ -22,12 +21,12 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
     private initiativeOrder: PlayingEntityID[]
     private currentInitiativeIndex: InitiativeOrderIndex
     private readonly map: FightMap
-    private fightEvents: FightEvent[]
+    private fightLogs: ActionLog[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
         this.turnIndex = 0
         this.map = map
-        this.fightEvents = []
+        this.fightLogs = []
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
@@ -164,11 +163,11 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         this.turnIndex++
     }
 
-    queueEvent(e: FightEvent): void { this.fightEvents.push(e) }
+    queueLog(l: ActionLog): void { this.fightLogs.push(l) }
 
-    drainEvents(): FightEvent[] {
-        const out = this.fightEvents
-        this.fightEvents = []
+    drainLogs(): ActionLog[] {
+        const out = this.fightLogs
+        this.fightLogs = []
         return out
     }
 
@@ -176,18 +175,17 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         const target = this.getAliveEntityOrThrow(params.targetId)
         const actualDamage = target.takeDamage(params.amount)
 
-        const event: FightEvent = { 
-            type: "DAMAGE_RECEIVED", 
+        this.queueLog({ 
+            type: "damage_dealt", 
             targetId: params.targetId, 
             sourceId: params.sourceId, 
-            amount: actualDamage
-        }
-
-        this.queueEvent(event)
+            amount: actualDamage,
+            reactionDepth: params.reactionDepth ? params.reactionDepth + 1 : 0
+        })
 
         if (target.isDead) {
-            this.queueEvent({
-                type: "ENTITY_DIED",
+            this.queueLog({
+                type: "entity_died",
                 entityId: target.id
             })
         }
@@ -240,10 +238,12 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         return passive.remainingTurns === "PERMANENT" || passive.remainingTurns > 0
     }
 
-    getAffectedEntityId(event: FightEvent): PlayingEntityID {
-        switch (event.type) {
-            case "DAMAGE_RECEIVED": return event.targetId
-            case "ENTITY_DIED": return event.entityId
+    getAffectedEntityId(log: ActionLog): PlayingEntityID {
+        switch (log.type) {
+            case "damage_dealt": return log.targetId
+            case "entity_died": return log.entityId
+            
+            default: throw new Error("Not implemented.")
         }
     }
 }

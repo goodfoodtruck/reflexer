@@ -6,10 +6,6 @@ import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveConfigID } from "@fight/passives/passives.types";
 
-export type FightEvent = 
-    | { type: "DAMAGE_RECEIVED", targetId: PlayingEntityID, sourceId: PlayingEntityID, amount: number }
-    | { type: "ENTITY_DIED", entityId: PlayingEntityID }
-
 
 export interface DamageReceivedEvent {
     readonly ownerId: PlayingEntityID      // porteur du statut
@@ -67,7 +63,6 @@ export type EntityModifiers = {
     damageReceivedModifier:  number  // altère les dégâts que cette entité reçoit, en pourcentage
     healingReceivedModifier: number  // altère les soins que cette entité reçoit, en pourcentage
 }
-
 
 
 export type ActionLog =
