@@ -30,7 +30,10 @@ export class FightOrchestrator {
             this.fightLogger.record(turnLog)
 
             context.nextEntityTurn()
-            context.isNewTurn() && context.nextTurn()
+            if (context.isNewTurn()) {
+                context.nextTurn()
+                context.tickAllPassives()
+            }
             
             const fightState = this.fightStateResolver.resolve(context)
             if (fightState.status === "ENDED") 

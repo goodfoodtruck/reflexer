@@ -1,12 +1,12 @@
 import { ActionLog, PlayingEntity, PlayingEntityID, TurnLog } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
-import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecutor";
 import { EntityMovementResolver } from "@fight/gambits/resolvers/MovementGambitResolver";
 import { ActionGambitResolver } from "@fight/gambits/resolvers/ActionGambitResolver";
 import { isActionGambit, isMovementGambit } from "@helpers/gambits/typeguards";
 import { Position } from "@helpers/types/helpers.types";
+import { ActionChainExecutor } from "@fight/turn-executors/ActionChainExecutor";
 
 export class TurnController {
     constructor(
@@ -14,45 +14,47 @@ export class TurnController {
         private readonly movementResolver: EntityMovementResolver,
         private readonly movementExecutor: EntityMovementExecutor,
         private readonly actionResolver: ActionGambitResolver,
-        private readonly actionExecutor: EntityActionExecutor
+        private readonly actionExecutor: ActionChainExecutor
     ) {}
 
     /**
-     * Joue le tour d'une entité: 1. application de ses passifs, 2. mouvement et 3. action
-     * @param entityId l'entité dont on doit exécuter le tour
-     * @returns les logs d'exécution du tour de l'entité
-     */
+     * Joue le tour d'une entité en 4 phases séquentielles :
+     * 1. Passifs déclenchés en début de tour (`ON_TURN_START`)
+     * 2. Mouvement selon les gambits de mouvement
+     * 3. Action selon les gambits d'action
+     * 4. Passifs déclenchés en fin de tour (`ON_TURN_END`)
+     *
+     * Si l'entité meurt à n'importe quelle phase, les passifs `ON_DEATH`
+     * sont exécutés et le tour s'arrête immédiatement.
+     *
+     * @param turnIndex - Index du tour courant dans le combat
+     * @param entityId - Identifiant de l'entité dont c'est le tour
+     * @param fightContext - Contexte mutable du combat
+     * @returns Les logs de toutes les actions exécutées pendant ce tour
+    */
     executeEntityTurn(
         turnIndex: Readonly<number>, 
         entityId: PlayingEntityID, 
         fightContext: FightContext
     ): TurnLog {
         const entityTurnLogs: ActionLog[] = []
-        
-        // executer les passifs
-        const entityBeforePassives = fightContext.getAliveEntityOrThrow(entityId)
-        entityTurnLogs.push(...this.executeEntityPassives(entityBeforePassives, fightContext))
-        if (fightContext.isEntityDead(entityId)) {
-            return { turnIndex, actionLogs: entityTurnLogs }
+
+        const entityTurnSteps = [
+            () => this.passivesExecutor.executePassiveTrigger("ON_TURN_START", fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.executeEntityMovement(fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.executeEntityAction(fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.passivesExecutor.executePassiveTrigger("ON_TURN_END", fightContext.getAliveEntityOrThrow(entityId), fightContext)
+        ]
+
+        for (const step of entityTurnSteps) {
+            entityTurnLogs.push(...step())
+
+            if (fightContext.isEntityDead(entityId)) {
+                return { turnIndex, actionLogs: entityTurnLogs }
+            }
         }
-
-        // Checker les gambits de mouvement
-        const entityBeforeMovement = fightContext.getAliveEntityOrThrow(entityId)
-        entityTurnLogs.push(...this.executeEntityMovement(entityBeforeMovement, fightContext))
-        if (fightContext.isEntityDead(entityId)) {
-            return { turnIndex, actionLogs: entityTurnLogs }
-        }
-
-        // Checker les gambits d'action
-        const entityBeforeAction = fightContext.getAliveEntityOrThrow(entityId)        
-        entityTurnLogs.push(...this.executeEntityAction(entityBeforeAction, fightContext))
-
+    
         return { turnIndex, actionLogs: entityTurnLogs }
-    }
-
-    private executeEntityPassives(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
-        const passiveLogs = this.passivesExecutor.executeEntityPassives(entity, fightContext)
-        return passiveLogs
     }
 
     private executeEntityMovement(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {

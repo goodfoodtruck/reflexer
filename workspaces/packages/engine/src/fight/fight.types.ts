@@ -1,9 +1,10 @@
-import {Gambit, MovementStrategy} from "@fight/gambits/gambits.types"
+import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
-import {IStatus} from "@fight/context/IStatus";
-import {EFightMapSize, FightMapID} from "./map/fight.map.types";
-import { NbPlayerByTeam } from "./value-objects/NbPlayerByTeam";
+import { IStatus } from "@fight/context/IStatus";
+import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
+import { NbPlayerByTeam } from "@fight/value-objects";
+import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
 
 
 export interface DamageReceivedEvent {
@@ -49,12 +50,28 @@ export type Action = {
     processorConfigs: Readonly<ProcessorConfig[]>;
 };
 
+
+/** Modificateur de statistiques pour une entité: 
+ * 
+ * - Dégats infligés, reçus, réduction de dommages... etc 
+ * 
+ * Une action peut appliquer un ou plusieurs modificateurs à une entité, 
+ * lui permettant ainsi d'augmenter ou de diminuer les dégats reçus, infligés... etc
+ * */
+export type EntityModifiers = {
+    damageDealtModifier:     number  // altère les dégâts que cette entité inflige, en pourcentage
+    damageReceivedModifier:  number  // altère les dégâts que cette entité reçoit, en pourcentage
+    healingReceivedModifier: number  // altère les soins que cette entité reçoit, en pourcentage
+}
+
+
 export type ActionLog =
     | DamageDealtLog
     | DamageSkippedLog
     | EntityDiedLog
     | ActionFailedLog
     | EntityMovedLog
+    | PassiveAppliedLog
 
 export type DamageDealtLog = {
     type: Readonly<'damage_dealt'>
@@ -62,6 +79,13 @@ export type DamageDealtLog = {
     targetId: Readonly<PlayingEntityID>
     amount: Readonly<number>
     reactionDepth: Readonly<number>
+}
+
+export type PassiveAppliedLog = {
+    type: Readonly<'passive_applied'>
+    targetId: Readonly<PlayingEntityID>
+    sourceId: Readonly<PlayingEntityID>
+    passiveId: Readonly<PassiveID>
 }
 
 export type DamageSkippedLog = {
@@ -151,6 +175,7 @@ export type PlayingEntity = {
     currentStats: EntityStats
     gambits: Gambit[]
     statuses: Readonly<IStatus[]>
+    activePassives: ActivePassive[]
     takeDamage(amount: number): number
     isDead: boolean
 }

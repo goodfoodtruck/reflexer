@@ -1,17 +1,18 @@
 import {
     PlayingEntityID,
     PlayingEntity,
-    DamageReceivedEvent,
     IFightContextMutator,
     IFightContextReader,
-    IReactiveContext,
     PlayingTeamID,
-    FightSnapshot
+    FightSnapshot,
+    IReactiveContext,
+    ActionLog
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
-import { QueuedProcessor } from "@processors/processor.types";
 import { Position } from "@helpers/types/helpers.types";
+import { ActivePassive } from "@fight/passives/passives.types"
+import { QueuedProcessor } from "@fight/processors";
 
 export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
 
@@ -20,17 +21,25 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
     private initiativeOrder: PlayingEntityID[]
     private currentInitiativeIndex: InitiativeOrderIndex
     private readonly map: FightMap
-    private reactionQueue: QueuedProcessor[]
+    private fightLogs: ActionLog[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
         this.turnIndex = 0
         this.map = map
-        this.reactionQueue = []
+        this.fightLogs = []
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
         this.initiativeOrder = this.buildInitiativeOrder(entities)
         this.currentInitiativeIndex = new InitiativeOrderIndex(0, this.initiativeOrder.length)
+    }
+
+    queueReaction(reaction: QueuedProcessor): void {
+        throw new Error("Method not implemented.");
+    }
+
+    drainReactions(): QueuedProcessor[] {
+        throw new Error("Method not implemented.");
     }
 
     private buildInitiativeOrder(entities: PlayingEntity[]): PlayingEntityID[] {
@@ -50,6 +59,10 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         return initiativeOrder
     }
 
+    /**
+     * Augmente l'index de référence de l'entité courante, au prochain appel de 
+     * getActingEntity() on récupèrera donc la prochaine entité
+     */
     nextEntityTurn(): void {
         this.currentInitiativeIndex = this.currentInitiativeIndex.next()
     }
@@ -150,11 +163,11 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         this.turnIndex++
     }
 
-    queueReaction(r: QueuedProcessor): void { this.reactionQueue.push(r) }
+    queueLog(l: ActionLog): void { this.fightLogs.push(l) }
 
-    drainReactions(): QueuedProcessor[] {
-        const out = this.reactionQueue
-        this.reactionQueue = []
+    drainLogs(): ActionLog[] {
+        const out = this.fightLogs
+        this.fightLogs = []
         return out
     }
 
@@ -162,20 +175,57 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         const target = this.getAliveEntityOrThrow(params.targetId)
         const actualDamage = target.takeDamage(params.amount)
 
-        const event: DamageReceivedEvent = {
-            ownerId: params.targetId,
-            attackerId: params.sourceId,
+        this.queueLog({ 
+            type: "damage_dealt", 
+            targetId: params.targetId, 
+            sourceId: params.sourceId, 
             amount: actualDamage,
-            reactionDepth: params.reactionDepth ?? 0,
-        }
+            reactionDepth: params.reactionDepth ? params.reactionDepth + 1 : 0
+        })
 
-        for (const status of target.statuses) {
-            const reaction = status.onDamageReceived?.(event)
-            if (reaction) this.queueReaction(reaction)
+        if (target.isDead) {
+            this.queueLog({
+                type: "entity_died",
+                entityId: target.id
+            })
         }
 
         return { actualDamage, isDead: this.isEntityDead(target.id) }
     }
+
+    applyPassive(entityId: PlayingEntityID, newPassive: ActivePassive): void {
+        const strategy = newPassive.passive.config.applicationStrategy
+        const entity = this.getAliveEntityOrThrow(entityId)
+
+        switch (strategy.type) {
+            case "RESET": this.applyResetStrategy(entity, newPassive); break
+            case "STACK": this.applyStackStrategy(entity, newPassive, strategy.maxStack); break
+        }
+    }
+
+    private applyResetStrategy(entity: PlayingEntity, activePassiveToApply: ActivePassive): void {
+        const existing = entity.activePassives.find(p => p.passive.id === activePassiveToApply.passive.id)
+
+        if (existing)
+            existing.remainingTurns = activePassiveToApply.remainingTurns
+        else 
+            entity.activePassives.push(activePassiveToApply)
+    }
+
+    private applyStackStrategy(
+        entity: PlayingEntity, 
+        activePassiveToApply: ActivePassive, 
+        maxStack: number
+    ): void {
+        const currentStackCount = entity.activePassives
+            .filter(p => p.passive.id === activePassiveToApply.passive.id)
+            .length
+
+        if (currentStackCount >= maxStack) return  // ignoré si maxStack atteint
+
+        entity.activePassives.push(activePassiveToApply)
+    }
+
 
     moveEntity({ entityId, destination }: MoveEntityParams): void {
         const entity = this.getAliveEntityOrThrow(entityId)
@@ -197,6 +247,32 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
             e.position.x === position.x &&
             e.position.y === position.y
         )
+    }
+
+    tickAllPassives(): void {
+        for (const entity of this.getAliveEntities()) {
+            entity.activePassives = entity.activePassives
+                .map(this.decrementPassive)
+                .filter(this.isPassiveStillActive)
+        }
+    }
+
+    private decrementPassive(passive: ActivePassive): ActivePassive {
+        if (passive.remainingTurns === "PERMANENT") return passive
+        return { ...passive, remainingTurns: passive.remainingTurns - 1 }
+    }
+
+    private isPassiveStillActive(passive: ActivePassive): boolean {
+        return passive.remainingTurns === "PERMANENT" || passive.remainingTurns > 0
+    }
+
+    getAffectedEntityId(log: ActionLog): PlayingEntityID {
+        switch (log.type) {
+            case "damage_dealt": return log.targetId
+            case "entity_died": return log.entityId
+            
+            default: throw new Error("Not implemented.")
+        }
     }
 }
 
