@@ -92,8 +92,8 @@ export enum ETargetType {
  */
 type ConditionContext =
     | { targetType: ETargetType.SELF,  filters: SelfFilter[] }
-    | { targetType: ETargetType.ENEMY, filters: AllyFilter[] }
-    | { targetType: ETargetType.ALLY,  filters: EnemyFilter[] }
+    | { targetType: ETargetType.ENEMY, filters: EnemyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: AllyFilter[] }
 
 /**
  * Sélecteur de cible évalué après les conditions.
