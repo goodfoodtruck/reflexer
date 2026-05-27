@@ -1,7 +1,6 @@
-import { ActionLog, ExecutionContext, PlayingEntity } from "@fight/fight.types";
+import { ActionLog, PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { Passive, PassiveTrigger, TriggeredPassive } from "@fight/passives/passives.types";
-import { GambitTargetResolver } from "@fight/gambits/resolvers/target/GambitTargetResolver";
 import { ActionChainExecutor } from "./ActionChainExecutor";
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
 
