@@ -2,14 +2,14 @@ import { FightContext } from "@fight/context/FightContext"
 import { ExecutionContext } from "@fight/fight.types"
 import { IProcessor } from "./IProcessor"
 import { ProcessorResult } from "./processor.types"
-import { PassiveConfigID } from "@fight/passives/passives.types"
 import { IPassiveRegistry } from "@data/IPassiveRegistry"
+import { PassiveID } from "@fight/passives/passives.types"
 
 export class PassiveApplierProcessor implements IProcessor {
 
     constructor(
         private readonly registry: IPassiveRegistry,
-        private readonly passiveConfigId: PassiveConfigID, 
+        private readonly passiveId: PassiveID, 
         private readonly duration: number | "PERMANENT"
     ) {}
 
@@ -27,7 +27,7 @@ export class PassiveApplierProcessor implements IProcessor {
             ],
         }
 
-        const passive = this.registry.getPassive(this.passiveConfigId)
+        const passive = this.registry.getPassive(this.passiveId)
 
         fightContext.applyPassive(target.id, {
             passive,
@@ -39,8 +39,9 @@ export class PassiveApplierProcessor implements IProcessor {
             status: 'ok', 
             logs: [{ 
                 type: "passive_applied", 
-                entityId: ctx.targetId, 
-                passiveConfigId: this.passiveConfigId
+                targetId: ctx.targetId, 
+                sourceId: ctx.casterId,
+                passiveId: this.passiveId
             }] 
         }
     }

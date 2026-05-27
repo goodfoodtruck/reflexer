@@ -4,7 +4,7 @@ import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
 import { IStatus } from "@fight/context/IStatus";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
-import { ActivePassive, PassiveConfigID } from "@fight/passives/passives.types";
+import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
 
 
 export interface DamageReceivedEvent {
@@ -83,8 +83,9 @@ export type DamageDealtLog = {
 
 export type PassiveAppliedLog = {
     type: Readonly<'passive_applied'>
-    entityId: Readonly<PlayingEntityID>
-    passiveConfigId: Readonly<PassiveConfigID>
+    targetId: Readonly<PlayingEntityID>
+    sourceId: Readonly<PlayingEntityID>
+    passiveId: Readonly<PassiveID>
 }
 
 export type DamageSkippedLog = {

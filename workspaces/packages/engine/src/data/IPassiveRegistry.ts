@@ -1,5 +1,5 @@
-import { Passive, PassiveConfigID } from "@fight/passives/passives.types";
+import { PassiveID, Passive } from "@fight/passives/passives.types";
 
 export interface IPassiveRegistry {
-    getPassive(passiveConfigId: PassiveConfigID): Passive
+    getPassive(passiveId: PassiveID): Passive
 }
