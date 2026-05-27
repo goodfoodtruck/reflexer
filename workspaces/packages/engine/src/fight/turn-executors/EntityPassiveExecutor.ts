@@ -2,7 +2,8 @@ import { ActionLog, ExecutionContext, PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { Passive, PassiveTrigger, TriggeredPassive } from "@fight/passives/passives.types";
 import { GambitTargetResolver } from "@fight/gambits/resolvers/target/GambitTargetResolver";
-import { EntityActionExecutor } from "@fight/turn-executors/EntityActionExecutor";
+import { ActionChainExecutor } from "./ActionChainExecutor";
+import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
 
 export const isTriggeredPassiveOfType = (triggerType: PassiveTrigger) => {
         return (passive: Passive): passive is TriggeredPassive =>
@@ -12,8 +13,8 @@ export const isTriggeredPassiveOfType = (triggerType: PassiveTrigger) => {
 export class EntityPassiveExecutor {
 
     constructor(
-        private readonly targetResolver: GambitTargetResolver,
-        private readonly actionExecutor: EntityActionExecutor
+        private readonly triggeredPassiveResolver: TriggeredPassiveResolver,
+        private readonly actionExecutor: ActionChainExecutor
     ) {}
 
     /**
@@ -25,27 +26,11 @@ export class EntityPassiveExecutor {
      */
     executePassiveTrigger(
         triggerType: PassiveTrigger,
-        entity: PlayingEntity, 
+        entity: PlayingEntity,
         fightContext: FightContext
     ): ActionLog[] {
-        const logs: ActionLog[] = []
-
-        const passives = entity.activePassives.map(ap => ap.passive).filter(isTriggeredPassiveOfType(triggerType))
-
-        for (const passive of passives) {
-            const actionTargetId = this.targetResolver.resolve(entity, fightContext, passive.targetSelector)
-            if (! actionTargetId) continue
-
-            const executionContext: ExecutionContext = {
-                casterId: entity.id,
-                actionId: passive.triggeredActionId,
-                targetId: actionTargetId,
-                reactionDepth: 0
-            }
-
-            logs.push(...this.actionExecutor.execute(executionContext, fightContext))
-        }
-        
-        return logs
+        const contexts = this.triggeredPassiveResolver.resolve(triggerType, entity, fightContext, 0)
+        // flatMap pour obtenir un tableau de logs à 1 dimension
+        return contexts.flatMap(ctx => this.actionExecutor.execute(ctx, fightContext))
     }
 }

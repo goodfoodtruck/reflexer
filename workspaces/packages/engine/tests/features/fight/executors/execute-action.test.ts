@@ -3,6 +3,7 @@ import { IPassiveRegistry } from "@data/IPassiveRegistry";
 import { Action, ActionID } from "@fight/fight.types";
 import { EntityScopeResolver, ETargetType, FilterApplier, FilterEvaluatorRegistry, GambitTargetResolver } from "@fight/gambits";
 import { PassiveConfig } from "@fight/passives/passives.types";
+import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
 import { ProcessorFactory, ProcessorChain } from "@fight/processors";
 import { ActionChainExecutor } from "@fight/turn-executors";
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
@@ -27,10 +28,12 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const processorFactory = new ProcessorFactory(passiveRegistry)
         const processorChain   = new ProcessorChain()
 
+        const triggeredPassiveResolver = new TriggeredPassiveResolver(targetResolver)
+
         return new ActionChainExecutor(
             processorFactory,
             actionRegistry,
-            targetResolver,
+            triggeredPassiveResolver,
             processorChain
         )
     }

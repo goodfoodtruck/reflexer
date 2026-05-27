@@ -6,6 +6,7 @@ import { InMemoryPassiveRegistry } from '@data/InMemoryPassiveRegistry';
 import { ProcessorFactory } from '@fight/processors/ProcessorFactory';
 import { ActionChainExecutor } from '@fight/turn-executors';
 import { FilterEvaluatorRegistry, FilterApplier, EntityScopeResolver, GambitTargetResolver } from '@fight/gambits';
+import { TriggeredPassiveResolver } from '@fight/passives/TriggeredPassiveResolver';
 
 interface SetupFightConfig {
     players?: Partial<PlayingEntity>[]
@@ -32,8 +33,9 @@ export function setupFight(config: SetupFightConfig = {}) {
     const filterApplier = new FilterApplier(filterEvaluatorRegistry)
     const entityScopeResolver = new EntityScopeResolver()
     const targetResolver = new GambitTargetResolver(filterApplier, entityScopeResolver)
+    const triggeredPassiveResolver = new TriggeredPassiveResolver(targetResolver)
 
-    const executor = new ActionChainExecutor(processorFactory, registry, targetResolver, new ProcessorChain())
+    const executor = new ActionChainExecutor(processorFactory, registry, triggeredPassiveResolver, new ProcessorChain())
 
     return { fightContext, executor, registry }
 }
