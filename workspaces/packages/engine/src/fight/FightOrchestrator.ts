@@ -34,8 +34,10 @@ export class FightOrchestrator {
                 context.nextTurn()
                 context.tickAllPassives()
             }
+
+            const hashedTurnLogs = this.fightLogger.getLogs().map(this.fightLogger.hashTurn)
             
-            const fightState = this.fightStateResolver.resolve(context)
+            const fightState = this.fightStateResolver.resolve(context, hashedTurnLogs)
             if (fightState.status === "ENDED") 
                 return {
                     initialState,
