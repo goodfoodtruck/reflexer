@@ -17,7 +17,7 @@ export class ProcessorFactory {
             case "walk":    return new WalkProcessor((config.params as WalkParams).cell)
             case "passive": return new PassiveApplierProcessor(
                 this.passiveRegistry,
-                (config.params as PassiveParams).passiveConfigId,
+                (config.params as PassiveParams).passiveId,
                 (config.params as PassiveParams).duration
             )
         }

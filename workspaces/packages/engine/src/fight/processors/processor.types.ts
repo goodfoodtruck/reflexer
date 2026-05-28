@@ -1,11 +1,11 @@
 import { ActionLog, ExecutionContext } from "@fight/fight.types";
 import { IProcessor } from "@processors/IProcessor";
 import { Position } from "@helpers/types/helpers.types";
-import { PassiveConfigID } from "@fight/passives/passives.types";
+import { PassiveID } from "@fight/passives/passives.types";
 
 export type DamageParams = { damage_value: number }
 export type WalkParams = { cell: Position }
-export type PassiveParams = { passiveConfigId: PassiveConfigID, duration: number | "PERMANENT" }
+export type PassiveParams = { passiveId: PassiveID, duration: number | "PERMANENT" }
 
 export type ProcessorParams =
     | DamageParams
