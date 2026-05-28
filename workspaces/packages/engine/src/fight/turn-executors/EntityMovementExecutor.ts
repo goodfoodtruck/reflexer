@@ -1,4 +1,4 @@
-import { IFightContextMutator, IReactiveContext } from "@fight/fight.types";
+import { IFightContextMutator } from "@fight/fight.types";
 import { IFightContextReader } from "@fight/fight.types";
 import { ActionLog, ExecutionContext, MovementContext } from "@fight/fight.types";
 import { Position } from "@helpers/types/helpers.types";
@@ -15,7 +15,7 @@ export class EntityMovementExecutor {
     execute(
         path: Position[],
         movementContext: MovementContext,
-        fightContext: IFightContextMutator & IFightContextReader & IReactiveContext
+        fightContext: IFightContextMutator & IFightContextReader
     ): ActionLog[] {
 
         const logs: ActionLog[] = [];

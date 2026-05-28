@@ -5,7 +5,6 @@ import {
     IFightContextReader,
     PlayingTeamID,
     FightSnapshot,
-    IReactiveContext,
     ActionLog,
     EntityModifier
 } from "@fight/fight.types"
@@ -13,9 +12,8 @@ import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { Position } from "@helpers/types/helpers.types";
 import { ActivePassive, ModifierPassive } from "@fight/passives/passives.types"
-import { QueuedProcessor } from "@fight/processors";
 
-export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
+export class FightContext implements IFightContextReader, IFightContextMutator {
 
     private turnIndex: number
     private entities: Map<PlayingEntityID, PlayingEntity>
@@ -33,14 +31,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
 
         this.initiativeOrder = this.buildInitiativeOrder(entities)
         this.currentInitiativeIndex = new InitiativeOrderIndex(0, this.initiativeOrder.length)
-    }
-
-    queueReaction(reaction: QueuedProcessor): void {
-        throw new Error("Method not implemented.");
-    }
-
-    drainReactions(): QueuedProcessor[] {
-        throw new Error("Method not implemented.");
     }
 
     private buildInitiativeOrder(entities: PlayingEntity[]): PlayingEntityID[] {
