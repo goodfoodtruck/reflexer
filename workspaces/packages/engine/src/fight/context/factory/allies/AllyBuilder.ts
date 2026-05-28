@@ -20,6 +20,7 @@ export class AllyBuilder implements IAllyBuilder {
             currentStats: { ...config.baseStats },
             gambits: [...config.gambits], // récupérer en DB avant et injecter
             statuses: [], // récupérer par injection
+            activePassives: [],
             takeDamage: (amount: number) => { return amount },
             isDead: false
         }

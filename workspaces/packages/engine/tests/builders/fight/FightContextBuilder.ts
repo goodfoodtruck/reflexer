@@ -1,5 +1,6 @@
 import { FightContext } from "@fight/context/FightContext"
-import { FightMapConfig, PlayingEntity } from "@fight/fight.types"
+import { PlayingEntity } from "@fight/fight.types"
+import { FightMapConfig } from "@fight/map/fight.map.types"
 import { buildFightMap } from "@tests/builders/fight/FightMapBuilder"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
 
