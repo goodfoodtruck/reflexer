@@ -58,11 +58,16 @@ export type Action = {
  * Une action peut appliquer un ou plusieurs modificateurs à une entité, 
  * lui permettant ainsi d'augmenter ou de diminuer les dégats reçus, infligés... etc
  * */
-export type EntityModifiers = {
-    damageDealtModifier:     number  // altère les dégâts que cette entité inflige, en pourcentage
-    damageReceivedModifier:  number  // altère les dégâts que cette entité reçoit, en pourcentage
-    healingReceivedModifier: number  // altère les soins que cette entité reçoit, en pourcentage
-}
+export type EntityModifier = 
+    | "damageDealtModifier"      // altère les dégâts que cette entité inflige, en pourcentage
+    | "damageReceivedModifier"   // altère les dégâts que cette entité reçoit, en pourcentage
+    | "healingReceivedModifier"  // altère les soins que cette entité reçoit, en pourcentage
+
+
+export type FightLog = 
+    | ActionLog
+    | TurnStartLog
+    | TurnEndLog
 
 
 export type ActionLog =
@@ -102,6 +107,16 @@ export type EntityDiedLog = {
 export type ActionFailedLog = {
     type: Readonly<'action_failed'>
     reason: Readonly<string>
+}
+
+export type TurnStartLog = {
+    type: Readonly<'turn_start'>
+    turnIndex: number
+}
+
+export type TurnEndLog = {
+    type: Readonly<'turn_end'>
+    turnIndex: number
 }
 
 export type TurnLog = {

@@ -1,4 +1,4 @@
-import { ActionID, ActionLog, EntityModifiers, PlayingEntityID } from "@fight/fight.types"
+import { ActionID, EntityModifier, FightLog, PlayingEntityID } from "@fight/fight.types"
 import { TargetSelector } from "@fight/gambits/gambits.types"
 
 export type PassiveID = string
@@ -47,7 +47,7 @@ export type TriggeredPassive = BasePassive & {
     readonly targetSelector: TargetSelector // sur qui l'action déclenchée va s'appliquer
 }
 
-export type PassiveTrigger = Readonly<ActionLog["type"]>
+export type PassiveTrigger = FightLog["type"]
 
 
 /** Un passif porté par une entité peut apporter une modification sur son prochain tour
@@ -60,7 +60,7 @@ export type ModifierPassive = BasePassive & {
      * Pour une attaque qui appliquerait deux modifications de stats par exemple, on appliquerait
      * deux passifs distincts à l'entité
     */
-    readonly modifier: keyof EntityModifiers
+    readonly modifier: EntityModifier
     /** valeur en pourcentage, par exemple si modifier est 'damageDealtModifier', alors une valeur à 10 représentera 10% de dommages infligés supplémentaires */
     readonly value: number                   
 }

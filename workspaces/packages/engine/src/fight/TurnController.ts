@@ -40,10 +40,10 @@ export class TurnController {
         const entityTurnLogs: ActionLog[] = []
 
         const entityTurnSteps = [
-            () => this.passivesExecutor.executePassiveTrigger("ON_TURN_START", fightContext.getAliveEntityOrThrow(entityId), fightContext),
+            () => this.passivesExecutor.executePassiveTrigger("turn_start", fightContext.getAliveEntityOrThrow(entityId), fightContext),
             () => this.executeEntityMovement(fightContext.getAliveEntityOrThrow(entityId), fightContext),
             () => this.executeEntityAction(fightContext.getAliveEntityOrThrow(entityId), fightContext),
-            () => this.passivesExecutor.executePassiveTrigger("ON_TURN_END", fightContext.getAliveEntityOrThrow(entityId), fightContext)
+            () => this.passivesExecutor.executePassiveTrigger("turn_end", fightContext.getAliveEntityOrThrow(entityId), fightContext)
         ]
 
         for (const step of entityTurnSteps) {
