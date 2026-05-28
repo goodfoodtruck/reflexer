@@ -6,12 +6,13 @@ import {
     PlayingTeamID,
     FightSnapshot,
     IReactiveContext,
-    ActionLog
+    ActionLog,
+    EntityModifier
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { Position } from "@helpers/types/helpers.types";
-import { ActivePassive } from "@fight/passives/passives.types"
+import { ActivePassive, ModifierPassive } from "@fight/passives/passives.types"
 import { QueuedProcessor } from "@fight/processors";
 
 export class FightContext implements IFightContextReader, IFightContextMutator, IReactiveContext {
@@ -224,6 +225,24 @@ export class FightContext implements IFightContextReader, IFightContextMutator, 
         if (currentStackCount >= maxStack) return  // ignoré si maxStack atteint
 
         entity.activePassives.push(activePassiveToApply)
+    }
+
+    /**
+     * Récupérer le % de modification appliqué sur une statistique
+     * en particulier pour une entité. Par exemple si l'entité a deux passifs
+     * qui augmentent de 15 et 20% la stat, on retournera 35.
+     * @param entityId 
+     * @param stat 
+     * @returns 
+     */
+    getModifier(entityId: PlayingEntityID, stat: EntityModifier): number {
+        const entity = this.getEntityById(entityId)
+        if (! entity) return 0
+
+        return entity.activePassives
+            .map(ap => ap.passive)
+            .filter((p): p is ModifierPassive => p.kind === "MODIFIER" && p.modifier === stat)
+            .reduce((acc, p) => acc + p.value, 0)
     }
 
 

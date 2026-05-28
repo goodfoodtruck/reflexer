@@ -21,10 +21,12 @@ export class DamageProcessor implements IProcessor {
             }
         }
 
+        const finalDamage = this.computeTotalDamage(fightContext, ctx)
+
         const result = fightContext.applyDamage({
             sourceId: ctx.casterId,
             targetId: ctx.targetId,
-            amount: this.damageValue,
+            amount: finalDamage,
             reactionDepth: ctx.reactionDepth,
         })
 
@@ -41,5 +43,15 @@ export class DamageProcessor implements IProcessor {
         }
 
         return { status: 'ok', logs }
+    }
+
+    private computeTotalDamage(fightContext: FightContext, ctx: ExecutionContext): number {
+        const dealtModifier = fightContext.getModifier(ctx.casterId, "damageDealtModifier")
+        const receivedModifier = fightContext.getModifier(ctx.targetId, "damageReceivedModifier")
+        const totalModifier = dealtModifier + receivedModifier
+
+        const finalDamage = this.damageValue * (1 + totalModifier / 100)
+
+        return Math.max(0, Math.floor(finalDamage))
     }
 }
