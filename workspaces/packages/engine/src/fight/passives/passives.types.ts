@@ -25,8 +25,8 @@ export type PassiveApplicationStrategy =
 // Instance active sur l'entité — porte l'état
 export type ActivePassive = {
     readonly passive: Passive
-    remainingTurns: number | "PERMANENT"   // combien de tours actifs
-    readonly sourceEntityId: PlayingEntityID        // qui a appliqué ce passif
+    remainingTurns: number | "PERMANENT"      // combien de tours actifs
+    readonly sourceEntityId: PlayingEntityID  // qui a appliqué ce passif
 }
 
 /** 
