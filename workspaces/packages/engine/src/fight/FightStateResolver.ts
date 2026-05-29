@@ -1,9 +1,20 @@
 import { FightContext } from "@fight/context/FightContext"
 import { FightEndState, FightState, PlayingEntity } from "@fight/fight.types";
+import { FightSafetyChecker } from "@fight/FightSafetyChecker";
+
+const TURN_LOOP_STATE: FightState = { 
+    status: "ENDED", 
+    endState: { 
+        kind: "INTERRUPTED", 
+        reason: "TURN_LOOP" 
+    } 
+}
 
 export class FightStateResolver {
 
-    constructor() {}
+    constructor(
+        private readonly fightSafetyChecker: FightSafetyChecker
+    ) {}
 
     /**
      *
@@ -12,7 +23,10 @@ export class FightStateResolver {
      * ou si il continue de tourner
      * @param fightContext
      */
-    resolve(fightContext: FightContext): FightState {
+    resolve(fightContext: FightContext, hashedTurnLogs: string[]): FightState {
+        if (this.fightSafetyChecker.isFightStuck(hashedTurnLogs)) 
+            return TURN_LOOP_STATE
+
         const aliveEntities = fightContext.getAliveEntities()
         const aliveAllies = aliveEntities.filter(e => e.teamId === "PLAYER")
         const aliveEnemies = aliveEntities.filter(e => e.teamId === "ENEMY")
@@ -22,6 +36,7 @@ export class FightStateResolver {
 
         return { status: "ENDED", endState }
     }
+
 
     resolveEndState(aliveAllies: PlayingEntity[], aliveEnemies: PlayingEntity[]): FightEndState | null {
         if (this.isFightWon(aliveAllies, aliveEnemies)) return "WON"
