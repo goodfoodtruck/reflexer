@@ -1,7 +1,6 @@
 import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
-import { IStatus } from "@fight/context/IStatus";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
@@ -38,11 +37,9 @@ export type ExecutionContext = {
     reactionDepth: Readonly<number>;
 };
 
-export type StatusID = string
-
 export type ActionID = string
 
-export type ActionCategory = "attack" | "heal" | "status";
+export type ActionCategory = "attack" | "heal" | "passive";
 
 export type Action = {
     id: Readonly<ActionID>;
@@ -151,7 +148,7 @@ export type EntitySnapshot = {
     tags: EntityTag[]
     position: Position
     currentStats: EntityStats
-    statuses: StatusID[]
+    passives: PassiveID[]
 }
 
 export type FightEndState =
@@ -189,7 +186,6 @@ export type PlayingEntity = {
     baseStats: Readonly<EntityStats>
     currentStats: EntityStats
     gambits: Gambit[]
-    statuses: Readonly<IStatus[]>
     activePassives: ActivePassive[]
     isDead: boolean
 }

@@ -1,6 +1,8 @@
 import { PlayingEntity } from "@fight/fight.types"
+import { ETargetType } from "@fight/gambits"
 import { AnyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 import { FilterApplier, buildFilterRegistry } from "@fight/gambits/resolvers/filters/FilterApplier"
+import { ActivePassive, TriggeredPassive } from "@fight/passives/passives.types"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { buildPlayingEntity, withBaseStats, withCurrentStats } from "@tests/builders/fight/PlayingEntityBuilder"
 import { describe, it, expect } from "vitest"
@@ -39,21 +41,36 @@ describe("Filtrer une liste d'entités selon des critères", () => {
     })
 
     it("retourne les entités qui matchent avec plusieurs filtres simultanément", () => {
-        let poisonedWeak   = buildPlayingEntity({ id: "poisoned_weak",   teamId: "ENEMY" })
-        let poisonedStrong = buildPlayingEntity({ id: "poisoned_strong", teamId: "ENEMY" })
+        const poisonPassive: TriggeredPassive = {
+            kind: "TRIGGERED",
+            id: "POISON",
+            config: { duration: 3, applicationStrategy: { type: "RESET" } },
+            triggerType: "turn_start",
+            triggeredActionId: "poison_tick",
+            targetSelector: { context: { targetType: ETargetType.SELF }, sort: "LOWEST_HP" }
+        }
+
+        const buildPoisonedActivePassive = (): ActivePassive => ({
+            passive: poisonPassive,
+            remainingTurns: 2,
+            sourceEntityId: "mage"
+        })
+
+        let poisonedWeak   = buildPlayingEntity({ id: "poisoned_weak",   teamId: "ENEMY", activePassives: [buildPoisonedActivePassive()] })
+        let poisonedStrong = buildPlayingEntity({ id: "poisoned_strong", teamId: "ENEMY", activePassives: [buildPoisonedActivePassive()] })
         let healthyWeak    = buildPlayingEntity({ id: "healthy_weak",    teamId: "ENEMY" })
 
-        poisonedWeak   = withBaseStats(withCurrentStats({ ...poisonedWeak,   statuses: [{ id: "POISON", stacks: 1, remainingTurns: 2 }] }, { health: 20 }), { health: 100 })
-        poisonedStrong = withBaseStats(withCurrentStats({ ...poisonedStrong, statuses: [{ id: "POISON", stacks: 1, remainingTurns: 2 }] }, { health: 80 }), { health: 100 })
-        healthyWeak    = withBaseStats(withCurrentStats(healthyWeak, { health: 20 }), { health: 100 })
+        poisonedWeak   = withBaseStats(withCurrentStats(poisonedWeak,   { health: 20 }), { health: 100 })
+        poisonedStrong = withBaseStats(withCurrentStats(poisonedStrong, { health: 80 }), { health: 100 })
+        healthyWeak    = withBaseStats(withCurrentStats(healthyWeak,    { health: 20 }), { health: 100 })
 
         const context = buildContext([buildPlayingEntity()], [poisonedWeak, poisonedStrong, healthyWeak])
         const filters: AnyFilter[] = [
-            { type: "HP_BELOW",   threshold: 50 },
-            { type: "HAS_STATUS", status: { id: "POISON", stacks: 1, remainingTurns: 2 } }
+            { type: "HP_BELOW",    threshold: 50 },
+            { type: "HAS_PASSIVE", passiveId: "POISON" }
         ]
 
-        const result = filterApplier.applyAll([poisonedWeak, poisonedStrong, healthyWeak], filters, context)        
+        const result = filterApplier.applyAll([poisonedWeak, poisonedStrong, healthyWeak], filters, context)
 
         expect(result).toHaveLength(1)
         expect(result[0]!.id).toBe("poisoned_weak")

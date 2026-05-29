@@ -2,7 +2,7 @@ import { PlayingEntity } from "@fight/fight.types"
 import { AnyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
 import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
-import { evaluateHasStatus } from "@fight/gambits/resolvers/filters/evaluators/HasStatusEvaluator"
+import { evaluateHasPassive } from "@fight/gambits/resolvers/filters/evaluators/HasPassiveEvaluator"
 import { IFightContextReader } from "@fight/fight.types"
 import { FilterEvaluatorRegistry } from "./FilterEvaluatorRegistry"
 
@@ -57,7 +57,7 @@ export const buildFilterRegistry = (): FilterEvaluatorRegistry => {
 
     registry.register("HP_BELOW",   evaluateHpBelow)
     registry.register("HP_ABOVE",   evaluateHpAbove)
-    registry.register("HAS_STATUS", evaluateHasStatus)
+    registry.register("HAS_PASSIVE", evaluateHasPassive)
 
     return registry
 }

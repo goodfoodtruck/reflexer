@@ -62,7 +62,7 @@ export type ConditionGroup =
  *
  * @example
  * // "il existe un allié empoisonné"
- * { type: "EXISTS", scope: { kind: "ALLY", filters: [{ type: "HAS_STATUS", status: "POISON" }] } }
+ * { type: "EXISTS", scope: { kind: "ALLY", filters: [{ type: "HAS_PASSIVE", status: "POISON" }] } }
  *
  * @example
  * // "il existe au moins 2 ennemis à portée 3"
