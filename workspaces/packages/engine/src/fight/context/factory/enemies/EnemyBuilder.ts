@@ -32,9 +32,7 @@ export class EnemyBuilder implements IEnemyBuilder {
             baseStats: { ...enemyStats },
             currentStats: { ...enemyStats },
             gambits: [...enemyConfig.gambits],
-            statuses: [],
             activePassives: [],
-            takeDamage: (amount: number) => { return amount },
             isDead: false
         }
     }

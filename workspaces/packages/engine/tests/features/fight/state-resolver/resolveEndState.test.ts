@@ -1,11 +1,13 @@
 import { PlayingEntity } from "@fight/fight.types";
+import { FightSafetyChecker } from "@fight/FightSafetyChecker";
 import { FightStateResolver } from "@fight/FightStateResolver";
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder";
 import { describe, expect, it } from "vitest";
 
 describe("Déterminer l'état du combat (en cours, gagné, perdu...)", () => {
 
-    const fightStateResolver = new FightStateResolver()
+    const safetyChecker = new FightSafetyChecker(0, 0, 0)
+    const fightStateResolver = new FightStateResolver(safetyChecker)
     
     it("Retourne un state 'WON' si le combat est gagné", () => {
         const aliveAllies = [buildPlayingEntity({ teamId: "PLAYER" })]

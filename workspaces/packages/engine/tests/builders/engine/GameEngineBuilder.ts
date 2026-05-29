@@ -1,6 +1,7 @@
 import { GameEngineDeps } from "@game-engine/game-engine.types"
 import { GameEngine } from "@game-engine/GameEngine"
 import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder"
+import { buildFightContext } from "../fight/FightContextBuilder"
 
 const defaultDeps: GameEngineDeps = {
     mapGenerator: { 
@@ -10,7 +11,7 @@ const defaultDeps: GameEngineDeps = {
         selectMapNode: () => ({ success: true, value: { nodeType: "COMBAT", fightMapId: "map_1" } }) 
     },
     fightHandler: { 
-        playFight: () => ({ success: true, value: { endState: "WON", logs: [] } }), 
+        playFight: () => ({ success: true, value: { endState: "WON", logs: [], initialState: buildFightContext().toSnapshot() } }), 
         applyFightResultOnPlayer: (p) => p 
     },
     shopHandler: { 

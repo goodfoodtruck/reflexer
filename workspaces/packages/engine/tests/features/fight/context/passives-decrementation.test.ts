@@ -1,18 +1,35 @@
 import { describe, it, expect } from "vitest"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
-import { PassiveConfig, TriggeredPassive } from "@fight/passives/passives.types"
+import { ActivePassive, PassiveConfig, TriggeredPassive } from "@fight/passives/passives.types"
 import { ETargetType } from "@fight/gambits"
+import { PlayingEntityID } from "@fight/fight.types"
 
 describe("Décrémentation des passifs des entités", () => {
 
-        const buildTriggeredPassive = (overrides: Partial<TriggeredPassive & { duration: number | "PERMANENT" }> = {}): PassiveConfig => ({
+    const buildConfig = (duration: number | "PERMANENT" = 3): PassiveConfig => ({
+        duration,
+        applicationStrategy: { type: "RESET" }
+    })
+
+    const buildTriggeredPassive = (overrides: Partial<TriggeredPassive> = {}): TriggeredPassive => ({
         kind: "TRIGGERED",
-        triggerType: "ON_DAMAGE_RECEIVED",
+        id: "any_passive",
+        config: buildConfig(),
+        triggerType: "damage_dealt",
         triggeredActionId: "any_action",
         targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
-        duration: 3,
         ...overrides
+    })
+
+    const buildActivePassive = (
+        passive: TriggeredPassive,
+        remainingTurns: number | "PERMANENT",
+        sourceEntityId: PlayingEntityID
+    ): ActivePassive => ({
+        passive,
+        remainingTurns,
+        sourceEntityId
     })
 
     it("décrémente le nombre de tours restants d'un passif", () => {
@@ -20,7 +37,7 @@ describe("Décrémentation des passifs des entités", () => {
         const entity = buildPlayingEntity({
             id: "player",
             teamId: "PLAYER",
-            activePassives: [{ passive, remainingTurns: 3, sourceEntityId: "player" }]
+            activePassives: [buildActivePassive(passive, 3, "player")]
         })
         const context = buildFightContext([entity], [buildPlayingEntity({ teamId: "ENEMY" })])
 
@@ -35,7 +52,7 @@ describe("Décrémentation des passifs des entités", () => {
         const entity = buildPlayingEntity({
             id: "player",
             teamId: "PLAYER",
-            activePassives: [{ passive, remainingTurns: 1, sourceEntityId: "player" }]
+            activePassives: [buildActivePassive(passive, 1, "player")]
         })
         const context = buildFightContext([entity], [buildPlayingEntity({ teamId: "ENEMY" })])
 
@@ -46,11 +63,11 @@ describe("Décrémentation des passifs des entités", () => {
     })
 
     it("ne décrémente pas un passif permanent", () => {
-        const passive = buildTriggeredPassive({ duration: "PERMANENT" })
+        const passive = buildTriggeredPassive({ config: buildConfig("PERMANENT") })
         const entity = buildPlayingEntity({
             id: "player",
             teamId: "PLAYER",
-            activePassives: [{ passive, remainingTurns: "PERMANENT", sourceEntityId: "player" }]
+            activePassives: [buildActivePassive(passive, "PERMANENT", "player")]
         })
         const context = buildFightContext([entity], [buildPlayingEntity({ teamId: "ENEMY" })])
 
@@ -68,9 +85,9 @@ describe("Décrémentation des passifs des entités", () => {
             id: "player",
             teamId: "PLAYER",
             activePassives: [
-                { passive, remainingTurns: 1, sourceEntityId: "player" },  // expire
-                { passive, remainingTurns: 3, sourceEntityId: "player" },  // continue
-                { passive, remainingTurns: "PERMANENT", sourceEntityId: "player" }  // permanent
+                buildActivePassive(passive, 1, "player"),           // expire
+                buildActivePassive(passive, 3, "player"),           // continue
+                buildActivePassive(passive, "PERMANENT", "player")  // permanent
             ]
         })
         const context = buildFightContext([entity], [buildPlayingEntity({ teamId: "ENEMY" })])
@@ -89,12 +106,12 @@ describe("Décrémentation des passifs des entités", () => {
         const player = buildPlayingEntity({
             id: "player",
             teamId: "PLAYER",
-            activePassives: [{ passive, remainingTurns: 3, sourceEntityId: "player" }]
+            activePassives: [buildActivePassive(passive, 3, "player")]
         })
         const enemy = buildPlayingEntity({
             id: "enemy",
             teamId: "ENEMY",
-            activePassives: [{ passive, remainingTurns: 2, sourceEntityId: "enemy" }]
+            activePassives: [buildActivePassive(passive, 2, "enemy")]
         })
         const context = buildFightContext([player], [enemy])
 
@@ -110,7 +127,7 @@ describe("Décrémentation des passifs des entités", () => {
             id: "dead",
             teamId: "PLAYER",
             isDead: true,
-            activePassives: [{ passive, remainingTurns: 3, sourceEntityId: "dead" }]
+            activePassives: [buildActivePassive(passive, 3, "dead")]
         })
         const aliveEntity = buildPlayingEntity({ id: "alive", teamId: "ENEMY" })
         const context = buildFightContext([deadEntity], [aliveEntity])
@@ -118,6 +135,6 @@ describe("Décrémentation des passifs des entités", () => {
         context.tickAllPassives()
 
         const after = context.getEntityById("dead")
-        expect(after?.activePassives[0]?.remainingTurns).toBe(3)  // pas décrémenté
+        expect(after?.activePassives[0]?.remainingTurns).toBe(3)
     })
 })

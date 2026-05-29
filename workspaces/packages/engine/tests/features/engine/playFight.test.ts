@@ -1,8 +1,12 @@
 import { buildEngine } from "@tests/builders/engine/GameEngineBuilder";
 import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder";
+import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { describe, expect, it } from "vitest";
 
 describe("Exécuter un combat complet", () => {
+
+    const context = buildFightContext()
+    const initialState = context.toSnapshot()
     
     it("Renvoie une erreur si aucune partie n'est en cours", () => {
         const engine = buildEngine()
@@ -27,7 +31,14 @@ describe("Exécuter un combat complet", () => {
         const updatedPlayerData = buildPlayerData({ gold: 100 })
         const engine = buildEngine({
             fightHandler: {
-                playFight: () => ({ success: true, value: { endState: "WON", logs: [] } }),
+                playFight: () => ({ 
+                    success: true, 
+                    value: { 
+                        endState: "WON", 
+                        logs: [],
+                        initialState
+                    }
+                }),
                 applyFightResultOnPlayer: () => updatedPlayerData
             }
         })

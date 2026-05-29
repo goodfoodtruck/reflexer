@@ -10,18 +10,7 @@ export const buildPlayingEntity = (overrides: Partial<PlayingEntity> = {}): Play
         baseStats: { health: 100, energy: 10 },
         currentStats: { health: 100, energy: 10},
         gambits: [],
-        statuses: [],
         activePassives: [],
-        takeDamage(amount: number): number {
-            if (amount < 0) throw new Error(`takeDamage expects a non-negative amount, got ${amount}`)
-            
-            const actualDamage = Math.min(amount, this.currentStats.health)
-            this.currentStats.health -= actualDamage
-
-            if (this.currentStats.health <= 0) this.isDead = true
-
-            return actualDamage
-        },
         ...overrides
     }
 }
