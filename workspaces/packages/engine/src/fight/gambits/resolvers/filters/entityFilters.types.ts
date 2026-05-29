@@ -1,5 +1,4 @@
 import { PlayingEntity } from "@fight/fight.types"
-import { IStatus } from "@fight/context/IStatus"
 import { IFightContextReader } from "@fight/fight.types"
 import { PassiveID } from "@fight/passives/passives.types"
 
