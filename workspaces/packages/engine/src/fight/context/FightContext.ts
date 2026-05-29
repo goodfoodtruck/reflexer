@@ -164,24 +164,26 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
 
     applyDamage(params: ApplyDamageParams): ApplyDamageResult {
         const target = this.getAliveEntityOrThrow(params.targetId)
-        const actualDamage = target.takeDamage(params.amount)
+        let actualDamage = params.amount
+
+        if (actualDamage >= target.currentStats.health) {
+            actualDamage = target.currentStats.health // montant des dégats reçus = nombre de pv restants de la cible
+            target.isDead = true
+            target.currentStats.health = 0
+        }
+        else target.currentStats.health -= actualDamage
 
         this.queueLog({ 
             type: "damage_dealt", 
             targetId: params.targetId, 
             sourceId: params.sourceId, 
             amount: actualDamage,
-            reactionDepth: params.reactionDepth ? params.reactionDepth + 1 : 0
+            reactionDepth: params.reactionDepth ?? 0
         })
 
-        if (target.isDead) {
-            this.queueLog({
-                type: "entity_died",
-                entityId: target.id
-            })
-        }
-
-        return { actualDamage, isDead: this.isEntityDead(target.id) }
+        target.isDead && this.queueLog({ type: "entity_died", entityId: target.id })
+        
+        return { actualDamage, isDead: target.isDead }
     }
 
     applyPassive(entityId: PlayingEntityID, newPassive: ActivePassive): void {

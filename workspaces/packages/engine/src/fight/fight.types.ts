@@ -191,7 +191,6 @@ export type PlayingEntity = {
     gambits: Gambit[]
     statuses: Readonly<IStatus[]>
     activePassives: ActivePassive[]
-    takeDamage(amount: number): number
     isDead: boolean
 }
 
