@@ -2,9 +2,9 @@
   "name": "reflexer",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter @reflexer/game dev",
+    "dev": "pnpm --filter game dev",
     "test": "pnpm --filter @reflexer/engine test",
-    "build": "pnpm --filter @reflexer/engine build && pnpm --filter @reflexer/game build"
+    "build": "pnpm --filter @reflexer/engine build && pnpm --filter game build"
   },
   "keywords": [],
   "author": "Louis DRIFFORT, Clément MARTINI, Celina CHABANE",
