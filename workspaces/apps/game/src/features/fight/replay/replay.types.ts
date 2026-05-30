@@ -3,10 +3,10 @@ import type { Position, PlayingEntityID } from "@reflexer/engine"
 export type AnimationCommand =
     | DamageAnimationCommand
     | MoveAnimationCommand
-    | StatusAnimationCommand
+    | PassiveAnimationCommand
     | DeathAnimationCommand
 
-type DamageAnimationCommand = {
+export type DamageAnimationCommand = {
     kind: "attack"
     sourceId: PlayingEntityID
     targetId: PlayingEntityID
@@ -15,19 +15,19 @@ type DamageAnimationCommand = {
     soundKey: string
 }
 
-type MoveAnimationCommand = {
+export type MoveAnimationCommand = {
     kind: "move"
     entityId: PlayingEntityID
     to: Position
 }
 
-type StatusAnimationCommand = {
-    kind: "status"
+export type PassiveAnimationCommand = {
+    kind: "passive"
     targetId: PlayingEntityID
-    effectKey: string
+    passiveId: string
 }
 
-type DeathAnimationCommand = {
+export type DeathAnimationCommand = {
     kind: "death"
     entityId: PlayingEntityID
 }

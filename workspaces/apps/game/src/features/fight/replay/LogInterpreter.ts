@@ -1,23 +1,18 @@
-import type { ActionLog, IActionRegistry } from "@reflexer/engine"
+import type { ActionLog } from "@reflexer/engine"
 import type { AnimationCommand } from "./replay.types.ts"
-export class LogInterpreter {
-    constructor(
-        private readonly actionRegistry: IActionRegistry,
-    ) {}
 
-    interpret(log: ActionLog): AnimationCommand {
+export class LogInterpreter {
+    interpret(log: ActionLog): AnimationCommand | null {
         switch (log.type) {
-            case "damage_dealt": {
-                const visual = this.actionRegistry.get(log.actionId)
+            case "damage_dealt":
                 return {
                     kind: "attack",
                     sourceId: log.sourceId,
                     targetId: log.targetId,
                     amount: log.amount,
-                    animationKey: visual.animationKey,
-                    soundKey: visual.soundKey
+                    animationKey: "visual.animationKey",
+                    soundKey: "visual.soundKey"
                 }
-            }
 
             case "entity_moved":
                 return {
@@ -31,6 +26,17 @@ export class LogInterpreter {
                     kind: "death",
                     entityId: log.entityId
                 }
+
+            case "passive_applied":
+                return {
+                    kind: "passive",
+                    targetId: log.targetId,
+                    passiveId: log.passiveId
+                }
+
+            case "damage_skipped":
+            case "action_failed":
+                return null
         }
     }
 }

@@ -1,4 +1,5 @@
-import { Application, Container, Sprite, Assets, Graphics } from "pixi.js"
+import { Application, Container, Graphics } from "pixi.js"
+import type { Ticker } from "pixi.js"
 import type { FightSnapshot, Position, PlayingEntityID, EntitySnapshot } from "@reflexer/engine"
 
 const CELL_SIZE = 64 // TODO Valeur de test -> Injecter vraie FightMap
@@ -6,7 +7,7 @@ const CELL_SIZE = 64 // TODO Valeur de test -> Injecter vraie FightMap
 export class CombatScene {
     private gridContainer = new Container()
     private entityContainer = new Container()
-    private sprites = new Map<PlayingEntityID, Sprite>()
+    private entities = new Map<PlayingEntityID, Container>()
 
     private constructor(
         private readonly app: Application
@@ -24,6 +25,10 @@ export class CombatScene {
         })
         mount.appendChild(app.canvas)
         return new CombatScene(app)
+    }
+
+    get ticker(): Ticker {
+        return this.app.ticker
     }
 
     setup(snapshot: FightSnapshot) {
@@ -44,23 +49,22 @@ export class CombatScene {
         }
     }
 
-    private async spawnEntity(entity: EntitySnapshot): Promise<void> {
-        const texturePath = entity.teamId === "PLAYER"
-            ? "/assets/hero.png"
-            : "/assets/enemy.png"
+    private spawnEntity(entity: EntitySnapshot): void {
+        const color = entity.teamId === "PLAYER" ? 0x4488ff : 0xff4444
+        const g = new Graphics()
+        g.rect(-CELL_SIZE * 0.4, -CELL_SIZE * 0.4, CELL_SIZE * 0.8, CELL_SIZE * 0.8)
+        g.fill(color)
 
-        const texture = await Assets.load(texturePath)
-        const sprite = new Sprite(texture)
-
-        sprite.anchor.set(0.5)
         const { x, y } = this.cellToPixel(entity.position)
-        sprite.x = x
-        sprite.y = y
-        sprite.width = CELL_SIZE * 0.8
-        sprite.height = CELL_SIZE * 0.8
+        g.x = x
+        g.y = y
 
-        this.entityContainer.addChild(sprite)
-        this.sprites.set(entity.id, sprite)
+        this.entityContainer.addChild(g)
+        this.entities.set(entity.id, g)
+    }
+
+    getSprite(entityId: PlayingEntityID): Container | undefined {
+        return this.entities.get(entityId)
     }
 
     cellToPixel(position: Position): { x: number; y: number } {
@@ -72,6 +76,6 @@ export class CombatScene {
 
     destroy() {
         this.app.destroy(true, { children: true })
-        this.sprites.clear()
+        this.entities.clear()
     }
 }

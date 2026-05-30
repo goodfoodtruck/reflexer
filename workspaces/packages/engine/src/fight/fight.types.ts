@@ -115,6 +115,7 @@ export type UpdatedEnergyLog = {
 export type DamageDealtLog = {
     type: Readonly<'damage_dealt'>
     sourceId: Readonly<PlayingEntityID>
+    actionId: Readonly<ActionID>
     targetId: Readonly<PlayingEntityID>
     amount: Readonly<number>
     reactionDepth: Readonly<number>

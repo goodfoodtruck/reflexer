@@ -1,6 +1,7 @@
-import type {FightResult} from "@reflexer/engine";
-import type {LogInterpreter} from "./LogInterpreter.ts";
-import type {AnimationQueue} from "./AnimationQueue.ts";
+import type { FightResult } from "@reflexer/engine";
+import type { LogInterpreter } from "./LogInterpreter.ts";
+import type { AnimationQueue } from "./AnimationQueue.ts";
+import type { CombatScene } from "../rendering/CombatScene.ts";
 
 export class CombatReplayer {
     constructor(
@@ -15,7 +16,7 @@ export class CombatReplayer {
         for (const turn of result.logs) {
             for (const log of turn.actionLogs) {
                 const command = this.interpreter.interpret(log)
-                await this.animationQueue.run(command)
+                if (command) await this.animationQueue.run(command)
             }
         }
     }
