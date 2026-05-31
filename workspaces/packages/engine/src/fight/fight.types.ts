@@ -162,6 +162,7 @@ export type TurnEndLog = {
 
 export type TurnLog = {
     turnIndex: number
+    ownerId: PlayingEntityID
     actionLogs: ActionLog[]
 }
 

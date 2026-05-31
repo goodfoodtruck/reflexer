@@ -67,6 +67,20 @@ export class CombatScene {
         return this.entities.get(entityId)
     }
 
+    /**
+     * Position de l'entité en pixels écran (coordonnées du canvas), pour aligner
+     * un overlay HTML au-dessus du sprite. `null` si l'entité n'existe pas.
+     */
+    getEntityScreenPosition(entityId: PlayingEntityID): { x: number; y: number } | null {
+        const sprite = this.entities.get(entityId)
+        if (!sprite) return null
+        return { x: sprite.x, y: sprite.y }
+    }
+
+    get cellSize(): number {
+        return CELL_SIZE
+    }
+
     cellToPixel(position: Position): { x: number; y: number } {
         return {
             x: position.x * CELL_SIZE + CELL_SIZE / 2,
