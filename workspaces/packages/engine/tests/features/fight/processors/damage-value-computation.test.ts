@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest"
 import { DamageProcessor } from "@fight/processors/DamageProcessor"
-import { makeCtx } from "@tests/helpers/makeCtx"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
 import { ModifierPassive } from "@fight/passives/passives.types"
 import { EntityModifier } from "@fight/fight.types"
+import { makeActionCtx } from "@tests/helpers/makeCtx"
 
 describe("Calcul des dégâts du DamageProcessor", () => {
 
@@ -16,7 +16,7 @@ describe("Calcul des dégâts du DamageProcessor", () => {
         value
     })
 
-    const ctx = makeCtx({ actionId: "strike", casterId: "player_0", targetId: "enemy_0" })
+    const ctx = makeActionCtx({ actionId: "strike", casterId: "player_0", targetId: "enemy_0" })
 
     it("inflige les dégâts de base sans modificateur", () => {
         const fightContext = buildFightContext([{}], [{}])

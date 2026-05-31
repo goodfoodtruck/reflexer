@@ -1,15 +1,12 @@
-import { IFightContextMutator } from "@fight/fight.types";
+import { IFightContextMutator, MovementExecutionContext } from "@fight/fight.types";
 import { IFightContextReader } from "@fight/fight.types";
-import { ActionLog, ExecutionContext, MovementContext } from "@fight/fight.types";
+import { ActionLog, MovementContext } from "@fight/fight.types";
 import { Position } from "@helpers/types/helpers.types";
-import { ProcessorChain } from "@processors/ProcessorChain";
-import { MOVE_STEP_ACTION_ID } from "@fight/movements/constants";
-import { IProcessor } from "@processors/IProcessor";
-import { WalkProcessor } from "@processors/WalkProcessor";
+import { ActionChainExecutor } from ".";
 
 export class EntityMovementExecutor {
     constructor(
-        private readonly moveProcessorChain: ProcessorChain,
+        private readonly actionChainExecutor: ActionChainExecutor,
     ) {}
 
     execute(
@@ -18,23 +15,18 @@ export class EntityMovementExecutor {
         fightContext: IFightContextMutator & IFightContextReader
     ): ActionLog[] {
 
-        const logs: ActionLog[] = [];
+        const logs: ActionLog[] = []
 
         for (const cell of path) {
 
-            const executionContext: ExecutionContext = {
+            const executionContext: MovementExecutionContext = {
+                type: "movement",
                 casterId: movementContext.casterId,
-                actionId: MOVE_STEP_ACTION_ID, // hardcoded action de mouvement pcq la chain attend un exeCtx
-                targetId: movementContext.targetId,
-                reactionDepth: 0
+                targetCell: cell
             }
 
-            const processors: IProcessor[] = [
-                new WalkProcessor(cell),
-            ];
-
-            const cellLogs = this.moveProcessorChain.execute(executionContext, processors, fightContext);
-            logs.push(...cellLogs);
+            const cellLogs = this.actionChainExecutor.execute(executionContext, fightContext)
+            logs.push(...cellLogs)
         }
 
         return logs;

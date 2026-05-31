@@ -6,12 +6,14 @@ import {
     PlayingTeamID,
     FightSnapshot,
     ActionLog,
-    EntityModifier
+    EntityModifier,
+    UpdateEnergyParams
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
 import { Position } from "@helpers/types/helpers.types";
 import { ActivePassive, ModifierPassive } from "@fight/passives/passives.types"
+import { isAdjacent } from "@helpers/map/utils";
 
 export class FightContext implements IFightContextReader, IFightContextMutator {
 
@@ -21,11 +23,13 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
     private currentInitiativeIndex: InitiativeOrderIndex
     private readonly map: FightMap
     private fightLogs: ActionLog[]
+    private pendingLogs: ActionLog[]
 
     constructor(entities: PlayingEntity[], map: FightMap) {
         this.turnIndex = 0
         this.map = map
         this.fightLogs = []
+        this.pendingLogs = []
         this.entities = new Map<PlayingEntityID, PlayingEntity>()
         entities.forEach(entity => this.entities.set(entity.id, entity))
 
@@ -154,16 +158,44 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
         this.turnIndex++
     }
 
-    queueLog(l: ActionLog): void { this.fightLogs.push(l) }
+    queueLog(l: ActionLog): void { 
+        this.pendingLogs.push(l)
+        this.fightLogs.push(l)
+    }
 
     drainLogs(): ActionLog[] {
-        const out = this.fightLogs
-        this.fightLogs = []
+        const out = this.pendingLogs
+        this.pendingLogs = []
         return out
     }
 
-    applyDamage(params: ApplyDamageParams): ApplyDamageResult {
+    getFightLogs(): ActionLog[] {
+        return [...this.fightLogs]
+    }
+    
+
+    updateEnergy(params: UpdateEnergyParams): void {
         const target = this.getAliveEntityOrThrow(params.targetId)
+
+        target.currentStats.energy = params.updatedEnergyValue
+
+        this.queueLog({
+            type: "updated_energy", 
+            targetId: params.targetId, 
+            updatedValue: params.updatedEnergyValue,
+            reactionDepth: params.reactionDepth ?? 0
+        })
+    }
+
+
+    applyDamage(params: ApplyDamageParams): void {
+        const target = this.getEntityById(params.targetId)
+    
+        if (! target || target.isDead) {
+            this.queueLog({ type: "damage_skipped", targetId: params.targetId, reason: "target_already_dead" })
+            return 
+        }
+
         let actualDamage = params.amount
 
         if (actualDamage >= target.currentStats.health) {
@@ -182,8 +214,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
         })
 
         target.isDead && this.queueLog({ type: "entity_died", entityId: target.id })
-        
-        return { actualDamage, isDead: target.isDead }
     }
 
     applyPassive(entityId: PlayingEntityID, newPassive: ActivePassive): void {
@@ -241,15 +271,23 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
     moveEntity({ entityId, destination }: MoveEntityParams): void {
         const entity = this.getAliveEntityOrThrow(entityId)
 
+        if (!isAdjacent(entity.position, destination)) {
+            this.queueLog({ type: "action_failed", reason: "cell_too_far" })
+            return
+        }
+
         if (this.isCellOccupied(destination)) {
-            throw new Error(`La cellule (${destination.x}, ${destination.y}) est déjà occupée`)
+            this.queueLog({ type: "action_failed", reason: "cell_occupied" })
+            return
         }
 
         if (!this.map.isWalkable(destination)) {
-            throw new Error(`La cellule (${destination.x}, ${destination.y}) n'est pas praticable`)
+            this.queueLog({ type: "action_failed", reason: "cell_not_walkable" })
+            return
         }
 
         entity.position = destination
+        this.queueLog({ type: "entity_moved", entityId, cell: destination })
     }
 
     private isCellOccupied(position: Position): boolean {
@@ -277,10 +315,15 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
         return passive.remainingTurns === "PERMANENT" || passive.remainingTurns > 0
     }
 
-    getAffectedEntityId(log: ActionLog): PlayingEntityID {
+    getAffectedEntityId(log: ActionLog): PlayingEntityID | null {
         switch (log.type) {
             case "damage_dealt": return log.targetId
             case "entity_died": return log.entityId
+            case "entity_moved": return log.entityId
+            case "updated_energy": return log.targetId
+            case "passive_applied": return log.targetId
+            case "action_failed": return null
+            case "damage_skipped": return log.targetId
             
             default: throw new Error("Not implemented.")
         }

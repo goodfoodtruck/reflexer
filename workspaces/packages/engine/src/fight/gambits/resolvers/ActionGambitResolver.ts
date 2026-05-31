@@ -1,6 +1,6 @@
 import { FightContext } from "@fight/context/FightContext";
 import { GambitTargetResolver } from "./target/GambitTargetResolver";
-import { ExecutionContext, PlayingEntity } from "@fight/fight.types";
+import { ActionExecutionContext, ExecutionContext, PlayingEntity } from "@fight/fight.types";
 import { ActionGambit, ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types";
 import { IFightContextReader } from "@fight/fight.types";
 import { isExistsCondition } from "@helpers/gambits/typeguards";
@@ -29,7 +29,7 @@ export class ActionGambitResolver {
         playingEntity: Readonly<PlayingEntity>, 
         playingEntityActionGambits: ActionGambit[],
         fightContext: FightContext
-    ): ExecutionContext | null {
+    ): ActionExecutionContext | null {
         for (const gambit of playingEntityActionGambits) {
             const conditionValidation = this.evaluateConditionGroup(gambit.conditions, playingEntity, fightContext)
             if (! conditionValidation) continue
@@ -38,6 +38,7 @@ export class ActionGambitResolver {
             if (! targetId) continue
 
             return {
+                type: "action",
                 casterId: playingEntity.id,
                 actionId: gambit.intent.actionId,
                 targetId,

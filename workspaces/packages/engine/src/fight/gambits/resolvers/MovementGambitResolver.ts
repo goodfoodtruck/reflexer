@@ -6,6 +6,6 @@ export class EntityMovementResolver {
     
     resolve(entity: PlayingEntity, gambits: Gambit[], fightContext: IFightContextReader): MovementContext {
         /* TODO ==ATTENTION== ce code comble juste le retour de fonction il faut le changer */
-        return { targetId: entity.id, casterId: entity.id, strategy: "APPROACH" }
+        return { casterId: entity.id }
     }
 }
