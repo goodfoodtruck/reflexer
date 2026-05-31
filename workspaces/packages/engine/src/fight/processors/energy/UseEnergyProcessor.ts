@@ -1,4 +1,4 @@
-import { ActionExecutionContext, ExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
+import { ActionExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
 import { IProcessor } from "@fight/processors/IProcessor";
 import { ProcessorResult } from "@fight/processors/processor.types";
 
@@ -8,12 +8,12 @@ export class UseManaProcessor implements IProcessor {
         private readonly energyValue: number
     ) {}
 
-
     execute(
         ctx: ActionExecutionContext, 
         snapshot: IFightContextMutator & IFightContextReader
     ): ProcessorResult {
-        const updatedEnergyValue = this.computeUpdatedEnergyValue(snapshot, ctx)
+        const target = snapshot.getAliveEntityOrThrow(ctx.casterId)
+        const updatedEnergyValue = this.computeUpdatedEnergyValue(target.currentStats.energy, this.energyValue)
 
         snapshot.updateEnergy({
             targetId: ctx.casterId,
@@ -25,9 +25,10 @@ export class UseManaProcessor implements IProcessor {
     }
 
     private computeUpdatedEnergyValue(
-        fightContext: IFightContextMutator & IFightContextReader, 
-        ctx: ExecutionContext
+        availableEnergy: number, 
+        energyToUse: number
     ): number {
-        return 0
+        // on ne vérifie pas si l'entité a assez d'énergie ici, le CheckEnergyProcessor le fait déjà
+        return availableEnergy - energyToUse
     }
 }

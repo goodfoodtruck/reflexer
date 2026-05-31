@@ -1,6 +1,6 @@
 import { ActionExecutionContext, ExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
-import { IProcessor } from "./IProcessor";
-import { ProcessorResult } from "./processor.types";
+import { IProcessor } from "../IProcessor";
+import { ProcessorResult } from "../processor.types";
 
 export class CheckEnergyProcessor implements IProcessor {
 
