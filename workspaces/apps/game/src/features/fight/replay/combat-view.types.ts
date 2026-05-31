@@ -1,4 +1,4 @@
-import type { PlayingEntityID, PlayingTeamID, Position } from "@reflexer/engine"
+import type { Dimensions, PlayingEntityID, PlayingTeamID, Position } from "@reflexer/engine"
 
 export type EntityView = {
     id: PlayingEntityID
@@ -28,6 +28,7 @@ export type CombatStatus = "idle" | "playing" | "ended"
 
 export type CombatViewState = {
     entities: Record<PlayingEntityID, EntityView>
+    mapDimensions: Dimensions | null
     turnIndex: number
     currentTurnOwnerId: PlayingEntityID | null
     upcomingTurnOwners: PlayingEntityID[]

@@ -1,8 +1,16 @@
 import { Application, Container, Graphics } from "pixi.js"
 import type { Ticker } from "pixi.js"
-import type { FightSnapshot, Position, PlayingEntityID, EntitySnapshot } from "@reflexer/engine"
+import type { FightSnapshot, FightMapConfig, Position, PlayingEntityID, EntitySnapshot } from "@reflexer/engine"
+import { EObstacleType } from "@reflexer/engine"
 
-const CELL_SIZE = 64 // TODO Valeur de test -> Injecter vraie FightMap
+/** Taille d'une cellule en pixels (échelle de rendu, indépendante de la carte). */
+export const CELL_SIZE = 64
+
+const CELL_COLORS: Record<EObstacleType, number> = {
+    [EObstacleType.FLOOR]: 0x252544,
+    [EObstacleType.WALL]: 0x44446a,
+    [EObstacleType.HOLE]: 0x0d0d1a,
+}
 
 export class CombatScene {
     private gridContainer = new Container()
@@ -31,22 +39,23 @@ export class CombatScene {
         return this.app.ticker
     }
 
-    setup(snapshot: FightSnapshot) {
-        this.drawGrid()
+    setup(snapshot: FightSnapshot, map: FightMapConfig) {
+        this.drawGrid(map)
         for (const entity of snapshot.entities) {
             this.spawnEntity(entity)
         }
     }
 
-    private drawGrid() {
-        for (let y = 0; y < 10; y++) {
-            for (let x = 0; x < 10; x++) {
+    private drawGrid(map: FightMapConfig) {
+        map.cells.forEach((row, y) => {
+            row.forEach((type, x) => {
                 const cell = new Graphics()
                 cell.rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+                cell.fill(CELL_COLORS[type])
                 cell.stroke({ width: 1, color: 0x666688 })
                 this.gridContainer.addChild(cell)
-            }
-        }
+            })
+        })
     }
 
     private spawnEntity(entity: EntitySnapshot): void {

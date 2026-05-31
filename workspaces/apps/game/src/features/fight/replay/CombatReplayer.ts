@@ -1,4 +1,4 @@
-import type { ActionLog, FightResult } from "@reflexer/engine";
+import type { ActionLog, FightResult, IFightMapRegistry } from "@reflexer/engine";
 import type { LogInterpreter } from "./LogInterpreter.ts";
 import type { AnimationQueue } from "./AnimationQueue.ts";
 import type { CombatScene } from "../rendering/CombatScene.ts";
@@ -10,14 +10,16 @@ export class CombatReplayer {
         private readonly scene: CombatScene,
         private readonly interpreter: LogInterpreter,
         private readonly animationQueue: AnimationQueue,
-        private readonly store: CombatViewStore
+        private readonly store: CombatViewStore,
+        private readonly mapRegistry: IFightMapRegistry
     ) {}
 
     async play(result: FightResult): Promise<void> {
-        this.scene.setup(result.initialState)
+        const map = this.mapRegistry.getConfig(result.initialState.mapId)
+        this.scene.setup(result.initialState, map)
 
         const labels = buildEntityLabels(result.initialState.entities)
-        this.store.initialize(result.initialState, labels)
+        this.store.initialize(result.initialState, labels, map.dimensions)
 
         let lineId = 0
         const turns = result.logs

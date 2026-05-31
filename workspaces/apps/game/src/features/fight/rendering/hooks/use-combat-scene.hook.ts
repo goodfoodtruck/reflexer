@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react"
 import type { FightResult } from "@reflexer/engine"
+import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
 import { LogInterpreter } from "../../replay/LogInterpreter"
 import { AnimationQueue } from "../../replay/AnimationQueue"
@@ -8,7 +9,7 @@ import { CombatViewStore } from "../../replay/CombatViewStore"
 
 const FAKE_FIGHT: FightResult = {
     initialState: {
-        mapId: "test",
+        mapId: "TRAINING_GROUND",
         entities: [
             {
                 id: "hero",
@@ -114,7 +115,8 @@ export function useCombatScene() {
 
             const interpreter = new LogInterpreter()
             const queue = new AnimationQueue(scene)
-            const replayer = new CombatReplayer(scene, interpreter, queue, store)
+            const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
+            const replayer = new CombatReplayer(scene, interpreter, queue, store, mapRegistry)
             replayer.play(FAKE_FIGHT)
         })
 

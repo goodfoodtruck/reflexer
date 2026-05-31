@@ -1,8 +1,9 @@
-import type { FightSnapshot, PlayingEntityID, Position } from "@reflexer/engine"
+import type { Dimensions, FightSnapshot, PlayingEntityID, Position } from "@reflexer/engine"
 import type { CombatLogLine, CombatViewState, EntityView } from "./combat-view.types"
 
 const INITIAL_STATE: CombatViewState = {
     entities: {},
+    mapDimensions: null,
     turnIndex: 0,
     currentTurnOwnerId: null,
     upcomingTurnOwners: [],
@@ -32,7 +33,7 @@ export class CombatViewStore {
         this.listeners.forEach(listener => listener())
     }
 
-    initialize(snapshot: FightSnapshot, labels: Map<PlayingEntityID, string>): void {
+    initialize(snapshot: FightSnapshot, labels: Map<PlayingEntityID, string>, mapDimensions: Dimensions): void {
         const entities: Record<PlayingEntityID, EntityView> = {}
         for (const entity of snapshot.entities) {
             entities[entity.id] = {
@@ -47,7 +48,7 @@ export class CombatViewStore {
                 alive: true,
             }
         }
-        this.setState({ ...INITIAL_STATE, entities, status: "playing" })
+        this.setState({ ...INITIAL_STATE, entities, mapDimensions, status: "playing" })
     }
 
     beginTurn(turnIndex: number, ownerId: PlayingEntityID, upcomingTurnOwners: PlayingEntityID[]): void {

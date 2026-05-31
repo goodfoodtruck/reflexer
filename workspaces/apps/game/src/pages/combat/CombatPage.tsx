@@ -1,5 +1,6 @@
 import { useCombatScene } from "../../features/fight/rendering/hooks/use-combat-scene.hook.ts";
 import { useCombatReplay } from "../../features/fight/rendering/hooks/use-combat-replay.hook.ts";
+import { CELL_SIZE } from "../../features/fight/rendering/CombatScene.ts";
 import { HealthBarsOverlay } from "./components/HealthBarsOverlay";
 import { CurrentActionBanner } from "./components/CurrentActionBanner";
 import { TurnCounter } from "./components/TurnCounter";
@@ -8,11 +9,12 @@ import { ActiveEntityCard } from "./components/ActiveEntityCard";
 import { CombatLog } from "./components/CombatLog";
 import STYLES from "./styles";
 
-const STAGE_SIZE = 640; // 10 cellules * 64px (cf. CombatScene CELL_SIZE)
-
 export function CombatPage() {
     const { containerRef, sceneRef, store } = useCombatScene();
     const state = useCombatReplay(store);
+
+    const stageWidth = (state.mapDimensions?.width ?? 10) * CELL_SIZE;
+    const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;
 
     const activeEntity = state.currentTurnOwnerId ? state.entities[state.currentTurnOwnerId] : undefined;
 
@@ -44,9 +46,9 @@ export function CombatPage() {
                 <div className={STYLES.stageColumn}>
                     <div
                         className={STYLES.stageWrapper}
-                        style={{ width: STAGE_SIZE, height: STAGE_SIZE }}
+                        style={{ width: stageWidth, height: stageHeight }}
                     >
-                        <div ref={containerRef} style={{ width: STAGE_SIZE, height: STAGE_SIZE }} />
+                        <div ref={containerRef} style={{ width: stageWidth, height: stageHeight }} />
                         <HealthBarsOverlay sceneRef={sceneRef} store={store} />
                     </div>
                 </div>
