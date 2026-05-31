@@ -1,12 +1,12 @@
-import { useCombatScene } from "../../features/fight/rendering/hooks/use-combat-scene.hook.ts";
-import { useCombatReplay } from "../../features/fight/rendering/hooks/use-combat-replay.hook.ts";
-import { CELL_SIZE } from "../../features/fight/rendering/CombatScene.ts";
-import { HealthBarsOverlay } from "./components/HealthBarsOverlay";
-import { CurrentActionBanner } from "./components/CurrentActionBanner";
-import { TurnCounter } from "./components/TurnCounter";
-import { TurnOrderList } from "./components/TurnOrderList";
-import { ActiveEntityCard } from "./components/ActiveEntityCard";
-import { CombatLog } from "./components/CombatLog";
+import { useCombatScene } from "../../features/fight/rendering/hooks/use-combat-scene.hook";
+import { useCombatReplay } from "../../features/fight/rendering/hooks/use-combat-replay.hook";
+import { CELL_SIZE } from "../../features/fight/rendering/CombatScene";
+import { HealthBarsOverlay } from "../../components/ui/combat/HealthBarsOverlay";
+import { CurrentActionBanner } from "../../components/ui/combat/CurrentActionBanner";
+import { TurnCounter } from "../../components/ui/combat/TurnCounter";
+import { TurnOrderList } from "../../components/ui/combat/TurnOrderList";
+import { ActiveEntityCard } from "../../components/ui/combat/ActiveEntityCard";
+import { CombatLog } from "../../components/ui/combat/CombatLog";
 import STYLES from "./styles";
 
 export function CombatPage() {
