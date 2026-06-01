@@ -226,6 +226,7 @@ export interface IFightContextReader {
     getEntityById(entityId: PlayingEntityID): PlayingEntity | null
     getAliveEntityOrThrow(entityId: PlayingEntityID): PlayingEntity
     getAffectedEntityId(log: ActionLog): PlayingEntityID | null
+    getEntitiesAtPositions(positions: Position[]): PlayingEntity[]
     getTurnIndex(): number
     toSnapshot(): FightSnapshot
     drainLogs(): ActionLog[]
@@ -271,3 +272,12 @@ export type UpdateEnergyParams = {
     updatedEnergyValue: number
     reactionDepth?: number
 }
+
+export type AreaType = 
+    | { kind: "CIRCLE" } 
+    | { kind: "SQUARE" }
+    | { kind: "CROSS" }
+
+export type AreaCenter =
+    | { kind: "TARGET" }    // centrée sur la cible
+    | { kind: "CASTER" }    // centrée sur soi même
