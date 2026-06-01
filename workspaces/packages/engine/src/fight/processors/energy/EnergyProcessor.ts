@@ -10,9 +10,9 @@ export class EnergyProcessor implements IProcessor {
 
     execute(
         ctx: ActionExecutionContext, 
-        snapshot: IFightContextMutator & IFightContextReader
+        fightContext: IFightContextMutator & IFightContextReader
     ): ProcessorResult {
-        const actionCaster = snapshot.getAliveEntityOrThrow(ctx.casterId)
+        const actionCaster = fightContext.getAliveEntityOrThrow(ctx.casterId)
         const hasEnergyEnough = (actionCaster.currentStats.energy >= this.neededEnergy)
 
         if (! hasEnergyEnough) 
@@ -20,7 +20,7 @@ export class EnergyProcessor implements IProcessor {
 
         const updatedEnergyValue = this.getEnergyValueAfterUsage(actionCaster.currentStats.energy, this.neededEnergy)
 
-        snapshot.updateEnergy({
+        fightContext.updateEnergy({
             targetId: ctx.casterId,
             updatedEnergyValue,
             reactionDepth: ctx.reactionDepth

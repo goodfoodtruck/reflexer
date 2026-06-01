@@ -6,6 +6,6 @@ import { IFightContextReader } from "@fight/fight.types";
 export interface IProcessor {
     execute(
         ctx: ExecutionContext,
-        snapshot: IFightContextMutator & IFightContextReader
+        fightContext: IFightContextMutator & IFightContextReader
     ): ProcessorResult;
 }
