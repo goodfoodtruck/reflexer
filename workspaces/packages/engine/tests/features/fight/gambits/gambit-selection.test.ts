@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { buildActionGambitResolver } from "@tests/builders/fight/gambits/ActionGambitResolverBuilder";
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { PlayingEntityID } from "@fight/fight.types";
 import { buildActionGambit, buildExistsCondition } from "@tests/builders/fight/gambits/GambitBuilder";
 import { ETargetType } from "@gambits/gambits.types";
 import {isActionGambit} from "@helpers/gambits/typeguards";
+import { buildActionGambitResolver } from "@tests/builders/fight/gambits/ActionGambitResolverBuilder";
 
 const CASTER_ID: PlayingEntityID = "caster"
 const ENEMY_ID: PlayingEntityID = "enemy_1"
