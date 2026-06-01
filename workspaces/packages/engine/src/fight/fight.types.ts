@@ -25,6 +25,11 @@ export interface TurnEvent {
     readonly turnIndex: number
 }
 
+export type ExecutionState = {
+    computedDamage: number
+    computedHeal: number
+}
+
 export type MovementContext = {
     readonly casterId: PlayingEntityID
     readonly targetPosition: Position   // position de l'entité dont on doit se rapprocher, fuir...etc
@@ -229,6 +234,7 @@ export interface IFightContextReader {
     getAliveEntityOrThrow(entityId: PlayingEntityID): PlayingEntity
     getAffectedEntityId(log: ActionLog): PlayingEntityID | null
     getEntitiesAtPositions(positions: Position[]): PlayingEntity[]
+    getModifier(entityId: PlayingEntityID, stat: EntityModifier): number
     getTurnIndex(): number
     toSnapshot(): FightSnapshot
     drainLogs(): ActionLog[]

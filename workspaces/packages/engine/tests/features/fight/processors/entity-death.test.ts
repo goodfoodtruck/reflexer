@@ -13,7 +13,10 @@ describe('Mort d\'une entité', () => {
             actions: {
                 strike: buildAction({
                     id: 'strike',
-                    configs: [{ type: 'damage', order: 1, params: { damageValue: 20 } }],
+                    configs: [
+                        { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                        { type: 'apply_damage', order: 1, params: {} }
+                    ],
                 }),
             },
         })
@@ -36,8 +39,10 @@ describe('Mort d\'une entité', () => {
                 doubleStrike: buildAction({
                     id: 'doubleStrike',
                     configs: [
-                        { type: 'damage', order: 1, params: { damageValue: 20 } },
-                        { type: 'damage', order: 2, params: { damageValue: 20 } }
+                        { type: 'compute_damage', order: 1, params: { initialDamage: 20 } },
+                        { type: 'apply_damage', order: 1, params: { initialDamage: 20 } },
+                        // celui ci devrait être skip
+                        { type: 'apply_damage', order: 2, params: { initialDamage: 20 } }
                     ],
                 }),
             },
@@ -47,6 +52,9 @@ describe('Mort d\'une entité', () => {
             makeActionCtx({ actionId: 'doubleStrike' as ActionID, casterId: 'player_0', targetId: 'enemy_0' }),
             fightContext,
         )
+
+        console.log(fightContext.getFightLogs());
+        
 
         const skippedLogs = fightContext.getFightLogs().filter(l => l.type === 'damage_skipped')
         expect(skippedLogs.length).toBeGreaterThanOrEqual(1)
@@ -59,7 +67,10 @@ describe('Mort d\'une entité', () => {
             actions: {
                 strike: buildAction({
                     id: 'strike',
-                    configs: [{ type: 'damage', order: 1, params: { damageValue: 20 } }],
+                    configs: [
+                        { type: 'compute_damage', order: 1, params: { initialDamage: 20 } },
+                        { type: 'apply_damage', order: 1, params: {} }
+                    ],
                 }),
             },
         })
