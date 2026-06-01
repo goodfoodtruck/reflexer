@@ -213,6 +213,7 @@ export type PlayingEntity = {
 export type EntityStats = {
     health: number
     energy: number
+    armor: number
 }
 
 

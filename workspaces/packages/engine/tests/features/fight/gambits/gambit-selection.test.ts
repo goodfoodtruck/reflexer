@@ -80,7 +80,7 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
             {
                 id: ENEMY_ID,
                 teamId: "ENEMY",
-                currentStats: { health: 100, energy: 10 }
+                currentStats: { health: 100, energy: 10, armor: 0 }
             }
         ])
 
@@ -116,7 +116,7 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
             {
                 id: ENEMY_ID,
                 teamId: "ENEMY",
-                currentStats: { health: 100, energy: 10 }
+                currentStats: { health: 100, energy: 10, armor: 0 }
             }
         ])
 

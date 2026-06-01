@@ -9,7 +9,7 @@ describe('Mort d\'une entité', () => {
     it('génère un log entity_died à l\'instant de la mort', () => {
         const { fightContext, executor } = setupFight({
             players: [{}],
-            enemies: [{ currentStats: { health: 10, energy: 0 } }],
+            enemies: [{ currentStats: { health: 10, energy: 0, armor: 0 } }],
             actions: {
                 strike: buildAction({
                     id: 'strike',
@@ -31,7 +31,7 @@ describe('Mort d\'une entité', () => {
     it('skip les processors restants ciblant l\'entité morte', () => {
         const { fightContext, executor } = setupFight({
             players: [{}],
-            enemies: [{ currentStats: { health: 10, energy: 0 } }],
+            enemies: [{ currentStats: { health: 10, energy: 0, armor: 0 } }],
             actions: {
                 doubleStrike: buildAction({
                     id: 'doubleStrike',
@@ -55,7 +55,7 @@ describe('Mort d\'une entité', () => {
     it('marque définitivement isDead à true', () => {
         const { fightContext, executor } = setupFight({
             players: [{}],
-            enemies: [{ currentStats: { health: 10, energy: 0 } }],
+            enemies: [{ currentStats: { health: 10, energy: 0, armor: 0 } }],
             actions: {
                 strike: buildAction({
                     id: 'strike',

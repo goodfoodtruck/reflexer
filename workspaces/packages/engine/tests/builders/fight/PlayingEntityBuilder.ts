@@ -7,8 +7,8 @@ export const buildPlayingEntity = (overrides: Partial<PlayingEntity> = {}): Play
         tags: [],
         position: { x: 0, y: 0 },
         isDead: false,
-        baseStats: { health: 100, energy: 10 },
-        currentStats: { health: 100, energy: 10},
+        baseStats: { health: 100, energy: 10, armor: 0 },
+        currentStats: { health: 100, energy: 10, armor: 0 },
         gambits: [],
         activePassives: [],
         ...overrides
