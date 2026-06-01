@@ -36,6 +36,7 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
 
         expect(result).not.toBeNull()
         expect(result).toEqual({
+            type: "action",
             casterId: CASTER_ID,
             actionId: "attack_basic",
             targetId: ENEMY_ID,

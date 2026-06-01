@@ -67,6 +67,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const fightContext = buildFightContext([mage], [gobelin])
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -122,6 +123,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const fightContext = buildFightContext([mage], [gobelin])
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -191,6 +193,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -245,6 +248,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const initialMageHealth = mage.currentStats.health
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -304,6 +308,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -359,6 +364,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -423,6 +429,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin_A",
             actionId: "basic_attack",
@@ -483,6 +490,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin_A",
             actionId: "basic_attack",
@@ -556,6 +564,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -635,6 +644,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",
@@ -683,6 +693,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const executor = buildExecutor({ actionRegistry })
 
         const logs = executor.execute({
+            type: "action",
             casterId: "mage",
             targetId: "gobelin",
             actionId: "basic_attack",

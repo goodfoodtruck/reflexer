@@ -1,9 +1,9 @@
 import { IActionRegistry } from "@data/IActionRegistry";
-import { FightContext } from "@fight/context/FightContext";
-import { ActionLog, ExecutionContext } from "@fight/fight.types";
+import { ActionExecutionContext, ActionLog, ExecutionContext, IFightContextMutator, IFightContextReader, MovementExecutionContext } from "@fight/fight.types";
 import { ProcessorChain } from "@fight/processors/ProcessorChain";
 import { ProcessorFactory } from "@fight/processors/ProcessorFactory";
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
+import { WalkProcessor } from "@fight/processors/WalkProcessor";
 
 const MAX_REACTION_DEPTH = 1
 
@@ -15,47 +15,70 @@ export class ActionChainExecutor {
         private readonly processorChain: ProcessorChain
     ) {}
 
-    execute(initialContext: ExecutionContext, fightContext: FightContext): ActionLog[] {
+    execute(
+        initialContext: ExecutionContext,
+        fightContext: IFightContextMutator & IFightContextReader
+    ): ActionLog[] {
         const logs: ActionLog[] = []
         const queue: ExecutionContext[] = [initialContext]
 
         while (queue.length > 0) {
             const ctx = queue.shift()!
-            if (ctx.reactionDepth > MAX_REACTION_DEPTH) continue
 
-            const action = this.actionRegistry.get(ctx.actionId)
-            const actionProcessors = 
-            [...action.processorConfigs]
-                .sort((a, b) => a.order - b.order)
-                .map(config => this.processorFactory.create(config))
+            // seules les actions ont une profondeur de réaction
+            if (ctx.type === "action" && ctx.reactionDepth > MAX_REACTION_DEPTH) continue
 
-            const actionLogs = this.processorChain.execute(ctx, actionProcessors, fightContext)
-            logs.push(...actionLogs)
+            const derivedContexts = ctx.type === "action"
+                ? this.executeAction(ctx, fightContext)
+                : this.executeMovement(ctx, fightContext)
 
             const fightLogs = fightContext.drainLogs()
-            const reactions = this.resolveReactions(fightLogs, fightContext, ctx.reactionDepth)
+            logs.push(...fightLogs)
+
+            const reactionDepth = ctx.type === "action" ? ctx.reactionDepth : 0
+            const reactions = this.resolveTriggeredPassivesReactions(fightLogs, fightContext, reactionDepth)
+
+            queue.unshift(...derivedContexts)
             queue.push(...reactions)
         }
 
         return logs
     }
 
-    private resolveReactions(
+    private executeAction(
+        ctx: ActionExecutionContext,
+        fightContext: IFightContextMutator & IFightContextReader
+    ): ExecutionContext[] {
+        const action = this.actionRegistry.get(ctx.actionId)
+        const processors = [...action.processorConfigs]
+            .sort((a, b) => a.order - b.order)
+            .map(config => this.processorFactory.create(config))
+
+        return this.processorChain.execute(ctx, processors, fightContext)
+    }
+
+    private executeMovement(
+        ctx: MovementExecutionContext,
+        fightContext: IFightContextMutator & IFightContextReader
+    ): ExecutionContext[] {
+        return this.processorChain.execute(ctx, [new WalkProcessor()], fightContext)
+    }
+
+    private resolveTriggeredPassivesReactions(
         logs: ActionLog[],
-        fightContext: FightContext,
+        fightContext: IFightContextMutator & IFightContextReader,
         currentDepth: number
     ): ExecutionContext[] {
         const reactions: ExecutionContext[] = []
 
         for (const log of logs) {
-            const triggerType = log.type
-
             const entityId = fightContext.getAffectedEntityId(log)
+            if (! entityId) continue
             const affectedEntity = fightContext.getEntityById(entityId)
             if (! affectedEntity) continue
 
             reactions.push(...this.triggeredPassiveResolver.resolve(
-                triggerType,
+                log.type,
                 affectedEntity,
                 fightContext,
                 currentDepth + 1

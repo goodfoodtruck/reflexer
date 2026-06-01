@@ -1,5 +1,4 @@
-import { ActionLog, ExecutionContext } from "@fight/fight.types";
-import { IProcessor } from "@processors/IProcessor";
+import { ExecutionContext } from "@fight/fight.types";
 import { Position } from "@helpers/types/helpers.types";
 import { PassiveID } from "@fight/passives/passives.types";
 
@@ -23,11 +22,6 @@ export type ProcessorConfig = {
     params: ProcessorParams;
 }
 
-export type QueuedProcessor = {
-    processor: Readonly<IProcessor>;
-    context: Readonly<ExecutionContext>;
-}
-
 export type ProcessorResult =
-    | { status: 'ok'; logs: ActionLog[] }
-    | { status: 'aborted'; reason: string; logs: ActionLog[] }
+    | { status: 'ok', derivedContexts: ExecutionContext[] }
+    | { status: 'aborted'; reason: string }

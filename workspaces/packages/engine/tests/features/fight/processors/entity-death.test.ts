@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { ActionID } from '@fight/fight.types'
 import { setupFight } from "@tests/helpers/setupFight";
-import { makeCtx } from "@tests/helpers/makeCtx";
 import { buildAction } from "@tests/helpers/buildAction";
+import { makeActionCtx } from '@tests/helpers/makeCtx';
 
 describe('Mort d\'une entité', () => {
+
     it('génère un log entity_died à l\'instant de la mort', () => {
         const { fightContext, executor } = setupFight({
             players: [{}],
@@ -17,17 +18,13 @@ describe('Mort d\'une entité', () => {
             },
         })
 
-        const logs = executor.execute(
-            makeCtx({
-                actionId: 'strike' as ActionID,
-                casterId: 'player_0',
-                targetId: 'enemy_0',
-            }),
+        executor.execute(
+            makeActionCtx({ actionId: 'strike' as ActionID, casterId: 'player_0', targetId: 'enemy_0' }),
             fightContext,
         )
 
-        expect(logs).toContainEqual(
-            expect.objectContaining({ type: 'entity_died', entityId: 'enemy_0' }),
+        expect(fightContext.getFightLogs()).toContainEqual(
+            expect.objectContaining({ type: 'entity_died', entityId: 'enemy_0' })
         )
     })
 
@@ -46,16 +43,12 @@ describe('Mort d\'une entité', () => {
             },
         })
 
-        const logs = executor.execute(
-            makeCtx({
-                actionId: 'doubleStrike' as ActionID,
-                casterId: 'player_0',
-                targetId: 'enemy_0',
-            }),
+        executor.execute(
+            makeActionCtx({ actionId: 'doubleStrike' as ActionID, casterId: 'player_0', targetId: 'enemy_0' }),
             fightContext,
         )
 
-        const skippedLogs = logs.filter(l => l.type === 'damage_skipped')
+        const skippedLogs = fightContext.getFightLogs().filter(l => l.type === 'damage_skipped')
         expect(skippedLogs.length).toBeGreaterThanOrEqual(1)
     })
 
@@ -72,11 +65,7 @@ describe('Mort d\'une entité', () => {
         })
 
         executor.execute(
-            makeCtx({
-                actionId: 'strike' as ActionID,
-                casterId: 'player_0',
-                targetId: 'enemy_0',
-            }),
+            makeActionCtx({ actionId: 'strike' as ActionID, casterId: 'player_0', targetId: 'enemy_0' }),
             fightContext,
         )
 

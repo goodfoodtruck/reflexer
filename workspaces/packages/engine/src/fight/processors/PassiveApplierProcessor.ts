@@ -1,5 +1,5 @@
 import { FightContext } from "@fight/context/FightContext"
-import { ExecutionContext } from "@fight/fight.types"
+import { ActionExecutionContext } from "@fight/fight.types"
 import { IProcessor } from "./IProcessor"
 import { ProcessorResult } from "./processor.types"
 import { IPassiveRegistry } from "@data/IPassiveRegistry"
@@ -13,18 +13,11 @@ export class PassiveApplierProcessor implements IProcessor {
         private readonly duration: number | "PERMANENT"
     ) {}
 
-    execute(ctx: ExecutionContext, fightContext: FightContext): ProcessorResult {
+    execute(ctx: ActionExecutionContext, fightContext: FightContext): ProcessorResult {
         const target = fightContext.getEntityById(ctx.targetId)
         if (! target) return {
             status: 'aborted',
-            reason: 'target_already_dead',
-            logs: [
-                {
-                    targetId: ctx.targetId,
-                    type: 'damage_skipped',
-                    reason: 'target_already_dead'
-                }
-            ],
+            reason: 'target_already_dead'
         }
 
         const passive = this.registry.getPassive(this.passiveId)
@@ -37,12 +30,7 @@ export class PassiveApplierProcessor implements IProcessor {
 
         return { 
             status: 'ok', 
-            logs: [{ 
-                type: "passive_applied", 
-                targetId: ctx.targetId, 
-                sourceId: ctx.casterId,
-                passiveId: this.passiveId
-            }] 
+            derivedContexts: []
         }
     }
 }

@@ -1,6 +1,6 @@
-import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
+import { Gambit } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
-import { ProcessorConfig, QueuedProcessor } from "@processors/processor.types";
+import { ProcessorConfig } from "@processors/processor.types";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
@@ -26,11 +26,21 @@ export interface TurnEvent {
 
 export type MovementContext = {
     casterId: Readonly<PlayingEntityID>;
-    strategy: MovementStrategy;
-    targetId: Readonly<PlayingEntityID>;
 }
 
-export type ExecutionContext = {
+
+export type ExecutionContext = 
+    | MovementExecutionContext
+    | ActionExecutionContext
+
+export type MovementExecutionContext = {
+    type: "movement"
+    casterId: Readonly<PlayingEntityID>;
+    targetCell: Position
+}
+
+export type ActionExecutionContext = {
+    type: "action"
     casterId: Readonly<PlayingEntityID>;
     actionId: Readonly<ActionID>;
     targetId: Readonly<PlayingEntityID>;
@@ -74,6 +84,14 @@ export type ActionLog =
     | ActionFailedLog
     | EntityMovedLog
     | PassiveAppliedLog
+    | UpdatedEnergyLog
+
+export type UpdatedEnergyLog = {
+    type: Readonly<'updated_energy'>
+    targetId: Readonly<PlayingEntityID>
+    updatedValue: Readonly<number>
+    reactionDepth: Readonly<number>
+}
 
 export type DamageDealtLog = {
     type: Readonly<'damage_dealt'>
@@ -205,18 +223,17 @@ export interface IFightContextReader {
     getEnemies(entity: PlayingEntity): PlayingEntity[]
     getAliveEntitiesByTeam(teamId: PlayingTeamID): PlayingEntity[]
     getEntityById(entityId: PlayingEntityID): PlayingEntity | null
+    getAliveEntityOrThrow(entityId: PlayingEntityID): PlayingEntity
+    getAffectedEntityId(log: ActionLog): PlayingEntityID | null
     getTurnIndex(): number
     toSnapshot(): FightSnapshot
-}
-
-export interface IReactiveContext {
-    queueReaction(reaction: QueuedProcessor): void;
-    drainReactions(): QueuedProcessor[];
+    drainLogs(): ActionLog[]
 }
 
 export interface IFightContextMutator {
     nextEntityTurn(): void
     nextTurn(): void
+    updateEnergy(params: UpdateEnergyParams): void
 }
 
 export interface IFightEntitiesValidator {
@@ -245,4 +262,11 @@ export type FightContextFactoryDeps = {
     enemyBuilder:             IEnemyBuilder
     enemyCompositionResolver: IEnemyCompositionResolver
     allyBuilder:              IAllyBuilder
+}
+
+
+export type UpdateEnergyParams = {
+    targetId: PlayingEntityID
+    updatedEnergyValue: number
+    reactionDepth?: number
 }
