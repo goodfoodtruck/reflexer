@@ -328,6 +328,13 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             default: throw new Error("Not implemented.")
         }
     }
+
+
+    getEntitiesAtPositions(positions: Position[]): PlayingEntity[] {
+        return this.getAliveEntities().filter(entity =>
+            positions.some(pos => (pos.x === entity.position.x) && (pos.y === entity.position.y))
+        )
+    }
 }
 
 type ApplyDamageParams = {
