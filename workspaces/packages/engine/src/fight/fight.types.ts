@@ -1,4 +1,4 @@
-import { Gambit } from "@fight/gambits/gambits.types"
+import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
@@ -25,9 +25,10 @@ export interface TurnEvent {
 }
 
 export type MovementContext = {
-    casterId: Readonly<PlayingEntityID>;
+    readonly casterId: PlayingEntityID
+    readonly targetPosition: Position   // position de l'entité dont on doit se rapprocher, fuir...etc
+    readonly strategy: MovementStrategy
 }
-
 
 export type ExecutionContext = 
     | MovementExecutionContext
@@ -35,8 +36,8 @@ export type ExecutionContext =
 
 export type MovementExecutionContext = {
     type: "movement"
-    casterId: Readonly<PlayingEntityID>;
-    targetCell: Position
+    casterId: Readonly<PlayingEntityID>
+    targetCell: Position                    // cellule cible
 }
 
 export type ActionExecutionContext = {

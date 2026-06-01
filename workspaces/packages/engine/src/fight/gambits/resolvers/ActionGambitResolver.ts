@@ -1,18 +1,14 @@
 import { FightContext } from "@fight/context/FightContext";
 import { GambitTargetResolver } from "./target/GambitTargetResolver";
-import { ActionExecutionContext, ExecutionContext, PlayingEntity } from "@fight/fight.types";
-import { ActionGambit, ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types";
-import { IFightContextReader } from "@fight/fight.types";
-import { isExistsCondition } from "@helpers/gambits/typeguards";
-import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
-import { FilterApplier } from "./filters/FilterApplier";
+import { ActionExecutionContext, PlayingEntity } from "@fight/fight.types";
+import { ActionGambit} from "@fight/gambits/gambits.types";
+import { ConditionResolver } from "./conditions/ConditionResolver";
 
 export class ActionGambitResolver {
 
     constructor(
+        private readonly gambitConditionResolver: ConditionResolver,
         private readonly gambitTargetResolver: GambitTargetResolver,
-        private readonly filterApplier: FilterApplier,
-        private readonly entityScopeResolver: EntityScopeResolver
     ) {}
 
     /**
@@ -31,7 +27,7 @@ export class ActionGambitResolver {
         fightContext: FightContext
     ): ActionExecutionContext | null {
         for (const gambit of playingEntityActionGambits) {
-            const conditionValidation = this.evaluateConditionGroup(gambit.conditions, playingEntity, fightContext)
+            const conditionValidation = this.gambitConditionResolver.evaluateConditionGroup(gambit.conditions, playingEntity, fightContext)
             if (! conditionValidation) continue
 
             const targetId = this.gambitTargetResolver.resolve(playingEntity, fightContext, gambit.targetSelector)
@@ -47,35 +43,5 @@ export class ActionGambitResolver {
         }
 
         return null
-    }
-
-    private evaluateConditionGroup(
-        condition: ConditionGroup,
-        entity: Readonly<PlayingEntity>,
-        context: IFightContextReader
-    ): boolean {
-        if (isExistsCondition(condition)) {
-            return this.evaluateExistsCondition(condition, entity, context)
-        }
-            
-        switch (condition.operator) {
-            case "AND": return condition.conditions.every(c => this.evaluateConditionGroup(c, entity, context))
-            case "OR":  return condition.conditions.some(c  => this.evaluateConditionGroup(c, entity, context))
-            case "NOT": return (! this.evaluateConditionGroup(condition.condition, entity, context))
-        }
-    }
-
-    private evaluateExistsCondition(
-        condition: ExistsCondition,
-        entity: Readonly<PlayingEntity>,
-        context: IFightContextReader
-    ): boolean {
-        // entités concernée par la condition : SELF, ALLY, ENEMY
-        const candidates = this.entityScopeResolver.resolveScope(condition.context.targetType, entity, context)
-
-        // entités qui matchent avec les critères
-        const matchingEntities = this.filterApplier.applyAll(candidates, condition.context.filters, context)
-
-        return matchingEntities.length >= 1
     }
 }
