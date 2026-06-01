@@ -34,7 +34,14 @@ describe("Exécution d'un mouvement", () => {
         const executor = buildExecutor()
         const path: Position[] = [{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }]
 
-        executor.execute(path, { casterId: "player_0" }, fightContext)
+        executor.execute(path, {
+            casterId: "player_0",
+            targetPosition: {
+                x: 3,
+                y: 0
+            },
+            strategy: "APPROACH"
+        }, fightContext)
 
         expect(fightContext.getEntityById("player_0")!.position).toEqual({ x: 3, y: 0 })
         expect(fightContext.getFightLogs().filter(l => l.type === "entity_moved")).toHaveLength(3)
@@ -53,7 +60,14 @@ describe("Exécution d'un mouvement", () => {
         const executor = buildExecutor()
         const path: Position[] = [{ x: 1, y: 0 }]
 
-        executor.execute(path, { casterId: "player_0" }, fightContext)
+        executor.execute(path, {
+            casterId: "player_0",
+            targetPosition: {
+                x: 1,
+                y: 0
+            },
+            strategy: "APPROACH"
+        }, fightContext)
 
         expect(fightContext.getEntityById("player_0")!.position).toEqual({ x: 0, y: 0 })
         expect(fightContext.getFightLogs()).toContainEqual(
@@ -66,7 +80,14 @@ describe("Exécution d'un mouvement", () => {
         const executor = buildExecutor()
         const path: Position[] = [{ x: 5, y: 0 }]
 
-        executor.execute(path, { casterId: "player_0" }, fightContext)
+        executor.execute(path, {
+            casterId: "player_0",
+            targetPosition: {
+                x: 5,
+                y: 0
+            },
+            strategy: "APPROACH"
+        }, fightContext)
 
         expect(fightContext.getEntityById("player_0")!.position).toEqual({ x: 0, y: 0 })
         expect(fightContext.getFightLogs()).toContainEqual(
