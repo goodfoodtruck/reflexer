@@ -1,11 +1,11 @@
 import { ActionExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
 import { IProcessor } from "@fight/processors/IProcessor";
-import { ProcessorResult } from "@fight/processors/processor.types";
+import { ProcessorResult, UseEnergyProcessorParams } from "@fight/processors/processor.types";
 
-export class UseManaProcessor implements IProcessor {
+export class UseEnergyProcessor implements IProcessor {
 
     constructor(
-        private readonly energyValue: number
+        private readonly params: UseEnergyProcessorParams
     ) {}
 
     execute(
@@ -13,7 +13,7 @@ export class UseManaProcessor implements IProcessor {
         snapshot: IFightContextMutator & IFightContextReader
     ): ProcessorResult {
         const target = snapshot.getAliveEntityOrThrow(ctx.casterId)
-        const updatedEnergyValue = this.computeUpdatedEnergyValue(target.currentStats.energy, this.energyValue)
+        const updatedEnergyValue = this.computeUpdatedEnergyValue(target.currentStats.energy, this.params.energyAmount)
 
         snapshot.updateEnergy({
             targetId: ctx.casterId,

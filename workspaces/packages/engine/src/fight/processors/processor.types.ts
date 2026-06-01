@@ -1,20 +1,38 @@
-import { ExecutionContext } from "@fight/fight.types";
+import { ActionID, AreaCenter, AreaType, ExecutionContext } from "@fight/fight.types";
 import { Position } from "@helpers/types/helpers.types";
 import { PassiveID } from "@fight/passives/passives.types";
 
-export type DamageParams = { damage_value: number }
-export type WalkParams = { cell: Position }
-export type PassiveParams = { passiveId: PassiveID, duration: number | "PERMANENT" }
+export type DamageProcessorParams = { readonly damageValue: number }
+export type WalkProcessorParams = { readonly cell: Position }
+export type PassiveProcessorParams = { 
+    readonly passiveId: PassiveID, 
+    readonly duration: number | "PERMANENT" 
+}
+export type UseEnergyProcessorParams = { readonly energyAmount: number }
+export type CheckEnergyProcessorParams = { readonly neededEnergy: number }
+export type AreaProcessorParams = {
+    readonly areaType: AreaType,
+    readonly areaCenter: AreaCenter,
+    readonly areaSize: number,
+    readonly derivedActionId: ActionID
+}
+
 
 export type ProcessorParams =
-    | DamageParams
-    | WalkParams
-    | PassiveParams
+    | DamageProcessorParams
+    | WalkProcessorParams
+    | PassiveProcessorParams
+    | UseEnergyProcessorParams
+    | CheckEnergyProcessorParams
+    | AreaProcessorParams
 
 export type ProcessorType =
     | 'damage'
     | 'walk'
     | 'passive'
+    | 'area'
+    | 'use_energy'
+    | 'check_energy'
 
 export type ProcessorConfig = {
     type: ProcessorType;

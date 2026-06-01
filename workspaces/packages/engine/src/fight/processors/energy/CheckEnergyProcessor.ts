@@ -1,12 +1,10 @@
-import { ActionExecutionContext, ExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
-import { IProcessor } from "../IProcessor";
-import { ProcessorResult } from "../processor.types";
+import { ActionExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
+import { IProcessor } from "@processors/IProcessor";
+import { CheckEnergyProcessorParams, ProcessorResult } from "@processors/processor.types";
 
 export class CheckEnergyProcessor implements IProcessor {
 
-    constructor(
-        private readonly energyValue: number
-    ) {}
+    constructor(private readonly params: CheckEnergyProcessorParams) {}
 
     execute(ctx: ActionExecutionContext, snapshot: IFightContextMutator & IFightContextReader): ProcessorResult {
         const actionCaster = snapshot.getAliveEntityOrThrow(ctx.casterId)
@@ -18,12 +16,9 @@ export class CheckEnergyProcessor implements IProcessor {
             }
         }
 
-        if (actionCaster.currentStats.energy < this.energyValue) 
-            return { status: 'aborted', reason: 'action_failed' }
+        if (actionCaster.currentStats.energy < this.params.neededEnergy) 
+            return { status: 'aborted', reason: 'not_enough_energy' }
         
-        return {
-            status: "ok",
-            derivedContexts: []
-        }
+        return { status: "ok", derivedContexts: [] }
     }
 }
