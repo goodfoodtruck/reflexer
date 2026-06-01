@@ -189,6 +189,7 @@ export type FightSnapshot = {
 
 export type EntitySnapshot = {
     id: PlayingEntityID
+    name: EntityName
     teamId: PlayingTeamID
     tags: EntityTag[]
     position: Position
@@ -216,6 +217,9 @@ export type EnemyTag =
 
 export type EnemyName = "ALIEN" | "KNIGHT" | "GOBLIN"
 
+/** Identité concrète d'une entité : sert à résoudre son libellé et son sprite. */
+export type EntityName = AllyName | EnemyName
+
 /** On indentifie un ennemi par son type et un allié par son nom */
 export type EntityTag =
     | CharacterName
@@ -225,6 +229,7 @@ export type EntityTag =
 
 export type PlayingEntity = {
     id: PlayingEntityID
+    name: EntityName
     teamId: PlayingTeamID
     tags: EntityTag[]
     position: Position

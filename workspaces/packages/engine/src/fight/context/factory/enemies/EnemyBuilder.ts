@@ -18,6 +18,7 @@ export class EnemyBuilder implements IEnemyBuilder {
 
         return {
             id: this.generateEnemyID(enemyTag, inTeamOrder),
+            name: randomEnemyName,
             teamId: "ENEMY",
             tags: [enemyTag],
             position: position,

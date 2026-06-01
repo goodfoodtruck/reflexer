@@ -1,25 +1,27 @@
-import type { ActionLog, FightResult, IFightMapRegistry } from "@reflexer/engine";
+import type { ActionLog, EntitySnapshot, FightResult, ICharacterRegistry, IFightMapRegistry, PlayingEntityID } from "@reflexer/engine";
+import type { Dispatch } from "react";
 import type { LogInterpreter } from "./LogInterpreter.ts";
 import type { AnimationQueue } from "./AnimationQueue.ts";
 import type { CombatScene } from "../rendering/CombatScene.ts";
-import type { CombatViewStore } from "./CombatViewStore.ts";
-import { buildEntityLabels, formatActionLog } from "./log-format.ts";
+import type { CombatAction } from "./combat-view.reducer.ts";
+import { formatActionLog } from "./log-format.ts";
 
 export class CombatReplayer {
     constructor(
         private readonly scene: CombatScene,
         private readonly interpreter: LogInterpreter,
         private readonly animationQueue: AnimationQueue,
-        private readonly store: CombatViewStore,
-        private readonly mapRegistry: IFightMapRegistry
+        private readonly dispatch: Dispatch<CombatAction>,
+        private readonly mapRegistry: IFightMapRegistry,
+        private readonly characterRegistry: ICharacterRegistry
     ) {}
 
     async play(result: FightResult): Promise<void> {
         const map = this.mapRegistry.getConfig(result.initialState.mapId)
         this.scene.setup(result.initialState, map)
 
-        const labels = buildEntityLabels(result.initialState.entities)
-        this.store.initialize(result.initialState, labels, map.dimensions)
+        const labels = this.buildLabels(result.initialState.entities)
+        this.dispatch({ type: "initialize", snapshot: result.initialState, labels, mapDimensions: map.dimensions })
 
         let lineId = 0
         const turns = result.logs
@@ -27,12 +29,12 @@ export class CombatReplayer {
         for (let t = 0; t < turns.length; t++) {
             const turn = turns[t]
             const upcoming = turns.slice(t + 1).map(next => next.ownerId)
-            this.store.beginTurn(turn.turnIndex, turn.ownerId, upcoming)
+            this.dispatch({ type: "beginTurn", turnIndex: turn.turnIndex, ownerId: turn.ownerId, upcomingTurnOwners: upcoming })
 
             for (const log of turn.actionLogs) {
                 const line = formatActionLog(log, labels, lineId)
                 if (line) {
-                    this.store.pushAction(line)
+                    this.dispatch({ type: "pushAction", line })
                     lineId++
                 }
 
@@ -43,20 +45,29 @@ export class CombatReplayer {
             }
         }
 
-        this.store.finish()
+        this.dispatch({ type: "finish" })
+    }
+
+    /** Libellé affichable de chaque entité, résolu depuis son identité (`name`). */
+    private buildLabels(entities: EntitySnapshot[]): Map<PlayingEntityID, string> {
+        const labels = new Map<PlayingEntityID, string>()
+        for (const entity of entities) {
+            labels.set(entity.id, this.characterRegistry.getConfig(entity.name).displayName)
+        }
+        return labels
     }
 
     /** Répercute l'effet du log sur l'état de vue, après son animation. */
     private applyStateChange(log: ActionLog): void {
         switch (log.type) {
             case "damage_dealt":
-                this.store.applyDamage(log.targetId, log.amount)
+                this.dispatch({ type: "applyDamage", targetId: log.targetId, amount: log.amount })
                 break
             case "entity_died":
-                this.store.killEntity(log.entityId)
+                this.dispatch({ type: "killEntity", entityId: log.entityId })
                 break
             case "entity_moved":
-                this.store.moveEntity(log.entityId, log.cell)
+                this.dispatch({ type: "moveEntity", entityId: log.entityId, position: log.cell })
                 break
         }
     }

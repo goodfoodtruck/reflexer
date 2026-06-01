@@ -148,6 +148,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             mapId: this.map.id,
             entities: Array.from(this.entities.values()).map(e => ({
                 id: e.id,
+                name: e.name,
                 teamId: e.teamId,
                 tags: [...e.tags],
                 position: { ...e.position },

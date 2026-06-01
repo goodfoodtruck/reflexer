@@ -8,3 +8,6 @@ export * from "./InMemoryEnemyRegistry";
 export * from "./InMemoryFightMapRegistry";
 export * from "./InMemoryPassiveRegistry"
 export * from "./mockFightMaps";
+export * from "./ICharacterRegistry";
+export * from "./InMemoryCharacterRegistry";
+export * from "./mockCharacters";

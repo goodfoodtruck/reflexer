@@ -1,5 +1,4 @@
 import { useCombatScene } from "../../features/fight/rendering/hooks/use-combat-scene.hook";
-import { useCombatReplay } from "../../features/fight/rendering/hooks/use-combat-replay.hook";
 import { CELL_SIZE } from "../../features/fight/rendering/CombatScene";
 import { HealthBarsOverlay } from "../../components/ui/combat/HealthBarsOverlay";
 import { CurrentActionBanner } from "../../components/ui/combat/CurrentActionBanner";
@@ -10,8 +9,7 @@ import { CombatLog } from "../../components/ui/combat/CombatLog";
 import STYLES from "./styles";
 
 export function CombatPage() {
-    const { containerRef, sceneRef, store } = useCombatScene();
-    const state = useCombatReplay(store);
+    const { containerRef, sceneRef, state } = useCombatScene();
 
     const stageWidth = (state.mapDimensions?.width ?? 10) * CELL_SIZE;
     const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;
@@ -49,7 +47,7 @@ export function CombatPage() {
                         style={{ width: stageWidth, height: stageHeight }}
                     >
                         <div ref={containerRef} style={{ width: stageWidth, height: stageHeight }} />
-                        <HealthBarsOverlay sceneRef={sceneRef} store={store} />
+                        <HealthBarsOverlay sceneRef={sceneRef} entities={state.entities} />
                     </div>
                 </div>
 

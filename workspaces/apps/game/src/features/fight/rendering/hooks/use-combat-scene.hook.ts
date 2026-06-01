@@ -1,11 +1,11 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useReducer, useRef } from "react"
 import type { FightResult } from "@reflexer/engine"
-import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS } from "@reflexer/engine"
+import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_CHARACTERS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
 import { LogInterpreter } from "../../replay/LogInterpreter"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
-import { CombatViewStore } from "../../replay/CombatViewStore"
+import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
 
 const FAKE_FIGHT: FightResult = {
     initialState: {
@@ -13,6 +13,7 @@ const FAKE_FIGHT: FightResult = {
         entities: [
             {
                 id: "hero",
+                name: "CHARACTER_1",
                 teamId: "PLAYER",
                 tags: ["CHARACTER_1"],
                 position: { x: 1, y: 4 },
@@ -21,6 +22,7 @@ const FAKE_FIGHT: FightResult = {
             },
             {
                 id: "hero2",
+                name: "CHARACTER_2",
                 teamId: "PLAYER",
                 tags: ["CHARACTER_2"],
                 position: { x: 1, y: 6 },
@@ -29,6 +31,7 @@ const FAKE_FIGHT: FightResult = {
             },
             {
                 id: "enemy",
+                name: "ALIEN",
                 teamId: "ENEMY",
                 tags: ["ENEMY_MELEE"],
                 position: { x: 8, y: 4 },
@@ -37,6 +40,7 @@ const FAKE_FIGHT: FightResult = {
             },
             {
                 id: "enemy2",
+                name: "KNIGHT",
                 teamId: "ENEMY",
                 tags: ["ENEMY_MELEE"],
                 position: { x: 8, y: 6 },
@@ -97,35 +101,36 @@ const FAKE_FIGHT: FightResult = {
 export function useCombatScene() {
     const containerRef = useRef<HTMLDivElement>(null)
     const sceneRef = useRef<CombatScene | null>(null)
-    const storeRef = useRef<CombatViewStore | null>(null)
-    if (!storeRef.current) storeRef.current = new CombatViewStore()
-    const store = storeRef.current
+    const [state, dispatch] = useReducer(combatViewReducer, INITIAL_COMBAT_VIEW_STATE)
 
     useEffect(() => {
         if (!containerRef.current) return
 
-        let active = true
+        let cancelled = false
 
-        CombatScene.create(containerRef.current).then(scene => {
-            if (!active) {
-                scene.destroy()
-                return
-            }
-            sceneRef.current = scene
+        CombatScene
+            .create(containerRef.current)
+            .then(scene => {
+                if (cancelled) {
+                    scene.destroy()
+                    return
+                }
+                sceneRef.current = scene
 
-            const interpreter = new LogInterpreter()
-            const queue = new AnimationQueue(scene)
-            const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
-            const replayer = new CombatReplayer(scene, interpreter, queue, store, mapRegistry)
-            replayer.play(FAKE_FIGHT)
-        })
+                const interpreter = new LogInterpreter()
+                const queue = new AnimationQueue(scene)
+                const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
+                const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
+                const replayer = new CombatReplayer(scene, interpreter, queue, dispatch, mapRegistry, characterRegistry)
+                replayer.play(FAKE_FIGHT)
+            })
 
         return () => {
-            active = false
+            cancelled = true
             sceneRef.current?.destroy()
             sceneRef.current = null
         }
-    }, [store])
+    }, [])
 
-    return { containerRef, sceneRef, store }
+    return { containerRef, sceneRef, state }
 }

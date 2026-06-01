@@ -1,23 +1,5 @@
-import type { ActionLog, EntitySnapshot, PlayingEntityID } from "@reflexer/engine"
+import type { ActionLog, PlayingEntityID } from "@reflexer/engine"
 import type { CombatLogLine } from "./combat-view.types"
-
-/**
- * Construit la table des libellés affichables des entités à partir de l'état
- * initial : les alliés deviennent "Héros N", les ennemis "Monstre N" (index
- * 1-based par équipe, dans l'ordre de l'état initial).
- */
-export function buildEntityLabels(entities: EntitySnapshot[]): Map<PlayingEntityID, string> {
-    const labels = new Map<PlayingEntityID, string>()
-    const counters: Record<string, number> = { PLAYER: 0, ENEMY: 0 }
-
-    for (const entity of entities) {
-        const index = (counters[entity.teamId] = (counters[entity.teamId] ?? 0) + 1)
-        const prefix = entity.teamId === "PLAYER" ? "Héros" : "Monstre"
-        labels.set(entity.id, `${prefix} ${index}`)
-    }
-
-    return labels
-}
 
 const ACTION_LABELS: Record<string, string> = {
     attack: "Attaque",

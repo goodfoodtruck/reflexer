@@ -1,21 +1,20 @@
 import { useEffect, useRef } from "react"
 import type { RefObject } from "react"
+import type { PlayingEntityID } from "@reflexer/engine"
 import type { CombatScene } from "../../../features/fight/rendering/CombatScene"
-import type { CombatViewStore } from "../../../features/fight/replay/CombatViewStore"
-import { useCombatReplay } from "../../../features/fight/rendering/hooks/use-combat-replay.hook"
+import type { EntityView } from "../../../features/fight/replay/combat-view.types"
 
 type Props = {
     sceneRef: RefObject<CombatScene | null>
-    store: CombatViewStore
+    entities: Record<PlayingEntityID, EntityView>
 }
 
 /**
  * Barres de vie HTML au-dessus de chaque entité vivante. La position suit le
  * sprite Pixi en continu (boucle rAF, écriture impérative du transform), tandis
- * que la valeur de vie provient du store (re-render React ponctuel).
+ * que la valeur de vie provient de l'état de vue (re-render React ponctuel).
  */
-export function HealthBarsOverlay({ sceneRef, store }: Props) {
-    const state = useCombatReplay(store)
+export function HealthBarsOverlay({ sceneRef, entities }: Props) {
     const barRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
     useEffect(() => {
@@ -40,7 +39,7 @@ export function HealthBarsOverlay({ sceneRef, store }: Props) {
         return () => cancelAnimationFrame(raf)
     }, [sceneRef])
 
-    const livingEntities = Object.values(state.entities).filter(entity => entity.alive)
+    const livingEntities = Object.values(entities).filter(entity => entity.alive)
 
     return (
         <div className="absolute inset-0 pointer-events-none">
