@@ -20,7 +20,7 @@ describe("Calcul des dégâts du DamageProcessor", () => {
 
     it("inflige les dégâts de base sans modificateur", () => {
         const fightContext = buildFightContext([{}], [{}])
-        const processor = new DamageProcessor(20)
+        const processor = new DamageProcessor({ damageValue: 20 })
 
         processor.execute(ctx, fightContext)
 
@@ -34,11 +34,11 @@ describe("Calcul des dégâts du DamageProcessor", () => {
             activePassives: [{ passive: buildModifier("damageDealtModifier", 50), remainingTurns: "PERMANENT", sourceEntityId: "player_0" }]
         })
         const fightContext = buildFightContext([caster], [{}])
-        const processor = new DamageProcessor(20)
+        const processor = new DamageProcessor({ damageValue: 20 })
 
         processor.execute(ctx, fightContext)
 
-        // 20 * 1.50 = 30
+        // { damageValue: 20 } * 1.50 = 30
         expect(fightContext.getEntityById("enemy_0")!.currentStats.health).toBe(70)
     })
 
@@ -49,11 +49,11 @@ describe("Calcul des dégâts du DamageProcessor", () => {
             activePassives: [{ passive: buildModifier("damageReceivedModifier", -25), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
         })
         const fightContext = buildFightContext([{}], [target])
-        const processor = new DamageProcessor(20)
+        const processor = new DamageProcessor({ damageValue: 20 })
 
         processor.execute(ctx, fightContext)
 
-        // 20 * 0.75 = 15
+        // { damageValue: 20 } * 0.75 = 15
         expect(fightContext.getEntityById("enemy_0")!.currentStats.health).toBe(85)
     })
 
@@ -69,11 +69,11 @@ describe("Calcul des dégâts du DamageProcessor", () => {
             activePassives: [{ passive: buildModifier("damageReceivedModifier", -20), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
         })
         const fightContext = buildFightContext([caster], [target])
-        const processor = new DamageProcessor(20)
+        const processor = new DamageProcessor({ damageValue: 20 })
 
         processor.execute(ctx, fightContext)
 
-        // +30% -20% = +10% net → 20 * 1.10 = 22
+        // +30% -{ damageValue: 20 }% = +10% net → { damageValue: 20 } * 1.10 = 22
         expect(fightContext.getEntityById("enemy_0")!.currentStats.health).toBe(78)
     })
 
@@ -84,7 +84,7 @@ describe("Calcul des dégâts du DamageProcessor", () => {
             activePassives: [{ passive: buildModifier("damageReceivedModifier", -150), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
         })
         const fightContext = buildFightContext([{}], [target])
-        const processor = new DamageProcessor(20)
+        const processor = new DamageProcessor({ damageValue: 20 })
 
         processor.execute(ctx, fightContext)
 
@@ -99,7 +99,7 @@ describe("Calcul des dégâts du DamageProcessor", () => {
             activePassives: [{ passive: buildModifier("damageDealtModifier", 33), remainingTurns: "PERMANENT", sourceEntityId: "player_0" }]
         })
         const fightContext = buildFightContext([caster], [{}])
-        const processor = new DamageProcessor(10)
+        const processor = new DamageProcessor({ damageValue: 10 })
 
         processor.execute(ctx, fightContext)
 
@@ -117,11 +117,11 @@ describe("Calcul des dégâts du DamageProcessor", () => {
             ]
         })
         const fightContext = buildFightContext([caster], [{}])
-        const processor = new DamageProcessor(20)
+        const processor = new DamageProcessor({ damageValue: 20 })
 
         processor.execute(ctx, fightContext)
 
-        // +10% +20% = +30% → 20 * 1.30 = 26
+        // +10% +{ damageValue: 20 }% = +30% → { damageValue: 20 } * 1.30 = 26
         expect(fightContext.getEntityById("enemy_0")!.currentStats.health).toBe(74)
     })
 })
