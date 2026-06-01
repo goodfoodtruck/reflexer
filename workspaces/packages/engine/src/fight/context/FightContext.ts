@@ -174,7 +174,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
     getFightLogs(): ActionLog[] {
         return [...this.fightLogs]
     }
-    
 
     updateEnergy(params: UpdateEnergyParams): void {
         const target = this.getAliveEntityOrThrow(params.targetId)
@@ -188,7 +187,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             reactionDepth: params.reactionDepth ?? 0
         })
     }
-
 
     applyDamage(params: ApplyDamageParams): void {
         const target = this.getEntityById(params.targetId)
@@ -269,7 +267,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             .reduce((acc, p) => acc + p.value, 0)
     }
 
-
     moveEntity({ entityId, destination }: MoveEntityParams): void {
         const entity = this.getAliveEntityOrThrow(entityId)
 
@@ -330,7 +327,6 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             default: throw new Error("Not implemented.")
         }
     }
-
 
     getEntitiesAtPositions(positions: Position[]): PlayingEntity[] {
         return this.getAliveEntities().filter(entity =>
