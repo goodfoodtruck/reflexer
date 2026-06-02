@@ -1,6 +1,7 @@
 import { FightResult } from "@fight/fight.types"
+import { FightMapID } from "@fight/map/fight.map.types"
 import { Result, SelectMapNodeValue, MapError, FightError, BuyShopItemValue, ShopError, ChestError } from "@game-engine/api.types"
-import { MapData, PlayerData, ShopData, ChestData } from "@game-engine/game-engine.types"
+import { MapData, PlayerData, ShopData, ChestData, TeamMemberData } from "@game-engine/game-engine.types"
 
 export interface IMapGenerator {
     generate(): MapData
@@ -11,7 +12,8 @@ export interface IMapCommandHandler {
 }
 
 export interface IFightCommandHandler {
-    playFight(fightMapId: string, playerData: PlayerData): Result<FightResult, FightError>
+    playPvpFight(fightMapId: FightMapID, playerTeam: TeamMemberData[], opponentTeam: TeamMemberData[]): Result<FightResult, FightError>
+    playPveFight(fightMapId: FightMapID, playerData: PlayerData): Result<FightResult, FightError>
     applyFightResultOnPlayer(playerData: PlayerData, result: FightResult): PlayerData
 }
 

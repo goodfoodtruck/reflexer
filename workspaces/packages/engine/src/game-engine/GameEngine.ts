@@ -1,7 +1,8 @@
-import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData } from "@game-engine/game-engine.types";
+import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData, TeamMemberData } from "@game-engine/game-engine.types";
 import { FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
 import { InvalidStateError } from "./errors/InvalidStateError";
+import { FightMapID } from "@fight/map";
 
 
 export class GameEngine {
@@ -77,12 +78,20 @@ export class GameEngine {
         return result
     }
 
-    playFight(fightMapId: string): Result<FightResult, FightError> {
+    playPvpFight(
+        fightMapId: FightMapID,
+        playerTeam: TeamMemberData[], 
+        opponentTeam: TeamMemberData[]
+    ): Result<FightResult, FightError> {        
+        return this.deps.fightHandler.playPvpFight(fightMapId, playerTeam, opponentTeam)
+    }
+
+    playPveFight(fightMapId: FightMapID): Result<FightResult, FightError> {
         const runState = this.getRunStateOrThrow()
         this.assertNotActiveChest()
         this.assertNotActiveShop()
         
-        const result: Result<FightResult, FightError> = this.deps.fightHandler.playFight(fightMapId, runState.playerData)
+        const result: Result<FightResult, FightError> = this.deps.fightHandler.playPveFight(fightMapId, runState.playerData)
 
         if (! result.success) return result
 
