@@ -1,24 +1,20 @@
-import { IAllyRegistry } from "@data/IAllyRegistry"
 import { AllyName, IAllyBuilder, PlayingEntity, PlayingEntityID } from "@fight/fight.types"
+import { TeamMemberData } from "@game-engine/game-engine.types"
 import { Position } from "@helpers/types/helpers.types"
 
 export class AllyBuilder implements IAllyBuilder {
 
-    constructor(
-        private readonly allyRegistry: IAllyRegistry
-    ) {}
+    constructor() {}
 
-    buildAlly(allyName: AllyName, position: Position, index: number): PlayingEntity {
-        const config = this.allyRegistry.getConfig(allyName)
-
+    buildAlly(data: TeamMemberData, position: Position, index: number): PlayingEntity {
         return {
-            id: this.generateAllyID(allyName, index),
+            id: this.generateAllyID(data.name, index),
             teamId: "PLAYER",
-            tags: [allyName],
+            tags: [data.name],
             position: position,
-            baseStats: { ...config.baseStats },
-            currentStats: { ...config.baseStats },
-            gambits: [...config.gambits], // récupérer en DB avant et injecter
+            baseStats: { ...data.baseStats },
+            currentStats: { ...data.baseStats },
+            gambits: [...data.gambits],
             activePassives: [],
             isDead: false
         }

@@ -1,10 +1,11 @@
 import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
-import { EFightMapSize, EObstacleType, FightMapID } from "@fight/map/fight.map.types";
+import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
 import { FightContext } from "./context/FightContext";
+import { TeamMemberData } from "@game-engine/game-engine.types";
 
 
 export interface DamageReceivedEvent {
@@ -258,12 +259,16 @@ export interface IEnemyBuilder {
     buildEnemy(tag: EnemyTag, position: Position, index: number, floorIndex: number): PlayingEntity
 }
 
+export interface ITeamBuilder {
+    buildTeam(members: TeamMemberData[], spawnPositions: Position[], teamId: PlayingTeamID): PlayingEntity[]
+}
+
 export interface IEnemyCompositionResolver {
     resolve(mapSize: EFightMapSize, nbEnemies: NbPlayerByTeam): EnemyTag[]
 }
 
 export interface IAllyBuilder {
-    buildAlly(name: AllyName, position: Position, index: number): PlayingEntity
+    buildAlly(name: TeamMemberData, position: Position, index: number): PlayingEntity
 }
 
 export type FightContextFactoryDeps = {
@@ -271,7 +276,7 @@ export type FightContextFactoryDeps = {
     nbEnemiesResolver:        INbEnemiesResolver
     enemyBuilder:             IEnemyBuilder
     enemyCompositionResolver: IEnemyCompositionResolver
-    allyBuilder:              IAllyBuilder
+    teamBuilder:              ITeamBuilder
 }
 
 
@@ -289,12 +294,6 @@ export type AreaType =
 export type AreaCenter =
     | { kind: "TARGET" }    // centrée sur la cible
     | { kind: "CASTER" }    // centrée sur soi même
-
-
-export type MapCell = {
-    position: Position,
-    type: EObstacleType
-}
 
 export type PathfindingParams = {
     context: MovementContext;

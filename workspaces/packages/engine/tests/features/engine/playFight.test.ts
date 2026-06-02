@@ -1,65 +1,68 @@
-import { buildEngine } from "@tests/builders/engine/GameEngineBuilder";
-import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder";
-import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
-import { describe, expect, it } from "vitest";
+import { buildEngine } from "@tests/builders/engine/GameEngineBuilder"
+import { buildPlayerData } from "@tests/builders/engine/PlayerDataBuilder"
+import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
+import { describe, expect, it } from "vitest"
 
 describe("Exécuter un combat complet", () => {
 
     const context = buildFightContext()
     const initialState = context.toSnapshot()
-    
-    it("Renvoie une erreur si aucune partie n'est en cours", () => {
+
+    it("renvoie une erreur si aucune partie n'est en cours", () => {
         const engine = buildEngine()
-        expect(() => engine.playFight("map_1")).toThrow("GameEngine has no RunState.")
+        expect(() => engine.playPveFight("map_1")).toThrow("GameEngine has no RunState.")
     })
 
-    it("Renvoie une erreur si la map n'existe pas", () => {
+    it("renvoie une erreur si la map n'existe pas", () => {
         const engine = buildEngine({
             fightHandler: {
-                playFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playPveFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playPvpFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 applyFightResultOnPlayer: (p) => p
             }
         })
         engine.startNewGame(buildPlayerData())
 
-        const result = engine.playFight("notExistingMapId")
+        const result = engine.playPveFight("notExistingMapId")
 
         expect(result).toEqual({ success: false, reason: "MAP_NOT_FOUND" })
     })
 
-    it("Met à jour le state après un combat réussit", () => {
+    it("met à jour le state après un combat réussi", () => {
         const updatedPlayerData = buildPlayerData({ gold: 100 })
         const engine = buildEngine({
             fightHandler: {
-                playFight: () => ({ 
-                    success: true, 
-                    value: { 
-                        endState: "WON", 
+                playPveFight: () => ({
+                    success: true,
+                    value: {
+                        endState: "WON",
                         logs: [],
                         initialState
                     }
                 }),
+                playPvpFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 applyFightResultOnPlayer: () => updatedPlayerData
             }
         })
 
         engine.startNewGame(buildPlayerData({ gold: 0 }))
-        engine.playFight("map_1")
+        engine.playPveFight("map_1")
 
         expect(engine.getPlayerData()).toEqual(updatedPlayerData)
     })
 
-    it("Ne met à jour le state si le combat échoue", () => {
+    it("ne met pas à jour le state si le combat échoue", () => {
         const initialPlayerData = buildPlayerData({ gold: 0 })
         const engine = buildEngine({
             fightHandler: {
-                playFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playPveFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playPvpFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 applyFightResultOnPlayer: (p) => p
             }
         })
 
         engine.startNewGame(initialPlayerData)
-        engine.playFight("notExistingMapId")
+        engine.playPveFight("notExistingMapId")
 
         expect(engine.getPlayerData()).toEqual(initialPlayerData)
     })
