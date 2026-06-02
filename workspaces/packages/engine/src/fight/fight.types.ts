@@ -317,3 +317,9 @@ export type MoveEntityParams = {
     entityId: PlayingEntityID,
     destination: Position
 }
+
+export enum ERange {
+    SHORT = 2,
+    MEDIUM = 5,
+    LONG = 8
+}
