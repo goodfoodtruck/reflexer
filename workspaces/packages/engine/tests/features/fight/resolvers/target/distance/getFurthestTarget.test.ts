@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
-import { getFurthestTarget } from "@fight/gambits/resolvers/target/extractors/distance/furthestTarget"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
+import { getFurthestTarget } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromSource"
 
 describe("Récupérer l'entité la plus éloignée", () => {
 

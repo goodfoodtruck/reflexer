@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
-import { getFurthestFromGroup } from "@fight/gambits/resolvers/target/extractors/distance/furthestFromGroup"
+import { getFurthestFromGroup } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromGroup"
 
 describe("Récupérer l'entité la plus éloignée d'un groupe", () => {
 

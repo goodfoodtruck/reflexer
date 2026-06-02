@@ -5,10 +5,8 @@ import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/h
 import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/hp/lowestHPTarget";
 import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
-import { getNearestTarget } from "./extractors/distance/nearestTarget";
-import { getFurthestTarget } from "./extractors/distance/furthestTarget";
-import { getNearestFromGroup } from "./extractors/distance/nearestFromGroup";
-import { getFurthestFromGroup } from "./extractors/distance/furthestFromGroup";
+import { getNearestTarget, getFurthestTarget } from "./extractors/distance/distanceFromSource";
+import { getNearestFromGroup, getFurthestFromGroup } from "./extractors/distance/distanceFromGroup";
 
 export class GambitTargetResolver {
 
