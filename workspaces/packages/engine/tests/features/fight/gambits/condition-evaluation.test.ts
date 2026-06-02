@@ -4,7 +4,6 @@ import { buildPlayingEntity, withCurrentStats } from "@tests/builders/fight/Play
 import { ConditionResolver } from "@fight/gambits/resolvers/conditions/ConditionResolver"
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver"
 import { buildFilterRegistry, FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier"
-import { FilterEvaluatorRegistry } from "@fight/gambits/resolvers/filters/FilterEvaluatorRegistry"
 import { ETargetType } from "@fight/gambits/gambits.types"
 import { buildExistsCondition } from "@tests/builders/fight/gambits/GambitBuilder"
 
@@ -23,20 +22,20 @@ describe("Évaluation des conditions de gambits", () => {
             const resolver = buildResolver()
             const caster = buildPlayingEntity({ id: "caster", teamId: "PLAYER" })
             const enemy  = buildPlayingEntity({ id: "enemy",  teamId: "ENEMY" })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = buildExistsCondition({
                 context: { targetType: ETargetType.ENEMY, filters: [] }
             })
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(true)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(true)
         })
 
         it("retourne false si aucune entité du scope ne correspond aux filtres", () => {
             const resolver = buildResolver()
             const caster = buildPlayingEntity({ id: "caster", teamId: "PLAYER" })
             const enemy  = withCurrentStats(buildPlayingEntity({ id: "enemy", teamId: "ENEMY" }), { health: 80 })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = buildExistsCondition({
                 context: {
@@ -45,19 +44,19 @@ describe("Évaluation des conditions de gambits", () => {
                 }
             })
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(false)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(false)
         })
 
         it("retourne false si le scope est vide", () => {
             const resolver = buildResolver()
             const caster = buildPlayingEntity({ id: "caster", teamId: "PLAYER" })
-            const context = buildFightContext([caster], [])  // pas d'ennemis
+            const fightContext = buildFightContext([caster], [])
 
             const condition = buildExistsCondition({
                 context: { targetType: ETargetType.ENEMY, filters: [] }
             })
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(false)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(false)
         })
 
         it("retourne true pour SELF si l'entité satisfait les filtres", () => {
@@ -67,7 +66,7 @@ describe("Évaluation des conditions de gambits", () => {
                 { health: 20 }
             )
             const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = buildExistsCondition({
                 context: {
@@ -76,7 +75,7 @@ describe("Évaluation des conditions de gambits", () => {
                 }
             })
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(true)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(true)
         })
     })
 
@@ -89,7 +88,7 @@ describe("Évaluation des conditions de gambits", () => {
                 { health: 20 }
             )
             const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = {
                 operator: "AND" as const,
@@ -99,7 +98,7 @@ describe("Évaluation des conditions de gambits", () => {
                 ]
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(true)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(true)
         })
 
         it("retourne false si au moins une condition est fausse", () => {
@@ -109,7 +108,7 @@ describe("Évaluation des conditions de gambits", () => {
                 { health: 80 }
             )
             const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = {
                 operator: "AND" as const,
@@ -119,7 +118,7 @@ describe("Évaluation des conditions de gambits", () => {
                 ]
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(false)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(false)
         })
     })
 
@@ -132,17 +131,17 @@ describe("Évaluation des conditions de gambits", () => {
                 { health: 80 }
             )
             const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = {
                 operator: "OR" as const,
                 conditions: [
-                    buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } }),         // true
-                    buildExistsCondition({ context: { targetType: ETargetType.SELF, filters: [{ type: "HP_BELOW", threshold: 50 }] } })  // false
+                    buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } }),
+                    buildExistsCondition({ context: { targetType: ETargetType.SELF, filters: [{ type: "HP_BELOW", threshold: 50 }] } })
                 ]
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(true)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(true)
         })
 
         it("retourne false si toutes les conditions sont fausses", () => {
@@ -151,17 +150,17 @@ describe("Évaluation des conditions de gambits", () => {
                 buildPlayingEntity({ id: "caster", teamId: "PLAYER" }),
                 { health: 80 }
             )
-            const context = buildFightContext([caster], [])  // pas d'ennemis
+            const fightContext = buildFightContext([caster], [])
 
             const condition = {
                 operator: "OR" as const,
                 conditions: [
-                    buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } }),         // false — pas d'ennemis
-                    buildExistsCondition({ context: { targetType: ETargetType.SELF, filters: [{ type: "HP_BELOW", threshold: 50 }] } })  // false — HP > 50%
+                    buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } }),
+                    buildExistsCondition({ context: { targetType: ETargetType.SELF, filters: [{ type: "HP_BELOW", threshold: 50 }] } })
                 ]
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(false)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(false)
         })
     })
 
@@ -170,7 +169,7 @@ describe("Évaluation des conditions de gambits", () => {
         it("retourne true si la condition imbriquée est fausse", () => {
             const resolver = buildResolver()
             const caster = buildPlayingEntity({ id: "caster", teamId: "PLAYER" })
-            const context = buildFightContext([caster], [])  // pas d'ennemis
+            const fightContext = buildFightContext([caster], [])
 
             const condition = {
                 operator: "NOT" as const,
@@ -179,14 +178,14 @@ describe("Évaluation des conditions de gambits", () => {
                 })
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(true)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(true)
         })
 
         it("retourne false si la condition imbriquée est vraie", () => {
             const resolver = buildResolver()
             const caster = buildPlayingEntity({ id: "caster", teamId: "PLAYER" })
             const enemy  = buildPlayingEntity({ id: "enemy",  teamId: "ENEMY" })
-            const context = buildFightContext([caster], [enemy])
+            const fightContext = buildFightContext([caster], [enemy])
 
             const condition = {
                 operator: "NOT" as const,
@@ -195,7 +194,7 @@ describe("Évaluation des conditions de gambits", () => {
                 })
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(false)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(false)
         })
     })
 
@@ -205,27 +204,27 @@ describe("Évaluation des conditions de gambits", () => {
             const resolver = buildResolver()
             const caster = withCurrentStats(
                 buildPlayingEntity({ id: "caster", teamId: "PLAYER" }),
-                { health: 80 }  // HP > 50% donc HP_BELOW false
+                { health: 80 }
             )
             const ally  = buildPlayingEntity({ id: "ally",  teamId: "PLAYER" })
             const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
-            const context = buildFightContext([caster, ally], [enemy])
+            const fightContext = buildFightContext([caster, ally], [enemy])
 
             const condition = {
                 operator: "AND" as const,
                 conditions: [
-                    buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } }),  // true
+                    buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } }),
                     {
                         operator: "OR" as const,
                         conditions: [
-                            buildExistsCondition({ context: { targetType: ETargetType.SELF, filters: [{ type: "HP_BELOW", threshold: 50 }] } }),  // false
-                            buildExistsCondition({ context: { targetType: ETargetType.ALLY, filters: [] } })  // true — ally existe
+                            buildExistsCondition({ context: { targetType: ETargetType.SELF, filters: [{ type: "HP_BELOW", threshold: 50 }] } }),
+                            buildExistsCondition({ context: { targetType: ETargetType.ALLY, filters: [] } })
                         ]
                     }
                 ]
             }
 
-            expect(resolver.evaluateConditionGroup(condition, caster, context)).toBe(true)
+            expect(resolver.evaluateConditionGroup(condition, caster, { source: caster, fightContext })).toBe(true)
         })
     })
 })

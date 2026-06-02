@@ -17,7 +17,7 @@ export class EntityMovementResolver {
         fightContext: IFightContextReader
     ): MovementContext | null {
         for (const gambit of playingEntityMovementGambits) {
-            const conditionValidation = this.gambitConditionResolver.evaluateConditionGroup(gambit.conditions, playingEntity, fightContext)
+            const conditionValidation = this.gambitConditionResolver.evaluateConditionGroup(gambit.conditions, playingEntity, { source: playingEntity, fightContext })
             if (! conditionValidation) continue
 
             const targetId = this.gambitTargetResolver.resolve(playingEntity, fightContext, gambit.targetSelector)

@@ -24,7 +24,7 @@ describe("Vérifier si l'entité a ses points de vie au dessus d'un certain seui
         const player = buildPlayerWithHp(26, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpAbove(player, hasHpAboveFilter, context)).toBe(true)
+        expect(evaluateHpAbove(player, hasHpAboveFilter, { source: player, fightContext: context })).toBe(true)
     })
 
     it("Retourne false si l'entité a en dessous du seuil de HP", () => {
@@ -32,7 +32,7 @@ describe("Vérifier si l'entité a ses points de vie au dessus d'un certain seui
         const player = buildPlayerWithHp(24, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpAbove(player, hasHpAboveFilter, context)).toBe(false)
+        expect(evaluateHpAbove(player, hasHpAboveFilter, { source: player, fightContext: context })).toBe(false)
     })
 
     it("Retourne false si l'entité a exactement le seuil de HP", () => {
@@ -40,7 +40,7 @@ describe("Vérifier si l'entité a ses points de vie au dessus d'un certain seui
         const player = buildPlayerWithHp(25, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpAbove(player, hasHpAboveFilter, context)).toBe(false)
+        expect(evaluateHpAbove(player, hasHpAboveFilter, { source: player, fightContext: context })).toBe(false)
     })
 
     it("Retourne true si l'entité est à pleine vie avec un seuil bas", () => {
@@ -48,7 +48,7 @@ describe("Vérifier si l'entité a ses points de vie au dessus d'un certain seui
         const player = buildPlayerWithHp(100, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpAbove(player, hasHpAboveFilter, context)).toBe(true)
+        expect(evaluateHpAbove(player, hasHpAboveFilter, { source: player, fightContext: context })).toBe(true)
     })
 
     it("Retourne false si l'entité est à 1 HP", () => {
@@ -56,6 +56,6 @@ describe("Vérifier si l'entité a ses points de vie au dessus d'un certain seui
         const player = buildPlayerWithHp(1, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpAbove(player, hasHpAboveFilter, context)).toBe(false)
+        expect(evaluateHpAbove(player, hasHpAboveFilter, { source: player, fightContext: context })).toBe(false)
     })
 })

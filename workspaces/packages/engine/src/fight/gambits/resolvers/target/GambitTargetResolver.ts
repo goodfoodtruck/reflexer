@@ -28,7 +28,7 @@ export class GambitTargetResolver {
         let candidates = this.entityScopeResolver.resolveScope(selector.context.targetType, playingEntity, fightContext)
 
         if (selector.context.targetType !== ETargetType.SELF)
-            candidates = this.filterApplier.applyAll(candidates, selector.context.filters, fightContext)
+            candidates = this.filterApplier.applyAll(candidates, selector.context.filters, { source: playingEntity, fightContext })
 
         if (! candidates.length) return null
 

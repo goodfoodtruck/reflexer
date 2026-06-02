@@ -24,7 +24,7 @@ describe("Vérifier si l'entité a ses points de vie en dessous d'un certain seu
         const player = buildPlayerWithHp(24, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpBelow(player, hasHpBelowFilter, context)).toBe(true)
+        expect(evaluateHpBelow(player, hasHpBelowFilter, { source: player, fightContext: context })).toBe(true)
     })
 
     it("Retourne false si l'entité a au dessus du seuil de HP", () => {
@@ -32,7 +32,7 @@ describe("Vérifier si l'entité a ses points de vie en dessous d'un certain seu
         const player = buildPlayerWithHp(32, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpBelow(player, hasHpBelowFilter, context)).toBe(false)
+        expect(evaluateHpBelow(player, hasHpBelowFilter, { source: player, fightContext: context })).toBe(false)
     })
 
     it("Retourne false si l'entité a exactement le seuil de HP", () => {
@@ -40,6 +40,6 @@ describe("Vérifier si l'entité a ses points de vie en dessous d'un certain seu
         const player = buildPlayerWithHp(25, 100)
         const context = buildContext(player)
         
-        expect(evaluateHpBelow(player, hasHpBelowFilter, context)).toBe(false)
+        expect(evaluateHpBelow(player, hasHpBelowFilter, { source: player, fightContext: context })).toBe(false)
     })
 })

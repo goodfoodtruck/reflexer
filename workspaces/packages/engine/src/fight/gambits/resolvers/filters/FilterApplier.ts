@@ -1,9 +1,8 @@
 import { PlayingEntity } from "@fight/fight.types"
-import { AnyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
+import { AnyFilter, FilterEvaluationContext } from "@fight/gambits/resolvers/filters/entityFilters.types"
 import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
 import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
 import { evaluateHasPassive } from "@fight/gambits/resolvers/filters/evaluators/HasPassiveEvaluator"
-import { IFightContextReader } from "@fight/fight.types"
 import { FilterEvaluatorRegistry } from "./FilterEvaluatorRegistry"
 
 export class FilterApplier {
@@ -23,8 +22,8 @@ export class FilterApplier {
     applyAll(
         entities: PlayingEntity[], 
         filters: AnyFilter[], 
-        context: IFightContextReader
-    ): PlayingEntity[] {
+        context: FilterEvaluationContext
+    ): PlayingEntity[] {        
         return entities.filter(entity =>
             filters.every(filter => this.evaluate(entity, filter, context))
         )
@@ -43,7 +42,7 @@ export class FilterApplier {
     private evaluate(
         entity: PlayingEntity, 
         filter: AnyFilter, 
-        context: IFightContextReader
+        context: FilterEvaluationContext
     ): boolean {
         const evaluator = this.filterEvaluatorRegistry.getEvaluator(filter.type)
         if (! evaluator) 

@@ -1,8 +1,8 @@
-import { PlayingEntity, IFightContextReader } from "@fight/fight.types"
+import { PlayingEntity } from "@fight/fight.types"
 import { ConditionGroup, ExistsCondition } from "@fight/gambits/gambits.types"
 import { isExistsCondition } from "@helpers/gambits"
 import { EntityScopeResolver } from "../EntityScopeResolver"
-import { FilterApplier } from "../filters"
+import { FilterApplier, FilterEvaluationContext } from "../filters"
 
 export class ConditionResolver {
 
@@ -14,7 +14,7 @@ export class ConditionResolver {
     evaluateConditionGroup(
         condition: ConditionGroup,
         entity: Readonly<PlayingEntity>,
-        context: IFightContextReader
+        context: FilterEvaluationContext
     ): boolean {
         if (isExistsCondition(condition)) {
             return this.evaluateExistsCondition(condition, entity, context)
@@ -30,15 +30,14 @@ export class ConditionResolver {
     private evaluateExistsCondition(
         condition: ExistsCondition,
         entity: Readonly<PlayingEntity>,
-        context: IFightContextReader
+        context: FilterEvaluationContext
     ): boolean {
         // entités concernée par la condition : SELF, ALLY, ENEMY
-        const candidates = this.entityScopeResolver.resolveScope(condition.context.targetType, entity, context)
+        const candidates = this.entityScopeResolver.resolveScope(condition.context.targetType, entity, context.fightContext)
 
         // entités qui matchent avec les critères
         const matchingEntities = this.filterApplier.applyAll(candidates, condition.context.filters, context)
 
         return matchingEntities.length >= 1
     }
-
 }
