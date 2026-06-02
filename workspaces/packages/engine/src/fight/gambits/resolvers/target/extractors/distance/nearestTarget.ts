@@ -1,5 +1,5 @@
 import { PlayingEntity } from "@fight/fight.types"
-import { Position } from "@helpers/types/helpers.types"
+import { manhattanDistance } from "@helpers/map/utils"
 
 export const getNearestTarget = (
     sourceEntity: Readonly<PlayingEntity>, 
@@ -10,8 +10,4 @@ export const getNearestTarget = (
     return [...entities].sort((a, b) =>
         manhattanDistance(sourceEntity.position, a.position) - manhattanDistance(sourceEntity.position, b.position)
     ).shift()!
-}
-
-const manhattanDistance = (a: Position, b: Position): number => {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
 }

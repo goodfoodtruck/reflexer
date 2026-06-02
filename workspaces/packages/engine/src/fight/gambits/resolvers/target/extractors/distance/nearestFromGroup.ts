@@ -1,8 +1,5 @@
 import { PlayingEntity } from "@fight/fight.types"
-import { Position } from "@helpers/types/helpers.types"
-
-const manhattanDistance = (a: Position, b: Position): number =>
-    Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+import { manhattanDistance } from "@helpers/map/utils"
 
 /**
  * Pour chaque candidat, calcule la distance minimale vers n'importe quelle 
