@@ -74,7 +74,7 @@ export type Action = {
  * */
 export type EntityModifier = 
     | "damageDealtModifier"      // altère les dégâts que cette entité inflige, en pourcentage
-    | "damageReceivedModifier"   // altère les dégâts que cette entité reçoit, en pourcentage
+    | "damageReductionModifier"   // altère les dégâts que cette entité reçoit, en pourcentage
     | "healingReceivedModifier"  // altère les soins que cette entité reçoit, en pourcentage
 
 

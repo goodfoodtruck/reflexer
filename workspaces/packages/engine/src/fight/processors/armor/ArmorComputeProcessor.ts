@@ -16,8 +16,8 @@ export class ArmorComputeProcessor implements IProcessor {
         }
 
         const armor = target.baseStats.armor
-        const damageReceivedModifier = fightContext.getModifier(ctx.targetId, "damageReceivedModifier")
-        state.computedDamage = this.applyArmor(state.computedDamage, armor, damageReceivedModifier)
+        const damageReduction = fightContext.getModifier(ctx.targetId, "damageReductionModifier")
+        state.computedDamage = this.applyArmor(state.computedDamage, armor, damageReduction)
 
         return { 
             status: "ok", 
@@ -28,10 +28,13 @@ export class ArmorComputeProcessor implements IProcessor {
     private applyArmor(
         damage: number, 
         armor: number, 
-        damageReceivedModifier: number
+        damageReduction: number
     ): number {
-        // on applique la réduction en % et la réduction en dégats fixes (armor)
-        const finalDamage = Math.floor(damage * (1 - damageReceivedModifier / 100)) - armor
+        // on additionne la réduction en % des passifs + de l'armure
+        const totalDamageReduction = (damageReduction + armor) / 100
+        const finalDamage = Math.round(damage * (1 - totalDamageReduction))
+
+        // on ne descend jamais en dessous de 0 de dégats reçus pour éviter de se soigner
         return Math.max(0, finalDamage)
     }
 }

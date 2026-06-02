@@ -728,7 +728,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             kind: "MODIFIER",
             id: "damage_reduction",
             config: permanentConfig,
-            modifier: "damageReceivedModifier",
+            modifier: "damageReductionModifier",
             value: -20
         }
 
