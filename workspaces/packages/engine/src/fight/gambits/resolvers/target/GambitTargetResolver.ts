@@ -7,6 +7,8 @@ import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
 import { getNearestTarget } from "./extractors/distance/nearestTarget";
 import { getFurthestTarget } from "./extractors/distance/furthestTarget";
+import { getNearestFromGroup } from "./extractors/distance/nearestFromGroup";
+import { getFurthestFromGroup } from "./extractors/distance/furthestFromGroup";
 
 export class GambitTargetResolver {
 
@@ -34,7 +36,7 @@ export class GambitTargetResolver {
 
         if (! candidates.length) return null
 
-        const finalTarget = this.getSortedTarget(playingEntity, candidates, selector.sort)
+        const finalTarget = this.getSortedTarget(fightContext, playingEntity, candidates, selector.sort)
 
         return finalTarget.id
     }
@@ -46,6 +48,7 @@ export class GambitTargetResolver {
      * @returns 
      */
     private getSortedTarget(
+        fightContext: IFightContextReader,
         sourceEntity: Readonly<PlayingEntity>,
         candidates: Readonly<PlayingEntity[]>, 
         targetSort: TargetSort
@@ -55,6 +58,10 @@ export class GambitTargetResolver {
             case "LOWEST_HP": return getLowestHpTarget(candidates)
             case "NEAREST": return getNearestTarget(sourceEntity, candidates)
             case "FURTHEST": return getFurthestTarget(sourceEntity, candidates)
+            case "NEAREST_FROM_ALLY": return getNearestFromGroup(candidates, fightContext.getAllies(sourceEntity))
+            case "NEAREST_FROM_ENEMY": return getNearestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
+            case "FURTHEST_FROM_ALLY": return getFurthestFromGroup(candidates, fightContext.getAllies(sourceEntity))
+            case "FURTHEST_FROM_ENEMY": return getFurthestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
         }
     }
 }

@@ -134,3 +134,7 @@ export type TargetSort =
     | "HIGHEST_HP"
     | "NEAREST"
     | "FURTHEST"
+    | "NEAREST_FROM_ALLY"
+    | "NEAREST_FROM_ENEMY"
+    | "FURTHEST_FROM_ALLY"
+    | "FURTHEST_FROM_ENEMY"
