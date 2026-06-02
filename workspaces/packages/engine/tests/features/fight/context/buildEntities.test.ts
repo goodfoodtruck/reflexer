@@ -2,7 +2,7 @@ import { FightContextFactory } from "@fight/context/FightContextFactory"
 import { FightContextFactoryDeps } from "@fight/fight.types"
 import { FightMapConfig, EFightMapSize } from "@fight/map/fight.map.types"
 import { NbPlayerByTeam } from "@fight/value-objects/NbPlayerByTeam"
-import { PveFightConfig, TeamMemberData } from "@game-engine/game-engine.types"
+import { PveFightConfig, PvpFightConfig, TeamMemberData } from "@game-engine/game-engine.types"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
 import { describe, it, expect } from "vitest"
 
@@ -105,6 +105,47 @@ describe("FightContextFactory — construction des entités", () => {
             })
             const context = factory.create(buildPveFightConfig({ floorIndex: 8 }))
             expect(context.getAliveEntitiesByTeam("ENEMY")).toHaveLength(6)
+        })
+    })
+
+    const buildPvpFightConfig = (): PvpFightConfig => ({
+        type: "PVP" as const,
+        mapConfig: buildMapConfig(),
+        playerTeam: buildPlayerTeam(),
+        opponentTeam: [
+            { name: "CHARACTER_1", baseStats: { health: 80, energy: 5 }, gambits: [], activePassiveIds: [] },
+            { name: "CHARACTER_2", baseStats: { health: 120, energy: 8 }, gambits: [], activePassiveIds: [] }
+        ]
+    })
+
+    describe("Construction d'un combat PVP", () => {
+
+        it("crée les deux équipes avec le bon teamId", () => {
+            const context = buildFactory().create(buildPvpFightConfig())
+
+            expect(context.getAliveEntitiesByTeam("PLAYER")).toHaveLength(2)
+            expect(context.getAliveEntitiesByTeam("ENEMY")).toHaveLength(2)
+        })
+
+        it("place chaque équipe sur ses spawn points respectifs", () => {
+            const context = buildFactory().create(buildPvpFightConfig())
+
+            const players = context.getAliveEntitiesByTeam("PLAYER")
+            const opponents = context.getAliveEntitiesByTeam("ENEMY")
+
+            expect(players.at(0)!.position).toEqual({ x: 0, y: 0 })
+            expect(players.at(1)!.position).toEqual({ x: 1, y: 0 })
+            expect(opponents.at(0)!.position).toEqual({ x: 5, y: 5 })
+            expect(opponents.at(1)!.position).toEqual({ x: 6, y: 5 })
+        })
+
+        it("n'utilise pas le enemy builder ni la composition resolver", () => {
+            const factory = buildFactory({
+                enemyBuilder: { buildEnemy: () => { throw new Error("should not be called") } },
+                enemyCompositionResolver: { resolve: () => { throw new Error("should not be called") } }
+            })
+
+            expect(() => factory.create(buildPvpFightConfig())).not.toThrow()
         })
     })
 })
