@@ -1,4 +1,4 @@
-export * from "./WalkProcessor";
+export * from "./move/WalkProcessor";
 export * from "./ProcessorChain";
 export * from "./damage/DamageApplyProcessor";
 export * from "./damage/DamageComputeProcessor";

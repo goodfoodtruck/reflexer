@@ -1,7 +1,7 @@
 import { FightContext } from "@fight/context/FightContext"
 import { ActionExecutionContext, ExecutionState } from "@fight/fight.types"
-import { IProcessor } from "./IProcessor"
-import { PassiveProcessorParams, ProcessorResult } from "./processor.types"
+import { IProcessor } from "@processors/IProcessor"
+import { PassiveProcessorParams, ProcessorResult } from "@processors/processor.types"
 import { IPassiveRegistry } from "@data/IPassiveRegistry"
 
 export class PassiveApplierProcessor implements IProcessor {
