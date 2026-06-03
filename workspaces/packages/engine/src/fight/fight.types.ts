@@ -338,3 +338,9 @@ export enum ERange {
     MEDIUM = 5,
     LONG = 8
 }
+
+export enum EActionRange {
+    SHORT = 2,
+    MEDIUM = 5,
+    LONG = 8,
+}
