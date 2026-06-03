@@ -1,4 +1,4 @@
-import { AllyName, EntityStats } from "@fight/fight.types"
+import { AllyName, EnemyTag, EntityStats } from "@fight/fight.types"
 import { Gambit } from "@fight/gambits"
 import { FightMapConfig, FightMapID } from "@fight/map"
 import { PassiveID } from "@fight/passives/passives.types"
@@ -12,7 +12,10 @@ export type GameEngineDeps = {
     chestHandler: IChestCommandHandler
 }
 
-export type FightConfig = PveFightConfig | PvpFightConfig
+export type FightConfig = 
+    | PveFightConfig 
+    | PvpFightConfig 
+    | TrainingFightConfig
 
 export type PveFightConfig = {
     type: "PVE"
@@ -26,6 +29,13 @@ export type PvpFightConfig = {
     mapConfig: FightMapConfig
     playerTeam: TeamMemberData[]
     opponentTeam: TeamMemberData[]
+}
+
+export type TrainingFightConfig = {
+    type: "TRAINING"
+    mapConfig: FightMapConfig
+    enemyTeamComposition: EnemyTag[]
+    playerTeam: TeamMemberData[]
 }
 
 /** données persistées du joueur envoyées par le client */
@@ -56,4 +66,3 @@ export type RunState = {
     activeChest: ChestData | null
     activeShop: ShopData | null
 }
-

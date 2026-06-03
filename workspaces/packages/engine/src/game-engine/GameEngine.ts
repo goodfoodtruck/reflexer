@@ -1,5 +1,5 @@
-import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData, TeamMemberData } from "@game-engine/game-engine.types";
-import { FightResult } from "@fight/fight.types";
+import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
+import { EnemyTag, FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
 import { InvalidStateError } from "./errors/InvalidStateError";
 import { FightMapID } from "@fight/map";
@@ -76,6 +76,20 @@ export class GameEngine {
             this.runState = { ...runState, activeShop: result.value.shopData, activeChest: null }
         
         return result
+    }
+
+    /**
+     * Pour lancer un combat on a besoin des informations sur l'équipe du joueur
+     * et de la configuration choisie pour le match d'entrainement
+     * @param fightMapId
+     * @param playerTeam 
+     */
+    playTrainingFight(
+        fightMapId: FightMapID, 
+        enemyTeamComposition: EnemyTag[],
+        playerTeam: TeamMemberData[]
+    ): Result<FightResult, FightError> {
+        return this.deps.fightHandler.playTrainingFight(fightMapId, enemyTeamComposition, playerTeam)
     }
 
     playPvpFight(
