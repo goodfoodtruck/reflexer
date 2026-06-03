@@ -51,10 +51,7 @@ describe('Mort d\'une entité', () => {
         executor.execute(
             makeActionCtx({ actionId: 'doubleStrike' as ActionID, casterId: 'player_0', targetId: 'enemy_0' }),
             fightContext,
-        )
-
-        console.log(fightContext.getFightLogs());
-        
+        )        
 
         const skippedLogs = fightContext.getFightLogs().filter(l => l.type === 'damage_skipped')
         expect(skippedLogs.length).toBeGreaterThanOrEqual(1)
