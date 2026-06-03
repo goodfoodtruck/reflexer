@@ -1,4 +1,5 @@
-import { ExecutionContext, ExecutionState, IFightContextReader } from "@fight/fight.types";
+import { ActionExecutionContext, ExecutionState, IFightContextReader } from "@fight/fight.types";
+import { manhattanDistance } from "@helpers/map/utils";
 import { IProcessor } from "@processors/IProcessor";
 import { CheckRangeProcessorParams, ProcessorResult } from "@processors/processor.types";
 
@@ -9,10 +10,22 @@ export class CheckRangeProcessor implements IProcessor {
     ) {}
 
     execute(
-        ctx: ExecutionContext, 
+        ctx: ActionExecutionContext, 
         execState: ExecutionState, 
         fightContext: IFightContextReader
     ): ProcessorResult {
-        throw new Error("Method not implemented.");
+        const caster = fightContext.getEntityById(ctx.casterId)
+        const target = fightContext.getEntityById(ctx.targetId)
+
+        if (! caster || ! target) return { status: "aborted", reason: "entity_not_found" }
+
+        const distance = manhattanDistance(caster.position, target.position)
+
+        if (distance > this.params.range) return { status: "aborted", reason: "out_of_range" }
+
+        return { 
+            status: "ok", 
+            derivedContexts: [] 
+        }
     }
 }
