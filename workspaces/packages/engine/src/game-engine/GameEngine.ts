@@ -1,7 +1,8 @@
-import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData } from "@game-engine/game-engine.types";
-import { FightResult } from "@fight/fight.types";
+import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
+import { EnemyTag, FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
 import { InvalidStateError } from "./errors/InvalidStateError";
+import { FightMapID } from "@fight/map";
 
 
 export class GameEngine {
@@ -77,12 +78,34 @@ export class GameEngine {
         return result
     }
 
-    playFight(fightMapId: string): Result<FightResult, FightError> {
+    /**
+     * Pour lancer un combat on a besoin des informations sur l'équipe du joueur
+     * et de la configuration choisie pour le match d'entrainement
+     * @param fightMapId
+     * @param playerTeam 
+     */
+    playTrainingFight(
+        fightMapId: FightMapID, 
+        enemyTeamComposition: EnemyTag[],
+        playerTeam: TeamMemberData[]
+    ): Result<FightResult, FightError> {
+        return this.deps.fightHandler.playTrainingFight(fightMapId, enemyTeamComposition, playerTeam)
+    }
+
+    playPvpFight(
+        fightMapId: FightMapID,
+        playerTeam: TeamMemberData[], 
+        opponentTeam: TeamMemberData[]
+    ): Result<FightResult, FightError> {        
+        return this.deps.fightHandler.playPvpFight(fightMapId, playerTeam, opponentTeam)
+    }
+
+    playPveFight(fightMapId: FightMapID): Result<FightResult, FightError> {
         const runState = this.getRunStateOrThrow()
         this.assertNotActiveChest()
         this.assertNotActiveShop()
         
-        const result: Result<FightResult, FightError> = this.deps.fightHandler.playFight(fightMapId, runState.playerData)
+        const result: Result<FightResult, FightError> = this.deps.fightHandler.playPveFight(fightMapId, runState.playerData)
 
         if (! result.success) return result
 

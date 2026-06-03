@@ -2,31 +2,31 @@ import { FightContextFactory } from "@fight/context/FightContextFactory"
 import { FightContextFactoryDeps } from "@fight/fight.types"
 import { FightMapConfig, EFightMapSize } from "@fight/map/fight.map.types"
 import { NbPlayerByTeam } from "@fight/value-objects/NbPlayerByTeam"
-import { PlayerData } from "@game-engine/game-engine.types"
+import { PveFightConfig, PvpFightConfig, TeamMemberData } from "@game-engine/game-engine.types"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
 import { describe, it, expect } from "vitest"
-
 
 const defaultDeps: FightContextFactoryDeps = {
     validator:                { validate: () => {} },
     nbEnemiesResolver:        { resolve: () => new NbPlayerByTeam(2) },
     enemyBuilder:             { buildEnemy: (tag, position, index) => buildPlayingEntity({ id: `${tag}_${index}`, teamId: "ENEMY", position }) },
     enemyCompositionResolver: { resolve: () => ["ENEMY_MELEE", "ENEMY_MELEE"] },
-    allyBuilder:              { buildAlly: (name, position, index) => buildPlayingEntity({ id: `${name}_${index}`, teamId: "PLAYER", position }) },
+    teamBuilder:              { buildTeam: (members, positions, teamId) =>
+        members.map((member, i) => buildPlayingEntity({
+            id: `${teamId.toLowerCase()}_${i}`,
+            teamId,
+            position: positions[i]!,
+            gambits: member.gambits,
+            baseStats: member.baseStats,
+            currentStats: member.baseStats
+        }))
+    },
 }
 
 describe("FightContextFactory — construction des entités", () => {
 
-    const buildFactory = (overrides: Partial<FightContextFactoryDeps> = {}): FightContextFactory => {
-        const deps = { ...defaultDeps, ...overrides }
-        return new FightContextFactory({
-            validator: deps.validator,
-            nbEnemiesResolver: deps.nbEnemiesResolver,
-            enemyBuilder: deps.enemyBuilder,
-            enemyCompositionResolver: deps.enemyCompositionResolver,
-            allyBuilder: deps.allyBuilder
-        })
-    }
+    const buildFactory = (overrides: Partial<FightContextFactoryDeps> = {}): FightContextFactory =>
+        new FightContextFactory({ ...defaultDeps, ...overrides })
 
     const buildMapConfig = (): FightMapConfig => ({
         id: "fight_map_1",
@@ -35,36 +35,43 @@ describe("FightContextFactory — construction des entités", () => {
         dimensions: { width: 10, height: 10 },
         spawnPoints: {
             player: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
-            enemy:  [
+            enemy: [
                 { x: 5, y: 5 }, { x: 6, y: 5 }, { x: 7, y: 5 }, { x: 8, y: 5 },
                 { x: 5, y: 6 }, { x: 6, y: 6 }, { x: 7, y: 6 }, { x: 8, y: 6 }
             ]
         }
     })
 
-    const buildPlayerData = (): PlayerData => ({
-        playerFloorIndex: 1,
-        gold: 0,
-        teamComposition: ["CHARACTER_1", "CHARACTER_2"]
+    const buildPlayerTeam = (): TeamMemberData[] => [
+        { name: "CHARACTER_1", baseStats: { health: 100, energy: 10, armor: 0 }, gambits: [], activePassiveIds: [] },
+        { name: "CHARACTER_2", baseStats: { health: 100, energy: 10, armor: 0 }, gambits: [], activePassiveIds: [] }
+    ]
+
+    const buildPveFightConfig = (overrides: Partial<PveFightConfig> = {}): PveFightConfig => ({
+        type: "PVE",
+        mapConfig: buildMapConfig(),
+        playerTeam: buildPlayerTeam(),
+        floorIndex: 1,
+        ...overrides
     })
 
     describe("Construction des alliés", () => {
 
         it("crée autant d'alliés que de personnages dans la composition", () => {
-            const context = buildFactory().create(buildMapConfig(), buildPlayerData())
+            const context = buildFactory().create(buildPveFightConfig())
             const allies = context.getAliveEntitiesByTeam("PLAYER")
             expect(allies).toHaveLength(2)
         })
 
         it("place chaque allié sur le bon spawn point", () => {
-            const context = buildFactory().create(buildMapConfig(), buildPlayerData())
+            const context = buildFactory().create(buildPveFightConfig())
             const allies = context.getAliveEntitiesByTeam("PLAYER")
             expect(allies.at(0)!.position).toEqual({ x: 0, y: 0 })
             expect(allies.at(1)!.position).toEqual({ x: 1, y: 0 })
         })
 
         it("assigne le bon teamId aux alliés", () => {
-            const context = buildFactory().create(buildMapConfig(), buildPlayerData())
+            const context = buildFactory().create(buildPveFightConfig())
             const allies = context.getAliveEntitiesByTeam("PLAYER")
             expect(allies.every(a => a.teamId === "PLAYER")).toBe(true)
         })
@@ -73,20 +80,20 @@ describe("FightContextFactory — construction des entités", () => {
     describe("Construction des ennemis", () => {
 
         it("crée autant d'ennemis que défini par la composition", () => {
-            const context = buildFactory().create(buildMapConfig(), buildPlayerData())
+            const context = buildFactory().create(buildPveFightConfig())
             const enemies = context.getAliveEntitiesByTeam("ENEMY")
             expect(enemies).toHaveLength(2)
         })
 
         it("place chaque ennemi sur le bon spawn point", () => {
-            const context = buildFactory().create(buildMapConfig(), buildPlayerData())
+            const context = buildFactory().create(buildPveFightConfig())
             const enemies = context.getAliveEntitiesByTeam("ENEMY")
             expect(enemies.at(0)!.position).toEqual({ x: 5, y: 5 })
             expect(enemies.at(1)!.position).toEqual({ x: 6, y: 5 })
         })
 
         it("assigne le bon teamId aux ennemis", () => {
-            const context = buildFactory().create(buildMapConfig(), buildPlayerData())
+            const context = buildFactory().create(buildPveFightConfig())
             const enemies = context.getAliveEntitiesByTeam("ENEMY")
             expect(enemies.every(e => e.teamId === "ENEMY")).toBe(true)
         })
@@ -96,8 +103,49 @@ describe("FightContextFactory — construction des entités", () => {
                 nbEnemiesResolver: { resolve: () => new NbPlayerByTeam(6) },
                 enemyCompositionResolver: { resolve: () => Array(6).fill("ENEMY_MELEE") }
             })
-            const context = factory.create(buildMapConfig(), { ...buildPlayerData(), playerFloorIndex: 8 })
+            const context = factory.create(buildPveFightConfig({ floorIndex: 8 }))
             expect(context.getAliveEntitiesByTeam("ENEMY")).toHaveLength(6)
+        })
+    })
+
+    const buildPvpFightConfig = (): PvpFightConfig => ({
+        type: "PVP" as const,
+        mapConfig: buildMapConfig(),
+        playerTeam: buildPlayerTeam(),
+        opponentTeam: [
+            { name: "CHARACTER_1", baseStats: { health: 80, energy: 5, armor: 0 }, gambits: [], activePassiveIds: [] },
+            { name: "CHARACTER_2", baseStats: { health: 120, energy: 8, armor: 0 }, gambits: [], activePassiveIds: [] }
+        ]
+    })
+
+    describe("Construction d'un combat PVP", () => {
+
+        it("crée les deux équipes avec le bon teamId", () => {
+            const context = buildFactory().create(buildPvpFightConfig())
+
+            expect(context.getAliveEntitiesByTeam("PLAYER")).toHaveLength(2)
+            expect(context.getAliveEntitiesByTeam("ENEMY")).toHaveLength(2)
+        })
+
+        it("place chaque équipe sur ses spawn points respectifs", () => {
+            const context = buildFactory().create(buildPvpFightConfig())
+
+            const players = context.getAliveEntitiesByTeam("PLAYER")
+            const opponents = context.getAliveEntitiesByTeam("ENEMY")
+
+            expect(players.at(0)!.position).toEqual({ x: 0, y: 0 })
+            expect(players.at(1)!.position).toEqual({ x: 1, y: 0 })
+            expect(opponents.at(0)!.position).toEqual({ x: 5, y: 5 })
+            expect(opponents.at(1)!.position).toEqual({ x: 6, y: 5 })
+        })
+
+        it("n'utilise pas le enemy builder ni la composition resolver", () => {
+            const factory = buildFactory({
+                enemyBuilder: { buildEnemy: () => { throw new Error("should not be called") } },
+                enemyCompositionResolver: { resolve: () => { throw new Error("should not be called") } }
+            })
+
+            expect(() => factory.create(buildPvpFightConfig())).not.toThrow()
         })
     })
 })
