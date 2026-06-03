@@ -23,4 +23,6 @@ export function isSamePosition(posA: Position, posB: Position): boolean {
   return posA.x === posB.x && posA.y === posB.y;
 }
 
-
+export function manhattanDistance(a: Position, b: Position): number {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+}

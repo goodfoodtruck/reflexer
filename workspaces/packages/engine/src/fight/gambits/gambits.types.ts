@@ -125,11 +125,16 @@ type TargetContext =
 /**
  * Critère de sélection de la cible finale parmi les candidats filtrés.
  * - NEAREST : la plus proche en nombre de cases
+ * - FURTHEST : la plus éloignée en nombre de cases
  * - LOWEST_HP : celle avec le moins de HP restants
  * - HIGHEST_HP : celle avec le plus de HP restants
- * - MOST_DANGEROUS : celle avec la plus haute stat d'attaque
- * - RANDOM : aléatoire parmi les candidats
  */
 export type TargetSort =
     | "LOWEST_HP"
     | "HIGHEST_HP"
+    | "NEAREST"
+    | "FURTHEST"
+    | "NEAREST_FROM_ALLY"
+    | "NEAREST_FROM_ENEMY"
+    | "FURTHEST_FROM_ALLY"
+    | "FURTHEST_FROM_ENEMY"

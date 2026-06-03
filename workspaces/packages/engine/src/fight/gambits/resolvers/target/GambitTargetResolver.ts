@@ -1,10 +1,12 @@
 import { IFightContextReader } from "@fight/fight.types";
 import { PlayingEntity, PlayingEntityID } from "@fight/fight.types";
 import { ETargetType, TargetSelector, TargetSort } from "@fight/gambits/gambits.types";
-import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/highestHPTarget";
-import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/lowestHPTarget";
+import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/hp/highestHPTarget";
+import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/hp/lowestHPTarget";
 import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
+import { getNearestTarget, getFurthestTarget } from "./extractors/distance/distanceFromSource";
+import { getNearestFromGroup, getFurthestFromGroup } from "./extractors/distance/distanceFromGroup";
 
 export class GambitTargetResolver {
 
@@ -28,25 +30,36 @@ export class GambitTargetResolver {
         let candidates = this.entityScopeResolver.resolveScope(selector.context.targetType, playingEntity, fightContext)
 
         if (selector.context.targetType !== ETargetType.SELF)
-            candidates = this.filterApplier.applyAll(candidates, selector.context.filters, fightContext)
+            candidates = this.filterApplier.applyAll(candidates, selector.context.filters, { source: playingEntity, fightContext })
 
         if (! candidates.length) return null
 
-        const finalTarget = this.getSortedTarget(candidates, selector.sort)
+        const finalTarget = this.getSortedTarget(fightContext, playingEntity, candidates, selector.sort)
 
         return finalTarget.id
     }
 
     /**
-     * 
-     * @param candidates 
-     * @param targetSort 
+     * @param sourceEntity Le référenciel utilisé, par exemple pour connaitre la cible la plus proche
+     * @param candidates les entités sélectionnées 
+     * @param targetSort quelle cible on veut récupérer
      * @returns 
      */
-    private getSortedTarget(candidates: Readonly<PlayingEntity[]>, targetSort: TargetSort): PlayingEntity {
+    private getSortedTarget(
+        fightContext: IFightContextReader,
+        sourceEntity: Readonly<PlayingEntity>,
+        candidates: Readonly<PlayingEntity[]>, 
+        targetSort: TargetSort
+    ): PlayingEntity {
         switch (targetSort) {
             case "HIGHEST_HP": return getHighestHpTarget(candidates)
             case "LOWEST_HP": return getLowestHpTarget(candidates)
+            case "NEAREST": return getNearestTarget(sourceEntity, candidates)
+            case "FURTHEST": return getFurthestTarget(sourceEntity, candidates)
+            case "NEAREST_FROM_ALLY": return getNearestFromGroup(candidates, fightContext.getAllies(sourceEntity))
+            case "NEAREST_FROM_ENEMY": return getNearestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
+            case "FURTHEST_FROM_ALLY": return getFurthestFromGroup(candidates, fightContext.getAllies(sourceEntity))
+            case "FURTHEST_FROM_ENEMY": return getFurthestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
         }
     }
 }
