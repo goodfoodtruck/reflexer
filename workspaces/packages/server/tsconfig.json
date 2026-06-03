@@ -1,0 +1,26 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@reflexer/engine": ["../engine/src/index.ts"],
+      "@game-engine/*": ["../engine/src/game-engine/*"],
+      "@fight/*": ["../engine/src/fight/*"],
+      "@gambits/*": ["../engine/src/fight/gambits/*"],
+      "@helpers/*": ["../engine/src/helpers/*"],
+      "@processors/*": ["../engine/src/fight/processors/*"],
+      "@data/*": ["../engine/src/data/*"],
+      "@tests/*": ["../engine/tests/*"]
+    },
+    "types": ["node"]
+  },
+  "include": ["src"]
+}
