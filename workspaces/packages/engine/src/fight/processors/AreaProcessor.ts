@@ -13,7 +13,7 @@ export class AreaProcessor implements IProcessor {
     execute(
         ctx: ActionExecutionContext, 
         execState: ExecutionState,
-        fightContext: IFightContextMutator & IFightContextReader
+        fightContext: IFightContextReader
     ): ProcessorResult {
         const centerPosition = this.resolveCenter(ctx, fightContext)
         if (! centerPosition) return { status: "aborted", reason: "center_target_not_found" }
@@ -36,7 +36,7 @@ export class AreaProcessor implements IProcessor {
 
     private resolveCenter(
         ctx: ActionExecutionContext,
-        fightContext: IFightContextMutator & IFightContextReader
+        fightContext: IFightContextReader
     ): Position | null {
         switch (this.params.areaCenter.kind) {
             case "TARGET": return fightContext.getEntityById(ctx.targetId)?.position ?? null

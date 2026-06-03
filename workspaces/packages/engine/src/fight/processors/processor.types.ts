@@ -21,6 +21,9 @@ export type AreaProcessorParams = {
 export type ApplyDamageProcessorParams = {}
 export type ComputeDamageProcessorParams = { readonly initialDamage: number }
 
+export type ComputeHealProcessorParams = { readonly healAmount: number }
+export type ApplyHealProcessorParams = {}
+
 
 export type ProcessorParams =
     | ApplyDamageProcessorParams
@@ -30,6 +33,8 @@ export type ProcessorParams =
     | UseEnergyProcessorParams
     | CheckEnergyProcessorParams
     | AreaProcessorParams
+    | ComputeHealProcessorParams
+    | ApplyHealProcessorParams
 
 export type ProcessorType =
     | 'compute_damage'
@@ -40,6 +45,8 @@ export type ProcessorType =
     | 'use_energy'
     | 'check_energy'
     | 'compute_armor'
+    | 'compute_heal'
+    | 'apply_heal'
 
 export type ProcessorConfig = {
     type: ProcessorType;

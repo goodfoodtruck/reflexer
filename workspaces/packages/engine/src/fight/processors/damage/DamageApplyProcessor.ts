@@ -1,7 +1,6 @@
-import { ActionExecutionContext, ExecutionState } from "@fight/fight.types";
+import { ActionExecutionContext, ExecutionState, IFightContextMutator } from "@fight/fight.types";
 import { IProcessor } from "@processors/IProcessor";
 import { ApplyDamageProcessorParams, ProcessorResult } from "@processors/processor.types";
-import { FightContext } from "@fight/context";
 
 export class DamageApplyProcessor implements IProcessor {
 
@@ -12,7 +11,7 @@ export class DamageApplyProcessor implements IProcessor {
     execute(
         ctx: ActionExecutionContext, 
         execState: ExecutionState,
-        fightContext: FightContext
+        fightContext: IFightContextMutator
     ): ProcessorResult {
         fightContext.applyDamage({
             sourceId: ctx.casterId,

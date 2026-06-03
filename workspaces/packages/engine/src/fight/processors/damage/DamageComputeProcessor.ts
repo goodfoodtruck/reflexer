@@ -15,7 +15,7 @@ export class DamageComputeProcessor implements IProcessor {
     ): ProcessorResult {
         const dealtModifier = fightContext.getModifier(ctx.casterId, "damageDealtModifier")
 
-        const finalDamage = Math.floor(this.params.initialDamage * (1 + dealtModifier / 100))
+        const finalDamage = this.params.initialDamage * (1 + dealtModifier / 100)
 
         execState.computedDamage = Math.max(0, Math.floor(finalDamage))
 
