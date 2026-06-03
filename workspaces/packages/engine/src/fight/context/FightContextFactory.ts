@@ -1,7 +1,8 @@
-import { FightContextFactoryDeps, IEnemyBuilder, IEnemyCompositionResolver, IFightEntitiesValidator, INbEnemiesResolver, ITeamBuilder } from "@fight/fight.types";
+import { EnemyTag, FightContextFactoryDeps, IEnemyBuilder, IEnemyCompositionResolver, IFightEntitiesValidator, INbEnemiesResolver, ITeamBuilder, PlayingEntity } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { FightMap } from "@fight/map/FightMap";
-import { FightConfig, PveFightConfig, PvpFightConfig } from "@game-engine/game-engine.types";
+import { FightConfig, PveFightConfig, PvpFightConfig, TrainingFightConfig } from "@game-engine/game-engine.types";
+import { Position } from "@helpers/types";
 
 export class FightContextFactory {
 
@@ -21,9 +22,23 @@ export class FightContextFactory {
 
     create(fightConfig: FightConfig): FightContext {
         switch(fightConfig.type) {
-            case "PVE": return this.createPveFight(fightConfig)
-            case "PVP": return this.createPvpFight(fightConfig)
+            case "PVE":      return this.createPveFight(fightConfig)
+            case "PVP":      return this.createPvpFight(fightConfig)
+            case "TRAINING": return this.createTrainingFight(fightConfig)
         }
+    }
+
+    private createTrainingFight(fightConfig: TrainingFightConfig): FightContext {
+        const map = new FightMap(fightConfig.mapConfig)
+        const enemySpawnPoints = fightConfig.mapConfig.spawnPoints.enemy
+        const playerSpawnPoints = fightConfig.mapConfig.spawnPoints.player
+
+        const enemyTeam = this.buildEnemyTeamFromComposition(fightConfig.enemyTeamComposition, enemySpawnPoints)
+        const playerTeam = this.teamBuilder.buildTeam(fightConfig.playerTeam, playerSpawnPoints, "PLAYER")
+
+        this.fightEntitiesValidator.validate([...playerTeam, ...enemyTeam])
+
+        return new FightContext([...playerTeam, ...enemyTeam], map)
     }
 
     private createPveFight(fightConfig: PveFightConfig): FightContext {
@@ -32,8 +47,8 @@ export class FightContextFactory {
         const playerSpawnPoints = fightConfig.mapConfig.spawnPoints.player
         const nbEnemies = this.nbEnemiesResolver.resolve(fightConfig.floorIndex)
         const enemyTeamComposition = this.enemyCompositionResolver.resolve(fightConfig.mapConfig.size, nbEnemies)
-        const enemyTeam = enemyTeamComposition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, enemySpawnPoints[i]!, i + 1, fightConfig.floorIndex))
 
+        const enemyTeam = this.buildEnemyTeamFromComposition(enemyTeamComposition, enemySpawnPoints)
         const playerTeam = this.teamBuilder.buildTeam(fightConfig.playerTeam, playerSpawnPoints, "PLAYER")
 
         this.fightEntitiesValidator.validate([...playerTeam, ...enemyTeam])
@@ -52,5 +67,9 @@ export class FightContextFactory {
         this.fightEntitiesValidator.validate([...playerTeam, ...opponentTeam])
 
         return new FightContext([...playerTeam, ...opponentTeam], map)
+    }
+
+    private buildEnemyTeamFromComposition(composition: EnemyTag[], spawns: Position[]): PlayingEntity[] {
+        return composition.map((tag, i) => this.enemyBuilder.buildEnemy(tag, spawns[i]!, i + 1))
     }
 }

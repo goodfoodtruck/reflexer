@@ -8,7 +8,6 @@ import { FightContext } from "./context/FightContext";
 import { FightMap } from "./map";
 import { TeamMemberData } from "@game-engine/game-engine.types";
 
-
 export interface DamageReceivedEvent {
     readonly ownerId: PlayingEntityID      // porteur du statut
     readonly attackerId: PlayingEntityID   // qui a infligé les dégâts
@@ -277,7 +276,7 @@ export interface INbEnemiesResolver {
 }
 
 export interface IEnemyBuilder {
-    buildEnemy(tag: EnemyTag, position: Position, index: number, floorIndex: number): PlayingEntity
+    buildEnemy(enemyTag: EnemyTag, position: Position, inTeamOrder: number): PlayingEntity
 }
 
 export interface ITeamBuilder {

@@ -1,7 +1,7 @@
 import { FightContextFactory } from "@fight/context/FightContextFactory";
-import { FightResult } from "@fight/fight.types";
+import { EnemyTag, FightResult } from "@fight/fight.types";
 import { FightOrchestrator } from "@fight/FightOrchestrator";
-import { PlayerData, PveFightConfig, PvpFightConfig, TeamMemberData } from "@game-engine/game-engine.types";
+import { PlayerData, PveFightConfig, PvpFightConfig, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
 import { FightError, Result } from "@game-engine/api.types";
 import { IFightCommandHandler } from "@game-engine/command-handlers/handlers.interfaces";
 import { IFightMapRegistry } from "@data/IFightMapRegistry";
@@ -14,6 +14,27 @@ export class FightCommandHandler implements IFightCommandHandler {
         private readonly fightContextFactory: FightContextFactory,
         private readonly fightMapRegistry: IFightMapRegistry,
     ) {}
+
+    playTrainingFight(
+        fightMapId: FightMapID,
+        enemyTeamComposition: EnemyTag[], 
+        playerTeam: TeamMemberData[]
+    ): Result<FightResult, FightError> {
+        const fightConfig: TrainingFightConfig = {
+            type: "TRAINING",
+            mapConfig: this.fightMapRegistry.getConfig(fightMapId),
+            enemyTeamComposition,
+            playerTeam
+        }
+
+        const fightContext = this.fightContextFactory.create(fightConfig)
+        const fightResult = this.fightOrchestrator.playFight(fightContext)
+
+        return {
+            success: true,
+            value: fightResult
+        }
+    }
 
     playPveFight(fightMapId: FightMapID, playerData: PlayerData): Result<FightResult, FightError> {
         const fightConfig: PveFightConfig = {
