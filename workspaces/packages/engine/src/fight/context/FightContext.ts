@@ -384,4 +384,8 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
 
         return obstacles;
     }
+
+    getMap(): FightMap {
+        return this.map
+    }
 }

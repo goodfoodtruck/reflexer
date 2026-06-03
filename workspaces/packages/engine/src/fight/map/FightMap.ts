@@ -2,6 +2,7 @@ import {DijkstraNode, Dimensions, Position} from "@helpers/types/helpers.types"
 import { MapCell, FightMapConfig, EObstacleType } from "@fight/map/fight.map.types"
 import { PathfindingParams } from "@fight/fight.types";
 import { getAdjacentPositions, isSamePosition, toPosKey } from "@helpers/map/utils";
+import { bresenhamLine } from "@helpers/map/lineOfSight";
 
 export class FightMap {
     public readonly id: string;
@@ -25,6 +26,12 @@ export class FightMap {
         return this.dimensions;
     }
 
+    hasLineOfSight(from: Position, to: Position): boolean {
+        const line = bresenhamLine(from, to)
+        const intermediateCells = line.slice(1, -1)
+        return intermediateCells.every(cell => this.isWalkable(cell))
+    }
+
     pathFinding({ context, fightContext }: PathfindingParams): Position[] {
         const startPos  = fightContext.getAliveEntityOrThrow(context.casterId).position;
         const targetPos = context.targetPosition;
@@ -39,7 +46,7 @@ export class FightMap {
         startPos: Position,
         targetPos: Position,
         obstacles: Position[]
-        ): Position[] {
+    ): Position[] {
 
         const openList: DijkstraNode[] = [{ position: startPos, parent: null, distance: 0 }];
         const distances = new Map<string, number>([[toPosKey(startPos), 0]]);
@@ -52,25 +59,25 @@ export class FightMap {
             const current = openList.shift()!;
 
             if (isSamePosition(current.position, targetPos)) {
-            finalNode = current;
-            break;
+                finalNode = current;
+                break;
             }
 
             const neighbors = getAdjacentPositions(current.position);
 
             const validNeighbors = neighbors.filter((neighbor) => {
-            const neighborKey = toPosKey(neighbor);
-            return isSamePosition(neighbor, targetPos) || !obstacleKeys.has(neighborKey);
+                const neighborKey = toPosKey(neighbor);
+                return isSamePosition(neighbor, targetPos) || !obstacleKeys.has(neighborKey);
             });
 
             for (const neighbor of validNeighbors) {
-            const newDistance = current.distance + 1;
-            const neighborKey = toPosKey(neighbor);
+                const newDistance = current.distance + 1;
+                const neighborKey = toPosKey(neighbor);
 
-            if (!distances.has(neighborKey) || newDistance < distances.get(neighborKey)!) {
-                distances.set(neighborKey, newDistance);
-                openList.push({ position: neighbor, parent: current, distance: newDistance });
-            }
+                if (!distances.has(neighborKey) || newDistance < distances.get(neighborKey)!) {
+                    distances.set(neighborKey, newDistance);
+                    openList.push({ position: neighbor, parent: current, distance: newDistance });
+                }
             }
         }
 

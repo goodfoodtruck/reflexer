@@ -1,4 +1,4 @@
-import { ApplyDamageProcessorParams, ApplyHealProcessorParams, AreaProcessorParams, ArmorComputeProcessorParams, CheckEnergyProcessorParams, CheckRangeProcessorParams, ComputeDamageProcessorParams, ComputeHealProcessorParams, PassiveProcessorParams, ProcessorConfig, UseEnergyProcessorParams } from "@processors/processor.types";
+import { ActionLineOfSightProcessorParams, ApplyDamageProcessorParams, ApplyHealProcessorParams, AreaProcessorParams, ArmorComputeProcessorParams, CheckEnergyProcessorParams, CheckRangeProcessorParams, ComputeDamageProcessorParams, ComputeHealProcessorParams, MovementLineOfSightProcessorParams, PassiveProcessorParams, ProcessorConfig, UseEnergyProcessorParams } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
 import { WalkProcessor } from "@fight/processors/move/WalkProcessor";
 import { IPassiveRegistry } from "@data/IPassiveRegistry";
@@ -12,6 +12,8 @@ import { PassiveApplierProcessor } from "@processors/passive/PassiveApplierProce
 import { ArmorComputeProcessor } from "@processors/armor/ArmorComputeProcessor";
 import { HealApplyProcessor } from "@processors/heal/HealApplyProcessor";
 import { HealComputeProcessor } from "@processors/heal/HealComputeProcessor";
+import { ActionLineOfSightProcessor } from "@processors/range/ActionLineOfSightProcessor";
+import { MovementLineOfSightProcessor } from "@processors/range/MovementLineOfSightProcessor";
 
 export class ProcessorFactory {
 
@@ -31,6 +33,8 @@ export class ProcessorFactory {
             case "compute_armor":  throw new Error("Not implemented.")
             case "check_range":    return new CheckRangeProcessor(config.params as CheckRangeProcessorParams)
             case "compute_armor":  return new ArmorComputeProcessor(config.params as ArmorComputeProcessorParams)
+            case "action_line_of_sight": return new ActionLineOfSightProcessor(config.params as ActionLineOfSightProcessorParams)
+            case "movement_line_of_sight": return new MovementLineOfSightProcessor(config.params as MovementLineOfSightProcessorParams)
         }
     }
 }

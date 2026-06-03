@@ -5,6 +5,7 @@ import { EFightMapSize, EObstacleType, FightMapID } from "@fight/map/fight.map.t
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
 import { FightContext } from "./context/FightContext";
+import { FightMap } from "./map";
 
 
 export interface DamageReceivedEvent {
@@ -240,6 +241,7 @@ export type EntityStats = {
 
 
 export interface IFightContextReader {
+    getMap(): FightMap
     isNewTurn(): boolean
     isEntityDead(entityId: PlayingEntityID): boolean
     getActingEntity(): PlayingEntity | null

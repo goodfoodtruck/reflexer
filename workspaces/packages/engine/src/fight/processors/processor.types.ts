@@ -18,16 +18,16 @@ export type AreaProcessorParams = {
     readonly derivedActionId: ActionID
 }
 
+export type ArmorComputeProcessorParams = {}
+
 export type ApplyDamageProcessorParams = {}
 export type ComputeDamageProcessorParams = { readonly initialDamage: number }
 
 export type ComputeHealProcessorParams = { readonly healAmount: number }
 export type ApplyHealProcessorParams = {}
 export type CheckRangeProcessorParams = { readonly range: EActionRange }
-
-export type ArmorComputeProcessorParams = {}
-
-
+export type ActionLineOfSightProcessorParams = {}
+export type MovementLineOfSightProcessorParams = {}
 
 export type ProcessorParams =
     | ApplyDamageProcessorParams
@@ -40,6 +40,8 @@ export type ProcessorParams =
     | ComputeHealProcessorParams
     | ApplyHealProcessorParams
     | CheckRangeProcessorParams
+    | MovementLineOfSightProcessorParams
+    | ActionLineOfSightProcessorParams
 
 export type ProcessorType =
     | 'compute_damage'
@@ -53,6 +55,8 @@ export type ProcessorType =
     | 'compute_heal'
     | 'apply_heal'
     | 'check_range'
+    | 'action_line_of_sight'
+    | 'movement_line_of_sight'
 
 export type ProcessorConfig = {
     type: ProcessorType;
