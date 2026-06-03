@@ -43,8 +43,8 @@ describe("FightContextFactory — construction des entités", () => {
     })
 
     const buildPlayerTeam = (): TeamMemberData[] => [
-        { name: "CHARACTER_1", baseStats: { health: 100, energy: 10 }, gambits: [], activePassiveIds: [] },
-        { name: "CHARACTER_2", baseStats: { health: 100, energy: 10 }, gambits: [], activePassiveIds: [] }
+        { name: "CHARACTER_1", baseStats: { health: 100, energy: 10, armor: 0 }, gambits: [], activePassiveIds: [] },
+        { name: "CHARACTER_2", baseStats: { health: 100, energy: 10, armor: 0 }, gambits: [], activePassiveIds: [] }
     ]
 
     const buildPveFightConfig = (overrides: Partial<PveFightConfig> = {}): PveFightConfig => ({
@@ -113,8 +113,8 @@ describe("FightContextFactory — construction des entités", () => {
         mapConfig: buildMapConfig(),
         playerTeam: buildPlayerTeam(),
         opponentTeam: [
-            { name: "CHARACTER_1", baseStats: { health: 80, energy: 5 }, gambits: [], activePassiveIds: [] },
-            { name: "CHARACTER_2", baseStats: { health: 120, energy: 8 }, gambits: [], activePassiveIds: [] }
+            { name: "CHARACTER_1", baseStats: { health: 80, energy: 5, armor: 0 }, gambits: [], activePassiveIds: [] },
+            { name: "CHARACTER_2", baseStats: { health: 120, energy: 8, armor: 0 }, gambits: [], activePassiveIds: [] }
         ]
     })
 

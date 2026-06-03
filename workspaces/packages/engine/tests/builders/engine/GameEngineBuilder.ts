@@ -13,6 +13,7 @@ const defaultDeps: GameEngineDeps = {
     fightHandler: { 
         playPveFight: () => ({ success: true, value: { endState: "WON", logs: [], initialState: buildFightContext().toSnapshot() } }), 
         playPvpFight: () => ({ success: true, value: { endState: "WON", logs: [], initialState: buildFightContext().toSnapshot() } }), 
+        playTrainingFight: () => ({ success: true, value: { endState: "WON", logs: [], initialState: buildFightContext().toSnapshot() } }), 
         applyFightResultOnPlayer: (p) => p 
     },
     shopHandler: { 

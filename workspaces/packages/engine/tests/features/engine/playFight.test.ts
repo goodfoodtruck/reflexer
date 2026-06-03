@@ -18,6 +18,7 @@ describe("Exécuter un combat complet", () => {
             fightHandler: {
                 playPveFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 playPvpFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playTrainingFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 applyFightResultOnPlayer: (p) => p
             }
         })
@@ -41,6 +42,7 @@ describe("Exécuter un combat complet", () => {
                     }
                 }),
                 playPvpFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playTrainingFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 applyFightResultOnPlayer: () => updatedPlayerData
             }
         })
@@ -57,6 +59,7 @@ describe("Exécuter un combat complet", () => {
             fightHandler: {
                 playPveFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 playPvpFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
+                playTrainingFight: () => ({ success: false, reason: "MAP_NOT_FOUND" }),
                 applyFightResultOnPlayer: (p) => p
             }
         })
