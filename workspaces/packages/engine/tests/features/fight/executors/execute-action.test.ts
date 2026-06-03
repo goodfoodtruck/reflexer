@@ -54,7 +54,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             id: "basic_attack",
             type: "attack",
             processorConfigs: [
-                { type: "damage", order: 1, params: { damageValue: 10 } }
+                { type: "apply_damage", order: 1, params: {} }
             ]
         }
 
@@ -82,13 +82,19 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsRetaliation: Action = {
             id: "thorns_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 3 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 3 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -152,13 +158,19 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 5 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 5 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsRetaliation: Action = {
             id: "thorns_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 2 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 2 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -209,13 +221,19 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 100 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 100 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const deathExplosion: Action = {
             id: "death_explosion",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 5 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 5 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const explosionPassive: TriggeredPassive = {
@@ -275,7 +293,10 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -327,13 +348,19 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsRetaliation: Action = {
             id: "thorns_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 100 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 100 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -398,7 +425,10 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -448,13 +478,19 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsRetaliation: Action = {
             id: "thorns_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 2 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 2 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -508,19 +544,28 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsRetaliation: Action = {
             id: "thorns_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 3 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 3 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const rageRetaliation: Action = {
             id: "rage_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 5 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 5 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -588,19 +633,28 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsRetaliation: Action = {
             id: "thorns_retaliation",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 3 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 3 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const deathExplosion: Action = {
             id: "death_explosion",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 100 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { initialDamage: 100 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const thornsPassive: TriggeredPassive = {
@@ -664,14 +718,17 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const basicAttack: Action = {
             id: "basic_attack",
             type: "attack",
-            processorConfigs: [{ type: "damage", order: 1, params: { damageValue: 10 } }]
+            processorConfigs: [
+                { type: "compute_damage", order: 1, params: { damageValue: 10 } },
+                { type: "apply_damage", order: 1, params: {} }
+            ]
         }
 
         const damageReductionPassive: ModifierPassive = {
             kind: "MODIFIER",
             id: "damage_reduction",
             config: permanentConfig,
-            modifier: "damageReceivedModifier",
+            modifier: "damageReductionModifier",
             value: -20
         }
 

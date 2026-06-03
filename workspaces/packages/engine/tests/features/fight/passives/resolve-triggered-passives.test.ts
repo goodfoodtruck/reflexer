@@ -162,7 +162,7 @@ describe("Les passifs déclenchés retournent les contextes d'exécution corresp
             kind: "MODIFIER",
             id: "damage_reduction",
             config: { duration: "PERMANENT", applicationStrategy: { type: "RESET" } },
-            modifier: "damageReceivedModifier",
+            modifier: "damageReductionModifier",
             value: -20
         }
 

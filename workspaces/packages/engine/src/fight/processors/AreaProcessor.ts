@@ -1,4 +1,4 @@
-import { ActionExecutionContext, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
+import { ActionExecutionContext, ExecutionState, IFightContextMutator, IFightContextReader } from "@fight/fight.types";
 import { IProcessor } from "@fight/processors/IProcessor";
 import { AreaProcessorParams, ProcessorResult } from "@fight/processors/processor.types";
 import { getCellsInArea } from "@helpers/processors/area/areaUtils";
@@ -12,6 +12,7 @@ export class AreaProcessor implements IProcessor {
 
     execute(
         ctx: ActionExecutionContext, 
+        execState: ExecutionState,
         fightContext: IFightContextMutator & IFightContextReader
     ): ProcessorResult {
         const centerPosition = this.resolveCenter(ctx, fightContext)

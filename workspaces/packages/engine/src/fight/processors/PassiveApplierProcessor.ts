@@ -1,5 +1,5 @@
 import { FightContext } from "@fight/context/FightContext"
-import { ActionExecutionContext } from "@fight/fight.types"
+import { ActionExecutionContext, ExecutionState } from "@fight/fight.types"
 import { IProcessor } from "./IProcessor"
 import { PassiveProcessorParams, ProcessorResult } from "./processor.types"
 import { IPassiveRegistry } from "@data/IPassiveRegistry"
@@ -11,7 +11,11 @@ export class PassiveApplierProcessor implements IProcessor {
         private readonly params: PassiveProcessorParams
     ) {}
 
-    execute(ctx: ActionExecutionContext, fightContext: FightContext): ProcessorResult {
+    execute(
+        ctx: ActionExecutionContext, 
+        execState: ExecutionState,
+        fightContext: FightContext
+    ): ProcessorResult {
         const target = fightContext.getEntityById(ctx.targetId)
         if (! target) return {
             status: 'aborted',
