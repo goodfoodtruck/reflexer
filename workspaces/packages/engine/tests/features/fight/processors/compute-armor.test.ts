@@ -25,7 +25,7 @@ describe("Calcul de la réduction des dégats", () => {
             activePassives: [{ passive: buildModifier("damageReductionModifier", 50), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
         })
         const fightContext = buildFightContext([{}], [target])
-        const processor = new ArmorComputeProcessor()
+        const processor = new ArmorComputeProcessor({})
 
         const initialExecState: ExecutionState = { computedDamage: 20, computedHeal: 0 }  // valeur d'entrée
         processor.execute(ctx, initialExecState, fightContext)
@@ -40,7 +40,7 @@ describe("Calcul de la réduction des dégats", () => {
             activePassives: [{ passive: buildModifier("damageReductionModifier", 150), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
         })
         const fightContext = buildFightContext([{}], [target])
-        const processor = new ArmorComputeProcessor()
+        const processor = new ArmorComputeProcessor({})
 
         const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
         processor.execute(ctx, initialExecState, fightContext)
@@ -55,7 +55,7 @@ describe("Calcul de la réduction des dégats", () => {
             activePassives: [{ passive: buildModifier("damageReductionModifier", -50), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
         })
         const fightContext = buildFightContext([{}], [target])
-        const processor = new ArmorComputeProcessor()
+        const processor = new ArmorComputeProcessor({})
 
         const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
         processor.execute(ctx, initialExecState, fightContext)
@@ -72,7 +72,7 @@ describe("Calcul de la réduction des dégats", () => {
                 activePassives: [{ passive: buildModifier("damageReductionModifier", 33), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
             })
             const fightContext = buildFightContext([{}], [target])
-            const processor = new ArmorComputeProcessor()
+            const processor = new ArmorComputeProcessor({})
 
             const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
             processor.execute(ctx, initialExecState, fightContext)
@@ -87,7 +87,7 @@ describe("Calcul de la réduction des dégats", () => {
                 activePassives: [{ passive: buildModifier("damageReductionModifier", 26), remainingTurns: "PERMANENT", sourceEntityId: "enemy_0" }]
             })
             const fightContext = buildFightContext([{}], [target])
-            const processor = new ArmorComputeProcessor()
+            const processor = new ArmorComputeProcessor({})
 
             const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
             processor.execute(ctx, initialExecState, fightContext)

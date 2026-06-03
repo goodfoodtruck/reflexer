@@ -1,8 +1,12 @@
 import { ActionExecutionContext, ExecutionState, IFightContextReader } from "@fight/fight.types";
 import { IProcessor } from "@processors/IProcessor";
-import { ProcessorResult } from "@processors/processor.types";
+import { ArmorComputeProcessorParams, ProcessorResult } from "@processors/processor.types";
 
 export class ArmorComputeProcessor implements IProcessor {
+
+    constructor(
+        private readonly params: ArmorComputeProcessorParams
+    ) {}
 
     execute(
         ctx: ActionExecutionContext, 

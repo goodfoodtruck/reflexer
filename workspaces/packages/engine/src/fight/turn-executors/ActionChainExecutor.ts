@@ -3,7 +3,7 @@ import { ActionExecutionContext, ActionLog, ExecutionContext, IFightContextMutat
 import { ProcessorChain } from "@fight/processors/ProcessorChain";
 import { ProcessorFactory } from "@fight/processors/ProcessorFactory";
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
-import { WalkProcessor } from "@fight/processors/WalkProcessor";
+import { WalkProcessor } from "@fight/processors/move/WalkProcessor";
 
 const MAX_REACTION_DEPTH = 1
 
