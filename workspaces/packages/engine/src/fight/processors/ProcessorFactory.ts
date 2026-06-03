@@ -1,4 +1,4 @@
-import { ApplyDamageProcessorParams, AreaProcessorParams, CheckEnergyProcessorParams, ComputeDamageProcessorParams, PassiveProcessorParams, ProcessorConfig, UseEnergyProcessorParams } from "@processors/processor.types";
+import { ApplyDamageProcessorParams, ApplyHealProcessorParams, AreaProcessorParams, CheckEnergyProcessorParams, ComputeDamageProcessorParams, ComputeHealProcessorParams, PassiveProcessorParams, ProcessorConfig, UseEnergyProcessorParams } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
 import { WalkProcessor } from "@processors/WalkProcessor";
 import { PassiveApplierProcessor } from "./PassiveApplierProcessor";
@@ -8,6 +8,8 @@ import { CheckEnergyProcessor } from "./energy/CheckEnergyProcessor";
 import { UseEnergyProcessor } from "./energy/UseEnergyProcessor";
 import { DamageApplyProcessor } from "./damage/DamageApplyProcessor";
 import { DamageComputeProcessor } from "./damage/DamageComputeProcessor";
+import { HealComputeProcessor } from "./heal/HealComputeProcessor";
+import { HealApplyProcessor } from "./heal/HealApplyProcessor";
 
 export class ProcessorFactory {
 
@@ -22,6 +24,8 @@ export class ProcessorFactory {
             case "area":           return new AreaProcessor(config.params as AreaProcessorParams)
             case "check_energy":   return new CheckEnergyProcessor(config.params as CheckEnergyProcessorParams)
             case "use_energy":     return new UseEnergyProcessor(config.params as UseEnergyProcessorParams)
+            case "compute_heal":   return new HealComputeProcessor(config.params as ComputeHealProcessorParams)
+            case "apply_heal":     return new HealApplyProcessor(config.params as ApplyHealProcessorParams)
             case "compute_armor":  throw new Error("Not implemented.")
         }
     }

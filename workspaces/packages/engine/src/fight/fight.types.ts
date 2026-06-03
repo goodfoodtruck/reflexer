@@ -73,9 +73,10 @@ export type Action = {
  * lui permettant ainsi d'augmenter ou de diminuer les dégats reçus, infligés... etc
  * */
 export type EntityModifier = 
-    | "damageDealtModifier"      // altère les dégâts que cette entité inflige, en pourcentage
+    | "damageDealtModifier"       // altère les dégâts que cette entité inflige, en pourcentage
     | "damageReductionModifier"   // altère les dégâts que cette entité reçoit, en pourcentage
-    | "healingReceivedModifier"  // altère les soins que cette entité reçoit, en pourcentage
+    | "healReductionModifier"     // altère les soins que cette entité reçoit, en pourcentage
+    | "healDealtModifier"         // altère les soins que cette entité effectue, en pourcentage
 
 
 export type FightLog = 
@@ -92,6 +93,16 @@ export type ActionLog =
     | EntityMovedLog
     | PassiveAppliedLog
     | UpdatedEnergyLog
+    | HealDealtLog
+    | HealSkippedLog
+
+export type HealDealtLog = {
+    type: Readonly<'heal_dealt'>
+    sourceId: Readonly<PlayingEntityID>
+    targetId: Readonly<PlayingEntityID>
+    amount: Readonly<number>
+    reactionDepth: Readonly<number>
+}
 
 export type UpdatedEnergyLog = {
     type: Readonly<'updated_energy'>
@@ -117,6 +128,12 @@ export type PassiveAppliedLog = {
 
 export type DamageSkippedLog = {
     type: Readonly<'damage_skipped'>
+    targetId: Readonly<PlayingEntityID>
+    reason: Readonly<'target_already_dead' | string>
+}
+
+export type HealSkippedLog = {
+    type: Readonly<'heal_skipped'>
     targetId: Readonly<PlayingEntityID>
     reason: Readonly<'target_already_dead' | string>
 }
@@ -244,6 +261,8 @@ export interface IFightContextMutator {
     nextEntityTurn(): void
     nextTurn(): void
     updateEnergy(params: UpdateEnergyParams): void
+    applyHeal(params: ApplyHealParams): void
+    applyDamage(params: ApplyDamageParams): void
 }
 
 export interface IFightEntitiesValidator {
@@ -290,12 +309,6 @@ export type AreaCenter =
     | { kind: "TARGET" }    // centrée sur la cible
     | { kind: "CASTER" }    // centrée sur soi même
 
-
-export type MapCell = {
-    position: Position,
-    type: EObstacleType
-}
-
 export type PathfindingParams = {
     context: MovementContext;
     fightContext: FightContext;
@@ -308,9 +321,11 @@ export type ApplyDamageParams = {
     reactionDepth?: number;
 }
 
-export type ApplyDamageResult = {
-    actualDamage: number;
-    isDead: boolean;
+export type ApplyHealParams = {
+    targetId: PlayingEntityID;
+    sourceId: PlayingEntityID;
+    amount: number;
+    reactionDepth?: number;
 }
 
 export type MoveEntityParams = {

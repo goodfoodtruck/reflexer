@@ -10,6 +10,7 @@ import {
     UpdateEnergyParams,
     ApplyDamageParams,
     MoveEntityParams,
+    ApplyHealParams,
 } from "@fight/fight.types"
 import { FightMap } from "@fight/map/FightMap"
 import { InitiativeOrderIndex } from "@fight/value-objects/InitiativeOrderIndex"
@@ -184,6 +185,29 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             type: "updated_energy", 
             targetId: params.targetId, 
             updatedValue: params.updatedEnergyValue,
+            reactionDepth: params.reactionDepth ?? 0
+        })
+    }
+
+    applyHeal(params: ApplyHealParams): void {
+        const target = this.getEntityById(params.targetId)
+        if (! target || target.isDead) {
+            this.queueLog({ type: "heal_skipped", targetId: params.targetId, reason: "target_already_dead" })
+            return 
+        }
+
+        const missingHealth = target.baseStats.health - target.currentStats.health
+        if (missingHealth === 0) return // pas la peine de soigner si l'entité a déjà tous ses pv
+
+        const actualHeal = Math.min(params.amount, missingHealth)
+
+        target.currentStats.health += actualHeal
+
+        this.queueLog({ 
+            type: "heal_dealt", 
+            targetId: params.targetId, 
+            sourceId: params.sourceId, 
+            amount: actualHeal,
             reactionDepth: params.reactionDepth ?? 0
         })
     }
