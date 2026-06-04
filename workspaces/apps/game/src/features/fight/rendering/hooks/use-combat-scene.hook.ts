@@ -2,7 +2,6 @@ import { useEffect, useReducer, useRef } from "react"
 import type { FightResult, PlayerData } from "@reflexer/engine"
 import { createGameEngine, InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_CHARACTERS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
-import { LogInterpreter } from "../../replay/LogInterpreter"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
@@ -46,11 +45,10 @@ export function useCombatScene() {
                 }
                 sceneRef.current = scene
 
-                const interpreter = new LogInterpreter()
                 const queue = new AnimationQueue(scene)
                 const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
                 const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
-                const replayer = new CombatReplayer(scene, interpreter, queue, dispatch, mapRegistry, characterRegistry)
+                const replayer = new CombatReplayer(scene, queue, dispatch, mapRegistry, characterRegistry)
                 replayer.play(runFight())
             })
 

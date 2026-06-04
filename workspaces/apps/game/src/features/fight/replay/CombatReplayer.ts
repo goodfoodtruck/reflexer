@@ -1,6 +1,5 @@
 import type { ActionLog, EntitySnapshot, FightResult, ICharacterRegistry, IFightMapRegistry, PlayingEntityID } from "@reflexer/engine";
 import type { Dispatch } from "react";
-import type { LogInterpreter } from "./LogInterpreter.ts";
 import type { AnimationQueue } from "./AnimationQueue.ts";
 import type { CombatScene } from "../rendering/CombatScene.ts";
 import type { CombatAction } from "./combat-view.reducer.ts";
@@ -9,7 +8,6 @@ import { formatActionLog } from "./log-format.ts";
 export class CombatReplayer {
     constructor(
         private readonly scene: CombatScene,
-        private readonly interpreter: LogInterpreter,
         private readonly animationQueue: AnimationQueue,
         private readonly dispatch: Dispatch<CombatAction>,
         private readonly mapRegistry: IFightMapRegistry,
@@ -18,7 +16,7 @@ export class CombatReplayer {
 
     async play(result: FightResult): Promise<void> {
         const map = this.mapRegistry.getConfig(result.initialState.mapId)
-        this.scene.setup(result.initialState, map)
+        await this.scene.setup(result.initialState, map, entity => this.characterRegistry.getConfig(entity.name).visual)
 
         const labels = this.buildLabels(result.initialState.entities)
         this.dispatch({ type: "initialize", snapshot: result.initialState, labels, mapDimensions: map.dimensions })
@@ -38,8 +36,7 @@ export class CombatReplayer {
                     lineId++
                 }
 
-                const command = this.interpreter.interpret(log)
-                if (command) await this.animationQueue.run(command)
+                await this.animationQueue.play(log)
 
                 this.applyStateChange(log)
             }

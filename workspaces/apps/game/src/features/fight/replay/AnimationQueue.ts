@@ -1,41 +1,26 @@
-import type { AnimationCommand } from "./replay.types"
-import type { TweenFn } from "../rendering/animations/tween"
-import { makeTween } from "../rendering/animations/tween"
+import type { ActionLog } from "@reflexer/engine"
 import { CombatScene } from "../rendering/CombatScene"
-import { playAttack } from "../rendering/animations/playAttack"
-import { playMove } from "../rendering/animations/playMove"
-import { playDeath } from "../rendering/animations/playDeath"
-import { playPassive } from "../rendering/animations/playPassive"
 
 export class AnimationQueue {
-    private readonly tween: TweenFn
+    constructor(private readonly scene: CombatScene) {}
 
-    constructor(private readonly scene: CombatScene) {
-        this.tween = makeTween(scene.ticker)
-    }
-
-    async run(command: AnimationCommand): Promise<void> {
-        switch (command.kind) {
-            case "attack": {
-                const target = this.scene.getSprite(command.targetId)
-                if (target) await playAttack(this.tween, target)
+    async play(log: ActionLog): Promise<void> {
+        switch (log.type) {
+            case "damage_dealt":
+                await this.scene.playAttack(log.sourceId, log.targetId)
                 break
-            }
-            case "move": {
-                const sprite = this.scene.getSprite(command.entityId)
-                if (sprite) await playMove(this.tween, sprite, this.scene.cellToPixel(command.to))
+            case "entity_moved":
+                await this.scene.playMove(log.entityId, log.cell)
                 break
-            }
-            case "death": {
-                const sprite = this.scene.getSprite(command.entityId)
-                if (sprite) await playDeath(this.tween, sprite)
+            case "entity_died":
+                await this.scene.playDeath(log.entityId)
                 break
-            }
-            case "passive": {
-                const sprite = this.scene.getSprite(command.targetId)
-                if (sprite) await playPassive(this.tween, sprite)
+            case "passive_applied":
+                await this.scene.playPassive(log.targetId)
                 break
-            }
+            case "damage_skipped":
+            case "action_failed":
+                break
         }
     }
 }

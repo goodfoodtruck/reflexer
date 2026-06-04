@@ -13,5 +13,6 @@ export * from "./mockActions";
 export * from "./mockPassives";
 export * from "./mockFightMaps";
 export * from "./ICharacterRegistry";
+export * from "./visual.types";
 export * from "./InMemoryCharacterRegistry";
 export * from "./mockCharacters";
