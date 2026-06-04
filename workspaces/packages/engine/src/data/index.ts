@@ -5,8 +5,12 @@ export * from "./IFightMapRegistry";
 export * from "./IPassiveRegistry"
 export * from "./InMemoryActionRegistry";
 export * from "./InMemoryEnemyRegistry";
+export * from "./InMemoryAllyRegistry";
+export * from "./InMemoryEnemyRegistry";
 export * from "./InMemoryFightMapRegistry";
-export * from "./InMemoryPassiveRegistry"
+export * from "./InMemoryPassiveRegistry";
+export * from "./mockActions";
+export * from "./mockPassives";
 export * from "./mockFightMaps";
 export * from "./ICharacterRegistry";
 export * from "./InMemoryCharacterRegistry";
