@@ -65,3 +65,8 @@ export type RunState = {
     activeChest: ChestData | null
     activeShop: ShopData | null
 }
+
+export type NewGameData = {
+    runPlayerData: RunPlayerData,
+    mapData: MapData
+}

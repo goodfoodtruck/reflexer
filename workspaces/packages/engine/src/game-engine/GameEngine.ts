@@ -1,4 +1,4 @@
-import { ChestData, GameEngineDeps, MapData, RunPlayerData, RunState, ShopData, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
+import { ChestData, GameEngineDeps, MapData, NewGameData, RunPlayerData, RunState, ShopData, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
 import { EnemyTag, FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
 import { InvalidStateError } from "./errors/InvalidStateError";
@@ -11,7 +11,7 @@ export class GameEngine {
 
     constructor(private readonly deps: GameEngineDeps) {}
 
-    startNewGame(): MapData {
+    startNewGame(): Result<NewGameData, "MAP_GENERATION_FAILED"> {
         const mapData = this.deps.mapGenerator.generate()
 
         this.runState = {
@@ -24,7 +24,10 @@ export class GameEngine {
             activeShop: null
         }
 
-        return mapData
+        return {
+            success: true,
+            value: { runPlayerData: this.runState.runPlayerData, mapData }
+        }
     }
 
     selectChestReward(itemId: string): Result<RunPlayerData, ChestError> {
