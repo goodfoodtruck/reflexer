@@ -164,6 +164,15 @@ export class CombatScene {
         if (sprite) await playPassive(this.tween, sprite)
     }
 
+    /**
+     * Pause passive de `ms` millisecondes, synchronisée sur le ticker (même
+     * horloge que les animations). Sert au `CombatReplayer` à cadencer le combat
+     * — et se figera avec le reste si le ticker est mis en pause.
+     */
+    async wait(ms: number): Promise<void> {
+        await this.tween(ms, () => {})
+    }
+
     /** Joue un clip une seule fois et attend sa durée (déclarée par la donnée). */
     private async playOnce(entityId: PlayingEntityID, clip: SpriteClip): Promise<void> {
         const sprite = this.entities.get(entityId)

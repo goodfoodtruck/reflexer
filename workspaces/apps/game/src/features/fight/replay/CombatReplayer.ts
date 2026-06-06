@@ -5,6 +5,22 @@ import type { CombatScene } from "../rendering/CombatScene.ts";
 import type { CombatAction } from "./combat-view.reducer.ts";
 import { formatActionLog } from "./log-format.ts";
 
+/**
+ * Cadence du combat (façon FF Tactics) : des temps morts délibérés autour de
+ * chaque action pour qu'on ait le temps de tout lire, au lieu d'enchaîner les
+ * animations. Toutes les valeurs sont en millisecondes — point unique de réglage.
+ */
+const PACING = {
+    /** Après le début d'un tour : laisser voir quelle unité s'active. */
+    turnIntroMs: 500,
+    /** Après l'annonce de l'action, avant son animation : laisser la lire. */
+    actionLeadMs: 400,
+    /** Après l'animation + l'effet : laisser le résultat se poser (PV, etc.). */
+    actionSettleMs: 500,
+    /** Avant de passer au tour suivant : une respiration. */
+    turnOutroMs: 350,
+} as const
+
 export class CombatReplayer {
     constructor(
         private readonly scene: CombatScene,
@@ -28,18 +44,23 @@ export class CombatReplayer {
             const turn = turns[t]
             const upcoming = turns.slice(t + 1).map(next => next.ownerId)
             this.dispatch({ type: "beginTurn", turnIndex: turn.turnIndex, ownerId: turn.ownerId, upcomingTurnOwners: upcoming })
+            await this.scene.wait(PACING.turnIntroMs)
 
             for (const log of turn.actionLogs) {
                 const line = formatActionLog(log, labels, lineId)
                 if (line) {
                     this.dispatch({ type: "pushAction", line })
                     lineId++
+                    await this.scene.wait(PACING.actionLeadMs)
                 }
 
                 await this.animationQueue.play(log)
 
                 this.applyStateChange(log)
+                if (line) await this.scene.wait(PACING.actionSettleMs)
             }
+
+            await this.scene.wait(PACING.turnOutroMs)
         }
 
         this.dispatch({ type: "finish" })
