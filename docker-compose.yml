@@ -24,7 +24,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: workspaces/packages/server/Dockerfile
+      dockerfile: workspaces/apis/server/Dockerfile
     ports:
       - "4000:4000"
     environment:

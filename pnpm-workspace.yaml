@@ -1,3 +1,4 @@
 packages:
   - "workspaces/apps/**"
+  - "workspaces/apis/**"
   - "workspaces/packages/**"
