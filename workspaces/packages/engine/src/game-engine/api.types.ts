@@ -1,4 +1,4 @@
-import { ShopData, ChestData, PlayerData } from "@game-engine/game-engine.types"
+import { ShopData, ChestData, RunPlayerData } from "@game-engine/game-engine.types"
 
 export type GameError = 
     | "MAP_GENERATION_FAILED"
@@ -36,6 +36,6 @@ export type SelectMapNodeValue =
     | { nodeType: "CHEST",  chestData: ChestData }
 
 export type BuyShopItemValue = {
-    updatedPlayerData: PlayerData, 
+    updatedPlayerData: RunPlayerData, 
     updatedShopData: ShopData
 }

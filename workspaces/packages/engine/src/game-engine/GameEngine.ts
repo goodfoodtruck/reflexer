@@ -1,4 +1,4 @@
-import { ChestData, GameEngineDeps, MapData, PlayerData, RunState, ShopData, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
+import { ChestData, GameEngineDeps, MapData, RunPlayerData, RunState, ShopData, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
 import { EnemyTag, FightResult } from "@fight/fight.types";
 import { BuyShopItemValue, ChestError, FightError, MapError, Result, SelectMapNodeValue, ShopError } from "@game-engine/api.types";
 import { InvalidStateError } from "./errors/InvalidStateError";
@@ -15,7 +15,7 @@ export class GameEngine {
         const mapData = this.deps.mapGenerator.generate()
 
         this.runState = {
-            playerData: {
+            runPlayerData: {
                 gold: 0,
                 playerFloorIndex: 0
             },
@@ -27,19 +27,19 @@ export class GameEngine {
         return mapData
     }
 
-    selectChestReward(itemId: string): Result<PlayerData, ChestError> {
+    selectChestReward(itemId: string): Result<RunPlayerData, ChestError> {
         const runState = this.getRunStateOrThrow()
         this.assertNotActiveShop()
         const activeChest = this.getActiveChestOrThrow()
 
-        const result: Result<PlayerData, ChestError> = this.deps.chestHandler.selectReward(itemId, activeChest, runState.playerData)
+        const result: Result<RunPlayerData, ChestError> = this.deps.chestHandler.selectReward(itemId, activeChest, runState.runPlayerData)
 
         if (! result.success) return result
 
         // si succès, on MAJ le state
         this.runState = {
             ...runState,
-            playerData: result.value,
+            runPlayerData: result.value,
             activeChest: null
         }
 
@@ -51,14 +51,14 @@ export class GameEngine {
         this.assertNotActiveChest()
         const activeShop = this.getActiveShopOrThrow()
 
-        const result: Result<BuyShopItemValue, ShopError> = this.deps.shopHandler.buyItem(itemId, activeShop, runState.playerData)
+        const result: Result<BuyShopItemValue, ShopError> = this.deps.shopHandler.buyItem(itemId, activeShop, runState.runPlayerData)
 
         if (! result.success) return result
 
         // si succès, on MAJ le state
         this.runState = {
             ...runState,
-            playerData: result.value.updatedPlayerData,
+            runPlayerData: result.value.updatedPlayerData,
             activeShop: result.value.updatedShopData
         }
 
@@ -67,7 +67,7 @@ export class GameEngine {
 
     selectMapNode(nodeId: string): Result<SelectMapNodeValue, MapError> {
         const runState = this.getRunStateOrThrow()
-        const result: Result<SelectMapNodeValue, MapError> = this.deps.mapCommandHandler.selectMapNode(nodeId, runState.mapData, runState.playerData.playerFloorIndex)
+        const result: Result<SelectMapNodeValue, MapError> = this.deps.mapCommandHandler.selectMapNode(nodeId, runState.mapData, runState.runPlayerData.playerFloorIndex)
 
         if (! result.success) return result
 
@@ -108,13 +108,13 @@ export class GameEngine {
         this.assertNotActiveChest()
         this.assertNotActiveShop()
         
-        const result: Result<FightResult, FightError> = this.deps.fightHandler.playPveFight(fightMapId, playerTeam, runState.playerData)
+        const result: Result<FightResult, FightError> = this.deps.fightHandler.playPveFight(fightMapId, playerTeam, runState.runPlayerData)
 
         if (! result.success) return result
 
         this.runState = {
             ...runState,
-            playerData: this.deps.fightHandler.applyFightResultOnPlayer(runState.playerData, result.value)
+            runPlayerData: this.deps.fightHandler.applyFightResultOnPlayer(runState.runPlayerData, result.value)
         }
 
         return result
@@ -125,8 +125,8 @@ export class GameEngine {
         return this.runState
     }
 
-    getPlayerData(): PlayerData {
-        return this.getRunStateOrThrow().playerData
+    getPlayerData(): RunPlayerData {
+        return this.getRunStateOrThrow().runPlayerData
     }
 
     private assertNotActiveChest(): void {

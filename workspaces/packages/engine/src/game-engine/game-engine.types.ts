@@ -39,7 +39,7 @@ export type TrainingFightConfig = {
 }
 
 /** données persistées du joueur envoyées par le client */
-export type PlayerData = {
+export type RunPlayerData = {
     playerFloorIndex: number
     gold: number
 }
@@ -58,7 +58,7 @@ export type MapData = {}
 
 export type RunState = {
     // données persistantes
-    playerData: PlayerData
+    runPlayerData: RunPlayerData
     mapData: MapData
     
     // sessions en cours — nullable car temporaires
