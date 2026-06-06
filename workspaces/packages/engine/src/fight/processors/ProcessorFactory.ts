@@ -21,7 +21,7 @@ export class ProcessorFactory {
 
     create(config: ProcessorConfig): IProcessor {
         switch (config.type) {
-            case "apply_damage":   return new DamageApplyProcessor(config.params as ApplyDamageProcessorParams)
+            case "apply_damage":   return new DamageApplyProcessor()
             case "compute_damage": return new DamageComputeProcessor(config.params as ComputeDamageProcessorParams)
             case "walk":           return new WalkProcessor()
             case "passive":        return new PassiveApplierProcessor(this.passiveRegistry, config.params as PassiveProcessorParams)
