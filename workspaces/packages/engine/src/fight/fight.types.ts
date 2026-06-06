@@ -4,7 +4,7 @@ import { ProcessorConfig } from "@processors/processor.types";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
-import { FightContext } from "./context/FightContext";
+import { FightContext } from "@fight/context";
 import { FightMap } from "./map";
 import { TeamMemberData } from "@game-engine/game-engine.types";
 
@@ -328,6 +328,7 @@ export type PathfindingParams = {
 }
 
 export type ApplyDamageParams = {
+    actionId: ActionID;
     targetId: PlayingEntityID;
     sourceId: PlayingEntityID;
     amount: number;

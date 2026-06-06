@@ -31,8 +31,10 @@ export const MOCK_PASSIVES: Record<PassiveID, Passive> = {
         id: VULNERABLE_PASSIVE_ID,
         kind: "MODIFIER",
         config: { duration: 3, applicationStrategy: { type: "RESET" } },
-        modifier: "damageReceivedModifier",
-        value: 50,
+        // réduction négative = +50% de dégâts reçus (le modèle prototype applique
+        // finalDamage = damage * (1 - reduction/100))
+        modifier: "damageReductionModifier",
+        value: -50,
     },
     [THORNS_PASSIVE_ID]: {
         id: THORNS_PASSIVE_ID,

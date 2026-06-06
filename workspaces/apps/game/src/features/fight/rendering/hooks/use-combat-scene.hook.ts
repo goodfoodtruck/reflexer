@@ -6,10 +6,22 @@ import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
 
+// Équipe du joueur dérivée des personnages mockés : le moteur attend désormais
+// des `TeamMemberData` complets (stats + gambits), plus une simple liste de noms.
+const PLAYER_TEAM_NAMES = ["CHARACTER_1", "CHARACTER_2"] as const
+
 const MOCK_PLAYER_DATA: PlayerData = {
-    teamComposition: ["CHARACTER_1", "CHARACTER_2"],
     playerFloorIndex: 1,
     gold: 0,
+    playerTeam: PLAYER_TEAM_NAMES.map(name => {
+        const config = MOCK_CHARACTERS[name]
+        return {
+            name,
+            baseStats: config.baseStats,
+            gambits: config.gambits,
+            activePassiveIds: [],
+        }
+    }),
 }
 
 const FIGHT_MAP_ID = "TRAINING_GROUND"
@@ -19,7 +31,7 @@ function runFight(): FightResult {
     const engine = createGameEngine()
     engine.startNewGame(MOCK_PLAYER_DATA)
 
-    const result = engine.playFight(FIGHT_MAP_ID)
+    const result = engine.playPveFight(FIGHT_MAP_ID)
     if (!result.success)
         throw new Error(`Combat impossible : ${result.reason}`)
 

@@ -230,10 +230,11 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
         }
         else target.currentStats.health -= actualDamage
 
-        this.queueLog({ 
-            type: "damage_dealt", 
-            targetId: params.targetId, 
-            sourceId: params.sourceId, 
+        this.queueLog({
+            type: "damage_dealt",
+            actionId: params.actionId,
+            targetId: params.targetId,
+            sourceId: params.sourceId,
             amount: actualDamage,
             reactionDepth: params.reactionDepth ?? 0
         })

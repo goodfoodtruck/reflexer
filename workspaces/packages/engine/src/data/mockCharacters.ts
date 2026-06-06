@@ -114,11 +114,11 @@ const VAMPIRE_VISUAL: EntityVisual = {
  * `InMemoryCharacterRegistry`, côté moteur comme côté front (libellé + visuel).
  */
 export const MOCK_CHARACTERS: Record<EntityName, CharacterConfig> = {
-    CHARACTER_1: { gambits: BRUISER_GAMBITS, baseStats: { health: 100, energy: 50 }, displayName: "Aria", visual: PRIEST_2_VISUAL },
-    CHARACTER_2: { gambits: DEBUFFER_GAMBITS, baseStats: { health: 90, energy: 40 }, displayName: "Bjorn", visual: PRIEST_1_VISUAL },
-    ALIEN:  { gambits: ENEMY_GAMBITS, statsByFloorTier: { 1: { health: 80, energy: 30 } }, displayName: "Alien", visual: VAMPIRE_VISUAL },
-    KNIGHT: { gambits: ENEMY_GAMBITS, statsByFloorTier: { 1: { health: 120, energy: 20 } }, displayName: "Chevalier", visual: SKELETON_2_VISUAL },
-    GOBLIN: { gambits: ENEMY_GAMBITS, statsByFloorTier: { 1: { health: 60, energy: 40 } }, displayName: "Gobelin", visual: SKELETON_1_VISUAL },
+    CHARACTER_1: { gambits: BRUISER_GAMBITS, baseStats: { health: 100, energy: 50, armor: 0 }, displayName: "Aria", visual: PRIEST_2_VISUAL },
+    CHARACTER_2: { gambits: DEBUFFER_GAMBITS, baseStats: { health: 90, energy: 40, armor: 0 }, displayName: "Bjorn", visual: PRIEST_1_VISUAL },
+    ALIEN:  { gambits: ENEMY_GAMBITS, baseStats: { health: 80, energy: 30, armor: 0 }, displayName: "Alien", visual: VAMPIRE_VISUAL },
+    KNIGHT: { gambits: ENEMY_GAMBITS, baseStats: { health: 120, energy: 20, armor: 0 }, displayName: "Chevalier", visual: SKELETON_2_VISUAL },
+    GOBLIN: { gambits: ENEMY_GAMBITS, baseStats: { health: 60, energy: 40, armor: 0 }, displayName: "Gobelin", visual: SKELETON_1_VISUAL },
 }
 
 /**
@@ -131,3 +131,19 @@ export const MOCK_ENEMIES_BY_TAG: Record<EnemyTag, EnemyName[]> = {
     ENEMY_TANK:   ["KNIGHT"],
     ENEMY_BOSS:   ["KNIGHT"],
 }
+
+/**
+ * Entrées « ennemis » à plat pour `InMemoryEnemyRegistry` : chaque ennemi avec
+ * ses tags (dérivés de `MOCK_ENEMIES_BY_TAG`) et sa config de combat (gambits +
+ * stats de base, extraits de `MOCK_CHARACTERS`).
+ */
+const ENEMY_TAGS_BY_NAME = (Object.entries(MOCK_ENEMIES_BY_TAG) as [EnemyTag, EnemyName[]][])
+    .reduce<Record<string, EnemyTag[]>>((acc, [tag, names]) => {
+        for (const name of names) (acc[name] ??= []).push(tag)
+        return acc
+    }, {})
+
+export const MOCK_ENEMIES = Object.entries(ENEMY_TAGS_BY_NAME).map(([name, tags]) => {
+    const config = MOCK_CHARACTERS[name as EnemyName]
+    return { name: name as EnemyName, tags, gambits: config.gambits, baseStats: config.baseStats }
+})
