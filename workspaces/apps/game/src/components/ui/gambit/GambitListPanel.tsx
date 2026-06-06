@@ -35,6 +35,7 @@ export function GambitListPanel({
 }: GambitListPanelProps) {
   return (
     <section
+      data-guide="gambit-list"
       className={`${PanelStyles.base} ${isEditing ? PanelStyles.editing : PanelStyles.idle}`}
     >
       <div className={PanelStyles.heroBanner}>
@@ -69,7 +70,12 @@ export function GambitListPanel({
       </div>
 
       <div className={PanelStyles.addButtonWrapper}>
-        <button onClick={onAddClick} className={PanelStyles.addButton} disabled={isEditing}>
+        <button
+          data-guide="ajouter-gambit"
+          onClick={onAddClick}
+          className={PanelStyles.addButton}
+          disabled={isEditing}
+        >
           <AddIcon className={PanelStyles.addButtonIcon} />
           Ajouter une règle
         </button>

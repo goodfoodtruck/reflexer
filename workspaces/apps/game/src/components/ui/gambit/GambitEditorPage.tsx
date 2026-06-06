@@ -7,6 +7,7 @@ import { GambitListPanel } from './GambitListPanel';
 import { GambitEdition } from './GambitEdition';
 import { Styles_gambit_editor } from './Gambit.styles';
 import { useGambitEditor } from './UseGambitEditor';
+import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../guide";
 
 export function GambitEditorPage() {
   const {
@@ -23,6 +24,8 @@ export function GambitEditorPage() {
     handleCancelEdit,
     handleSaveGambit
   } = useGambitEditor();
+
+  const guide = useGuide("gambit-editor", GUIDES["gambit-editor"]);
 
   const currentHeroImage = character?.characterName === 'CHARACTER_1' ? heroM : heroW;
 
@@ -48,16 +51,18 @@ export function GambitEditorPage() {
         />
 
         <div className={Styles_gambit_editor.workspace}>
-          <GambitListPanel
-            caracterName={character?.characterName ?? ''}
-            gambits={gambits}
-            isEditing={isEditing}
-            onAddClick={handleAddClick}
-            onEdit={handleEditClick}
-            onDelete={handleDeleteGambit}
-            sensors={sensors}
-            onDragEnd={handleDragEnd}
-          />
+          <div className="h-full flex">
+            <GambitListPanel
+              caracterName={character?.characterName ?? ''}
+              gambits={gambits}
+              isEditing={isEditing}
+              onAddClick={handleAddClick}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteGambit}
+              sensors={sensors}
+              onDragEnd={handleDragEnd}
+            />
+          </div>
 
           {isEditing ? (
             <section className={Styles_gambit_editor.rightPanelWizard}>
@@ -74,6 +79,18 @@ export function GambitEditorPage() {
           )}
         </div>
       </div>
+
+      {guide.isVisible && (
+        <GuideOverlay
+          step={guide.step}
+          currentStep={guide.currentStep}
+          total={guide.total}
+          onNext={guide.next}
+          onPrev={guide.prev}
+          onClose={guide.close}
+        />
+      )}
+      <GuideButton onClick={guide.reset} />
     </div>
   );
 }

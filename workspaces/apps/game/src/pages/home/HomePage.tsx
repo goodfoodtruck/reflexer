@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { AnimatedBackground } from "../../components/ui/AnimatedBackground";
 import { MenuButton } from "../../components/ui/MenuButton";
+import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../components/guide";
 import herosImage from "../../assets/images/heros.png";
 import bgHomeImage from "../../assets/images/bg-home.png"; 
 import STYLES from "./styles";
@@ -12,6 +13,7 @@ import { NotificationBell } from "../../components/ui/NotificationBell";
 export function HomePage() {
   const navigate = useNavigate();
   const [showOptions, setShowOptions] = useState(false);
+  const guide = useGuide("home", GUIDES["home"]);
 
   const onStartGame = () => navigate('/team');
   const onEditGambit = () => navigate('/team');
@@ -30,7 +32,7 @@ export function HomePage() {
         />
       </div>
 
-      <div className={STYLES.overlay}></div>
+      <div className={STYLES.overlay} />
       <div className={STYLES.foreground}>
         <NotificationBell /> 
         
@@ -45,7 +47,7 @@ export function HomePage() {
 
         <div className={STYLES.heroCenterPosition}>
           <div className={STYLES.heroGroup}>
-            <div className={STYLES.heroGlow}></div>
+            <div className={STYLES.heroGlow} />
             <div className={STYLES.heroImageWrapper}>
               <img 
                 src={herosImage} 
@@ -66,6 +68,19 @@ export function HomePage() {
       </div>
 
       {showOptions && <OptionsPanel onClose={onCloseOptions} />}
+
+      {guide.isVisible && (
+        <GuideOverlay
+          step={guide.step}
+          currentStep={guide.currentStep}
+          total={guide.total}
+          onNext={guide.next}
+          onPrev={guide.prev}
+          onClose={guide.close}
+        />
+      )}
+      
+      <GuideButton onClick={guide.reset} />
     </div>
   );
 }
