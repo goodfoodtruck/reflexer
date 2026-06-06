@@ -5,11 +5,8 @@ const router = Router()
  
 router.post("/", async (req, res) => {
     try {
-        const { userId, teamComposition } = req.body as {
-            userId:          string
-            teamComposition: string[]  // allyIds
-        }
-        const run = await RunModel.create({ userId, teamComposition })
+        const { userId } = req.body as { userId: string }
+        const run = await RunModel.create({ userId })
         res.status(201).json(run)
     } catch (error) {
         res.status(400).json({ error: "Unable to create run", details: error })
@@ -25,7 +22,7 @@ router.get("/", async (req, res) => {
 })
  
 router.get("/:id", async (req, res) => {
-    const run = await RunModel.findById(req.params.id).populate("teamComposition")
+    const run = await RunModel.findById(req.params.id)
     if (! run) return res.status(404).json({ error: "Run not found" })
     res.json(run)
 })
