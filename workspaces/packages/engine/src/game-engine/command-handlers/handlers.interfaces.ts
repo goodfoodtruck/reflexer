@@ -13,7 +13,7 @@ export interface IMapCommandHandler {
 
 export interface IFightCommandHandler {
     playPvpFight(fightMapId: FightMapID, playerTeam: TeamMemberData[], opponentTeam: TeamMemberData[]): Result<FightResult, FightError>
-    playPveFight(fightMapId: FightMapID, playerData: PlayerData): Result<FightResult, FightError>
+    playPveFight(fightMapId: FightMapID, playerTeam: TeamMemberData[], playerData: PlayerData): Result<FightResult, FightError>
     playTrainingFight(fightMapId: FightMapID, enemyTeamComposition: EnemyTag[], playerTeam: TeamMemberData[]): Result<FightResult, FightError>
     applyFightResultOnPlayer(playerData: PlayerData, result: FightResult): PlayerData
 }

@@ -11,11 +11,14 @@ export class GameEngine {
 
     constructor(private readonly deps: GameEngineDeps) {}
 
-    startNewGame(playerData: PlayerData): MapData {
+    startNewGame(): MapData {
         const mapData = this.deps.mapGenerator.generate()
 
         this.runState = {
-            playerData,
+            playerData: {
+                gold: 0,
+                playerFloorIndex: 0
+            },
             mapData,
             activeChest: null,
             activeShop: null
@@ -100,12 +103,12 @@ export class GameEngine {
         return this.deps.fightHandler.playPvpFight(fightMapId, playerTeam, opponentTeam)
     }
 
-    playPveFight(fightMapId: FightMapID): Result<FightResult, FightError> {
+    playPveFight(fightMapId: FightMapID, playerTeam: TeamMemberData[], ): Result<FightResult, FightError> {
         const runState = this.getRunStateOrThrow()
         this.assertNotActiveChest()
         this.assertNotActiveShop()
         
-        const result: Result<FightResult, FightError> = this.deps.fightHandler.playPveFight(fightMapId, runState.playerData)
+        const result: Result<FightResult, FightError> = this.deps.fightHandler.playPveFight(fightMapId, playerTeam, runState.playerData)
 
         if (! result.success) return result
 

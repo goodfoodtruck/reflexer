@@ -36,11 +36,15 @@ export class FightCommandHandler implements IFightCommandHandler {
         }
     }
 
-    playPveFight(fightMapId: FightMapID, playerData: PlayerData): Result<FightResult, FightError> {
+    playPveFight(
+        fightMapId: FightMapID, 
+        playerTeam: TeamMemberData[], 
+        playerData: PlayerData
+    ): Result<FightResult, FightError> {
         const fightConfig: PveFightConfig = {
             type: "PVE",
             mapConfig: this.fightMapRegistry.getConfig(fightMapId),
-            playerTeam: playerData.playerTeam,
+            playerTeam,
             floorIndex: playerData.playerFloorIndex
         }
 

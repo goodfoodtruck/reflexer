@@ -42,7 +42,6 @@ export type TrainingFightConfig = {
 export type PlayerData = {
     playerFloorIndex: number
     gold: number
-    playerTeam: TeamMemberData[]
 }
 
 export type TeamMemberData = {
