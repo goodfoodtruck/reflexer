@@ -30,7 +30,6 @@ export class ProcessorFactory {
             case "use_energy":     return new UseEnergyProcessor(config.params as UseEnergyProcessorParams)
             case "compute_heal":   return new HealComputeProcessor(config.params as ComputeHealProcessorParams)
             case "apply_heal":     return new HealApplyProcessor(config.params as ApplyHealProcessorParams)
-            case "compute_armor":  throw new Error("Not implemented.")
             case "check_range":    return new CheckRangeProcessor(config.params as CheckRangeProcessorParams)
             case "compute_armor":  return new ArmorComputeProcessor(config.params as ArmorComputeProcessorParams)
             case "action_line_of_sight": return new ActionLineOfSightProcessor(config.params as ActionLineOfSightProcessorParams)

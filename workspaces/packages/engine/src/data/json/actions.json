@@ -1,0 +1,35 @@
+[
+    {
+        "id": "attack_basic",
+        "type": "attack",
+        "processorConfigs": [
+            {
+                "type": "damage",
+                "order": 1,
+                "params": { "damage_value": 12 }
+            }
+        ]
+    },
+    {
+        "id": "attack_heavy",
+        "type": "attack",
+        "processorConfigs": [
+            {
+                "type": "damage",
+                "order": 1,
+                "params": { "damage_value": 22 }
+            }
+        ]
+    },
+    {
+        "id": "attack_precise",
+        "type": "attack",
+        "processorConfigs": [
+            {
+                "type": "damage",
+                "order": 1,
+                "params": { "damage_value": 16 }
+            }
+        ]
+    }
+]
