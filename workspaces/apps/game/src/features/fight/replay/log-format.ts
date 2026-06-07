@@ -62,6 +62,9 @@ export function formatActionLog(
         case "entity_moved":
         case "damage_skipped":
         case "action_failed":
+        case "updated_energy":
+        case "heal_dealt":
+        case "heal_skipped":
             return null
     }
 }

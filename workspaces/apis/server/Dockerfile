@@ -13,9 +13,13 @@ RUN pnpm install --frozen-lockfile
  
 COPY workspaces/packages/engine/src        workspaces/packages/engine/src
 COPY workspaces/packages/engine/tsconfig.json workspaces/packages/engine/tsconfig.json
+COPY workspaces/packages/engine/tsup.config.ts workspaces/packages/engine/tsup.config.ts
+
+RUN pnpm --filter @reflexer/engine build
+
 COPY workspaces/apis/server/src        workspaces/apis/server/src
 COPY workspaces/apis/server/tsconfig.json workspaces/apis/server/tsconfig.json
- 
+
 WORKDIR /usr/src/app/workspaces/apis/server
  
 CMD ["pnpm", "dev"]

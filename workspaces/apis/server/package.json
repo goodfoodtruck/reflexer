@@ -5,6 +5,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "dev": "pnpm --filter @reflexer/engine build && pnpm exec ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "seed": "pnpm exec tsx src/seed.ts",
     "build": "tsup",
     "build:watch": "tsup --watch",
     "typecheck": "tsc -p tsconfig.json"
@@ -23,6 +24,7 @@
     "@types/node": "^20.0.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.0"
   }
 }

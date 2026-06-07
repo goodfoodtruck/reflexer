@@ -10,7 +10,6 @@ import { TacticalMemo } from "./TacticalMemo";
 import { GambitListPanel } from "./GambitListPanel";
 import type { DraftGambit, GambitCondition, GambitFilter, GambitIntent, RealGambit } from "./GambitTypes";
 import { GambitEdition } from "./GambitEdition";
-import { INITIAL_GAMBITS } from "./mockData";
 
 const Styles = {
   bgContainer: "absolute inset-0 z-0",
@@ -32,7 +31,7 @@ export function GambitEditorPage() {
   const navigate = useNavigate();
   const currentHeroImage = heroId === "1" ? heroM : heroW; 
   
-  const [gambits, setGambits] = useState<RealGambit[]>(INITIAL_GAMBITS);
+  const [gambits, setGambits] = useState<RealGambit[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingGambitId, setEditingGambitId] = useState<string | null>(null);
 
