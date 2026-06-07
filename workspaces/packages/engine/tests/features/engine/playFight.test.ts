@@ -36,7 +36,7 @@ describe("Exécuter un combat complet", () => {
                 playPveFight: () => ({
                     success: true,
                     value: {
-                        endState: "WON",
+                        endState: { kind: "WON" },
                         logs: [],
                         initialState
                     }

@@ -2,23 +2,26 @@ import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import { connectDatabase } from "./db"
-import userRoutes   from "./routes/user.route"
-import allyRoutes   from "./routes/ally.route"
-import gambitRoutes from "./routes/gambit.route"
-import runRoutes    from "./routes/run.route"
-import fightRoutes  from "./routes/fight.route"
+import userRoutes   from "@routes/user.route"
+import characterRoutes   from "@routes/character.route"
+import gambitRoutes from "@routes/gambit.route"
+import runRoutes    from "@routes/run.route"
+import fightRoutes  from "@routes/fight.route"
+import { createGameEngine } from "@scripts/createGameEngine"
  
 dotenv.config()
+
+export const engine = createGameEngine()
  
 const app = express()
 app.use(cors())
 app.use(express.json())
  
-app.use("/users",   userRoutes)
-app.use("/allies",  allyRoutes)
-app.use("/gambits", gambitRoutes)
-app.use("/runs",    runRoutes)
-app.use("/fights",  fightRoutes)
+app.use("/users",      userRoutes)
+app.use("/characters", characterRoutes)
+app.use("/gambits",    gambitRoutes)
+app.use("/runs",       runRoutes)
+app.use("/fights",     fightRoutes)
  
 app.get("/", (_, res) => res.json({ status: "ok", service: "reflexer-server" }))
  

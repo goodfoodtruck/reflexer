@@ -39,8 +39,8 @@ export class FightStateResolver {
 
 
     resolveEndState(aliveAllies: PlayingEntity[], aliveEnemies: PlayingEntity[]): FightEndState | null {
-        if (this.isFightWon(aliveAllies, aliveEnemies)) return "WON"
-        if (this.isFightLost(aliveAllies)) return "LOST"
+        if (this.isFightWon(aliveAllies, aliveEnemies)) return { kind: "WON" }
+        if (this.isFightLost(aliveAllies)) return { kind: "LOST" }
 
         return null
     }

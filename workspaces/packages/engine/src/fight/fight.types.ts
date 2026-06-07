@@ -195,8 +195,8 @@ export type EntitySnapshot = {
 }
 
 export type FightEndState =
-    | "WON"
-    | "LOST"
+    | { kind: "WON" }
+    | { kind: "LOST" }
     | { kind: "INTERRUPTED"; reason: "MAX_TURNS_REACHED" | "TURN_LOOP" }
 
 
