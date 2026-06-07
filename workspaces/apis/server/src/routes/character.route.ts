@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { CharacterModel } from "../models/character.model"
+import { CharacterModel } from "@models/character.model"
  
 const router = Router()
 

@@ -3,7 +3,7 @@ import type { FightError, FightMapID, FightResult, Result, TeamMemberData } from
 import { FightLogModel } from "@models/fight_log.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { engine } from "../index"
-import { buildTeamFromUserId } from "../services/team.service"
+import { buildTeamFromUserId } from "@services/team.service"
  
 const router = Router()
 

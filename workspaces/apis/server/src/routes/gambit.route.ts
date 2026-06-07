@@ -1,6 +1,6 @@
 import { Router } from "express"
 import type { Gambit } from "@reflexer/engine"
-import { GambitModel } from "../models/gambit.model"
+import { GambitModel } from "@models/gambit.model"
  
 const router = Router()
  
