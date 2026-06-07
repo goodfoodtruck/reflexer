@@ -39,7 +39,7 @@ const Styles = {
   conditionBadgeBase: "text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-sm",
   conditionSelf: "bg-blue-500/15 text-blue-400",
   conditionEnemy: "bg-red-500/15 text-red-400",
-  conditionAlly: "bg-emerald-500/15 text-emerald-400",
+  conditionCharacter: "bg-emerald-500/15 text-emerald-400",
   filterText: "text-xs font-bold text-slate-200 pr-2",
   notContainer: "flex flex-col gap-2",
   notBox: "flex items-center gap-2 bg-[#1A1D24] border border-red-500/20 rounded-md py-1 px-1.5 w-fit",
@@ -88,7 +88,7 @@ export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
       const badgeColor = 
         kind === "SELF" ? Styles.conditionSelf : 
         kind === "ENEMY" ? Styles.conditionEnemy : 
-        Styles.conditionAlly;
+        Styles.conditionCharacter;
 
       return (
         <div key={`${node.type}-${index}`} className="flex flex-col gap-2">

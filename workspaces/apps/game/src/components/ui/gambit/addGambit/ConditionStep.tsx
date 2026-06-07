@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import type { ConditionBlock, DraftCondition, DraftGambit, SavedCondition } from "../GambitTypes";
 import { IconSelf } from "../../../../assets/icons/IconSelf";
 import { IconOther } from "../../../../assets/icons/IconOther";
-import { IconAlly } from "../../../../assets/icons/IconAlly";
+import { IconCharacter } from "../../../../assets/icons/IconCharacter";
 import { IconEnemy } from "../../../../assets/icons/IconEnemy";
 import { CRITERIA_DATA_CONDITION_STEP } from "../mockData";
 import { IconArrows } from "../../../../assets/icons/IconArrows";
@@ -12,7 +12,7 @@ import { IconPlus } from "../../../../assets/icons/IconPlus";
 const TARGET_OPTIONS = [
   { id: "SELF", label: "Self", icon: <IconSelf /> },
   { id: "ENEMY", label: "Enemy", icon: <IconEnemy /> },
-  { id: "ALLY", label: "Ally", icon: <IconAlly /> },
+  { id: "ALLY", label: "Character", icon: <IconCharacter /> },
   { id: "OTHER", label: "Other", icon: <IconOther /> },
 ];
 

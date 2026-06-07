@@ -1,4 +1,4 @@
-import { AllyName, EnemyTag, EntityStats } from "@fight/fight.types"
+import { CharacterName, EnemyTag, EntityStats } from "@fight/fight.types"
 import { Gambit } from "@fight/gambits"
 import { FightMapConfig, FightMapID } from "@fight/map"
 import { PassiveID } from "@fight/passives/passives.types"
@@ -45,7 +45,7 @@ export type RunPlayerData = {
 }
 
 export type TeamMemberData = {
-    name: AllyName
+    characterName: CharacterName
     baseStats: EntityStats
     gambits: Gambit[]
     activePassiveIds: PassiveID[]

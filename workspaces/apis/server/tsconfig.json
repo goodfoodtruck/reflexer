@@ -10,7 +10,8 @@
     "paths": {
         "@routes/*": ["./src/routes/*"],
         "@models/*": ["./src/models/*"],
-        "@scripts/*": ["./src/scripts/*"]
+        "@scripts/*": ["./src/scripts/*"],
+        "@services/*": ["./src/services/*"]
     }
   },
   "include": ["**/*.ts"]

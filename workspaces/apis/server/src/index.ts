@@ -7,7 +7,8 @@ import characterRoutes   from "@routes/character.route"
 import gambitRoutes from "@routes/gambit.route"
 import runRoutes    from "@routes/run.route"
 import fightRoutes  from "@routes/fight.route"
-import { createGameEngine } from "@scripts/createGameEngine"
+import { createGameEngine } from "@reflexer/engine"
+import { seedCharacters } from "@scripts/seedCharacters"
  
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.get("/", (_, res) => res.json({ status: "ok", service: "reflexer-server" }))
 const start = async () => {
     const uri  = process.env.MONGODB_URI ?? "mongodb://mongodb:27017/reflexer"
     await connectDatabase(uri)
+    await seedCharacters()
  
     const port = Number(process.env.PORT ?? 4000)
     app.listen(port, () => {

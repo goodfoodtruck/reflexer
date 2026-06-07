@@ -204,7 +204,7 @@ export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
 
 
-export type AllyName = "CHARACTER_1" | "CHARACTER_2"
+export type CharacterName = "CHARACTER_1" | "CHARACTER_2"
 
 export type EnemyTag = 
     | "ENEMY_MELEE"
@@ -216,7 +216,7 @@ export type EnemyName = "ALIEN" | "KNIGHT" | "GOBLIN"
 
 /** On indentifie un ennemi par son type et un allié par son nom */
 export type EntityTag =
-    | AllyName
+    | CharacterName
     | EnemyTag
 
     
@@ -287,8 +287,8 @@ export interface IEnemyCompositionResolver {
     resolve(mapSize: EFightMapSize, nbEnemies: NbPlayerByTeam): EnemyTag[]
 }
 
-export interface IAllyBuilder {
-    buildAlly(name: TeamMemberData, position: Position, index: number): PlayingEntity
+export interface ICharacterBuilder {
+    buildCharacter(name: TeamMemberData, position: Position, index: number): PlayingEntity
 }
 
 export type FightContextFactoryDeps = {

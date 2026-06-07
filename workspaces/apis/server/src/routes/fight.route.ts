@@ -3,17 +3,24 @@ import type { FightError, FightMapID, FightResult, Result, TeamMemberData } from
 import { FightLogModel } from "@models/fight_log.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { engine } from "../index"
+import { buildTeamFromUserId } from "../services/team.service"
  
 const router = Router()
 
 router.post("/friendly", async (req, res) => {
     try {
-        const { playerId, opponentId, fightMapId, playerTeam, opponentTeam } = req.body as {
-            playerId: string,
-            opponentId: string,
-            fightMapId: FightMapID, 
-            playerTeam: TeamMemberData[], 
-            opponentTeam: TeamMemberData[]
+        const { playerId, opponentId, fightMapId } = req.body as {
+            playerId: string
+            opponentId: string
+            fightMapId: FightMapID
+        }
+
+        const playerTeam   = await buildTeamFromUserId(playerId)
+        const opponentTeam = await buildTeamFromUserId(opponentId)
+
+        if (! playerTeam.length || ! opponentTeam.length) {
+            res.status(400).json({ error: "TEAM_EMPTY" })
+            return
         }
 
         const result: Result<FightResult, FightError> = engine.playPvpFight(fightMapId, playerTeam, opponentTeam)
@@ -30,12 +37,12 @@ router.post("/friendly", async (req, res) => {
             playerUserId: playerId,
             opponentUserId: opponentId,
             playerTeam: playerTeam.map((teamMember: TeamMemberData) => ({
-                name: teamMember.name,
+                characterName: teamMember.characterName,
                 baseStats: teamMember.baseStats,
                 gambits: teamMember.gambits
             })),
             opponentTeam: opponentTeam.map((teamMember: TeamMemberData) => ({
-                name: teamMember.name,
+                characterName: teamMember.characterName,
                 baseStats: teamMember.baseStats,
                 gambits: teamMember.gambits
             })),

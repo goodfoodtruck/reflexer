@@ -1,4 +1,4 @@
-import { SelfFilter, AllyFilter, EnemyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
+import { SelfFilter, CharacterFilter, EnemyFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 
 /** Statuts pouvant affecter une entité pendant le combat */
 export type Status = "POISON" | "BURNT" | "PARALYZED"
@@ -32,7 +32,7 @@ export type MovementGambit = Gambit & { intent: MovementIntent }
  * - ACTION : exécute une action définie dans l'ActionRepository
  * - MOVEMENT : demande un déplacement selon une stratégie
  */
-type GambitIntent = ActionIntent | MovementIntent
+export type GambitIntent = ActionIntent | MovementIntent
 
 
 
@@ -93,7 +93,7 @@ export enum ETargetType {
 type ConditionContext =
     | { targetType: ETargetType.SELF,  filters: SelfFilter[] }
     | { targetType: ETargetType.ENEMY, filters: EnemyFilter[] }
-    | { targetType: ETargetType.ALLY,  filters: AllyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: CharacterFilter[] }
 
 /**
  * Sélecteur de cible évalué après les conditions.
@@ -120,7 +120,7 @@ export type TargetSelector = {
 type TargetContext =
     | { targetType: ETargetType.SELF }
     | { targetType: ETargetType.ENEMY, filters: EnemyFilter[] }
-    | { targetType: ETargetType.ALLY,  filters: AllyFilter[] }
+    | { targetType: ETargetType.ALLY,  filters: CharacterFilter[] }
 
 /**
  * Critère de sélection de la cible finale parmi les candidats filtrés.

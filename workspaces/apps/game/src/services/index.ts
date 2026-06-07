@@ -1,5 +1,5 @@
 export * from "./user.service"
-export * from "./ally.service"
+export * from "./character.service"
 export * from "./gambit.service"
 export * from "./run.service"
 export * from "./fight.service"

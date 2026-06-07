@@ -2,7 +2,25 @@
 
 // Garde-fous de fin de combat : on coupe au bout de MAX_TURNS tours d'entité,
 
-import { GameEngine, InMemoryFightMapRegistry, InMemoryActionRegistry, InMemoryEnemyRegistry, FilterApplier, buildFilterRegistry, EntityScopeResolver, GambitTargetResolver, ActionGambitResolver, EntityMovementResolver, ProcessorFactory, ProcessorChain, ActionChainExecutor, EntityMovementExecutor, EntityPassiveExecutor, TurnController, FightLogger, FightStateResolver, FightOrchestrator, FightContextFactory, FightEntitiesValidator, NbEnemiesResolver, EnemyBuilder, EnemyCompositionResolver, FightCommandHandler, GameEngineDeps, InMemoryPassiveRegistry, ConditionResolver, FightSafetyChecker, TriggeredPassiveResolver, TeamBuilder, FightMapConfig, EFightMapSize } from "@reflexer/engine"
+import { InMemoryActionRegistry } from "@data/InMemoryActionRegistry"
+import { InMemoryEnemyRegistry } from "@data/InMemoryEnemyRegistry"
+import { InMemoryFightMapRegistry } from "@data/InMemoryFightMapRegistry"
+import { InMemoryPassiveRegistry } from "@data/InMemoryPassiveRegistry"
+import { FightContextFactory, FightEntitiesValidator, NbEnemiesResolver, EnemyBuilder, EnemyCompositionResolver, TeamBuilder } from "@fight/context"
+import { FightLogger } from "@fight/FightLogger"
+import { FightOrchestrator } from "@fight/FightOrchestrator"
+import { FightSafetyChecker } from "@fight/FightSafetyChecker"
+import { FightStateResolver } from "@fight/FightStateResolver"
+import { FilterApplier, buildFilterRegistry, EntityScopeResolver, GambitTargetResolver, ConditionResolver, ActionGambitResolver, EntityMovementResolver } from "@fight/gambits"
+import { FightMapConfig, EFightMapSize } from "@fight/map"
+import { TriggeredPassiveResolver } from "@fight/passives"
+import { ProcessorFactory, ProcessorChain } from "@fight/processors"
+import { ActionChainExecutor, EntityMovementExecutor, EntityPassiveExecutor } from "@fight/turn-executors"
+import { TurnController } from "@fight/TurnController"
+import { FightCommandHandler } from "./command-handlers"
+import { GameEngineDeps } from "@game-engine/game-engine.types"
+import { GameEngine } from "@game-engine/GameEngine"
+
 
 // ou si un motif de <= MAX_CYCLE_LENGTH tours se répète CYCLE_REPETITIONS fois.
 const MAX_TURNS = 100

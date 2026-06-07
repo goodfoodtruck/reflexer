@@ -2,13 +2,13 @@ import { PlayingTeamID, FightEndState, EntityStats, Gambit, FightMapID } from "@
 import { Types, Schema, model } from "mongoose"
 
 type TeamMemberSnapshot = {
-    name: string
+    characterName: string
     baseStats: EntityStats
     gambits: Gambit[]
 }
 
 const TeamMemberSnapshotSchema = new Schema({
-    name:      { type: String, required: true },
+    characterName:      { type: String, required: true },
     baseStats: { type: Schema.Types.Mixed, required: true },
     gambits:   { type: [Schema.Types.Mixed], required: true }
 }, { _id: false })

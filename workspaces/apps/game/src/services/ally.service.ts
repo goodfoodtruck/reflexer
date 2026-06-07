@@ -1,22 +1,22 @@
 import { api } from "./api"
-import type { AllyName } from "@reflexer/engine"
+import type { CharacterName } from "@reflexer/engine"
 
-export type Ally = {
+export type Character = {
     _id:       string
     userId:    string
     name:      string
-    allyName:  AllyName
+    characterName:  CharacterName
     createdAt: string
     updatedAt: string
 }
 
-export const AllyService = {
-    create: (userId: string, name: string, allyName: AllyName) =>
-        api.post<Ally>("/allies", { userId, name, allyName }),
+export const CharacterService = {
+    create: (userId: string, name: string, characterName: CharacterName) =>
+        api.post<Character>("/allies", { userId, name, characterName }),
 
     getAllByUser: (userId: string) =>
-        api.get<Ally[]>(`/allies?userId=${userId}`),
+        api.get<Character[]>(`/allies?userId=${userId}`),
 
     getById: (id: string) =>
-        api.get<Ally>(`/allies/${id}`),
+        api.get<Character>(`/allies/${id}`),
 }
