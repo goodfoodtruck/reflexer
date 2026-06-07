@@ -70,7 +70,7 @@ export class CombatReplayer {
     private buildLabels(entities: EntitySnapshot[]): Map<PlayingEntityID, string> {
         const labels = new Map<PlayingEntityID, string>()
         for (const entity of entities) {
-            labels.set(entity.id, this.characterRegistry.getConfig(entity.name).displayName)
+            labels.set(entity.id, this.characterRegistry.getConfig(entity.name).name)
         }
         return labels
     }

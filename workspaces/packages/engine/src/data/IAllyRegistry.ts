@@ -5,7 +5,7 @@ import { EntityVisual } from "./visual.types"
 export type AllyConfig = {
     gambits: Gambit[],
     baseStats: EntityStats
-    displayName: string   // libellé affichable du personnage
+    name: string          // libellé affichable du personnage
     visual: EntityVisual  // chemins + métadonnées d'animation des sprites
 }
 
