@@ -3,6 +3,8 @@ import { AnimatedBackground } from "../../components/ui/AnimatedBackground";
 import { MenuButton } from "../../components/ui/MenuButton";
 import herosImage from "../../assets/images/heros.png";
 import bgHomeImage from "../../assets/images/bg-home.png"; 
+import { OptionsPanel } from "../../components/ui/OptionsPanel";
+import { useState } from "react";
 
 const STYLES = {
   container: "w-screen h-screen font-sans relative overflow-hidden flex flex-col selection:bg-amber-500/30 bg-black",
@@ -26,10 +28,11 @@ const STYLES = {
 
 export function HomePage() {
   const navigate = useNavigate();
+  const [showOptions, setShowOptions] = useState(false);
 
-  const onStartGame = () => {
-    navigate("/team");
-  };
+  const onStartGame = () => navigate('/team');
+  const onOpenOptions = () => setShowOptions(true);
+  const onCloseOptions = () => setShowOptions(false);
 
   return (
     <div className={STYLES.container}>
@@ -70,11 +73,11 @@ export function HomePage() {
         <div className={STYLES.navContainer}>
           <MenuButton onClick={onStartGame}>Nouvelle partie</MenuButton>
           <MenuButton>Historique</MenuButton>
-          <MenuButton>Options</MenuButton>
-        </div> 
-        
+          <MenuButton onClick={onOpenOptions}>Options</MenuButton>
+        </div>
       </div>
-      
+
+      {showOptions && <OptionsPanel onClose={onCloseOptions} />}
     </div>
   );
 }
