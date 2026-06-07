@@ -8,9 +8,6 @@ export type User = {
 }
 
 export const UserService = {
-    create: (name: string) =>
-        api.post<User>("/users", { name }),
-
     getById: (id: string) =>
         api.get<User>(`/users/${id}`),
 }
