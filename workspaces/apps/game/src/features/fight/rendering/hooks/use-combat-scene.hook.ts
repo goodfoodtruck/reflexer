@@ -1,38 +1,15 @@
 import { useEffect, useReducer, useRef } from "react"
-import type { FightResult } from "@reflexer/engine"
-import { createGameEngine, InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_CHARACTERS } from "@reflexer/engine"
+import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_CHARACTERS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
+import { FightService } from "../../../../services"
 
-// Équipe du joueur dérivée des personnages mockés : le moteur attend désormais
-// des `TeamMemberData` complets (stats + gambits), passés directement au combat.
-const PLAYER_TEAM_NAMES = ["CHARACTER_1", "CHARACTER_2"] as const
 
-const MOCK_PLAYER_TEAM = PLAYER_TEAM_NAMES.map(characterName => {
-    const config = MOCK_CHARACTERS[characterName]
-    return {
-        characterName,
-        baseStats: config.baseStats,
-        gambits: config.gambits,
-        activePassiveIds: [],
-    }
-})
-
+const PLAYER_ID = import.meta.env.VITE_FRIENDLY_PLAYER_ID ?? ""
+const OPPONENT_ID = import.meta.env.VITE_FRIENDLY_OPPONENT_ID ?? ""
 const FIGHT_MAP_ID = "TRAINING_GROUND"
-
-/** Joue un vrai combat via le moteur et renvoie son `FightResult` à rejouer. */
-function runFight(): FightResult {
-    const engine = createGameEngine()
-    engine.startNewGame()
-
-    const result = engine.playPveFight(FIGHT_MAP_ID, MOCK_PLAYER_TEAM)
-    if (!result.success)
-        throw new Error(`Combat impossible : ${result.reason}`)
-
-    return result.value
-}
 
 export function useCombatScene() {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -46,7 +23,7 @@ export function useCombatScene() {
 
         CombatScene
             .create(containerRef.current)
-            .then(scene => {
+            .then(async scene => {
                 if (cancelled) {
                     scene.destroy()
                     return
@@ -57,7 +34,14 @@ export function useCombatScene() {
                 const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
                 const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
                 const replayer = new CombatReplayer(scene, queue, dispatch, mapRegistry, characterRegistry)
-                replayer.play(runFight())
+
+                const fight = await FightService.playFriendlyFight(PLAYER_ID, OPPONENT_ID, FIGHT_MAP_ID)
+                if (cancelled) return
+
+                replayer.play(fight)
+            })
+            .catch(error => {
+                console.error("Combat : échec du chargement du combat", error)
             })
 
         return () => {

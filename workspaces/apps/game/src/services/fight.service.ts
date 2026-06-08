@@ -1,5 +1,5 @@
 import { api } from "./api"
-import type { EnemyName, TurnLog, FightEndState } from "@reflexer/engine"
+import type { EnemyName, TurnLog, FightEndState, FightResult, FightMapID } from "@reflexer/engine"
 
 export type Fight = {
     _id:        string
@@ -20,6 +20,17 @@ export type FinishFightInput = {
     logs:     TurnLog[]
 }
 
+export type FriendlyFight = FightResult & {
+    _id:            string
+    mode:           "RANKED" | "FRIENDLY"
+    playerUserId:   string
+    opponentUserId: string
+    winner:         "PLAYER" | "ENEMY"
+    fightMapId:     FightMapID
+    createdAt:      string
+    updatedAt:      string
+}
+
 export const FightService = {
     create: (runId: string, enemies: EnemyName[], floorIndex: number) =>
         api.post<Fight>("/fights", { runId, enemies, floorIndex }),
@@ -35,4 +46,8 @@ export const FightService = {
 
     getLogs: (id: string) =>
         api.get<TurnLog[]>(`/fights/${id}/logs`),
+
+    // Combat amical (PVP) joué côté serveur : renvoie le `fight` étendu, rejouable tel quel.
+    playFriendlyFight: (playerId: string, opponentId: string, fightMapId: FightMapID) =>
+        api.post<FriendlyFight>("/fights/friendly", { playerId, opponentId, fightMapId }),
 }

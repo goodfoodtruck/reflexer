@@ -57,7 +57,11 @@ router.post("/friendly", async (req, res) => {
             logs: result.value.logs
         })
 
-        res.status(201).json(fight)
+        res.status(201).json({
+            ...fight.toObject(),
+            initialState: result.value.initialState,
+            logs:         result.value.logs,
+        })
 
     } catch (error) {
         console.error("Error:", error)

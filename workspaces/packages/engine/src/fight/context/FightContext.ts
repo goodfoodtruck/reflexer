@@ -250,6 +250,13 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             case "RESET": this.applyResetStrategy(entity, newPassive); break
             case "STACK": this.applyStackStrategy(entity, newPassive, strategy.maxStack); break
         }
+
+        this.queueLog({
+            type: "passive_applied",
+            targetId: entity.id,
+            sourceId: newPassive.sourceEntityId,
+            passiveId: newPassive.passive.id,
+        })
     }
 
     private applyResetStrategy(entity: PlayingEntity, activePassiveToApply: ActivePassive): void {
