@@ -7,7 +7,15 @@ export type User = {
     updatedAt: string
 }
 
+export type PlayerSearchResult = {
+    _id:  string
+    name: string
+}
+
 export const UserService = {
     getById: (id: string) =>
         api.get<User>(`/users/${id}`),
+
+    search: (name: string) =>
+        api.get<PlayerSearchResult[]>(`/users/search?name=${encodeURIComponent(name)}`),
 }

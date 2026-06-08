@@ -5,6 +5,7 @@ import herosImage from "../../assets/images/heros.png";
 import bgHomeImage from "../../assets/images/bg-home.png"; 
 import { OptionsPanel } from "../../components/ui/OptionsPanel";
 import { useState } from "react";
+import { NotificationBell } from "../../components/ui/NotificationBell";
 
 const STYLES = {
   container: "w-screen h-screen font-sans relative overflow-hidden flex flex-col selection:bg-amber-500/30 bg-black",
@@ -31,6 +32,7 @@ export function HomePage() {
   const [showOptions, setShowOptions] = useState(false);
 
   const onStartGame = () => navigate('/team');
+  const onChallenge    = () => navigate('/challenge')
   const onOpenOptions = () => setShowOptions(true);
   const onCloseOptions = () => setShowOptions(false);
 
@@ -47,6 +49,7 @@ export function HomePage() {
 
       <div className={STYLES.overlay}></div>
       <div className={STYLES.foreground}>
+        <NotificationBell /> 
         
         <div className={STYLES.titleWrapper}>
           <h1 className={STYLES.mainTitle}>
@@ -72,6 +75,7 @@ export function HomePage() {
 
         <div className={STYLES.navContainer}>
           <MenuButton onClick={onStartGame}>Nouvelle partie</MenuButton>
+          <MenuButton onClick={onChallenge}>Défier un joueur</MenuButton>
           <MenuButton>Historique</MenuButton>
           <MenuButton onClick={onOpenOptions}>Options</MenuButton>
         </div>
