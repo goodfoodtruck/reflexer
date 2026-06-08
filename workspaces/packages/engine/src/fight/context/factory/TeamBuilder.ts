@@ -11,9 +11,9 @@ export class TeamBuilder implements ITeamBuilder {
     ): PlayingEntity[] {
         return members.map((member, index) => ({
             id: `${teamId.toLowerCase()}_${index}`,
-            name: member.name,
+            name: member.characterName,
             teamId,
-            tags: [member.name],
+            tags: [member.characterName],
             position: spawnPositions[index]!,
             baseStats: { ...member.baseStats },
             currentStats: { ...member.baseStats },

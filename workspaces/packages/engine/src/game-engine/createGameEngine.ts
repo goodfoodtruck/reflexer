@@ -53,7 +53,7 @@ export function createGameEngine(): GameEngine {
     // Registres (sources de données mockées)
     const fightMapRegistry = new InMemoryFightMapRegistry([config])
     const actionRegistry = new InMemoryActionRegistry([])
-    const passiveRegistry = new InMemoryPassiveRegistry()
+    const passiveRegistry = new InMemoryPassiveRegistry({})
     const enemyRegistry = new InMemoryEnemyRegistry([])
 
     // Résolution des gambits (ciblage)

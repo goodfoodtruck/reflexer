@@ -1,4 +1,4 @@
-import { AllyName, EntityName } from "@fight/fight.types"
+import { CharacterName, EntityName } from "@fight/fight.types"
 import { AllyConfig, IAllyRegistry } from "./IAllyRegistry"
 import { CharacterConfig } from "./ICharacterRegistry"
 
@@ -10,7 +10,7 @@ import { CharacterConfig } from "./ICharacterRegistry"
 export class InMemoryAllyRegistry implements IAllyRegistry {
     constructor(private readonly characters: Record<EntityName, CharacterConfig>) {}
 
-    getConfig(allyName: AllyName): AllyConfig {
+    getConfig(allyName: CharacterName): AllyConfig {
         const config = this.characters[allyName]
         if (!config) {
             throw new Error(`Allié inconnu : ${allyName}`)

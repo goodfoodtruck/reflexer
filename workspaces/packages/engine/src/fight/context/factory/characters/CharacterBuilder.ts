@@ -9,6 +9,7 @@ export class CharacterBuilder implements ICharacterBuilder {
     buildCharacter(data: TeamMemberData, position: Position, index: number): PlayingEntity {
         return {
             id: this.generateCharacterID(data.characterName, index),
+            name: data.characterName,
             teamId: "PLAYER",
             tags: [data.characterName],
             position: position,

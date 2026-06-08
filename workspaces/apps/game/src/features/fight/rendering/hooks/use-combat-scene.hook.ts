@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef } from "react"
-import type { FightResult, PlayerData } from "@reflexer/engine"
+import type { FightResult } from "@reflexer/engine"
 import { createGameEngine, InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_CHARACTERS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
@@ -7,31 +7,27 @@ import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
 
 // Équipe du joueur dérivée des personnages mockés : le moteur attend désormais
-// des `TeamMemberData` complets (stats + gambits), plus une simple liste de noms.
+// des `TeamMemberData` complets (stats + gambits), passés directement au combat.
 const PLAYER_TEAM_NAMES = ["CHARACTER_1", "CHARACTER_2"] as const
 
-const MOCK_PLAYER_DATA: PlayerData = {
-    playerFloorIndex: 1,
-    gold: 0,
-    playerTeam: PLAYER_TEAM_NAMES.map(name => {
-        const config = MOCK_CHARACTERS[name]
-        return {
-            name,
-            baseStats: config.baseStats,
-            gambits: config.gambits,
-            activePassiveIds: [],
-        }
-    }),
-}
+const MOCK_PLAYER_TEAM = PLAYER_TEAM_NAMES.map(characterName => {
+    const config = MOCK_CHARACTERS[characterName]
+    return {
+        characterName,
+        baseStats: config.baseStats,
+        gambits: config.gambits,
+        activePassiveIds: [],
+    }
+})
 
 const FIGHT_MAP_ID = "TRAINING_GROUND"
 
 /** Joue un vrai combat via le moteur et renvoie son `FightResult` à rejouer. */
 function runFight(): FightResult {
     const engine = createGameEngine()
-    engine.startNewGame(MOCK_PLAYER_DATA)
+    engine.startNewGame()
 
-    const result = engine.playPveFight(FIGHT_MAP_ID)
+    const result = engine.playPveFight(FIGHT_MAP_ID, MOCK_PLAYER_TEAM)
     if (!result.success)
         throw new Error(`Combat impossible : ${result.reason}`)
 
