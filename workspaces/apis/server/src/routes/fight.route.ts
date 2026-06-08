@@ -4,6 +4,8 @@ import { FightLogModel } from "@models/fight_log.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { engine } from "../index"
 import { buildTeamFromUserId } from "@services/team.service"
+import { UserModel } from "@models/user.model"
+import { NotificationModel } from "@models/notification.model"
  
 const router = Router()
 
@@ -57,11 +59,24 @@ router.post("/friendly", async (req, res) => {
             logs: result.value.logs
         })
 
+        // Notifier l'adversaire
+        const playerUser = await UserModel.findById(playerId, { name: 1 });
+        if (playerUser) {
+            await NotificationModel.create({
+                userId: opponentId,
+                fromName: playerUser.name,
+                fightId: fight._id,
+                winner: fightWinnerTeamID
+            });
+        }
+
         res.status(201).json({
             ...fight.toObject(),
             initialState: result.value.initialState,
             logs:         result.value.logs,
         })
+
+        res.status(201).json(fight)
 
     } catch (error) {
         console.error("Error:", error)
