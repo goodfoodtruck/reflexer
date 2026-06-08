@@ -6,13 +6,15 @@ import { InMemoryActionRegistry } from "@data/InMemoryActionRegistry"
 import { InMemoryEnemyRegistry } from "@data/InMemoryEnemyRegistry"
 import { InMemoryFightMapRegistry } from "@data/InMemoryFightMapRegistry"
 import { InMemoryPassiveRegistry } from "@data/InMemoryPassiveRegistry"
+import { MOCK_ACTIONS } from "@data/mockActions"
+import { MOCK_PASSIVES } from "@data/mockPassives"
+import { MOCK_FIGHT_MAPS } from "@data/mockFightMaps"
+import { MOCK_ENEMIES } from "@data/mockCharacters"
 import { FightContextFactory, FightEntitiesValidator, NbEnemiesResolver, EnemyBuilder, EnemyCompositionResolver, TeamBuilder } from "@fight/context"
-import { FightLogger } from "@fight/FightLogger"
 import { FightOrchestrator } from "@fight/FightOrchestrator"
 import { FightSafetyChecker } from "@fight/FightSafetyChecker"
 import { FightStateResolver } from "@fight/FightStateResolver"
 import { FilterApplier, buildFilterRegistry, EntityScopeResolver, GambitTargetResolver, ConditionResolver, ActionGambitResolver, EntityMovementResolver } from "@fight/gambits"
-import { FightMapConfig, EFightMapSize } from "@fight/map"
 import { TriggeredPassiveResolver } from "@fight/passives"
 import { ProcessorFactory, ProcessorChain } from "@fight/processors"
 import { ActionChainExecutor, EntityMovementExecutor, EntityPassiveExecutor } from "@fight/turn-executors"
@@ -37,24 +39,11 @@ const CYCLE_REPETITIONS = 4
  * l'instant.
  */
 export function createGameEngine(): GameEngine {
-    const config: FightMapConfig = {
-        id: "MAP_1",
-        dimensions: {
-            width: 0,
-            height: 0
-        },
-        size: EFightMapSize.SMALL_RANGE,
-        cells: [],
-        spawnPoints: {
-            player: [],
-            enemy: []
-        }
-    }
     // Registres (sources de données mockées)
-    const fightMapRegistry = new InMemoryFightMapRegistry([config])
-    const actionRegistry = new InMemoryActionRegistry([])
-    const passiveRegistry = new InMemoryPassiveRegistry({})
-    const enemyRegistry = new InMemoryEnemyRegistry([])
+    const fightMapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
+    const actionRegistry = new InMemoryActionRegistry(MOCK_ACTIONS)
+    const passiveRegistry = new InMemoryPassiveRegistry(MOCK_PASSIVES)
+    const enemyRegistry = new InMemoryEnemyRegistry(MOCK_ENEMIES)
 
     // Résolution des gambits (ciblage)
     const filterApplier = new FilterApplier(buildFilterRegistry())
