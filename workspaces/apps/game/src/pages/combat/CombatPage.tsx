@@ -1,11 +1,10 @@
 import { useCombatScene } from "../../features/fight/rendering/hooks/use-combat-scene.hook";
 import { CELL_SIZE } from "../../features/fight/rendering/CombatScene";
 import { HealthBarsOverlay } from "../../components/ui/combat/HealthBarsOverlay";
-import { CurrentActionBanner } from "../../components/ui/combat/CurrentActionBanner";
 import { TurnCounter } from "../../components/ui/combat/TurnCounter";
-import { TurnOrderList } from "../../components/ui/combat/TurnOrderList";
 import { ActiveEntityCard } from "../../components/ui/combat/ActiveEntityCard";
 import { CombatLog } from "../../components/ui/combat/CombatLog";
+import { TurnRoster } from "../../components/ui/combat/TurnRoster";
 import STYLES from "./styles";
 
 export function CombatPage() {
@@ -14,30 +13,32 @@ export function CombatPage() {
     const stageWidth = (state.mapDimensions?.width ?? 10) * CELL_SIZE;
     const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;
 
-    const activeEntity = state.currentTurnOwnerId ? state.entities[state.currentTurnOwnerId] : undefined;
+    const activeId = state.currentTurnOwnerId;
+    const activeEntity = activeId ? state.entities[activeId] : undefined;
+    const nextId = state.upcomingTurnOwners[0] ?? null;
+
+    // Ordre d'affichage figé (ordre d'init des entités) : seuls les badges
+    // « Joue » / « Suivant » bougent, pas les cartes.
+    const members = Object.values(state.entities);
 
     return (
         <div className={STYLES.container}>
-            {/* Barre du haut : action en cours + pause */}
+            {/* Bandeau haut : compteur de tour · statut */}
             <div className={STYLES.topBar}>
+                <TurnCounter turnIndex={state.turnIndex} />
                 <div className="flex-1" />
-                <CurrentActionBanner action={state.currentAction} />
-                <div className="flex-1 flex justify-end">
-                    <div className={STYLES.pauseZone}>
-                        <span>{state.status === "ended" ? "Terminé" : "En pause"}</span>
-                    </div>
+                <div className={STYLES.pauseZone}>
+                    <span>{state.status === "ended" ? "Terminé" : "En pause"}</span>
                 </div>
             </div>
 
             <div className={STYLES.body}>
-                {/* Colonne gauche : compteur, ordre des tours, entité active */}
+                {/* Colonne gauche : narration groupée (actif → feed) */}
                 <div className={STYLES.leftColumn}>
-                    <TurnCounter turnIndex={state.turnIndex} />
-                    <span className={STYLES.panelTitle}>—— Tours ——</span>
-                    <div className={STYLES.turnOrderScroll}>
-                        <TurnOrderList owners={state.upcomingTurnOwners} entities={state.entities} />
-                    </div>
                     <ActiveEntityCard entity={activeEntity} />
+                    <div className={STYLES.feedScroll}>
+                        <CombatLog logs={state.logs} />
+                    </div>
                 </div>
 
                 {/* Centre : la grille Pixi + overlay barres de vie */}
@@ -51,9 +52,9 @@ export function CombatPage() {
                     </div>
                 </div>
 
-                {/* Colonne droite : journal de combat */}
+                {/* Colonne droite : liste unique (ordre figé), badges Joue / Suivant */}
                 <div className={STYLES.rightColumn}>
-                    <CombatLog logs={state.logs} />
+                    <TurnRoster members={members} activeId={activeId} nextId={nextId} />
                 </div>
             </div>
         </div>

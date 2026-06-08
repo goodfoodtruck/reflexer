@@ -3,7 +3,11 @@ import type { Dispatch } from "react";
 import type { AnimationQueue } from "./AnimationQueue.ts";
 import type { CombatScene } from "../rendering/CombatScene.ts";
 import type { CombatAction } from "./combat-view.reducer.ts";
-import { formatActionLog } from "./log-format.ts";
+import type { SpriteIcon } from "./combat-view.types.ts";
+import { formatActionLog, type LogVisuals } from "./log-format.ts";
+import { resolveActionIconUrl } from "./action-assets.ts";
+import { resolveSpriteUrl } from "../rendering/sprite-assets.ts";
+import { MOCK_ACTIONS } from "@reflexer/engine";
 
 /**
  * Cadence du combat (façon FF Tactics) : des temps morts délibérés autour de
@@ -35,7 +39,20 @@ export class CombatReplayer {
         await this.scene.setup(result.initialState, map, entity => this.characterRegistry.getConfig(entity.name).visual)
 
         const labels = this.buildLabels(result.initialState.entities)
-        this.dispatch({ type: "initialize", snapshot: result.initialState, labels, mapDimensions: map.dimensions })
+        const icons = this.buildIcons(result.initialState.entities)
+        this.dispatch({ type: "initialize", snapshot: result.initialState, labels, icons, mapDimensions: map.dimensions })
+
+        // Présentation des actions résolue depuis la donnée moteur (json/actions.json) :
+        // icône (chemin logique → URL bundlée) et libellé, par identifiant d'action.
+        const actionsById = new Map(MOCK_ACTIONS.map(action => [action.id, action]))
+        const visuals: LogVisuals = {
+            icons,
+            actionIcon: actionId => {
+                const icon = actionsById.get(actionId)?.icon
+                return icon ? resolveActionIconUrl(icon) : null
+            },
+            actionName: actionId => actionsById.get(actionId)?.name ?? null,
+        }
 
         let lineId = 0
         const turns = result.logs
@@ -47,7 +64,7 @@ export class CombatReplayer {
             await this.scene.wait(PACING.turnIntroMs)
 
             for (const log of turn.actionLogs) {
-                const line = formatActionLog(log, labels, lineId)
+                const line = formatActionLog(log, labels, visuals, lineId)
                 if (line) {
                     this.dispatch({ type: "pushAction", line })
                     lineId++
@@ -73,6 +90,21 @@ export class CombatReplayer {
             labels.set(entity.id, this.characterRegistry.getConfig(entity.name).name)
         }
         return labels
+    }
+
+    /** Portrait de chaque entité : première frame de sa spritesheet idle. */
+    private buildIcons(entities: EntitySnapshot[]): Map<PlayingEntityID, SpriteIcon> {
+        const icons = new Map<PlayingEntityID, SpriteIcon>()
+        for (const entity of entities) {
+            const { idle } = this.characterRegistry.getConfig(entity.name).visual
+            icons.set(entity.id, {
+                url: resolveSpriteUrl(idle.path),
+                frames: idle.frames,
+                frameWidth: idle.frameWidth,
+                frameHeight: idle.frameHeight,
+            })
+        }
+        return icons
     }
 
     /** Répercute l'effet du log sur l'état de vue, après son animation. */

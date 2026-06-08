@@ -1,4 +1,5 @@
 import type { EntityView } from "../../../features/fight/replay/combat-view.types"
+import { SpriteFrame } from "./SpriteFrame"
 
 function StatBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
     const ratio = max > 0 ? value / max : 0
@@ -20,16 +21,20 @@ export function ActiveEntityCard({ entity }: { entity: EntityView | undefined })
     if (!entity) return null
 
     return (
-        <div className="w-full rounded-xl bg-violet-950/40 border border-violet-500/40 p-3 flex flex-col gap-2 shadow-lg">
-            <div className="flex items-center gap-2">
-                <span
-                    className={`w-3 h-3 rounded-sm ${entity.teamId === "PLAYER" ? "bg-sky-400" : "bg-rose-400"}`}
-                />
-                <span className="text-sm font-bold text-slate-100 truncate">{entity.label}</span>
-                <span className="ml-auto text-[10px] uppercase tracking-wider text-violet-300/70">Joue</span>
+        <div className="w-full rounded-xl bg-violet-950/40 border border-violet-500/40 p-3 flex items-center gap-3 shadow-lg">
+            <span className="flex-none w-12 h-12 flex items-center justify-center rounded-lg bg-slate-950/50 ring-1 ring-violet-500/40">
+                {entity.icon
+                    ? <SpriteFrame icon={entity.icon} className="h-11" />
+                    : <span className={`w-3 h-3 rounded-sm ${entity.teamId === "PLAYER" ? "bg-sky-400" : "bg-rose-400"}`} />}
+            </span>
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-100 truncate">{entity.label}</span>
+                    <span className="ml-auto text-[10px] uppercase tracking-wider text-violet-300/70">Joue</span>
+                </div>
+                <StatBar label="PV" value={entity.hp} max={entity.maxHp} color="bg-emerald-400" />
+                <StatBar label="E" value={entity.energy} max={entity.maxEnergy} color="bg-amber-400" />
             </div>
-            <StatBar label="PV" value={entity.hp} max={entity.maxHp} color="bg-emerald-400" />
-            <StatBar label="E" value={entity.energy} max={entity.maxEnergy} color="bg-amber-400" />
         </div>
     )
 }

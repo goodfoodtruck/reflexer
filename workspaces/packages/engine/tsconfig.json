@@ -4,6 +4,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "ignoreDeprecations": "6.0",
+    "resolveJsonModule": true,
     "paths": {
         "@game-engine/*": ["./src/game-engine/*"],
         "@helpers/*": ["./src/helpers/*"],

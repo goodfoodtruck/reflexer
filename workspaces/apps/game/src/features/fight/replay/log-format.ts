@@ -1,5 +1,15 @@
 import type { ActionLog, PlayingEntityID } from "@reflexer/engine"
-import type { CombatLogLine } from "./combat-view.types"
+import type { CombatLogLine, SpriteIcon } from "./combat-view.types"
+
+/** Sources visuelles à injecter dans les lignes de journal. */
+export type LogVisuals = {
+    /** Portrait de chaque entité (acteur / cible). */
+    icons: Map<PlayingEntityID, SpriteIcon>
+    /** Image d'une action/passif, ou `null` pour l'icône par défaut. */
+    actionIcon: (actionId: string) => string | null
+    /** Libellé d'une action porté par la donnée, ou `null` pour le repli humanisé. */
+    actionName: (actionId: string) => string | null
+}
 
 const ACTION_LABELS: Record<string, string> = {
     attack: "Attaque",
@@ -21,20 +31,27 @@ function humanize(id: string): string {
 export function formatActionLog(
     log: ActionLog,
     labels: Map<PlayingEntityID, string>,
+    visuals: LogVisuals,
     id: number
 ): CombatLogLine | null {
     const labelOf = (entityId: PlayingEntityID) => labels.get(entityId) ?? entityId
+    const actor = (entityId: PlayingEntityID) =>
+        ({ kind: "actor" as const, text: labelOf(entityId), sprite: visuals.icons.get(entityId) })
+    const target = (entityId: PlayingEntityID) =>
+        ({ kind: "target" as const, text: labelOf(entityId), sprite: visuals.icons.get(entityId) })
+    const skill = (actionId: string) =>
+        ({ kind: "skill" as const, text: visuals.actionName(actionId) ?? actionLabel(actionId), iconUrl: visuals.actionIcon(actionId) ?? undefined })
 
     switch (log.type) {
         case "damage_dealt":
             return {
                 id,
                 segments: [
-                    { kind: "actor", text: labelOf(log.sourceId) },
+                    actor(log.sourceId),
                     { kind: "plain", text: " lance " },
-                    { kind: "skill", text: actionLabel(log.actionId) },
+                    skill(log.actionId),
                     { kind: "plain", text: " sur " },
-                    { kind: "target", text: labelOf(log.targetId) },
+                    target(log.targetId),
                 ],
             }
 
@@ -42,11 +59,11 @@ export function formatActionLog(
             return {
                 id,
                 segments: [
-                    { kind: "actor", text: labelOf(log.sourceId) },
+                    actor(log.sourceId),
                     { kind: "plain", text: " applique " },
-                    { kind: "skill", text: actionLabel(log.passiveId) },
+                    skill(log.passiveId),
                     { kind: "plain", text: " sur " },
-                    { kind: "target", text: labelOf(log.targetId) },
+                    target(log.targetId),
                 ],
             }
 
@@ -54,7 +71,7 @@ export function formatActionLog(
             return {
                 id,
                 segments: [
-                    { kind: "target", text: labelOf(log.entityId) },
+                    target(log.entityId),
                     { kind: "plain", text: " est vaincu" },
                 ],
             }

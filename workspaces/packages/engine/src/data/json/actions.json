@@ -1,35 +1,69 @@
 [
     {
-        "id": "attack_basic",
+        "id": "attack",
         "type": "attack",
+        "name": "Attaque",
+        "icon": "attaque/Attaque-Cinglant.png",
         "processorConfigs": [
-            {
-                "type": "damage",
-                "order": 1,
-                "params": { "damage_value": 12 }
-            }
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 18 } },
+            { "type": "apply_damage", "order": 1, "params": {} }
         ]
     },
     {
-        "id": "attack_heavy",
+        "id": "heavy_attack",
         "type": "attack",
+        "name": "Attaque lourde",
+        "icon": "attaque/Boule-feu.png",
         "processorConfigs": [
-            {
-                "type": "damage",
-                "order": 1,
-                "params": { "damage_value": 22 }
-            }
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 40 } },
+            { "type": "apply_damage", "order": 1, "params": {} }
         ]
     },
     {
-        "id": "attack_precise",
+        "id": "attack_bleed",
         "type": "attack",
+        "name": "Entaille",
+        "icon": "attaque/Attaque-Cinglant.png",
         "processorConfigs": [
-            {
-                "type": "damage",
-                "order": 1,
-                "params": { "damage_value": 16 }
-            }
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 12 } },
+            { "type": "apply_damage", "order": 1, "params": {} },
+            { "type": "passive", "order": 2, "params": { "passiveId": "bleed", "duration": 3 } }
+        ]
+    },
+    {
+        "id": "bleed_tick",
+        "type": "attack",
+        "name": "Saignement",
+        "processorConfigs": [
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 8 } },
+            { "type": "apply_damage", "order": 1, "params": {} }
+        ]
+    },
+    {
+        "id": "curse",
+        "type": "passive",
+        "name": "Malédiction",
+        "processorConfigs": [
+            { "type": "passive", "order": 1, "params": { "passiveId": "vulnerable", "duration": 3 } }
+        ]
+    },
+    {
+        "id": "thorns_tick",
+        "type": "attack",
+        "name": "Épines",
+        "icon": "boost/Force-de-la-Terre.png",
+        "processorConfigs": [
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 10 } },
+            { "type": "apply_damage", "order": 1, "params": {} }
+        ]
+    },
+    {
+        "id": "apply_thorns",
+        "type": "passive",
+        "name": "Carapace d'épines",
+        "icon": "boost/Force-de-la-Terre.png",
+        "processorConfigs": [
+            { "type": "passive", "order": 1, "params": { "passiveId": "thorns", "duration": "PERMANENT" } }
         ]
     }
 ]

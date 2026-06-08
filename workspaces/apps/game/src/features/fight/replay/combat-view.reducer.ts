@@ -1,5 +1,5 @@
 import type { Dimensions, FightSnapshot, PlayingEntityID, Position } from "@reflexer/engine"
-import type { CombatLogLine, CombatViewState, EntityView } from "./combat-view.types"
+import type { CombatLogLine, CombatViewState, EntityView, SpriteIcon } from "./combat-view.types"
 
 export const INITIAL_COMBAT_VIEW_STATE: CombatViewState = {
     entities: {},
@@ -18,7 +18,7 @@ export const INITIAL_COMBAT_VIEW_STATE: CombatViewState = {
  * concentre toutes les transitions de l'état de vue.
  */
 export type CombatAction =
-    | { type: "initialize"; snapshot: FightSnapshot; labels: Map<PlayingEntityID, string>; mapDimensions: Dimensions }
+    | { type: "initialize"; snapshot: FightSnapshot; labels: Map<PlayingEntityID, string>; icons: Map<PlayingEntityID, SpriteIcon>; mapDimensions: Dimensions }
     | { type: "beginTurn"; turnIndex: number; ownerId: PlayingEntityID; upcomingTurnOwners: PlayingEntityID[] }
     | { type: "pushAction"; line: CombatLogLine }
     | { type: "applyDamage"; targetId: PlayingEntityID; amount: number }
@@ -41,6 +41,7 @@ export function combatViewReducer(state: CombatViewState, action: CombatAction):
                     energy: entity.currentStats.energy,
                     maxEnergy: entity.currentStats.energy,
                     alive: true,
+                    icon: action.icons.get(entity.id) ?? null,
                 }
             }
             return { ...INITIAL_COMBAT_VIEW_STATE, entities, mapDimensions: action.mapDimensions, status: "playing" }

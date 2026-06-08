@@ -63,6 +63,10 @@ export type Action = {
     id: Readonly<ActionID>;
     type: Readonly<ActionCategory>;
     processorConfigs: Readonly<ProcessorConfig[]>;
+    /** Libellé affichable (présentation). Porté par la donnée, optionnel côté gameplay. */
+    name?: Readonly<string>;
+    /** Chemin logique de l'icône (ex. "attaque/Boule-feu.png"), résolu côté front. */
+    icon?: Readonly<string>;
 };
 
 

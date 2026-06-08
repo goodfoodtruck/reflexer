@@ -4,27 +4,37 @@ import { LogLineText } from "./LogLineText"
 
 /** Journal de combat scrollable, qui s'auto-défile vers la dernière entrée. */
 export function CombatLog({ logs }: { logs: CombatLogLine[] }) {
-    const endRef = useRef<HTMLDivElement>(null)
+    const scrollRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+        // On défile le conteneur lui-même (et non `scrollIntoView`, qui ferait
+        // remonter toute la page) pour garder l'overflow confiné ici.
+        const el = scrollRef.current
+        if (el) el.scrollTop = el.scrollHeight
     }, [logs.length])
 
     return (
-        <div className="flex-1 rounded-xl bg-slate-900/40 border border-slate-700/40 p-3 overflow-y-auto min-h-0">
-            <div className="text-center text-violet-300/70 text-xs font-bold tracking-[0.2em] uppercase mb-3">
-                Journal de combat
+        <div className="h-full flex flex-col rounded-xl bg-slate-900/40 border border-slate-700/40 overflow-hidden">
+            <div className="flex-none flex items-center justify-between gap-2 px-3 pt-3 pb-2">
+                <span className="text-violet-300/70 text-xs font-bold tracking-[0.2em] uppercase">Journal</span>
+                <span className="flex items-center gap-1 text-[10px] text-slate-500 normal-case tracking-normal">
+                    plus récent
+                    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                        <path d="M12 5v14M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </span>
             </div>
-            <div className="flex flex-col gap-1.5">
-                {logs.map(line => (
-                    <div
-                        key={line.id}
-                        className="px-3 py-1.5 rounded-lg bg-slate-800/40 border border-slate-700/30 text-xs"
-                    >
-                        <LogLineText line={line} />
-                    </div>
-                ))}
-                <div ref={endRef} />
+            <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 pb-3">
+                <div className="flex flex-col gap-1.5">
+                    {logs.map(line => (
+                        <div
+                            key={line.id}
+                            className="px-2 py-1.5 rounded-lg bg-slate-800/40 border border-slate-700/30"
+                        >
+                            <LogLineText line={line} />
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     )
