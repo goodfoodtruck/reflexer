@@ -1,4 +1,4 @@
-import { AllyName, EnemyTag, EntityStats } from "@fight/fight.types"
+import { CharacterName, EnemyTag, EntityStats } from "@fight/fight.types"
 import { Gambit } from "@fight/gambits"
 import { FightMapConfig, FightMapID } from "@fight/map"
 import { PassiveID } from "@fight/passives/passives.types"
@@ -39,14 +39,13 @@ export type TrainingFightConfig = {
 }
 
 /** données persistées du joueur envoyées par le client */
-export type PlayerData = {
+export type RunPlayerData = {
     playerFloorIndex: number
     gold: number
-    playerTeam: TeamMemberData[]
 }
 
 export type TeamMemberData = {
-    name: AllyName
+    characterName: CharacterName
     baseStats: EntityStats
     gambits: Gambit[]
     activePassiveIds: PassiveID[]
@@ -59,10 +58,15 @@ export type MapData = {}
 
 export type RunState = {
     // données persistantes
-    playerData: PlayerData
+    runPlayerData: RunPlayerData
     mapData: MapData
     
     // sessions en cours — nullable car temporaires
     activeChest: ChestData | null
     activeShop: ShopData | null
+}
+
+export type NewGameData = {
+    runPlayerData: RunPlayerData,
+    mapData: MapData
 }

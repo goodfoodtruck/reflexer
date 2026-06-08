@@ -3,17 +3,17 @@ import type { Gambit } from "@reflexer/engine"
 
 export type GambitDocument = Omit<Gambit, "id"> & {
     _id:       string
-    allyId:    string
+    characterId:    string
     createdAt: string
     updatedAt: string
 }
 
 export const GambitService = {
-    getAllByAlly: (allyId: string) =>
-        api.get<GambitDocument[]>(`/gambits?allyId=${allyId}`),
+    getAllByCharacter: (characterId: string) =>
+        api.get<GambitDocument[]>(`/gambits?characterId=${characterId}`),
 
-    add: (allyId: string, gambit: Omit<Gambit, "id">) =>
-        api.post<GambitDocument>("/gambits", { allyId, ...gambit }),
+    add: (characterId: string, gambit: Omit<Gambit, "id">) =>
+        api.post<GambitDocument>("/gambits", { characterId, ...gambit }),
 
     update: (id: string, gambit: Partial<Omit<Gambit, "id">>) =>
         api.patch<GambitDocument>(`/gambits/${id}`, gambit),

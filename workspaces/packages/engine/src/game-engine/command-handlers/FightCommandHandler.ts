@@ -1,7 +1,7 @@
 import { FightContextFactory } from "@fight/context/FightContextFactory";
 import { EnemyTag, FightResult } from "@fight/fight.types";
 import { FightOrchestrator } from "@fight/FightOrchestrator";
-import { PlayerData, PveFightConfig, PvpFightConfig, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
+import { RunPlayerData, PveFightConfig, PvpFightConfig, TeamMemberData, TrainingFightConfig } from "@game-engine/game-engine.types";
 import { FightError, Result } from "@game-engine/api.types";
 import { IFightCommandHandler } from "@game-engine/command-handlers/handlers.interfaces";
 import { IFightMapRegistry } from "@data/IFightMapRegistry";
@@ -36,12 +36,16 @@ export class FightCommandHandler implements IFightCommandHandler {
         }
     }
 
-    playPveFight(fightMapId: FightMapID, playerData: PlayerData): Result<FightResult, FightError> {
+    playPveFight(
+        fightMapId: FightMapID, 
+        playerTeam: TeamMemberData[], 
+        runPlayerData: RunPlayerData
+    ): Result<FightResult, FightError> {
         const fightConfig: PveFightConfig = {
             type: "PVE",
             mapConfig: this.fightMapRegistry.getConfig(fightMapId),
-            playerTeam: playerData.playerTeam,
-            floorIndex: playerData.playerFloorIndex
+            playerTeam,
+            floorIndex: runPlayerData.playerFloorIndex
         }
 
         const fightContext = this.fightContextFactory.create(fightConfig)
@@ -76,15 +80,15 @@ export class FightCommandHandler implements IFightCommandHandler {
 
     /**
      * 
-     * @param playerData les données du joueur (or, niveau...) avant application
+     * @param runPlayerData les données du joueur (or, niveau...) avant application
      * du résultat du combat
      * @param result résultat du combat
      * @returns les données du joueur mises à jour
      * @see TODO: créer une classe dédiée
      */
-    applyFightResultOnPlayer(playerData: PlayerData, result: FightResult): PlayerData {
+    applyFightResultOnPlayer(runPlayerData: RunPlayerData, result: FightResult): RunPlayerData {
         // appliquer résultat du combat sur les données du joueur
         // gain expérience, or...etc
-        return playerData
+        return runPlayerData
     }
 }

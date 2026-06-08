@@ -1,23 +1,23 @@
 import { Router } from "express"
 import type { Gambit } from "@reflexer/engine"
-import { GambitModel } from "../models/gambit.model"
+import { GambitModel } from "@models/gambit.model"
  
 const router = Router()
  
 router.get("/", async (req, res) => {
-    const { allyId } = req.query
-    if (! allyId) return res.status(400).json({ error: "allyId is required" })
-    const gambits = await GambitModel.find({ allyId }).sort({ priority: 1 })
+    const { characterId } = req.query
+    if (! characterId) return res.status(400).json({ error: "characterId is required" })
+    const gambits = await GambitModel.find({ characterId }).sort({ priority: 1 })
     res.json(gambits)
 })
  
 router.post("/", async (req, res) => {
     try {
-        const { allyId, priority, conditions, targetSelector, intent } = req.body as
-            { allyId: string } & Omit<Gambit, "id">
+        const { characterId, priority, conditions, targetSelector, intent } = req.body as
+            { characterId: string } & Omit<Gambit, "id">
  
         const gambit = await GambitModel.create({
-            allyId,
+            characterId,
             priority,
             conditions,
             targetSelector,

@@ -10,7 +10,7 @@ describe("Exécuter un combat complet", () => {
 
     it("renvoie une erreur si aucune partie n'est en cours", () => {
         const engine = buildEngine()
-        expect(() => engine.playPveFight("map_1")).toThrow("GameEngine has no RunState.")
+        expect(() => engine.playPveFight("map_1", [])).toThrow("GameEngine has no RunState.")
     })
 
     it("renvoie une erreur si la map n'existe pas", () => {
@@ -22,9 +22,9 @@ describe("Exécuter un combat complet", () => {
                 applyFightResultOnPlayer: (p) => p
             }
         })
-        engine.startNewGame(buildPlayerData())
+        engine.startNewGame()
 
-        const result = engine.playPveFight("notExistingMapId")
+        const result = engine.playPveFight("notExistingMapId", [])
 
         expect(result).toEqual({ success: false, reason: "MAP_NOT_FOUND" })
     })
@@ -36,7 +36,7 @@ describe("Exécuter un combat complet", () => {
                 playPveFight: () => ({
                     success: true,
                     value: {
-                        endState: "WON",
+                        endState: { kind: "WON" },
                         logs: [],
                         initialState
                     }
@@ -47,8 +47,8 @@ describe("Exécuter un combat complet", () => {
             }
         })
 
-        engine.startNewGame(buildPlayerData({ gold: 0 }))
-        engine.playPveFight("map_1")
+        engine.startNewGame()
+        engine.playPveFight("map_1", [])
 
         expect(engine.getPlayerData()).toEqual(updatedPlayerData)
     })
@@ -64,8 +64,8 @@ describe("Exécuter un combat complet", () => {
             }
         })
 
-        engine.startNewGame(initialPlayerData)
-        engine.playPveFight("notExistingMapId")
+        engine.startNewGame()
+        engine.playPveFight("notExistingMapId", [])
 
         expect(engine.getPlayerData()).toEqual(initialPlayerData)
     })

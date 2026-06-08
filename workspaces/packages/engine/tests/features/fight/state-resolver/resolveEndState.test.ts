@@ -13,14 +13,14 @@ describe("Déterminer l'état du combat (en cours, gagné, perdu...)", () => {
         const aliveAllies = [buildPlayingEntity({ teamId: "PLAYER" })]
         const aliveEnemies: PlayingEntity[] = []
 
-        expect(fightStateResolver.resolveEndState(aliveAllies, aliveEnemies)).toEqual("WON")
+        expect(fightStateResolver.resolveEndState(aliveAllies, aliveEnemies)).toEqual({ kind: "WON" })
     })
 
     it("Retourne un state 'LOST' si le combat est perdu", () => {
         const aliveAllies: PlayingEntity[] = []
         const aliveEnemies: PlayingEntity[] = [buildPlayingEntity({ teamId: "ENEMY" })]
 
-        expect(fightStateResolver.resolveEndState(aliveAllies, aliveEnemies)).toEqual("LOST")
+        expect(fightStateResolver.resolveEndState(aliveAllies, aliveEnemies)).toEqual({ kind: "LOST" })
     })
 
     it("Retourne null si le combat n'est ni gagné ni perdu", () => {

@@ -1,4 +1,4 @@
-import { ShopData, ChestData, PlayerData } from "@game-engine/game-engine.types"
+import { ShopData, ChestData, RunPlayerData } from "@game-engine/game-engine.types"
 
 export type GameError = 
     | "MAP_GENERATION_FAILED"
@@ -15,6 +15,7 @@ export type ChestError =
 export type MapError =
     | "NODE_NOT_FOUND"
     | "INVALID_NODE_TYPE"
+    | "MAP_GENERATION_FAILED"
 
 export type FightError =
     | "MAP_NOT_FOUND"
@@ -26,7 +27,7 @@ export type GameEngineError =
     | MapError
     | FightError
 
-export type Result<T, R extends string = string> =
+export type Result<T, R extends GameEngineError> =
     | { success: true,  value: T }
     | { success: false, reason: R }
 
@@ -36,6 +37,6 @@ export type SelectMapNodeValue =
     | { nodeType: "CHEST",  chestData: ChestData }
 
 export type BuyShopItemValue = {
-    updatedPlayerData: PlayerData, 
+    updatedPlayerData: RunPlayerData, 
     updatedShopData: ShopData
 }

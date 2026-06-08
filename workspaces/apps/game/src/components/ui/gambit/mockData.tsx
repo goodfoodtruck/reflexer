@@ -96,7 +96,7 @@ export const INITIAL_GAMBITS: RealGambit[] = [
     }
   },
   {
-    id: "heal-wounded-ally",
+    id: "heal-wounded-character",
     priority: 3,
     conditions: {
       type: "EXISTS",
@@ -125,7 +125,7 @@ export const INITIAL_GAMBITS: RealGambit[] = [
     }
   },
   {
-    id: "cure-ally-poison",
+    id: "cure-character-poison",
     priority: 4,
     conditions: {
       type: "EXISTS",
@@ -154,7 +154,7 @@ export const INITIAL_GAMBITS: RealGambit[] = [
     }
   },
   {
-    id: "move-to-wounded-ally",
+    id: "move-to-wounded-character",
     priority: 5,
     conditions: {
       type: "EXISTS",
@@ -202,7 +202,7 @@ export const INITIAL_GAMBITS: RealGambit[] = [
     }
   },
   {
-    id: "defend-ally",
+    id: "defend-character",
     priority: 7,
     conditions: {
       type: "EXISTS",
@@ -455,7 +455,7 @@ export const CRITERIA_DATA_CONDITION_STEP = [
   { id: "armor", label: "Armor", options: ["ARMURE < 50%", "ARMURE = 0"] },
   { id: "health", label: "Health", options: ["PV < 25%", "PV < 50%", "PV < 75%", "PV < 100%", "PV > 25%", "PV > 50%"] },
   { id: "distance_enemy", label: "Distance d'un ennemi", options: ["FAIBLE DISTANCE", "MOYENNE DISTANCE", "LONGUE DISTANCE", "HORS DE PORTEE"] },
-  { id: "distance_ally", label: "Distance d'un allié", options: ["FAIBLE DISTANCE", "MOYENNE DISTANCE", "LONGUE DISTANCE"] },
+  { id: "distance_character", label: "Distance d'un allié", options: ["FAIBLE DISTANCE", "MOYENNE DISTANCE", "LONGUE DISTANCE"] },
   { id: "buffs", label: "Buffs", options: ["A UN BUFF", "AUCUN BUFF"] }
 ];
 

@@ -11,7 +11,7 @@ describe("Sélectionner un noeud dans la carte du jeu", () => {
                 selectMapNode: () => ({ success: false, reason: "INVALID_NODE_TYPE" }),
             }
         })
-        engine.startNewGame(buildPlayerData())
+        engine.startNewGame()
         const initialRunState = engine.getRunStateOrThrow()
 
         const _ = engine.selectMapNode("notExistingNodeId")
@@ -28,10 +28,10 @@ describe("Sélectionner un noeud dans la carte du jeu", () => {
             }
         })
         
-        engine.startNewGame(buildPlayerData())
+        engine.startNewGame()
         engine.selectMapNode("existingNodeId")
 
-        const result = engine.playPveFight("map_1")
+        const result = engine.playPveFight("map_1", [])
         expect(result.success).toBe(true)
     })
 
@@ -42,7 +42,7 @@ describe("Sélectionner un noeud dans la carte du jeu", () => {
             }
         })
         
-        engine.startNewGame(buildPlayerData())
+        engine.startNewGame()
         engine.selectMapNode("existingNodeId")
 
         expect(() => engine.selectChestReward("reward_1")).toThrow(InvalidStateError)
@@ -56,13 +56,13 @@ describe("Sélectionner un noeud dans la carte du jeu", () => {
             }
         })
         
-        engine.startNewGame(buildPlayerData())
+        engine.startNewGame()
         engine.selectMapNode("existingNodeId")
 
         const shopResult = engine.buyShopItem("shop_item_1")
 
         expect(() => engine.selectChestReward("reward_1")).toThrow(InvalidStateError)
-        expect(() => engine.playPveFight("map_1")).toThrow(InvalidStateError)
+        expect(() => engine.playPveFight("map_1", [])).toThrow(InvalidStateError)
         expect(shopResult.success).toBe(true)
     })
 
@@ -73,11 +73,11 @@ describe("Sélectionner un noeud dans la carte du jeu", () => {
             }
         })
         
-        engine.startNewGame(buildPlayerData())
+        engine.startNewGame()
         engine.selectMapNode("existingNodeId")
 
         expect(() => engine.buyShopItem("item_1")).toThrow(InvalidStateError)
-        expect(() => engine.playPveFight("map_1")).toThrow(InvalidStateError)
+        expect(() => engine.playPveFight("map_1", [])).toThrow(InvalidStateError)
 
         const chestResult = engine.selectChestReward("chest_reward_1")
         expect(chestResult.success).toBe(true)

@@ -3,7 +3,7 @@ import { api } from "./api"
 export type Run = {
     _id:             string
     userId:          string
-    teamComposition: string[]  // allyIds
+    teamComposition: string[]  // characterIds
     gold:            number
     floorIndex:      number
     status:          "running" | "finished"

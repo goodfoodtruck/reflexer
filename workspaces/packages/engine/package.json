@@ -1,11 +1,8 @@
 {
   "name": "@reflexer/engine",
   "version": "0.0.1",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "devDependencies": {
     "@types/node": "^25.6.0",
     "@vitest/coverage-v8": "^4.1.4",
@@ -17,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "build": "tsup",
+    "build": "tsup src/index.ts --format cjs --dts",
     "build:watch": "tsup --watch",
     "typecheck": "tsc --noEmit"
   }

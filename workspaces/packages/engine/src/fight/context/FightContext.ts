@@ -47,10 +47,10 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
 
         const max = Math.max(alliesIds.length, enemiesIds.length)
         for(let i = 0; i < max; i++) {
-            const allyId = alliesIds[i]
+            const characterId = alliesIds[i]
             const enemyId = enemiesIds[i]
 
-            allyId && initiativeOrder.push(allyId)
+            characterId && initiativeOrder.push(characterId)
             enemyId && initiativeOrder.push(enemyId)
         }
 

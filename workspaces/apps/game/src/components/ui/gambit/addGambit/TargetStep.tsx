@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import type { DraftGambit } from "../GambitTypes";
 import { IconSelf } from "../../../../assets/icons/IconSelf";
 import { IconEnemy } from "../../../../assets/icons/IconEnemy";
-import { IconAlly } from "../../../../assets/icons/IconAlly";
+import { IconCharacter } from "../../../../assets/icons/IconCharacter";
 import { IconOther } from "../../../../assets/icons/IconOther";
 import { IconEdit } from "../../../../assets/icons/IconEdit";
 import { IconTrash } from "../../../../assets/icons/IconTrash";
@@ -13,7 +13,7 @@ import { IconPlus } from "../../../../assets/icons/IconPlus";
 const TARGET_KINDS = [
   { id: "SELF", label: "Self", icon: <IconSelf /> },
   { id: "ENEMY", label: "Enemy", icon: <IconEnemy /> },
-  { id: "ALLY", label: "Ally", icon: <IconAlly /> },
+  { id: "ALLY", label: "Character", icon: <IconCharacter /> },
   { id: "OTHER", label: "Other", icon: <IconOther /> },
 ];
 

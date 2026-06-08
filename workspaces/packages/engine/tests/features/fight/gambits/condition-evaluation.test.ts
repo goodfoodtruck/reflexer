@@ -206,9 +206,9 @@ describe("Évaluation des conditions de gambits", () => {
                 buildPlayingEntity({ id: "caster", teamId: "PLAYER" }),
                 { health: 80 }
             )
-            const ally  = buildPlayingEntity({ id: "ally",  teamId: "PLAYER" })
+            const character  = buildPlayingEntity({ id: "character",  teamId: "PLAYER" })
             const enemy = buildPlayingEntity({ id: "enemy", teamId: "ENEMY" })
-            const fightContext = buildFightContext([caster, ally], [enemy])
+            const fightContext = buildFightContext([caster, character], [enemy])
 
             const condition = {
                 operator: "AND" as const,
