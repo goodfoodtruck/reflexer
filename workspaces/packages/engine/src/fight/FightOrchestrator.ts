@@ -8,7 +8,6 @@ export class FightOrchestrator {
 
     constructor(
         private readonly turnController: TurnController,
-        private readonly fightLogger: FightLogger,
         private readonly fightStateResolver: FightStateResolver
     ) {}
 
@@ -19,6 +18,7 @@ export class FightOrchestrator {
      */
     playFight(context: FightContext): FightResult {
         const initialState = context.toSnapshot();
+        const fightLogger = new FightLogger()
 
         while (true) {
             const turnIndex = context.getTurnIndex()
@@ -27,7 +27,7 @@ export class FightOrchestrator {
             if (! playingEntity) break
 
             const turnLog = this.turnController.executeEntityTurn(turnIndex, playingEntity.id, context)
-            this.fightLogger.record(turnLog)
+            fightLogger.record(turnLog)
 
             context.nextEntityTurn()
             if (context.isNewTurn()) {
@@ -35,14 +35,14 @@ export class FightOrchestrator {
                 context.tickAllPassives()
             }
 
-            const hashedTurnLogs = this.fightLogger.getLogs().map(this.fightLogger.hashTurn)
-            
+            const hashedTurnLogs = fightLogger.getLogs().map(fightLogger.hashTurn)
+
             const fightState = this.fightStateResolver.resolve(context, hashedTurnLogs)
-            if (fightState.status === "ENDED") 
+            if (fightState.status === "ENDED")
                 return {
                     initialState,
                     endState: fightState.endState,
-                    logs: this.fightLogger.getLogs()
+                    logs: fightLogger.getLogs()
             }
         }
 

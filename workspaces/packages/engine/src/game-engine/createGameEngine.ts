@@ -74,9 +74,8 @@ export function createGameEngine(): GameEngine {
 
     // Boucle de combat
     const turnController = new TurnController(passiveExecutor, movementResolver, movementExecutor, actionGambitResolver, actionChainExecutor)
-    const fightLogger = new FightLogger()
     const fightStateResolver = new FightStateResolver(new FightSafetyChecker(MAX_TURNS, MAX_CYCLE_LENGTH, CYCLE_REPETITIONS))
-    const orchestrator = new FightOrchestrator(turnController, fightLogger, fightStateResolver)
+    const orchestrator = new FightOrchestrator(turnController, fightStateResolver)
 
     // Fabrique du contexte de combat (construction des entités)
     const fightContextFactory = new FightContextFactory({
