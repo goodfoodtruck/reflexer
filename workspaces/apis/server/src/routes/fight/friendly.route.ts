@@ -1,5 +1,5 @@
 import { Router } from "express"
-import type { FightError, FightMapID, FightResult, Result, TeamMemberData } from "@reflexer/engine"
+import type { FightError, FightMapID, FightResult, PlayingTeamID, Result, TeamMemberData } from "@reflexer/engine"
 import { FightLogModel } from "@models/fight_log.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { UserModel } from "@models/user.model"
@@ -32,7 +32,8 @@ router.post("/", async (req, res) => {
             return
         }
 
-        const fightWinnerTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
+        const winnerId = result.value.endState.kind === "WON" ? playerId : opponentId
+        const winnerTeamID: PlayingTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
 
         const fight = await PvpFightModel.create({
             mode: "FRIENDLY",
@@ -48,14 +49,13 @@ router.post("/", async (req, res) => {
                 baseStats: teamMember.baseStats,
                 gambits: teamMember.gambits
             })),
-            winner: fightWinnerTeamID,
+            winnerId,
             endState: result.value.endState,
-            fightMapId
+            initialState: result.value.initialState
         })
 
         await FightLogModel.create({
             fightId: fight._id,
-            fightType: "PVP",
             logs: result.value.logs
         })
 
@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
                 userId: opponentId,
                 fromName: playerUser.name,
                 fightId: fight._id,
-                winner: fightWinnerTeamID
+                winner: winnerTeamID
             });
         }
 
@@ -75,8 +75,6 @@ router.post("/", async (req, res) => {
             initialState: result.value.initialState,
             logs:         result.value.logs,
         })
-
-        res.status(201).json(fight)
 
     } catch (error) {
         console.error("Error:", error)

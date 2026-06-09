@@ -11,14 +11,14 @@ export interface NotificationDocument extends Document {
 }
 
 const NotificationSchema = new Schema<NotificationDocument>(
-  {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    fromName: { type: String, required: true },
-    fightId: { type: Schema.Types.ObjectId, ref: 'PvpFight', required: true },
-    winner: { type: String, required: true },
-    read: { type: Boolean, default: false }
-  },
-  { timestamps: true }
+    {
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        fromName: { type: String, required: true },
+        fightId: { type: Schema.Types.ObjectId, ref: 'PvpFight', required: true },
+        winner: { type: String, required: true },
+        read: { type: Boolean, default: false }
+    },
+    { timestamps: true }
 );
 
 export const NotificationModel = model<NotificationDocument>('Notification', NotificationSchema);
