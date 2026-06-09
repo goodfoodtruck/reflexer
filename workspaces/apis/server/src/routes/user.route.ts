@@ -6,18 +6,9 @@ import mongoose from 'mongoose';
 
 const router = Router();
 
-router.get("/:id", async (req, res) => {
-  const user = await UserModel.findById(req.params.id, { name: 1 }); // return uniquement name
-  if (!user) {
-    res.status(404).json({ error: 'User not found' });
-    return;
-  }
-  res.json(user);
-});
-
 // Rechercher un joueur par pseudo
 router.get('/search', async (req, res) => {
-  const { name } = req.query as { name: string };
+  const { name } = req.query as { name: string };  
 
   if (!name || name.trim() === '') {
     res.status(400).json({ error: 'Paramètre name requis' });
@@ -70,3 +61,12 @@ router.patch('/notifications/:id/read', requireAuth, async (req, res) => {
 export default router;
 
 
+
+router.get("/:id", async (req, res) => {
+  const user = await UserModel.findById(req.params.id, { name: 1 }); // return uniquement name
+  if (!user) {
+    res.status(404).json({ error: 'User not found' });
+    return;
+  }
+  res.json(user);
+});
