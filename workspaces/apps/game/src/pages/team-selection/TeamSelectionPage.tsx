@@ -10,11 +10,6 @@ import { AgentCard } from '../../components/ui/agent/AgentCard';
 import { CharacterService, type Character } from '../../services';
 import { STYLES } from './Team.styles';
 
-const AGENTS = [
-  { id: 1, name: "Agent 1", heroClass: "Guerrier Lourd", image: heroM },
-  { id: 2, name: "Agent 2", heroClass: "Archère Tactique", image: heroW },
-];
-
 export function TeamSelectionPage() {
   const navigate = useNavigate();
 
