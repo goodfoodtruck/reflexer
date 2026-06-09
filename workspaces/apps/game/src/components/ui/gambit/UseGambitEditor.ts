@@ -138,7 +138,13 @@ export function useGambitEditor() {
         const updated = await GambitService.update(editingGambitId, {
           conditions: finalConditions,
           targetSelector: {
-            context: { kind: draft.targetKind, filters: [] },
+            context: {
+            kind: draft.targetKind,
+            filters: draft.targetFilters.map((f) => ({ 
+              type: f.categoryId,
+              status: f.values.join(','),
+            })),
+          },
             sort: draft.targetSort
           },
           intent: backendIntent

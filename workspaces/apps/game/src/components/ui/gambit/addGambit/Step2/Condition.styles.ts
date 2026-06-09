@@ -35,14 +35,6 @@ export const Styles = {
   focusIconGlow: 'absolute inset-0 bg-amber-500/20 blur-2xl rounded-full',
   focusIconBox:
     'relative w-28 h-28 rounded-2xl bg-[#0F111A] border border-slate-700/50 shadow-2xl flex flex-col items-center justify-center text-amber-500 gap-2 z-10',
-  stackWrapper: 'flex flex-col items-center gap-3 shrink-0',
-  stackItem:
-    'px-5 py-3.5 rounded-xl text-[11px] font-black bg-[#161925] border border-slate-700/50 text-slate-300 text-center min-w-[160px] shadow-lg',
-  stackItemActive: 'border-amber-500/40 bg-amber-500/10 text-amber-500 border-dashed',
-  stackItemEmpty: 'border-dashed border-slate-700 bg-transparent text-slate-500 opacity-50',
-  stackAnd: 'text-[10px] font-black text-slate-600 tracking-[0.2em] uppercase',
-  stackAddBtn:
-    'w-full py-3 rounded-xl border border-dashed border-slate-600 text-slate-500 bg-[#0F111A] hover:bg-[#161925] hover:border-amber-500/50 hover:text-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.1)] transition-all flex justify-center items-center cursor-pointer',
   listPane:
     'flex flex-col gap-2.5 w-60 shrink-0 h-[280px] overflow-y-auto custom-scrollbar pr-3 border-l border-slate-800/50 pl-8 relative',
   listItem:
@@ -57,4 +49,23 @@ export const Styles = {
     'text-slate-400 bg-slate-800/80 border border-slate-700 hover:bg-slate-700 hover:text-white',
   btnPri:
     'text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] disabled:opacity-50 border border-orange-400/50'
+};
+
+export const Styles_conditionStack = {
+  stackWrapper: 'flex flex-col items-center gap-3 shrink-0',
+  stackItem:
+    'px-5 py-3.5 rounded-xl text-[11px] font-black bg-[#161925] border border-slate-700/50 text-slate-300 text-center min-w-[160px] shadow-lg',
+  stackItemActive: 'border-amber-500/40 bg-amber-500/10 text-amber-500 border-dashed',
+  stackItemEmpty: 'border-dashed border-slate-700 bg-transparent text-slate-500 opacity-50',
+  stackItemWithDelete: 'group relative flex items-center justify-between gap-2 pr-2',
+  stackAnd: 'text-[10px] font-black text-slate-600 tracking-[0.2em] uppercase',
+  stackAddBtn:
+    'w-full py-3 rounded-xl border border-dashed border-slate-600 text-slate-500 bg-[#0F111A] hover:bg-[#161925] hover:border-amber-500/50 hover:text-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.1)] transition-all flex justify-center items-center cursor-pointer',
+  stackDeleteBtn:
+    'opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition-all shrink-0',
+  stackActiveBlock: 'flex flex-col gap-1.5 items-start',
+  stackActiveRow: 'flex items-center justify-between w-full gap-2 group/val',
+  stackActiveText: 'text-[11px]',
+  stackActiveDelete:
+    'opacity-0 group-hover/val:opacity-100 text-amber-700 hover:text-rose-400 transition-all shrink-0'
 };

@@ -123,6 +123,19 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     setCurrentValues([]);
   };
 
+  const handleRemoveBlock = (index: number) => {
+    setBlocks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveCurrentValue = (v: string) => {
+    setCurrentValues((prev) => prev.filter((x) => x !== v));
+  };
+
+  const handleRemoveTarget = (targetId: string) => {
+    setSavedConditions((prev) => prev.filter((c) => c.targetId !== targetId));
+    setConfiguredTargets((prev) => prev.filter((t) => t !== targetId));
+  };
+
   const handleSaveConditionGroup = () => {
     const final = [...blocks];
     if (currentCat && currentValues.length > 0)
@@ -168,6 +181,9 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     handleConfirmBlock,
     handleSaveConditionGroup,
     handleCancelBuild,
-    setCurrentCat
+    setCurrentCat,
+    handleRemoveBlock,
+    handleRemoveCurrentValue,
+    handleRemoveTarget
   };
 }

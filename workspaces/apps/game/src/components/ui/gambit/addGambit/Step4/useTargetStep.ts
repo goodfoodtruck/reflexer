@@ -66,6 +66,16 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     setCurrentFilterVals([]);
   };
 
+  const handleRemoveFilter = (index: number) => {
+    if (!configuredTarget) return;
+    const updated = {
+      ...configuredTarget,
+      filters: configuredTarget.filters.filter((_, i) => i !== index)
+    };
+    setConfiguredTarget(updated);
+    updateDraft({ targetFilters: updated.filters });
+  };
+
   const handleGoToSort = () => {
     if (currentFilterCat && currentFilterVals.length > 0) {
       setFilterBlocks((prev) => [
@@ -78,7 +88,8 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
 
   const handleSave = () => {
     if (!localKind) return;
-    setConfiguredTarget({ kind: localKind, filters: filterBlocks, sortVal });
+    const saved = { kind: localKind, filters: filterBlocks, sortVal };
+    setConfiguredTarget(saved);
     setInternalStep(1);
     updateDraft({
       targetKind: localKind as any,
@@ -89,6 +100,9 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
 
   const handleReset = () => {
     setConfiguredTarget(null);
+    setLocalKind(null);
+    setSortVal(null);
+    setFilterBlocks([]);
     updateDraft({ targetKind: 'ENEMY', targetSort: '' });
   };
 
@@ -111,6 +125,7 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     handleConfirmFilterBlock,
     handleGoToSort,
     handleSave,
-    handleReset
+    handleReset,
+    handleRemoveFilter,
   };
 }

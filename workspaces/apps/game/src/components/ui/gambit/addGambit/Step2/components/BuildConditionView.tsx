@@ -23,6 +23,8 @@ interface BuildConditionViewProps {
   onSelectCat: (id: string) => void;
   onToggleValue: (v: string) => void;
   onConfirmBlock: () => void;
+  onRemoveBlock: (index: number) => void;
+  onRemoveCurrentValue: (v: string) => void;
   onSave: () => void;
 }
 
@@ -38,10 +40,11 @@ export function BuildConditionView({
   onSelectCat,
   onToggleValue,
   onConfirmBlock,
+  onRemoveBlock,
+  onRemoveCurrentValue,
   onSave,
 }: BuildConditionViewProps) {
   const categoryItems = CRITERIA_DATA_CONDITION_STEP.map((c) => ({ id: c.id, label: c.label }));
-  const valueItems = catOptions as string[];
 
   return (
     <motion.div {...ANIMATIONS.buildCondition} className={Styles.container}>
@@ -64,6 +67,8 @@ export function BuildConditionView({
             currentCat={currentCat}
             currentValues={currentValues}
             onConfirmBlock={onConfirmBlock}
+            onRemoveBlock={onRemoveBlock}
+            onRemoveCurrentValue={onRemoveCurrentValue}
           />
 
           <IconArrows />
@@ -78,7 +83,7 @@ export function BuildConditionView({
             <>
               <IconArrows />
               <CriteriaListPane
-                items={valueItems}
+                items={catOptions as string[]}
                 selectedIds={currentValues}
                 onSelect={onToggleValue}
               />

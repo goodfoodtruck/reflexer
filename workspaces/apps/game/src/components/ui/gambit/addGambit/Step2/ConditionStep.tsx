@@ -25,6 +25,9 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     handleSaveConditionGroup,
     handleCancelBuild,
     setCurrentCat,
+    handleRemoveBlock,
+    handleRemoveCurrentValue,
+    handleRemoveTarget,
   } = useConditionStep({ draft, updateDraft });
 
   if (viewMode === 'BUILD_CONDITION') {
@@ -41,6 +44,8 @@ export function ConditionStep({ draft, updateDraft }: Props) {
         onSelectCat={setCurrentCat}
         onToggleValue={handleToggleValue}
         onConfirmBlock={handleConfirmBlock}
+        onRemoveBlock={handleRemoveBlock}
+        onRemoveCurrentValue={handleRemoveCurrentValue}
         onSave={handleSaveConditionGroup}
       />
     );
@@ -50,6 +55,7 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     <SelectTargetView
       configuredTargets={configuredTargets}
       onSelectTarget={handleSelectTarget}
+      onRemoveTarget={handleRemoveTarget}
     />
   );
 }

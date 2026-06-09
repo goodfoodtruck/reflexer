@@ -17,13 +17,15 @@ interface StepSelectTargetProps {
   onSelectKind: (kind: string) => void;
   onEdit: () => void;
   onReset: () => void;
+  onRemoveFilter: (index: number) => void;
 }
 
 export function StepSelectTarget({
   configuredTarget,
   onSelectKind,
   onEdit,
-  onReset
+  onReset,
+  onRemoveFilter
 }: StepSelectTargetProps) {
   return (
     <motion.div
@@ -42,6 +44,7 @@ export function StepSelectTarget({
           targetIcon={TARGET_KINDS.find((t) => t.id === configuredTarget.kind)?.icon}
           onEdit={onEdit}
           onReset={onReset}
+          onRemoveFilter={onRemoveFilter}
         />
       ) : (
         <div className="flex-1">

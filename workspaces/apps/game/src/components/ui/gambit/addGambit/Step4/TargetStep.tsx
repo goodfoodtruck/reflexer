@@ -37,6 +37,7 @@ export function TargetStep({ draft, updateDraft }: Props) {
     handleSelectKind,
     handleToggleFilterVal,
     handleConfirmFilterBlock,
+    handleRemoveFilter,
     handleGoToSort,
     handleSave,
     handleReset
@@ -52,6 +53,7 @@ export function TargetStep({ draft, updateDraft }: Props) {
         onSelectKind={handleSelectKind}
         onEdit={() => setInternalStep(2)}
         onReset={handleReset}
+        onRemoveFilter={handleRemoveFilter}
       />
     );
 

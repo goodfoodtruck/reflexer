@@ -8,13 +8,22 @@ import { TargetGrid } from './TargetGrid';
 interface SelectTargetViewProps {
   configuredTargets: string[];
   onSelectTarget: (id: string) => void;
+  onRemoveTarget: (id: string) => void;
 }
 
-export function SelectTargetView({ configuredTargets, onSelectTarget }: SelectTargetViewProps) {
+export function SelectTargetView({
+  configuredTargets,
+  onSelectTarget,
+  onRemoveTarget
+}: SelectTargetViewProps) {
   return (
     <motion.div {...ANIMATIONS.selectTarget} className={Styles.container}>
       <ConditionBreadcrumb backLabel="RAJOUTER UNE CONDITION" activeLabel="CIBLE" />
-      <TargetSummaryBar configuredTargets={configuredTargets} onSelectTarget={onSelectTarget} />
+      <TargetSummaryBar
+        configuredTargets={configuredTargets}
+        onSelectTarget={onSelectTarget}
+        onRemoveTarget={onRemoveTarget}
+      />
       <div className={Styles.divider} />
       <TargetGrid onSelectTarget={onSelectTarget} />
     </motion.div>
