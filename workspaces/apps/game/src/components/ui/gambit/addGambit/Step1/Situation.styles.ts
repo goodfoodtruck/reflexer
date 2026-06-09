@@ -1,0 +1,16 @@
+export const Styles = {
+  container: "flex flex-col gap-8 h-full",
+  eyebrow: "text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1",
+  title: "text-2xl font-black text-white",
+  sectionLabel: "text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3",
+  inputWrapper: "relative",
+  input: "w-full bg-[#1A1D24] border border-[#2A2E39] rounded-lg px-4 py-3.5 text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-bold placeholder-slate-600",
+  helperRow: "flex justify-between items-center mt-2 text-xs text-slate-500 font-medium",
+  tagsContainer: "flex flex-wrap gap-2",
+  tagBtn: "px-4 py-2 bg-[#1A1D24] border border-[#2A2E39] rounded-lg text-xs font-medium text-slate-300 hover:text-amber-400 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all",
+  adviceBox: "col-span-1 bg-[#141720] border border-[#1E222D] rounded-xl p-5",
+  adviceHeader: "flex items-center gap-2 text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-4",
+  adviceList: "flex flex-col gap-3 text-xs text-slate-400 leading-relaxed",
+  adviceItem: "flex items-start gap-2",
+  adviceDot: "w-1.5 h-1.5 rounded-full bg-amber-500/80 mt-1.5 shrink-0",
+};
