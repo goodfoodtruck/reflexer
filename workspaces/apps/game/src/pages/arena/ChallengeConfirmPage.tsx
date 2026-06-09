@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { AnimatedBackground } from '../../components/ui/AnimatedBackground';
-import { Header } from '../../components/ui/header/Header';
-import { useAuth } from '../../hooks/useAuth';
-import { ChallengeService } from '../../services/challenge.service';
-import bgHomeImage from '../../assets/images/bg-home.png';
+import { AnimatedBackground } from '@components/ui/AnimatedBackground';
+import { Header } from '@components/ui/header/Header';
+import { useAuth } from '@hooks/useAuth';
+import bgHomeImage from '@assets/images/bg-home.png';
+import type { PlayingTeamID } from '@reflexer/engine';
+import { FriendlyFightService } from '@services/fight/friendlyFight.service';
 
 const STYLES = {
   container: 'w-screen h-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30',
@@ -30,129 +31,102 @@ const STYLES = {
   backBtn: 'px-8 py-3 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white font-black tracking-widest uppercase text-xs rounded-xl transition-all'
 };
 
-export function ChallengeConfirmPage() {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const location = useLocation();
-  const { user } = useAuth();
+const ChallengeConfirmPage: React.FC = () => {
+    const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
+    const location = useLocation();
+    const { user } = useAuth();
 
-  const opponentName = (location.state as { name: string } | null)?.name ?? 'Inconnu';
+    const opponentName = (location.state as { name: string } | null)?.name ?? 'Inconnu';
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [winner, setWinner] = useState<'PLAYER' | 'ENEMY' | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [winner, setWinner] = useState<PlayingTeamID | null>(null);
 
-  const onChallenge = async () => {
-    if (!user || !id) return;
-    setError(null);
-    setLoading(true);
+    const onChallenge = async () => {
+        if (!user || !id) return;
+        setError(null);
+        setLoading(true);
 
-    try {
-      const myCharacters = await ChallengeService.getMyCharacters(user.id);
-      if (myCharacters.length === 0) {
-        setError("Tu n'as aucun personnage configuré.");
-        return;
-      }
+        try {
+            const result = await FriendlyFightService.playFight({
+                playerId: user.id,
+                opponentId: id,
+                fightMapId: 'MAP_1'
+            })
 
-      const opponentCharacters = await ChallengeService.getOpponentCharacters(id);
-      if (opponentCharacters.length === 0) {
-        setError("Cet adversaire n'a aucun personnage configuré.");
-        return;
-      }
+            setWinner(result.winner)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Erreur lors du défi');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      const myTeam = await Promise.all(
-        myCharacters.map(async (character) => {
-          const gambits = await ChallengeService.getCharacterGambits(character._id);
-          return { name: character.characterName, baseStats: {}, gambits };
-        })
-      );
-
-      const opponentTeam = await Promise.all(
-        opponentCharacters.map(async (character) => {
-          const gambits = await ChallengeService.getCharacterGambits(character._id);
-          return { name: character.characterName, baseStats: {}, gambits };
-        })
-      );
-      
-      const result = await ChallengeService.launchFight({
-        playerId: user.id,
-        opponentId: id,
-        fightMapId: 'MAP_1',
-        playerTeam: myTeam,
-        opponentTeam
-      });
-
-      setWinner(result.winner);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors du défi');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (winner) {
-    const playerWon = winner === 'PLAYER';
-    return (
-      <div className={STYLES.container}>
-        <AnimatedBackground />
-        <div className={STYLES.bgContainer}>
-          <img src={bgHomeImage} alt="background" className={STYLES.bgImage} />
-        </div>
-        <div className={STYLES.overlay} />
-
-        <div className={STYLES.foreground}>
-          <Header title="Résultat" subtitle="PvP" onBack={() => navigate('/arena')} />
-          <div className={STYLES.content}>
-            <div
-              className={`${STYLES.resultCard} ${playerWon ? STYLES.resultWon : STYLES.resultLost}`}
-            >
-              <p
-                className={`${STYLES.resultTitle} ${playerWon ? STYLES.resultTitleWon : STYLES.resultTitleLost}`}
-              >
-                {playerWon ? 'VICTOIRE' : 'DÉFAITE'}
-              </p>
-              <p className={STYLES.resultDesc}>
-                {playerWon ? `Tu as battu ${opponentName} !` : `${opponentName} t'a battu.`}
-              </p>
+    if (winner) {
+        const playerWon = winner === 'PLAYER';
+        return (
+            <div className={STYLES.container}>
+                <AnimatedBackground />
+                <div className={STYLES.bgContainer}>
+                    <img src={bgHomeImage} alt="background" className={STYLES.bgImage} />
+                </div>
+                <div className={STYLES.overlay} />
+                    <div className={STYLES.foreground}>
+                        <Header title="Résultat" subtitle="PvP" onBack={() => navigate('/arena')} />
+                        <div className={STYLES.content}>
+                            <div
+                            className={`${STYLES.resultCard} ${playerWon ? STYLES.resultWon : STYLES.resultLost}`}
+                            >
+                                <p
+                                    className={`${STYLES.resultTitle} ${playerWon ? STYLES.resultTitleWon : STYLES.resultTitleLost}`}
+                                >
+                                    {playerWon ? 'VICTOIRE' : 'DÉFAITE'}
+                                </p>
+                                <p className={STYLES.resultDesc}>
+                                    {playerWon ? `Tu as battu ${opponentName} !` : `${opponentName} t'a battu.`}
+                                </p>
+                            </div>
+                            <button onClick={() => navigate('/')} className={STYLES.backBtn}>
+                            Retour au menu
+                            </button>
+                        </div>
+                    </div>
             </div>
-            <button onClick={() => navigate('/')} className={STYLES.backBtn}>
-              Retour au menu
-            </button>
-          </div>
+        );
+    }
+
+    return (
+        <div className={STYLES.container}>
+            <AnimatedBackground />
+            <div className={STYLES.bgContainer}>
+                <img src={bgHomeImage} alt="background" className={STYLES.bgImage} />
+            </div>
+            <div className={STYLES.overlay} />
+
+            <div className={STYLES.foreground}>
+                <Header title="Confirmer le défi" subtitle="PvP" onBack={() => navigate('/arena')} />
+
+                <div className={STYLES.content}>
+                    <div className={STYLES.card}>
+                        <p className={STYLES.title}>Tu vas défier</p>
+                        <p className={STYLES.opponentName}>{opponentName}</p>
+                        <p className={STYLES.subtitle}>
+                        Le combat sera simulé avec vos gambits actuels. L'adversaire sera notifié du résultat.
+                        </p>
+
+                        <div className={STYLES.divider} />
+
+                        {error && <div className={STYLES.error}>{error}</div>}
+
+                        <button onClick={onChallenge} disabled={loading} className={STYLES.challengeBtn}>
+                        {loading ? 'Simulation en cours...' : 'Lancer le défi'}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     );
-  }
-
-  return (
-    <div className={STYLES.container}>
-      <AnimatedBackground />
-      <div className={STYLES.bgContainer}>
-        <img src={bgHomeImage} alt="background" className={STYLES.bgImage} />
-      </div>
-      <div className={STYLES.overlay} />
-
-      <div className={STYLES.foreground}>
-        <Header title="Confirmer le défi" subtitle="PvP" onBack={() => navigate('/arena')} />
-
-        <div className={STYLES.content}>
-          <div className={STYLES.card}>
-            <p className={STYLES.title}>Tu vas défier</p>
-            <p className={STYLES.opponentName}>{opponentName}</p>
-            <p className={STYLES.subtitle}>
-              Le combat sera simulé avec vos gambits actuels. L'adversaire sera notifié du résultat.
-            </p>
-
-            <div className={STYLES.divider} />
-
-            {error && <div className={STYLES.error}>{error}</div>}
-
-            <button onClick={onChallenge} disabled={loading} className={STYLES.challengeBtn}>
-              {loading ? 'Simulation en cours...' : 'Lancer le défi'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
+
+export default ChallengeConfirmPage

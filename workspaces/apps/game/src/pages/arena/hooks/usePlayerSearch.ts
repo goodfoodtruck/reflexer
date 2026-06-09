@@ -15,6 +15,7 @@ export function usePlayerSearch(currentUserId: string | undefined) {
 
         try {
             const data = await UserService.search(query.trim())
+            
             setResults(data.filter(player => player._id !== currentUserId))
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erreur de recherche")

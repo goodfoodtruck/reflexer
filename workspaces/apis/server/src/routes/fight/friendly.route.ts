@@ -2,14 +2,14 @@ import { Router } from "express"
 import type { FightError, FightMapID, FightResult, Result, TeamMemberData } from "@reflexer/engine"
 import { FightLogModel } from "@models/fight_log.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
-import { engine } from "../index"
 import { UserModel } from "@models/user.model"
 import { NotificationModel } from "@models/notification.model"
-import { buildTeamFromUserId } from "../services/team.service"
+import { buildTeamFromUserId } from "@services/team.service"
+import { engine } from "../.."
  
 const router = Router()
 
-router.post("/friendly", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const { playerId, opponentId, fightMapId } = req.body as {
             playerId: string

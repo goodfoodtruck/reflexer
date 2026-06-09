@@ -5,6 +5,7 @@ import { useAuth } from "@hooks/useAuth"
 import type { PlayerSearchResult } from "@services/user.service"
 import bgHomeImage from "@assets/images/bg-home.png"
 import PlayerSearchSection from "@pages/arena/sections/player-search/PlayerSearchSection"
+import PlayerStatsSection from "./sections/player-stats/PlayerStatsSection"
 
 const ArenaPage: React.FC = () => {
     const navigate = useNavigate()
@@ -34,6 +35,8 @@ const ArenaPage: React.FC = () => {
                     />
                 </div>
             </div>
+
+            <PlayerStatsSection/>
         </div>
     )
 }
