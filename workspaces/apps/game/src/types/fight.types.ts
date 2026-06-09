@@ -1,4 +1,4 @@
-import type { CharacterName, EntityStats, FightEndState, FightMapID, Gambit, PlayingTeamID } from "@reflexer/engine"
+import type { CharacterName, EntityStats, FightEndState, FightMapID, FightSnapshot, Gambit, PlayingTeamID, TurnLog } from "@reflexer/engine"
 
 export type TeamMemberSnapshot = {
     characterName: CharacterName
@@ -15,4 +15,6 @@ export type BasePvpFight = {
     winner:         PlayingTeamID
     endState:       FightEndState
     fightMapId:     FightMapID
+    initialState:   FightSnapshot,
+    logs:           TurnLog[]
 }

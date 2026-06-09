@@ -4,7 +4,7 @@ import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
-import { FightService } from "../../../../services"
+import { FriendlyFightService } from "@services/fight/friendlyFight.service"
 
 
 const PLAYER_ID = import.meta.env.VITE_FRIENDLY_PLAYER_ID ?? ""
@@ -35,10 +35,18 @@ export function useCombatScene() {
                 const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
                 const replayer = new CombatReplayer(scene, queue, dispatch, mapRegistry, characterRegistry)
 
-                const fight = await FightService.playFriendlyFight(PLAYER_ID, OPPONENT_ID, FIGHT_MAP_ID)
+                const fight = await FriendlyFightService.playFight({
+                    playerId: PLAYER_ID,
+                    opponentId: OPPONENT_ID,
+                    fightMapId: FIGHT_MAP_ID
+                })
                 if (cancelled) return
 
-                replayer.play(fight)
+                replayer.play({
+                    initialState: fight.initialState,
+                    logs: fight.logs,
+                    endState: fight.endState
+                })
             })
             .catch(error => {
                 console.error("Combat : échec du chargement du combat", error)
