@@ -1,10 +1,11 @@
 import { api } from "./api"
-import type { CharacterName } from "@reflexer/engine"
+import type { CharacterName, EntityStats } from "@reflexer/engine"
 
 export type Character = {
     _id:       string
     userId:    string
     name:      string
+    baseStats: EntityStats;
     characterName:  CharacterName
     createdAt: string
     updatedAt: string

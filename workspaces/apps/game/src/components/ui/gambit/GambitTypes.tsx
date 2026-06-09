@@ -43,6 +43,7 @@ export type GambitIntent =
 
 export interface RealGambit {
   id: string;
+  name: string;
   priority: number;
   conditions: GambitCondition;
   targetSelector: TargetSelector;
@@ -64,6 +65,10 @@ export type DraftGambit = {
   intentValue: string;
   targetKind: "SELF" | "ALLY" | "ENEMY";
   targetSort: string;
+  targetFilters: { 
+    categoryId: string; 
+    values: string[] 
+  }[];
 };
 
 
