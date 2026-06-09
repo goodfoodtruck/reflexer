@@ -4,7 +4,7 @@ import { ProcessorConfig } from "@processors/processor.types";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
 import { NbPlayerByTeam } from "@fight/value-objects";
 import { ActivePassive, PassiveID } from "@fight/passives/passives.types";
-import { FightContext } from "./context/FightContext";
+import { FightContext } from "@fight/context";
 import { FightMap } from "./map";
 import { TeamMemberData } from "@game-engine/game-engine.types";
 
@@ -63,6 +63,10 @@ export type Action = {
     id: Readonly<ActionID>;
     type: Readonly<ActionCategory>;
     processorConfigs: Readonly<ProcessorConfig[]>;
+    /** Libellé affichable (présentation). Porté par la donnée, optionnel côté gameplay. */
+    name?: Readonly<string>;
+    /** Chemin logique de l'icône (ex. "attaque/Boule-feu.png"), résolu côté front. */
+    icon?: Readonly<string>;
 };
 
 
@@ -115,6 +119,7 @@ export type UpdatedEnergyLog = {
 export type DamageDealtLog = {
     type: Readonly<'damage_dealt'>
     sourceId: Readonly<PlayingEntityID>
+    actionId: Readonly<ActionID>
     targetId: Readonly<PlayingEntityID>
     amount: Readonly<number>
     reactionDepth: Readonly<number>
@@ -161,6 +166,7 @@ export type TurnEndLog = {
 
 export type TurnLog = {
     turnIndex: number
+    ownerId: PlayingEntityID
     actionLogs: ActionLog[]
 }
 
@@ -187,6 +193,7 @@ export type FightSnapshot = {
 
 export type EntitySnapshot = {
     id: PlayingEntityID
+    name: EntityName
     teamId: PlayingTeamID
     tags: EntityTag[]
     position: Position
@@ -214,6 +221,9 @@ export type EnemyTag =
 
 export type EnemyName = "ALIEN" | "KNIGHT" | "GOBLIN"
 
+/** Identité concrète d'une entité : sert à résoudre son libellé et son sprite. */
+export type EntityName = CharacterName | EnemyName
+
 /** On indentifie un ennemi par son type et un allié par son nom */
 export type EntityTag =
     | CharacterName
@@ -223,6 +233,7 @@ export type EntityTag =
 
 export type PlayingEntity = {
     id: PlayingEntityID
+    name: EntityName
     teamId: PlayingTeamID
     tags: EntityTag[]
     position: Position
@@ -321,6 +332,7 @@ export type PathfindingParams = {
 }
 
 export type ApplyDamageParams = {
+    actionId: ActionID;
     targetId: PlayingEntityID;
     sourceId: PlayingEntityID;
     amount: number;

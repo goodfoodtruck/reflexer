@@ -50,11 +50,11 @@ export class TurnController {
             entityTurnLogs.push(...step())
 
             if (fightContext.isEntityDead(entityId)) {
-                return { turnIndex, actionLogs: entityTurnLogs }
+                return { turnIndex, ownerId: entityId, actionLogs: entityTurnLogs }
             }
         }
-    
-        return { turnIndex, actionLogs: entityTurnLogs }
+
+        return { turnIndex, ownerId: entityId, actionLogs: entityTurnLogs }
     }
 
     private executeEntityMovement(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {

@@ -148,6 +148,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             mapId: this.map.id,
             entities: Array.from(this.entities.values()).map(e => ({
                 id: e.id,
+                name: e.name,
                 teamId: e.teamId,
                 tags: [...e.tags],
                 position: { ...e.position },
@@ -229,10 +230,11 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
         }
         else target.currentStats.health -= actualDamage
 
-        this.queueLog({ 
-            type: "damage_dealt", 
-            targetId: params.targetId, 
-            sourceId: params.sourceId, 
+        this.queueLog({
+            type: "damage_dealt",
+            actionId: params.actionId,
+            targetId: params.targetId,
+            sourceId: params.sourceId,
             amount: actualDamage,
             reactionDepth: params.reactionDepth ?? 0
         })
@@ -248,6 +250,13 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
             case "RESET": this.applyResetStrategy(entity, newPassive); break
             case "STACK": this.applyStackStrategy(entity, newPassive, strategy.maxStack); break
         }
+
+        this.queueLog({
+            type: "passive_applied",
+            targetId: entity.id,
+            sourceId: newPassive.sourceEntityId,
+            passiveId: newPassive.passive.id,
+        })
     }
 
     private applyResetStrategy(entity: PlayingEntity, activePassiveToApply: ActivePassive): void {
