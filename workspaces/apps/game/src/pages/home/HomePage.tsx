@@ -14,7 +14,7 @@ export function HomePage() {
   const [showOptions, setShowOptions] = useState(false);
 
   const onStartGame = () => navigate('/team');
-  const onChallenge    = () => navigate('/challenge')
+  const onArena    = () => navigate('/arena')
   const onOpenOptions = () => setShowOptions(true);
   const onCloseOptions = () => setShowOptions(false);
 
@@ -57,7 +57,7 @@ export function HomePage() {
 
         <div className={STYLES.navContainer}>
           <MenuButton onClick={onStartGame}>Nouvelle partie</MenuButton>
-          <MenuButton onClick={onChallenge}>Défier un joueur</MenuButton>
+          <MenuButton onClick={onArena}>Arène</MenuButton>
           <MenuButton>Historique</MenuButton>
           <MenuButton onClick={onOpenOptions}>Options</MenuButton>
         </div>

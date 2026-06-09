@@ -101,7 +101,7 @@ export function ChallengeConfirmPage() {
         <div className={STYLES.overlay} />
 
         <div className={STYLES.foreground}>
-          <Header title="Résultat" subtitle="PvP" onBack={() => navigate('/challenge')} />
+          <Header title="Résultat" subtitle="PvP" onBack={() => navigate('/arena')} />
           <div className={STYLES.content}>
             <div
               className={`${STYLES.resultCard} ${playerWon ? STYLES.resultWon : STYLES.resultLost}`}
@@ -133,7 +133,7 @@ export function ChallengeConfirmPage() {
       <div className={STYLES.overlay} />
 
       <div className={STYLES.foreground}>
-        <Header title="Confirmer le défi" subtitle="PvP" onBack={() => navigate('/challenge')} />
+        <Header title="Confirmer le défi" subtitle="PvP" onBack={() => navigate('/arena')} />
 
         <div className={STYLES.content}>
           <div className={STYLES.card}>
