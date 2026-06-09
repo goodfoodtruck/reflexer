@@ -18,7 +18,15 @@
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@components/*": ["./src/components/*"],
+      "@pages/*":      ["./src/pages/*"],
+      "@hooks/*":      ["./src/hooks/*"],
+      "@services/*":   ["./src/services/*"],
+      "@assets/*":     ["./src/assets/*"],
+    }
   },
   "include": ["src"]
 }
