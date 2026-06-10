@@ -1,15 +1,14 @@
-import PlayerTotalGames from "@pages/arena/sections/player-stats/PlayerTotalGames"
-import PlayerWinrate from "@pages/arena/sections/player-stats/PlayerWinrate"
-import PlayerWinstreak from "@pages/arena/sections/player-stats/PlayerWinstreak"
+import type { BasePvpFight } from "@shared/fight.types"
+import PlayerWinrate from "./winrate/PlayerWinrate"
+interface PlayerStatsSectionProps {
+    playerId: string
+    playerFights: BasePvpFight[]
+}
 
-interface PlayerStatsSectionProps {}
-
-const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = () => {
+const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({ playerFights, playerId }) => {
     return (
-        <div className="flex flex-col border rounded-md p-2 bg-blue w-full h-200">
-            <PlayerTotalGames/>
-            <PlayerWinrate/>
-            <PlayerWinstreak/>
+        <div className="flex flex-col rounded-md p-8 bg-blue w-full">
+            <PlayerWinrate playerFights={playerFights} playerId={playerId}/>
         </div>
     )
 }
