@@ -6,12 +6,13 @@ import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
 import type { BasePvpFight } from "@shared/fight.types"
 
-export function useCombatScene(fight: BasePvpFight) {
+export function useCombatScene(fight: BasePvpFight, isTransitionFinished: boolean) {
     const containerRef = useRef<HTMLDivElement>(null)
     const sceneRef = useRef<CombatScene | null>(null)
     const [state, dispatch] = useReducer(combatViewReducer, INITIAL_COMBAT_VIEW_STATE)
 
     useEffect(() => {
+        if (!isTransitionFinished) return
         if (!containerRef.current) return
 
         let cancelled = false
@@ -47,7 +48,7 @@ export function useCombatScene(fight: BasePvpFight) {
             sceneRef.current?.destroy()
             sceneRef.current = null
         }
-    }, [])
+    }, [isTransitionFinished])
 
     return { containerRef, sceneRef, state }
 }

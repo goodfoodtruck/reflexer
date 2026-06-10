@@ -6,13 +6,11 @@ import { ChallengeErrorView } from "./views/ChallengeErrorView"
 import { ChallengeLoadingView } from "./views/ChallengeLoadingView"
 import { ChallengeConfirmView } from "./views/ChallengeConfirmView"
 import { AnimatePresence, motion } from "framer-motion"
-import CombatTransition from "./CombatTransition"
 import { useNavigate } from "react-router-dom"
 
 type ModalState =
     | { step: "CONFIRM" }
     | { step: "LOADING" }
-    | { step: "TRANSITION" }
     | { step: "ERROR";  message: string }
 
 interface ChallengeModalProps {
@@ -23,24 +21,28 @@ interface ChallengeModalProps {
 
 const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) => {
     const { user } = useAuth()
-     const navigate = useNavigate()
+    const navigate = useNavigate()
     const [state, setState] = useState<ModalState>({ step: "CONFIRM" })
 
-    const onChallenge = async () => {
-        if (! user) return
-        setState({ step: "TRANSITION" })
-    }
+    if (! user) return null // TODO: rediriger vers login ?
 
-    const onTransitionComplete = async () => {
+    const onChallenge = async () => {        
         try {
             const result = await FriendlyFightService.playFight({
                 playerId: user!.id,
                 opponentId: opponent._id,
                 fightMapId: "TRAINING_GROUND"
             })
-            
+
             onClose()
-            navigate("/fight", { state: { fightResult: result } })
+            
+            navigate("/fight", { 
+                state: {
+                    playerName: user.name,
+                    opponentName: opponent.name,
+                    fightResult: result 
+                } 
+            })
         } catch (err) {
             setState({ step: "ERROR", message: err instanceof Error ? err.message : "Erreur" })
         }
@@ -81,14 +83,6 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
                         )}
 
                         {state.step === "LOADING" && <ChallengeLoadingView />}
-
-                        {state.step === "TRANSITION" && (
-                            <CombatTransition
-                                playerName={user!.name}
-                                opponentName={opponent.name}
-                                onComplete={onTransitionComplete}
-                            />
-                        )}
 
                         {state.step === "ERROR" && (
                             <ChallengeErrorView
