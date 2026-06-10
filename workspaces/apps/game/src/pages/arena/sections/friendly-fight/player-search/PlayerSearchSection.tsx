@@ -1,7 +1,7 @@
 import type { PlayerSearchResult } from "@services/user.service"
 import { usePlayerSearch } from "@pages/arena/hooks/usePlayerSearch"
-import PlayerSearchInput from "@pages/arena/sections/player-search/PlayerSearchInput"
-import PlayerSearchResults from "@pages/arena/sections/player-search/PlayerSearchResults"
+import PlayerSearchInput from "@pages/arena/sections/friendly-fight/player-search/PlayerSearchInput"
+import PlayerSearchResults from "@pages/arena/sections/friendly-fight/player-search/PlayerSearchResults"
 
 interface PlayerSearchSectionProps {
     currentUserId: string | undefined

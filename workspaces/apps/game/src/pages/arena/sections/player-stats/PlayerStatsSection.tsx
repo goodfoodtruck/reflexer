@@ -7,7 +7,7 @@ interface PlayerStatsSectionProps {
 
 const PlayerStatsSection: React.FC<PlayerStatsSectionProps> = ({ playerFights, playerId }) => {
     return (
-        <div className="flex flex-col rounded-md p-8 bg-blue w-full">
+        <div className="flex flex-col rounded-md w-full">
             <PlayerWinrate playerFights={playerFights} playerId={playerId}/>
         </div>
     )

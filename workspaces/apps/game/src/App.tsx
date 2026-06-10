@@ -5,7 +5,7 @@ import { TeamSelectionPage } from "@pages/team-selection/TeamSelectionPage";
 import { GambitEditorPage } from "@components/ui/gambit/GambitEditorPage";
 import { ProtectedRoute } from "@components/auth/ProtectedRoute";
 import ArenaPage from "@pages/arena/ArenaPage";
-import ChallengeConfirmPage from "@pages/arena/ChallengeConfirmPage";
+import { CombatPage } from "@pages/combat/CombatPage";
 
 export default function App() {
   return (
@@ -15,9 +15,9 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/arena" element={<ArenaPage />} />
-          <Route path="/arena/:id" element={<ChallengeConfirmPage />} />
           <Route path="/team" element={<TeamSelectionPage />} />
           <Route path="/gestion-gambits/:caracterId" element={<GambitEditorPage />} />
+          <Route path="/fight" element={<CombatPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

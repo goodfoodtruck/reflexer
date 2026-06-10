@@ -4,14 +4,9 @@ import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
-import { FriendlyFightService } from "@services/fight/friendlyFight.service"
+import type { BasePvpFight } from "@shared/fight.types"
 
-
-const PLAYER_ID = import.meta.env.VITE_FRIENDLY_PLAYER_ID ?? ""
-const OPPONENT_ID = import.meta.env.VITE_FRIENDLY_OPPONENT_ID ?? ""
-const FIGHT_MAP_ID = "TRAINING_GROUND"
-
-export function useCombatScene() {
+export function useCombatScene(fight: BasePvpFight) {
     const containerRef = useRef<HTMLDivElement>(null)
     const sceneRef = useRef<CombatScene | null>(null)
     const [state, dispatch] = useReducer(combatViewReducer, INITIAL_COMBAT_VIEW_STATE)
@@ -35,11 +30,6 @@ export function useCombatScene() {
                 const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
                 const replayer = new CombatReplayer(scene, queue, dispatch, mapRegistry, characterRegistry)
 
-                const fight = await FriendlyFightService.playFight({
-                    playerId: PLAYER_ID,
-                    opponentId: OPPONENT_ID,
-                    fightMapId: FIGHT_MAP_ID
-                })
                 if (cancelled) return
 
                 replayer.play({

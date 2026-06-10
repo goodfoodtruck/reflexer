@@ -18,7 +18,7 @@
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@components/*": ["./src/components/*"],
@@ -26,6 +26,7 @@
       "@hooks/*":      ["./src/hooks/*"],
       "@services/*":   ["./src/services/*"],
       "@assets/*":     ["./src/assets/*"],
+      "@features/*":   ["./src/features/*"],
       "@shared/*":     ["./src/types/*"],
     }
   },

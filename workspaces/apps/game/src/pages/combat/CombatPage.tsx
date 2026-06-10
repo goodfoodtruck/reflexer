@@ -1,14 +1,22 @@
-import { useCombatScene } from "../../features/fight/rendering/hooks/use-combat-scene.hook";
-import { CELL_SIZE } from "../../features/fight/rendering/CombatScene";
-import { HealthBarsOverlay } from "../../components/ui/combat/HealthBarsOverlay";
-import { TurnCounter } from "../../components/ui/combat/TurnCounter";
-import { ActiveEntityCard } from "../../components/ui/combat/ActiveEntityCard";
-import { CombatLog } from "../../components/ui/combat/CombatLog";
-import { TurnRoster } from "../../components/ui/combat/TurnRoster";
+import { useCombatScene } from "@features/fight/rendering/hooks/use-combat-scene.hook";
+import { CELL_SIZE } from "@features/fight/rendering/CombatScene";
+import { HealthBarsOverlay } from "@components/ui/combat/HealthBarsOverlay";
+import { TurnCounter } from "@components/ui/combat/TurnCounter";
+import { ActiveEntityCard } from "@components/ui/combat/ActiveEntityCard";
+import { CombatLog } from "@components/ui/combat/CombatLog";
+import { TurnRoster } from "@components/ui/combat/TurnRoster";
 import STYLES from "./styles";
+import { useLocation } from "react-router-dom";
+import type { BasePvpFight } from "@shared/fight.types";
+
+type CombatPageLocationState = {
+    fightResult: BasePvpFight
+}
 
 export function CombatPage() {
-    const { containerRef, sceneRef, state } = useCombatScene();
+    const location = useLocation() as { state: CombatPageLocationState }
+    const fightResult = location.state.fightResult
+    const { containerRef, sceneRef, state } = useCombatScene(fightResult);
 
     const stageWidth = (state.mapDimensions?.width ?? 10) * CELL_SIZE;
     const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;

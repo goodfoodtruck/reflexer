@@ -15,7 +15,7 @@ const PlayerWinrate: React.FC<PlayerWinrateProps> = ({ playerFights, playerId })
     if (total === 0) return <NoFightRegisteredAlert/>
     
     return (
-        <div className="w-1/2 bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
+        <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
                 <p className="text-[10px] font-black tracking-[0.3em] uppercase text-amber-500">
                     Statistiques
