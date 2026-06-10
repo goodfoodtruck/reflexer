@@ -1,7 +1,7 @@
 import type { PlayerSearchResult } from "@services/user.service"
 import { usePlayerSearch } from "@pages/arena/hooks/usePlayerSearch"
-import PlayerSearchInput from "@pages/arena/sections/friendly-fight/player-search/PlayerSearchInput"
-import PlayerSearchResults from "@pages/arena/sections/friendly-fight/player-search/PlayerSearchResults"
+import PlayerSearchInput from "./PlayerSearchInput"
+import PlayerSearchResults from "./PlayerSearchResults"
 
 interface PlayerSearchSectionProps {
     currentUserId: string | undefined
@@ -9,29 +9,17 @@ interface PlayerSearchSectionProps {
 }
 
 const PlayerSearchSection: React.FC<PlayerSearchSectionProps> = ({ currentUserId, onChallenge }) => {
-    const { query, setQuery, results, loading, error, search } = usePlayerSearch(currentUserId)
-
-    const onKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") search()
-    }
+    const { query, setQuery, results, loading, error } = usePlayerSearch(currentUserId)
 
     return (
-        <div className="w-full max-w-lg flex flex-col gap-6">
-            <PlayerSearchInput
-                query={query}
-                loading={loading}
-                onChange={setQuery}
-                onKeyDown={onKeyDown}
-                onSearch={search}
-            />
+        <div className="w-full flex flex-col gap-4">
+            <PlayerSearchInput query={query} loading={loading} onChange={setQuery} />
 
             {error && <ErrorBanner errorMessage={error} />}
 
-            {results.length > 0 && (
-                <PlayerSearchResults results={results} onChallenge={onChallenge} />
-            )}
+            {results.length > 0 && <PlayerSearchResults results={results} onChallenge={onChallenge} />}
 
-            {results.length === 0 && query !== "" && !loading && (
+            {results.length === 0 && query.length >= 2 && !loading && (
                 <p className="text-center text-slate-500 text-xs font-bold uppercase tracking-widest py-8">
                     Aucun joueur trouvé
                 </p>
@@ -40,7 +28,7 @@ const PlayerSearchSection: React.FC<PlayerSearchSectionProps> = ({ currentUserId
     )
 }
 
-
+export default PlayerSearchSection
 
 interface ErrorBannerProps {
     errorMessage: string
@@ -53,5 +41,3 @@ const ErrorBanner: React.FC<ErrorBannerProps> = ({ errorMessage }) => {
         </div>
     )
 }
-
-export default PlayerSearchSection

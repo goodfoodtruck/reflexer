@@ -2,33 +2,28 @@ interface PlayerSearchInputProps {
     query: string
     loading: boolean
     onChange: (value: string) => void
-    onKeyDown: (e: React.KeyboardEvent) => void
-    onSearch: () => void
 }
 
-const PlayerSearchInput: React.FC<PlayerSearchInputProps> = ({ query, loading, onChange, onKeyDown, onSearch }) => {
+const PlayerSearchInput: React.FC<PlayerSearchInputProps> = ({ query, loading, onChange }) => {
     return (
         <div className="flex flex-col gap-3">
             <p className="text-[10px] font-black tracking-[0.3em] uppercase text-amber-500">
                 Rechercher par pseudo
             </p>
-            <div className="flex gap-3">
+            <div className="relative">
                 <input
                     type="text"
-                    className="flex-1 bg-slate-900/80 border border-slate-700/50 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-slate-600 text-sm"
+                    className="w-full bg-slate-900/80 border border-slate-700/50 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-amber-500 transition-all font-bold placeholder-slate-600 text-sm"
                     placeholder="Nom du joueur..."
                     value={query}
-                    onChange={(e) => onChange(e.target.value)}
-                    onKeyDown={onKeyDown}
+                    onChange={e => onChange(e.target.value)}
                     autoFocus
                 />
-                <button
-                    onClick={onSearch}
-                    disabled={loading || query.trim() === ""}
-                    className="px-6 py-4 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black tracking-widest uppercase rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs"
-                >
-                    {loading ? "..." : "Chercher"}
-                </button>
+                {loading && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                        <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
             </div>
         </div>
     )
