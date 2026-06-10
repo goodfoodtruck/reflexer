@@ -1,6 +1,6 @@
 import { IconEnemy } from '../../../../../assets/icons/IconEnemy';
 import { IconCharacter } from '../../../../../assets/icons/IconCharacter';
-import { IconOther } from '../../../../../assets/icons/IconOther';
+import { IconSelf } from '../../../../../assets/icons/IconSelf';
 import type { DraftGambit } from '../../GambitTypes';
 import { SORT_CATEGORIES } from '../../mockData';
 import { useTargetStep } from './useTargetStep';
@@ -11,7 +11,7 @@ import { StepSortPriority } from './components/StepSortPriority';
 const TARGET_KINDS = [
   { id: 'ENEMY', icon: <IconEnemy /> },
   { id: 'ALLY', icon: <IconCharacter /> },
-  { id: 'OTHER', icon: <IconOther /> }
+  { id: 'SELF', icon: <IconSelf /> }
 ];
 
 interface Props {

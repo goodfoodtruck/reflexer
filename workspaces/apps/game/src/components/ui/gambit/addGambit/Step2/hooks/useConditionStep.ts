@@ -1,11 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type {
   ConditionBlock,
   DraftCondition,
   DraftGambit,
   SavedCondition
 } from '../../../GambitTypes';
+import {
+  passiveIdToStatusLabel,
+  rangeLabelToRange,
+  rangeToLabel,
+  statusLabelToPassiveId
+} from '../../../gambit.adapter';
 import { CRITERIA_DATA_CONDITION_STEP } from '../../../mockData';
 import { buildBannerText } from '../utils';
 
@@ -16,15 +21,32 @@ interface UseConditionStepProps {
   updateDraft: (updates: Partial<DraftGambit>) => void;
 }
 
+function draftConditionToBlock(c: DraftCondition): ConditionBlock {
+  switch (c.filterType) {
+    case 'HP_BELOW':
+      return { categoryId: 'health', values: [`PV < ${c.value}%`] };
+    case 'HP_ABOVE':
+      return { categoryId: 'health', values: [`PV > ${c.value}%`] };
+    case 'IN_RANGE':
+      return {
+        categoryId: c.scopeKind === 'ALLY' ? 'distance_character' : 'distance_enemy',
+        values: [rangeToLabel(Number(c.value))]
+      };
+    case 'HAS_PASSIVE':
+      return {
+        categoryId: 'status',
+        values: String(c.value).split(',').filter(Boolean).map(passiveIdToStatusLabel)
+      };
+  }
+}
+
 function initSavedConditions(draft: DraftGambit): SavedCondition[] {
   if (!draft.conditions || draft.conditions.length === 0) return [];
 
   const grouped: Record<string, ConditionBlock[]> = {};
   draft.conditions.forEach((c) => {
     if (!grouped[c.scopeKind]) grouped[c.scopeKind] = [];
-    const raw = String(c.value);
-    const values = raw.includes(',') ? raw.split(',') : [raw];
-    grouped[c.scopeKind].push({ categoryId: c.filterType, values });
+    grouped[c.scopeKind].push(draftConditionToBlock(c));
   });
 
   return Object.keys(grouped).map((targetId) => ({
@@ -49,26 +71,32 @@ function blockToDraftCondition(
   block: ConditionBlock,
   targetId: string,
   index: number
-): DraftCondition {
-  let type: any = block.categoryId;
-  let val: any = 0;
+): DraftCondition | null {
+  let filterType: DraftCondition['filterType'];
+  let value: number | string;
 
   if (block.categoryId === 'health') {
-    type = 'HP_BELOW';
-    const match = block.values[0]?.match(/\d+/);
-    if (match) val = parseInt(match[0], 10);
+    const label = block.values[0] ?? '';
+    filterType = label.includes('>') ? 'HP_ABOVE' : 'HP_BELOW';
+    value = parseInt(label.match(/\d+/)?.[0] ?? '0', 10);
   } else if (block.categoryId.includes('distance')) {
-    type = 'IN_RANGE';
-    val = block.values[0]?.includes('FAIBLE') ? 1 : block.values[0]?.includes('MOYENNE') ? 3 : 5;
+    filterType = 'IN_RANGE';
+    value = rangeLabelToRange(block.values[0] ?? '');
+  } else if (block.categoryId === 'status') {
+    filterType = 'HAS_PASSIVE';
+    value = block.values
+      .map(statusLabelToPassiveId)
+      .filter(Boolean)
+      .join(',');
   } else {
-    val = block.values.join(',');
+    return null;
   }
 
   return {
     id: `temp-${targetId}-${block.categoryId}-${index}`,
     scopeKind: toScope(targetId),
-    filterType: type,
-    value: val
+    filterType,
+    value
   };
 }
 
@@ -90,12 +118,29 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     updateDraftRef.current = updateDraft;
   });
 
+  const effectiveConditions = useMemo<SavedCondition[]>(() => {
+    if (viewMode !== 'BUILD_CONDITION' || !activeTargetContext) return savedConditions;
+
+    const pendingBlocks = [...blocks];
+    if (currentCat && currentValues.length > 0) {
+      pendingBlocks.push({ categoryId: currentCat, values: currentValues });
+    }
+    if (pendingBlocks.length === 0) return savedConditions;
+
+    return [
+      ...savedConditions.filter((c) => c.targetId !== activeTargetContext),
+      { targetId: activeTargetContext, blocks: pendingBlocks }
+    ];
+  }, [viewMode, savedConditions, activeTargetContext, blocks, currentCat, currentValues]);
+
   useEffect(() => {
-    const formatted: DraftCondition[] = savedConditions.flatMap((cond) =>
-      cond.blocks.map((block, i) => blockToDraftCondition(block, cond.targetId, i))
+    const formatted: DraftCondition[] = effectiveConditions.flatMap((cond) =>
+      cond.blocks
+        .map((block, i) => blockToDraftCondition(block, cond.targetId, i))
+        .filter((c): c is DraftCondition => c !== null)
     );
     updateDraftRef.current({ conditions: formatted });
-  }, [savedConditions]);
+  }, [effectiveConditions]);
 
   const catOptions = currentCat
     ? (CRITERIA_DATA_CONDITION_STEP.find((c) => c.id === currentCat)?.options ?? [])

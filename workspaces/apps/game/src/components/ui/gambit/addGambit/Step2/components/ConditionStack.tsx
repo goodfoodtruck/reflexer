@@ -15,7 +15,6 @@ interface ConditionStackProps {
 
 export function ConditionStack({
   blocks,
-  currentCat,
   currentValues,
   onConfirmBlock,
   onRemoveBlock,

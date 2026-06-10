@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { IconEnemy } from '../../../../../../assets/icons/IconEnemy';
 import { IconCharacter } from '../../../../../../assets/icons/IconCharacter';
-import { IconOther } from '../../../../../../assets/icons/IconOther';
+import { IconSelf } from '../../../../../../assets/icons/IconSelf';
 import type { ConfiguredTarget } from '../useTargetStep';
 import { Styles } from '../Target.styles';
 import { TargetRecap } from './TargetRecap';
@@ -9,7 +9,7 @@ import { TargetRecap } from './TargetRecap';
 const TARGET_KINDS = [
   { id: 'ENEMY', label: 'Enemy', icon: <IconEnemy /> },
   { id: 'ALLY', label: 'Character', icon: <IconCharacter /> },
-  { id: 'OTHER', label: 'Other', icon: <IconOther /> }
+  { id: 'SELF', label: 'Moi-même', icon: <IconSelf /> }
 ];
 
 interface StepSelectTargetProps {

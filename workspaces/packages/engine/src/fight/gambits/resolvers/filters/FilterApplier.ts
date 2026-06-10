@@ -3,7 +3,8 @@ import { AnyFilter, FilterEvaluationContext } from "@fight/gambits/resolvers/fil
 import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
 import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
 import { evaluateHasPassive } from "@fight/gambits/resolvers/filters/evaluators/HasPassiveEvaluator"
-import { FilterEvaluatorRegistry } from "./FilterEvaluatorRegistry"
+import { evaluateInRange } from "@fight/gambits/resolvers/filters/evaluators/InRangeEvaluator"
+import { FilterEvaluatorRegistry } from "@fight/gambits"
 
 export class FilterApplier {
 
@@ -57,6 +58,7 @@ export const buildFilterRegistry = (): FilterEvaluatorRegistry => {
     registry.register("HP_BELOW",   evaluateHpBelow)
     registry.register("HP_ABOVE",   evaluateHpAbove)
     registry.register("HAS_PASSIVE", evaluateHasPassive)
+    registry.register("IN_RANGE",    evaluateInRange)
 
     return registry
 }

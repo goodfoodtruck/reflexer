@@ -1,32 +1,32 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import type { GambitCondition, GambitFilter, DraftCondition, RealGambit  } from './GambitTypes';
+import type { AnyFilter, ConditionGroup } from '@reflexer/engine';
+import type { DraftCondition, DraftGambit, DisplayGambit } from './GambitTypes';
+import { conditionsToDraft, passiveIdToStatusLabel, rangeToLabel, targetFiltersToDraft } from './gambit.adapter';
 import { Styles_gambit_row } from './Gambit.styles';
 
-export function renderFilterText(filter?: GambitFilter): string | null {
+export function renderFilterText(filter?: AnyFilter): string | null {
   if (!filter) return null;
   switch (filter.type) {
-    case 'HP_BELOW':          return `PV < ${filter.threshold}%`;
-    case 'HP_ABOVE':          return `PV > ${filter.threshold}%`;
-    case 'IN_RANGE':          return `À portée ${filter.range}`;
-    case 'HAS_STATUS':        return `Statut : ${filter.status}`;
-    case 'IS_TRAP':           return `Est un piège`;
-    case 'IS_ATTACKING_ALLY': return `Attaque un allié`;
-    default:                  return filter.status ?? filter.type;
+    case 'HP_BELOW':           return `PV < ${filter.threshold}%`;
+    case 'HP_ABOVE':           return `PV > ${filter.threshold}%`;
+    case 'IN_RANGE':           return rangeToLabel(filter.range);
+    case 'HAS_PASSIVE':        return `Statut : ${passiveIdToStatusLabel(filter.passiveId)}`;
+    case 'IS_ATTACKING_ALLY':  return `Attaque un allié`;
+    case 'IS_ATTACKING_SELF':  return `M'attaque`;
+    default:                   return filter.type;
   }
 }
 
 export function renderConditionNode(
-  node: GambitCondition,
+  node: ConditionGroup,
   index: number = 0,
   parentOp?: string
 ): React.ReactNode {
   if ('type' in node && node.type === 'EXISTS') {
-    const { kind } = node.scope;
-    const filterStr = renderFilterText(node.scope.filter);
+    const { targetType, filters } = node.context;
     const badgeColor =
-      kind === 'SELF'    ? Styles_gambit_row.conditionSelf
-      : kind === 'ENEMY' ? Styles_gambit_row.conditionEnemy
-      :                    Styles_gambit_row.conditionCharacter;
+      targetType === 'SELF'    ? Styles_gambit_row.conditionSelf
+      : targetType === 'ENEMY' ? Styles_gambit_row.conditionEnemy
+      :                          Styles_gambit_row.conditionCharacter;
 
     return (
       <div key={`${node.type}-${index}`} className="flex flex-col gap-2">
@@ -39,8 +39,13 @@ export function renderConditionNode(
           </div>
         )}
         <div className={Styles_gambit_row.conditionBox}>
-          <span className={`${Styles_gambit_row.conditionBadgeBase} ${badgeColor}`}>{kind}</span>
-          {filterStr && <span className={Styles_gambit_row.filterText}>{filterStr}</span>}
+          <span className={`${Styles_gambit_row.conditionBadgeBase} ${badgeColor}`}>{targetType}</span>
+          {filters.map((filter, i) => {
+            const filterStr = renderFilterText(filter);
+            return filterStr && (
+              <span key={i} className={Styles_gambit_row.filterText}>{filterStr}</span>
+            );
+          })}
         </div>
       </div>
     );
@@ -77,34 +82,11 @@ export function renderConditionNode(
 }
 
 
-export function extractDraftConditions(cond: any): DraftCondition[] {
-  if (!cond) return [];
-
-  if (cond.type === 'EXISTS') {
-    return [{
-      id: `loaded-${Math.random().toString(36).substr(2, 9)}`,
-      scopeKind: cond.scope?.kind || 'ENEMY',
-      filterType: cond.scope?.filter?.type || '',
-      value:
-        cond.scope?.filter?.threshold ??
-        cond.scope?.filter?.range ??
-        cond.scope?.filter?.status ??
-        '',
-    }];
-  }
-
-  if (cond.operator === 'NOT' && cond.condition) {
-    return extractDraftConditions(cond.condition);
-  }
-
-  if ((cond.operator === 'AND' || cond.operator === 'OR') && Array.isArray(cond.conditions)) {
-    return cond.conditions.flatMap(extractDraftConditions);
-  }
-
-  return [];
+export function extractDraftConditions(cond: ConditionGroup): DraftCondition[] {
+  return conditionsToDraft(cond);
 }
 
-export function buildInitialDraft(initialGambit?: RealGambit) {
+export function buildInitialDraft(initialGambit?: DisplayGambit): DraftGambit {
   if (!initialGambit) {
     return {
       name: '',
@@ -118,20 +100,23 @@ export function buildInitialDraft(initialGambit?: RealGambit) {
     };
   }
 
+  const conditions = initialGambit.conditions;
+  const operator =
+    'operator' in conditions && (conditions.operator === 'AND' || conditions.operator === 'OR')
+      ? conditions.operator
+      : 'AND';
+
   return {
     name: initialGambit.name,
-    operator: (initialGambit.conditions as any).operator || 'AND',
-    conditions: extractDraftConditions(initialGambit.conditions),
+    operator,
+    conditions: extractDraftConditions(conditions),
     intentKind: initialGambit.intent.kind,
     intentValue:
       initialGambit.intent.kind === 'MOVEMENT'
         ? initialGambit.intent.strategy || ''
-        : initialGambit.intent.action?.id || '',
-    targetKind: initialGambit.targetSelector.context.kind as any,
+        : initialGambit.intent.actionId || '',
+    targetKind: initialGambit.targetSelector.context.targetType,
     targetSort: initialGambit.targetSelector.sort || 'NEAREST',
-    targetFilters: (initialGambit.targetSelector.context.filters || []).map((f: any) => ({
-      categoryId: f.type,
-      values: f.status ? f.status.split(',') : [],
-    })),
+    targetFilters: targetFiltersToDraft(initialGambit.targetSelector),
   };
 }

@@ -1,4 +1,5 @@
 import type { ActionCategory } from './GambitTypes';
+import { STATUS_OPTIONS } from './gambit.adapter';
 import imgBouleFeu from '../../../assets/images/actions/attaque/Boule-feu.png';
 import imgAttaqueCinglante from '../../../assets/images/actions/attaque/Attaque-Cinglant.png';
 import imgBarricade from '../../../assets/images/actions/défense/Barricade.png';
@@ -109,18 +110,18 @@ export const ACTION_CATEGORIES: ActionCategory[] = [
         description: "S'éloigne au maximum de la cible sélectionnée par le Target Selector."
       },
       {
-        id: 'CHARGE',
+        id: 'APPROACH',
         name: 'Chargez !',
         image: imgCharge,
         kind: 'MOVEMENT',
-        description: 'Se rue agressivement vers la cible en ligne droite.'
+        description: 'Se rapproche de la cible sélectionnée par le Target Selector.'
       },
       {
-        id: 'TELEPORT',
-        name: 'Téléportation',
+        id: 'STAY',
+        name: 'Tenir la position',
         image: imgTeleport,
         kind: 'MOVEMENT',
-        description: 'Se déplace instantanément sur une case stratégique proche de la cible.'
+        description: 'Reste sur place, sans se déplacer ce tour-ci.'
       }
     ]
   },
@@ -153,9 +154,12 @@ export const ACTION_CATEGORIES: ActionCategory[] = [
   }
 ];
 
+// Les options proposées sont restreintes à ce que le moteur sait évaluer
+// (HP_BELOW / HP_ABOVE / HAS_PASSIVE / IN_RANGE) — voir gambit.adapter.ts
+const STATUS_LABELS = STATUS_OPTIONS.map((s) => s.label);
+
 export const CRITERIA_DATA_CONDITION_STEP = [
-  { id: 'status', label: 'Status', options: ['POISON', 'PARALYSIE', 'BRULURE', 'GEL'] },
-  { id: 'armor', label: 'Armor', options: ['ARMURE < 50%', 'ARMURE = 0'] },
+  { id: 'status', label: 'Status', options: STATUS_LABELS },
   {
     id: 'health',
     label: 'Health',
@@ -164,24 +168,21 @@ export const CRITERIA_DATA_CONDITION_STEP = [
   {
     id: 'distance_enemy',
     label: "Distance d'un ennemi",
-    options: ['FAIBLE DISTANCE', 'MOYENNE DISTANCE', 'LONGUE DISTANCE', 'HORS DE PORTEE']
+    options: ['FAIBLE DISTANCE', 'MOYENNE DISTANCE', 'LONGUE DISTANCE']
   },
   {
     id: 'distance_character',
     label: "Distance d'un allié",
     options: ['FAIBLE DISTANCE', 'MOYENNE DISTANCE', 'LONGUE DISTANCE']
-  },
-  { id: 'buffs', label: 'Buffs', options: ['A UN BUFF', 'AUCUN BUFF'] }
+  }
 ];
 
 export const FILTER_CATEGORIES = [
-  { id: 'type', label: 'Type', options: ['TANK', 'SNIPER', 'MELEE', 'HEAL'] },
   { id: 'health', label: 'Santé', options: ['PV < 25%', 'PV < 50%', 'PV > 50%'] },
-  { id: 'status', label: 'Statut', options: ['POISON', 'BRULURE'] }
+  { id: 'status', label: 'Statut', options: STATUS_LABELS }
 ];
 
 export const SORT_CATEGORIES = [
   { id: 'distance_me', label: 'Distance de moi', options: ['LE PLUS PROCHE', 'LE PLUS ÉLOIGNÉ'] },
-  { id: 'health_val', label: 'Santé', options: ['LES PLUS ÉLEVÉS', 'LES MOINS ÉLEVÉS'] },
-  { id: 'damage_val', label: 'Dégâts', options: ['LES PLUS ÉLEVÉS', 'LES MOINS ÉLEVÉS'] }
+  { id: 'health_val', label: 'Santé', options: ['LES PLUS ÉLEVÉS', 'LES MOINS ÉLEVÉS'] }
 ];

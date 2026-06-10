@@ -7,14 +7,14 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GambitRow } from './GambitRow';
-import type { RealGambit } from './GambitTypes';
+import type { DisplayGambit } from './GambitTypes';
 import { AvatarIcon } from '../../../assets/icons/IconAvatar';
 import { AddIcon } from '../../../assets/icons/IconAdd';
 import { PanelStyles } from './Gambit.styles';
 
 interface GambitListPanelProps {
   caracterName?: string;
-  gambits: RealGambit[];
+  gambits: DisplayGambit[];
   isEditing: boolean;
   onAddClick: () => void;
   onEdit: (id: string) => void;

@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import type { DraftGambit } from '../../GambitTypes';
+import { sortLabelToSort, sortToLabel } from '../../gambit.adapter';
 import { FILTER_CATEGORIES } from '../../mockData';
 
 export type InternalStep = 1 | 2 | 3;
@@ -26,14 +26,16 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
       return {
         kind: draft.targetKind,
         filters: draft.targetFilters.map((f) => ({ categoryId: f.categoryId, values: f.values })),
-        sortVal: draft.targetSort
+        sortVal: sortToLabel(draft.targetSort)
       };
     }
     return null;
   });
 
   const [localKind, setLocalKind] = useState<string | null>(draft.targetKind || null);
-  const [sortVal, setSortVal] = useState<string | null>(draft.targetSort || null);
+  const [sortVal, setSortVal] = useState<string | null>(
+    draft.targetSort ? sortToLabel(draft.targetSort) : null
+  );
   const [filterBlocks, setFilterBlocks] = useState<FilterBlock[]>([]);
   const [currentFilterCat, setCurrentFilterCat] = useState<string | null>(null);
   const [currentFilterVals, setCurrentFilterVals] = useState<string[]>([]);
@@ -47,6 +49,14 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     setLocalKind(kind);
     setFilterBlocks([]);
     setSortVal(null);
+
+    if (kind === 'SELF') {
+      setConfiguredTarget({ kind, filters: [], sortVal: null });
+      setInternalStep(1);
+      updateDraft({ targetKind: 'SELF', targetSort: 'NEAREST', targetFilters: [] });
+      return;
+    }
+
     setInternalStep(2);
   };
 
@@ -92,8 +102,8 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     setConfiguredTarget(saved);
     setInternalStep(1);
     updateDraft({
-      targetKind: localKind as any,
-      targetSort: sortVal || 'NEAREST',
+      targetKind: localKind as DraftGambit['targetKind'],
+      targetSort: sortLabelToSort(sortVal),
       targetFilters: filterBlocks
     });
   };

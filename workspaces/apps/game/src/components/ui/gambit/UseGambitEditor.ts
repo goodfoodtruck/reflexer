@@ -8,22 +8,17 @@ import {
   type DragEndEvent
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { GambitService } from '../../../services/gambit.service';
+import { GambitService } from '../../../services';
 import { CharacterService, type Character } from '../../../services';
-import type {
-  DraftGambit,
-  GambitCondition,
-  GambitFilter,
-  GambitIntent,
-  RealGambit
-} from './GambitTypes';
+import type { DraftGambit, DisplayGambit } from './GambitTypes';
+import { draftToConditions, draftToIntent, draftToTargetSelector } from './gambit.adapter';
 
 export function useGambitEditor() {
   const { caracterId } = useParams<{ caracterId: string }>();
   const navigate = useNavigate();
 
   const [character, setCharacter] = useState<Character | null>(null);
-  const [gambits, setGambits] = useState<RealGambit[]>([]);
+  const [gambits, setGambits] = useState<DisplayGambit[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingGambitId, setEditingGambitId] = useState<string | null>(null);
 
@@ -108,53 +103,24 @@ export function useGambitEditor() {
   const handleSaveGambit = async (draft: DraftGambit) => {
     if (!caracterId) return;
 
-    const backendConditionsArr: GambitCondition[] = draft.conditions.map((c) => {
-      const filter: GambitFilter = { type: c.filterType as string };
-      if (c.filterType === 'HP_BELOW' || (c.filterType as string) === 'HP_ABOVE') {
-        filter.threshold = Number(c.value);
-      } else if (c.filterType === 'IN_RANGE') {
-        filter.range = Number(c.value);
-      } else {
-        filter.status = String(c.value);
-      }
-      return { type: 'EXISTS' as const, scope: { kind: c.scopeKind, filter } };
-    });
-
-    const finalConditions: GambitCondition =
-      backendConditionsArr.length === 1
-        ? backendConditionsArr[0]!
-        : { operator: draft.operator, conditions: backendConditionsArr };
-
-    const backendIntent: GambitIntent =
-      draft.intentKind === 'MOVEMENT'
-        ? { kind: 'MOVEMENT', strategy: draft.intentValue }
-        : {
-            kind: 'ACTION',
-            action: { id: draft.intentValue, type: 'skill', processorConfigs: [] }
-          };
+    const finalConditions = draftToConditions(draft);
+    const targetSelector = draftToTargetSelector(draft);
+    const intent = draftToIntent(draft);
 
     try {
       if (editingGambitId) {
         const updated = await GambitService.update(editingGambitId, {
+          name: draft.name,
           conditions: finalConditions,
-          targetSelector: {
-            context: {
-            kind: draft.targetKind,
-            filters: draft.targetFilters.map((f) => ({ 
-              type: f.categoryId,
-              status: f.values.join(','),
-            })),
-          },
-            sort: draft.targetSort
-          },
-          intent: backendIntent
+          targetSelector,
+          intent
         });
         setGambits((prev) =>
           prev.map((g) =>
             g.id === editingGambitId
               ? {
                   id: updated._id,
-                  name: draft.name,
+                  name: updated.name,
                   priority: updated.priority,
                   conditions: updated.conditions,
                   targetSelector: updated.targetSelector,
@@ -167,17 +133,8 @@ export function useGambitEditor() {
         const created = await GambitService.add(draft.name, caracterId, {
           priority: gambits.length + 1,
           conditions: finalConditions,
-          targetSelector: {
-            context: {
-              kind: draft.targetKind,
-              filters: draft.targetFilters.map((f) => ({
-                type: f.categoryId,
-                status: f.values.join(',')
-              }))
-            },
-            sort: draft.targetSort
-          },
-          intent: backendIntent
+          targetSelector,
+          intent
         });
         setGambits((prev) => [
           ...prev,
@@ -191,12 +148,11 @@ export function useGambitEditor() {
           }
         ]);
       }
+      handleCancelEdit();
     } catch (err) {
       console.error('Erreur sauvegarde gambit:', err);
     }
-
-    handleCancelEdit();
-  };
+  }
 
   return {
     caracterId,

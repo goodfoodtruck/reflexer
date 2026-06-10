@@ -1,60 +1,12 @@
-export interface GambitFilter {
-  type: string; 
-  threshold?: number;
-  range?: number;
-  status?: string;
-}
+import type { Gambit } from '@reflexer/engine';
 
-export interface GambitScope {
-  kind: "SELF" | "ENEMY" | "ALLY" | "TILE" | string;
-  filter?: GambitFilter;
-}
-
-export type GambitCondition =
-  | { type: "EXISTS"; scope: GambitScope }
-  | { operator: "AND" | "OR"; conditions: GambitCondition[] }
-  | { operator: "NOT"; condition: GambitCondition };
-
-  
-export interface TargetContext {
-  kind: "SELF" | "ENEMY" | "ALLY" | "TILE" | string;
-  filters?: GambitFilter[]; 
-}
-
-export interface TargetSelector {
-  context: TargetContext;
-  sort: "NEAREST" | "LOWEST_HP" | "MOST_DANGEROUS" | "HIGHEST_HP" | string;
-}
-
-export type GambitIntent =
-  | { 
-      kind: "MOVEMENT"; 
-      strategy: "FLEE" | "APPROACH" | "STAY" | string;
-    }
-  | { 
-      kind: "ACTION"; 
-      action: {
-        id: string;
-        type: string; 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        processorConfigs?: any[]; // TODO a modifier
-      };
-    };
-
-export interface RealGambit {
-  id: string;
-  name: string;
-  priority: number;
-  conditions: GambitCondition;
-  targetSelector: TargetSelector;
-  intent: GambitIntent;
-}
+export type DisplayGambit = Gambit & { name: string };
 
 export type DraftCondition = {
   id: string;
   scopeKind: "SELF" | "ALLY" | "ENEMY";
-  filterType: "HP_BELOW" | "IN_RANGE";
-  value: number;
+  filterType: "HP_BELOW" | "HP_ABOVE" | "IN_RANGE" | "HAS_PASSIVE";
+  value: number | string;
 };
 
 export type DraftGambit = {
@@ -65,9 +17,9 @@ export type DraftGambit = {
   intentValue: string;
   targetKind: "SELF" | "ALLY" | "ENEMY";
   targetSort: string;
-  targetFilters: { 
-    categoryId: string; 
-    values: string[] 
+  targetFilters: {
+    categoryId: string;
+    values: string[]
   }[];
 };
 

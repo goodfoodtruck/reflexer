@@ -7,7 +7,7 @@ import { Styles_recap } from '../Target.styles';
 const TARGET_KINDS = [
   { id: 'ENEMY', label: 'Enemy' },
   { id: 'ALLY', label: 'Character' },
-  { id: 'OTHER', label: 'Other' }
+  { id: 'SELF', label: 'Moi-même' }
 ];
 
 interface TargetRecapProps {
@@ -27,6 +27,7 @@ export function TargetRecap({
 }: TargetRecapProps) {
   const kindLabel =
     TARGET_KINDS.find((t) => t.id === configuredTarget.kind)?.label ?? configuredTarget.kind;
+  const isSelf = configuredTarget.kind === 'SELF';
   const hasFilters = configuredTarget.filters.length > 0;
 
   return (
@@ -39,44 +40,53 @@ export function TargetRecap({
         <div className={Styles_recap.recapHeaderInfo}>
           <span className={Styles_recap.recapHeaderTitle}>Cible : {kindLabel}</span>
           <span className={Styles_recap.recapHeaderSub}>
-            {hasFilters
-              ? `${configuredTarget.filters.length} filtre(s) actif(s)`
-              : 'Aucun filtre — cible par défaut'}
+            {isSelf
+              ? 'Soi-même — ni filtre ni tri'
+              : hasFilters
+                ? `${configuredTarget.filters.length} filtre(s) actif(s)`
+                : 'Aucun filtre — cible par défaut'}
           </span>
         </div>
         <div className={Styles_recap.recapHeaderActions}>
-          <button onClick={onEdit} className={Styles_recap.btnActionEdit}>
-            <IconEdit /> Éditer
-          </button>
+          {!isSelf && (
+            <button onClick={onEdit} className={Styles_recap.btnActionEdit}>
+              <IconEdit /> Éditer
+            </button>
+          )}
           <button onClick={onReset} className={Styles_recap.btnActionReset}>
             <IconTrash /> Reset
           </button>
         </div>
       </div>
 
-      <div className={Styles_recap.recapContainer}>
-        <span className={Styles_recap.label}>Critères</span>
-        {hasFilters ? (
-          <div className={Styles_recap.recapFiltersRow}>
-            {configuredTarget.filters.map((b, i) => (
-              <FilterBadge key={i} block={b} index={i} onRemove={onRemoveFilter} />
-            ))}
+      {/* SELF ne désigne qu'une entité : pas de critères ni de priorité de ciblage */}
+      {!isSelf && (
+        <>
+          <div className={Styles_recap.recapContainer}>
+            <span className={Styles_recap.label}>Critères</span>
+            {hasFilters ? (
+              <div className={Styles_recap.recapFiltersRow}>
+                {configuredTarget.filters.map((b, i) => (
+                  <FilterBadge key={i} block={b} index={i} onRemove={onRemoveFilter} />
+                ))}
+              </div>
+            ) : (
+              <p className={Styles_recap.recapEmptyFilters}>
+                Cible par défaut — tous les ennemis/alliés sans distinction.
+              </p>
+            )}
           </div>
-        ) : (
-          <p className={Styles_recap.recapEmptyFilters}>
-            Cible par défaut — tous les ennemis/alliés sans distinction.
-          </p>
-        )}
-      </div>
 
-      <div className={Styles_recap.recapContainer}>
-        <span className={Styles_recap.label}>Priorité de ciblage</span>
-        <div className="mt-2">
-          <span className={`${Styles_recap.blockSolid} ${Styles_recap.baseBadge}`}>
-            {configuredTarget.sortVal?.replace(/_/g, ' ')}
-          </span>
-        </div>
-      </div>
+          <div className={Styles_recap.recapContainer}>
+            <span className={Styles_recap.label}>Priorité de ciblage</span>
+            <div className="mt-2">
+              <span className={`${Styles_recap.blockSolid} ${Styles_recap.baseBadge}`}>
+                {configuredTarget.sortVal?.replace(/_/g, ' ')}
+              </span>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

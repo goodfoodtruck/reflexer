@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { RealGambit } from './GambitTypes';
+import type { DisplayGambit } from './GambitTypes';
 import { DragIcon } from '../../../assets/icons/IconDrag';
 import { ChevronIcon } from '../../../assets/icons/IconChevron';
 import { ArrowRightIcon } from '../../../assets/icons/IconArrowRight';
@@ -12,7 +12,7 @@ import { Styles_gambit_row } from './Gambit.styles';
 import { renderConditionNode, renderFilterText } from './gambit.utils';
 
 interface GambitRowProps {
-  gambit: RealGambit;
+  gambit: DisplayGambit;
   onEdit: () => void;
   onDelete: () => void;
 }
@@ -101,13 +101,14 @@ export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
                 <div className={Styles_gambit_row.targetFlex}>
                   <div className={Styles_gambit_row.targetBox}>
                     <span className={Styles_gambit_row.targetKindBadge}>
-                      {gambit.targetSelector.context.kind}
+                      {gambit.targetSelector.context.targetType}
                     </span>
-                    {gambit.targetSelector.context.filters?.map((f, i) => (
-                      <span key={i} className={Styles_gambit_row.targetFilterText}>
-                        ({renderFilterText(f)})
-                      </span>
-                    ))}
+                    {'filters' in gambit.targetSelector.context &&
+                      gambit.targetSelector.context.filters.map((f, i) => (
+                        <span key={i} className={Styles_gambit_row.targetFilterText}>
+                          ({renderFilterText(f)})
+                        </span>
+                      ))}
                   </div>
                   <ArrowRightIcon className={Styles_gambit_row.targetArrow} />
                   <span className={Styles_gambit_row.targetSortBadge}>
@@ -120,7 +121,7 @@ export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
                   <span className={`${Styles_gambit_row.intentBadgeBase} ${intentStyle}`}>
                     {gambit.intent.kind === 'MOVEMENT'
                       ? `DÉPLACEMENT : ${gambit.intent.strategy}`
-                      : `ACTION : ${gambit.intent.action.id}`}
+                      : `ACTION : ${gambit.intent.actionId}`}
                   </span>
                 </div>
               </div>
