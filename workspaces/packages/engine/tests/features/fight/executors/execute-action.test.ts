@@ -785,7 +785,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const gobelin = buildPlayingEntity({ id: "gobelin", teamId: "ENEMY" })
         const fightContext = buildFightContext([mage], [gobelin])
 
-        const { logs, executed } = executor.execute({
+        const outcome = executor.attempt({
             type: "action",
             casterId: "mage",
             targetId: "gobelin",
@@ -793,9 +793,9 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             reactionDepth: 0
         }, fightContext)
 
-        expect(executed).toBe(false)
-        expect(logs.some(l => l.type === "damage_dealt")).toBe(false)
-        expect(logs.find(l => l.type === "action_failed")).toMatchObject({
+        expect(outcome.status).toBe("aborted")
+        expect(outcome.logs.some(l => l.type === "damage_dealt")).toBe(false)
+        expect(outcome.logs.find(l => l.type === "action_failed")).toMatchObject({
             type: "action_failed",
             reason: "not_enough_energy"
         })
@@ -820,7 +820,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         const gobelin = buildPlayingEntity({ id: "gobelin", teamId: "ENEMY" })
         const fightContext = buildFightContext([mage], [gobelin])
 
-        const { logs, executed } = executor.execute({
+        const outcome = executor.attempt({
             type: "action",
             casterId: "mage",
             targetId: "gobelin",
@@ -828,9 +828,9 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             reactionDepth: 0
         }, fightContext)
 
-        expect(executed).toBe(true)
-        expect(logs.some(l => l.type === "damage_dealt")).toBe(true)
-        expect(logs.find(l => l.type === "updated_energy")).toMatchObject({
+        expect(outcome.status).toBe("executed")
+        expect(outcome.logs.some(l => l.type === "damage_dealt")).toBe(true)
+        expect(outcome.logs.find(l => l.type === "updated_energy")).toMatchObject({
             type: "updated_energy",
             updatedValue: 5
         })

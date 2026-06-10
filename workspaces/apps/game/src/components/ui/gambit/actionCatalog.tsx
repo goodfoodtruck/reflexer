@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { ACTION_CATALOG, MOCK_PASSIVES, getActionEnergyCost } from '@reflexer/engine';
+import { ACTION_CATALOG, MOCK_PASSIVES } from '@reflexer/engine';
 import type {
   Action,
+  CheckEnergyProcessorParams,
   ComputeDamageProcessorParams,
   ComputeHealProcessorParams,
   PassiveProcessorParams
@@ -37,6 +38,12 @@ const INTERNAL_ACTION_IDS = new Set(
     passive.kind === 'TRIGGERED' ? [passive.triggeredActionId] : []
   )
 );
+
+/** Coût en énergie dérivé du processor `check_energy`, ou `undefined` si l'action est gratuite. */
+function deriveCost(action: Action): number | undefined {
+  const checkEnergy = action.processorConfigs.find((config) => config.type === 'check_energy');
+  return checkEnergy ? (checkEnergy.params as CheckEnergyProcessorParams).neededEnergy : undefined;
+}
 
 /** Résumé d'effets dérivé des processors (dégâts / soin / statut appliqué). */
 function deriveEffect(action: Action): string | undefined {
@@ -81,18 +88,15 @@ const categorySlug = (name: string): string =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_');
 
-const toItem = (action: Action): ActionItem => {
-  const cost = getActionEnergyCost(action);
-  return {
-    id: action.id,
-    name: action.name ?? action.id,
-    description: action.description ?? '',
-    kind: 'ACTION',
-    image: action.icon ? resolveActionIconUrl(action.icon) ?? undefined : undefined,
-    cost: cost > 0 ? cost : undefined,
-    effect: deriveEffect(action)
-  };
-};
+const toItem = (action: Action): ActionItem => ({
+  id: action.id,
+  name: action.name ?? action.id,
+  description: action.description ?? '',
+  kind: 'ACTION',
+  image: action.icon ? resolveActionIconUrl(action.icon) ?? undefined : undefined,
+  cost: deriveCost(action),
+  effect: deriveEffect(action)
+});
 
 /** Groupe les actions sélectionnables (= non internes) par catégorie, ordre d'apparition préservé. */
 function buildActionCategories(): ActionCategory[] {
