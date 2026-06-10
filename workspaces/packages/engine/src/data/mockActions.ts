@@ -18,9 +18,10 @@ export const VULNERABLE_PASSIVE_ID = "vulnerable"
 export const THORNS_PASSIVE_ID = "thorns"
 
 /**
- * Actions : source de vérité dans `json/actions.json` (gameplay + présentation
- * `name`/`icon`), seed de `InMemoryActionRegistry`. Le cast est la frontière de
- * confiance entre le JSON (types larges : `string`, `number`) et le modèle
- * `Action` (unions précises comme `duration: number | "PERMANENT"`).
+ * Catalogue des actions : source de vérité dans `json/actions.json` (gameplay +
+ * présentation `name`/`icon`/`category`/`description`/… pour l'éditeur de
+ * gambits), seed de `InMemoryActionRegistry` et consommé tel quel par le front.
+ * Le cast est la frontière de confiance entre le JSON (types larges : `string`,
+ * `number`) et le modèle `Action` (unions précises comme `duration: number | "PERMANENT"`).
  */
-export const MOCK_ACTIONS = actionsJson as unknown as readonly Action[]
+export const ACTION_CATALOG = actionsJson as unknown as readonly Action[]

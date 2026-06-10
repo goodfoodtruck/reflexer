@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { DraftGambit } from "../../GambitTypes";
-import { INSPIRATIONS } from "../../mockData";
+import { INSPIRATIONS } from "../../gambitEditorOptions";
 import { Styles } from "./Situation.styles";
 import { SITUATION_CONSTANTS } from "./constants/situation.constants";
 import { useSituationStep } from "./hooks/useSituationStep";

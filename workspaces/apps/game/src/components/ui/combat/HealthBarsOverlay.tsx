@@ -44,7 +44,7 @@ export function HealthBarsOverlay({ sceneRef, entities }: Props) {
     return (
         <div className="absolute inset-0 pointer-events-none">
             {livingEntities.map(entity => {
-                const ratio = entity.maxHp > 0 ? entity.hp / entity.maxHp : 0
+                const hpRatio = entity.maxHp > 0 ? entity.hp / entity.maxHp : 0
                 return (
                     <div
                         key={entity.id}
@@ -52,14 +52,14 @@ export function HealthBarsOverlay({ sceneRef, entities }: Props) {
                             if (el) barRefs.current.set(entity.id, el)
                             else barRefs.current.delete(entity.id)
                         }}
-                        className="absolute top-0 left-0 will-change-transform"
+                        className="absolute top-0 left-0 will-change-transform flex flex-col gap-0.5"
                     >
                         <div className="w-12 h-1.5 rounded-full bg-slate-900/80 ring-1 ring-black/40 overflow-hidden">
                             <div
                                 className={`h-full rounded-full transition-[width] duration-300 ${
                                     entity.teamId === "PLAYER" ? "bg-emerald-400" : "bg-rose-400"
                                 }`}
-                                style={{ width: `${Math.round(ratio * 100)}%` }}
+                                style={{ width: `${Math.round(hpRatio * 100)}%` }}
                             />
                         </div>
                     </div>

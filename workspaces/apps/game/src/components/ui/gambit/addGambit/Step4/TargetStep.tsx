@@ -2,7 +2,7 @@ import { IconEnemy } from '../../../../../assets/icons/IconEnemy';
 import { IconCharacter } from '../../../../../assets/icons/IconCharacter';
 import { IconSelf } from '../../../../../assets/icons/IconSelf';
 import type { DraftGambit } from '../../GambitTypes';
-import { SORT_CATEGORIES } from '../../mockData';
+import { SORT_CATEGORIES } from '../../gambitEditorOptions';
 import { useTargetStep } from './useTargetStep';
 import { StepSelectTarget } from './components/StepSelectTarget';
 import { StepFilterCriteria } from './components/StepFilterCriteria';

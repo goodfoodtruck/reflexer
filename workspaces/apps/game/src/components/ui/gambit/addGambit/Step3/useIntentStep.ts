@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { DraftGambit } from '../../GambitTypes';
-import { ACTION_CATEGORIES } from '../../mockData';
+import { ACTION_CATEGORIES } from '../../actionCatalog';
 
 interface UseIntentStepProps {
   draft: DraftGambit;
@@ -8,7 +8,7 @@ interface UseIntentStepProps {
 }
 
 export function useIntentStep({ draft, updateDraft }: UseIntentStepProps) {
-  const [activeCategoryId, setActiveCategoryId] = useState('cat_soin');
+  const [activeCategoryId, setActiveCategoryId] = useState(ACTION_CATEGORIES[0]?.id ?? '');
 
   const activeCategory = ACTION_CATEGORIES.find((c) => c.id === activeCategoryId);
 

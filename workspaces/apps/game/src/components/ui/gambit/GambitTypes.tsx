@@ -31,7 +31,6 @@ export type ActionItem = {
   kind: "ACTION" | "MOVEMENT";
   image?: string;
   cost?: number;
-  cibles?: string;
   effect?: string;
 };
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { DraftGambit } from '../../GambitTypes';
 import { sortLabelToSort, sortToLabel } from '../../gambit.adapter';
-import { FILTER_CATEGORIES } from '../../mockData';
+import { FILTER_CATEGORIES } from '../../gambitEditorOptions';
 
 export type InternalStep = 1 | 2 | 3;
 

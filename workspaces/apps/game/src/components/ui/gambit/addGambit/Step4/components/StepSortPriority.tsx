@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { SORT_CATEGORIES } from '../../../mockData';
+import { SORT_CATEGORIES } from '../../../gambitEditorOptions';
 import { Styles } from '../Target.styles';
 
 interface StepSortPriorityProps {

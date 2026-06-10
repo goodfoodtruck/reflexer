@@ -7,7 +7,7 @@ import type { SpriteIcon } from "./combat-view.types.ts";
 import { formatActionLog, type LogVisuals } from "./log-format.ts";
 import { resolveActionIconUrl } from "./action-assets.ts";
 import { resolveSpriteUrl } from "../rendering/sprite-assets.ts";
-import { MOCK_ACTIONS } from "@reflexer/engine";
+import { ACTION_CATALOG } from "@reflexer/engine";
 
 /**
  * Cadence du combat (façon FF Tactics) : des temps morts délibérés autour de
@@ -44,7 +44,7 @@ export class CombatReplayer {
 
         // Présentation des actions résolue depuis la donnée moteur (json/actions.json) :
         // icône (chemin logique → URL bundlée) et libellé, par identifiant d'action.
-        const actionsById = new Map(MOCK_ACTIONS.map(action => [action.id, action]))
+        const actionsById = new Map(ACTION_CATALOG.map(action => [action.id, action]))
         const visuals: LogVisuals = {
             icons,
             actionIcon: actionId => {
@@ -112,6 +112,9 @@ export class CombatReplayer {
         switch (log.type) {
             case "damage_dealt":
                 this.dispatch({ type: "applyDamage", targetId: log.targetId, amount: log.amount })
+                break
+            case "updated_energy":
+                this.dispatch({ type: "setEnergy", entityId: log.targetId, value: log.updatedValue })
                 break
             case "entity_died":
                 this.dispatch({ type: "killEntity", entityId: log.entityId })

@@ -11,7 +11,7 @@ import {
   rangeToLabel,
   statusLabelToPassiveId
 } from '../../../gambit.adapter';
-import { CRITERIA_DATA_CONDITION_STEP } from '../../../mockData';
+import { CRITERIA_DATA_CONDITION_STEP } from '../../../gambitEditorOptions';
 import { buildBannerText } from '../utils';
 
 export type ViewMode = 'SELECT_TARGET' | 'BUILD_CONDITION';

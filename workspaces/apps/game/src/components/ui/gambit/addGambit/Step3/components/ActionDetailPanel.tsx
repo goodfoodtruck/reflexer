@@ -8,7 +8,6 @@ interface ActionDetails {
   categoryName: string;
   image?: string;
   cost?: number;
-  cibles?: string;
   effect?: string;
   description?: string;
 }
@@ -44,11 +43,6 @@ export function ActionDetailPanel({ details }: ActionDetailPanelProps) {
             {details.cost !== undefined && (
               <div className={Styles.detailTextRow}>
                 Coût : <span className={Styles.detailTextBold}>{details.cost}</span> énergie
-              </div>
-            )}
-            {details.cibles && (
-              <div className={Styles.detailTextRow}>
-                Cible : <span className={Styles.detailTextBold}>{details.cibles}</span>
               </div>
             )}
           </div>

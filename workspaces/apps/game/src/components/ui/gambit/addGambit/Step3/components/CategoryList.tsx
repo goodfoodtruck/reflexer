@@ -1,4 +1,4 @@
-import { ACTION_CATEGORIES } from '../../../mockData';
+import { ACTION_CATEGORIES } from '../../../actionCatalog';
 import { Styles } from '../Intent.styles';
 
 interface CategoryListProps {

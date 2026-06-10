@@ -22,6 +22,7 @@ export type CombatAction =
     | { type: "beginTurn"; turnIndex: number; ownerId: PlayingEntityID; upcomingTurnOwners: PlayingEntityID[] }
     | { type: "pushAction"; line: CombatLogLine }
     | { type: "applyDamage"; targetId: PlayingEntityID; amount: number }
+    | { type: "setEnergy"; entityId: PlayingEntityID; value: number }
     | { type: "killEntity"; entityId: PlayingEntityID }
     | { type: "moveEntity"; entityId: PlayingEntityID; position: Position }
     | { type: "finish" }
@@ -60,6 +61,11 @@ export function combatViewReducer(state: CombatViewState, action: CombatAction):
 
         case "applyDamage":
             return patchEntity(state, action.targetId, entity => ({ hp: Math.max(0, entity.hp - action.amount) }))
+
+        case "setEnergy":
+            return patchEntity(state, action.entityId, entity => ({
+                energy: Math.max(0, Math.min(entity.maxEnergy, action.value)),
+            }))
 
         case "killEntity":
             return patchEntity(state, action.entityId, () => ({ alive: false, hp: 0 }))

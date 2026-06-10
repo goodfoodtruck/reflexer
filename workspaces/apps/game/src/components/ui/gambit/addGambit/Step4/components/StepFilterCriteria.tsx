@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { IconPlus } from '../../../../../../assets/icons/IconPlus';
-import { FILTER_CATEGORIES } from '../../../mockData';
+import { FILTER_CATEGORIES } from '../../../gambitEditorOptions';
 import type { FilterBlock } from '../useTargetStep';
 import { formatBlockText } from '../useTargetStep';
 import { Styles } from '../Target.styles';

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CRITERIA_DATA_CONDITION_STEP } from '../../../mockData';
+import { CRITERIA_DATA_CONDITION_STEP } from '../../../gambitEditorOptions';
 import type { ConditionBlock } from '../../../GambitTypes';
 import { ANIMATIONS } from '../constants/condition.constants';
 import { Styles } from '../Condition.styles';
