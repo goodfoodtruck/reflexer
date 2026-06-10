@@ -11,7 +11,7 @@ export class ProcessorChain {
         fightContext: IFightContextMutator & IFightContextReader
     ): ExecutionContext[] {
         const derivedContexts: ExecutionContext[] = []
-        const initialExecutionState: ExecutionState = { computedDamage: 0, computedHeal: 0 }
+        const initialExecutionState: ExecutionState = { computedDamage: 0, computedHeal: 0, computedEnergy: 0 }
         for (const processor of processors) {
             const result = processor.execute(executionContext, initialExecutionState, fightContext)
             if (result.status === "aborted") return []

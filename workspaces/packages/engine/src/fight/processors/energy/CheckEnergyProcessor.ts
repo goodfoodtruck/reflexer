@@ -20,9 +20,11 @@ export class CheckEnergyProcessor implements IProcessor {
             }
         }
 
-        if (actionCaster.currentStats.energy < this.params.neededEnergy) 
+        if (actionCaster.currentStats.energy < this.params.neededEnergy)
             return { status: 'aborted', reason: 'not_enough_energy' }
-        
+
+        execState.computedEnergy = this.params.neededEnergy
+
         return { status: "ok", derivedContexts: [] }
     }
 }

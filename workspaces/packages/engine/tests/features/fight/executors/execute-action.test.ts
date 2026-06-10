@@ -765,4 +765,74 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             targetId: "gobelin"
         })
     })
+
+    it("avorte l'action et signale l'échec (action_failed) si l'énergie est insuffisante", () => {
+        const costlyAction: Action = {
+            id: "costly",
+            type: "attack",
+            processorConfigs: [
+                { type: "check_energy", order: 1, params: { neededEnergy: 20 } },
+                { type: "use_energy", order: 2, params: {} },
+                { type: "compute_damage", order: 3, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 4, params: {} }
+            ]
+        }
+
+        const executor = buildExecutor({ actionRegistry: { get: () => costlyAction } })
+
+        // énergie par défaut = 10 < 20 requis
+        const mage = buildPlayingEntity({ id: "mage", teamId: "PLAYER" })
+        const gobelin = buildPlayingEntity({ id: "gobelin", teamId: "ENEMY" })
+        const fightContext = buildFightContext([mage], [gobelin])
+
+        const { logs, executed } = executor.execute({
+            type: "action",
+            casterId: "mage",
+            targetId: "gobelin",
+            actionId: "costly",
+            reactionDepth: 0
+        }, fightContext)
+
+        expect(executed).toBe(false)
+        expect(logs.some(l => l.type === "damage_dealt")).toBe(false)
+        expect(logs.find(l => l.type === "action_failed")).toMatchObject({
+            type: "action_failed",
+            reason: "not_enough_energy"
+        })
+    })
+
+    it("exécute et consomme l'énergie (updated_energy) si elle est suffisante", () => {
+        const costlyAction: Action = {
+            id: "costly",
+            type: "attack",
+            processorConfigs: [
+                { type: "check_energy", order: 1, params: { neededEnergy: 5 } },
+                { type: "use_energy", order: 2, params: {} },
+                { type: "compute_damage", order: 3, params: { initialDamage: 10 } },
+                { type: "apply_damage", order: 4, params: {} }
+            ]
+        }
+
+        const executor = buildExecutor({ actionRegistry: { get: () => costlyAction } })
+
+        // énergie par défaut = 10 >= 5 requis
+        const mage = buildPlayingEntity({ id: "mage", teamId: "PLAYER" })
+        const gobelin = buildPlayingEntity({ id: "gobelin", teamId: "ENEMY" })
+        const fightContext = buildFightContext([mage], [gobelin])
+
+        const { logs, executed } = executor.execute({
+            type: "action",
+            casterId: "mage",
+            targetId: "gobelin",
+            actionId: "costly",
+            reactionDepth: 0
+        }, fightContext)
+
+        expect(executed).toBe(true)
+        expect(logs.some(l => l.type === "damage_dealt")).toBe(true)
+        expect(logs.find(l => l.type === "updated_energy")).toMatchObject({
+            type: "updated_energy",
+            updatedValue: 5
+        })
+    })
 })

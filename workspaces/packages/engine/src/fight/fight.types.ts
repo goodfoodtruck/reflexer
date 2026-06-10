@@ -29,6 +29,7 @@ export interface TurnEvent {
 export type ExecutionState = {
     computedDamage: number
     computedHeal: number
+    computedEnergy: number
 }
 
 export type MovementContext = {
