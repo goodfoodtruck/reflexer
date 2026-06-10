@@ -7,5 +7,5 @@ export type RankedFight = BasePvpFight & {
 }
 
 export const RankedFightService = {
-    getHistory: (userId: string) => api.get<RankedFight[]>(`/fights/ranked/history/${userId}`),
+    getHistory: (userId: string) => api.get<RankedFight[]>(`/fight/history/ranked/${userId}`),
 }

@@ -11,6 +11,6 @@ interface PlayFightPayload {
 }
 
 export const FriendlyFightService = {
-    getHistory: (userId: string) => api.get<FriendlyFight[]>(`/fights/friendly/history/${userId}`),
+    getHistory: (userId: string) => api.get<FriendlyFight[]>(`/fights/history/friendly/${userId}`),
     playFight: (payload: PlayFightPayload) => api.post<BasePvpFight>('/fights/friendly', payload)
 }
