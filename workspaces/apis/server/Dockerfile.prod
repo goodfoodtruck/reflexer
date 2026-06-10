@@ -1,0 +1,32 @@
+# Image de PROD du server : build l'engine + le server avec tsup, puis lance le
+# JS compilé avec node (pas de ts-node-dev / hot-reload comme en dev).
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+
+COPY workspaces/packages/engine/package.json workspaces/packages/engine/package.json
+COPY workspaces/apis/server/package.json     workspaces/apis/server/package.json
+
+RUN pnpm install --frozen-lockfile
+
+# engine (dépendance buildée du server)
+COPY workspaces/packages/engine/src            workspaces/packages/engine/src
+COPY workspaces/packages/engine/tsconfig.json  workspaces/packages/engine/tsconfig.json
+COPY workspaces/packages/engine/tsup.config.ts workspaces/packages/engine/tsup.config.ts
+RUN pnpm --filter @reflexer/engine build
+
+# server
+COPY workspaces/apis/server/src            workspaces/apis/server/src
+COPY workspaces/apis/server/tsconfig.json  workspaces/apis/server/tsconfig.json
+COPY workspaces/apis/server/tsup.config.ts workspaces/apis/server/tsup.config.ts
+RUN pnpm --filter @reflexer/server build
+
+WORKDIR /usr/src/app/workspaces/apis/server
+
+ENV NODE_ENV=production
+
+CMD ["node", "dist/index.js"]
