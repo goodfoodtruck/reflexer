@@ -23,7 +23,7 @@ const PlayerSearchResults: React.FC<PlayerSearchResultsProps> = ({ results, onCh
                 </p>
             </div>
 
-            <div className={`flex flex-col gap-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent pr-1 ${
+            <div className={`flex flex-col justify-center p-2 gap-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent ${
                 results.length > MAX_VISIBLE ? "max-h-70" : ""
             }`}>
                 <AnimatePresence mode="popLayout">
