@@ -13,19 +13,15 @@ export function ChallengeConfirmView({
         <>
             <div className="flex flex-col gap-2">
                 <p className="text-[10px] font-black tracking-[0.3em] uppercase text-amber-500">
-                    Défi amical
+                    Combat amical
                 </p>
 
                 <p className="text-2xl font-black tracking-widest uppercase text-white">
                     {opponentName}
                 </p>
-
-                <p className="text-slate-400 text-sm">
-                    Le combat sera simulé avec vos gambits actuels.
-                </p>
             </div>
 
-            <div className="border-t border-slate-700/30" />
+            <div className="border-t border-slate-700/30 my-4" />
 
             <div className="flex gap-3">
                 <button
@@ -39,7 +35,7 @@ export function ChallengeConfirmView({
                     onClick={onChallenge}
                     className="flex-1 py-3 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black tracking-widest uppercase text-xs rounded-xl transition-all"
                 >
-                    Lancer le défi
+                    Lancer le combat
                 </button>
             </div>
         </>
