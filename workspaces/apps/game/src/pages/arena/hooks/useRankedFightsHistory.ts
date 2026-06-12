@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { RankedFightService, type RankedFight } from "@services/fight/rankedFight.service"
+import { RankedFightService } from "@services/fight/rankedFight.service"
+import type { RankedFight } from "@shared/fight.types"
 
 export function useRankedFightsHistory(userId: string) {
     const [fights, setFights] = useState<RankedFight[]>([])

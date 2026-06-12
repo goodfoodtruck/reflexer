@@ -1,4 +1,4 @@
-import { PlayingTeamID, FightEndState, EntityStats, Gambit, FightMapID, FightSnapshot } from "@reflexer/engine"
+import { FightEndState, EntityStats, Gambit, FightSnapshot, TurnLog } from "@reflexer/engine"
 import { Types, Schema, model } from "mongoose"
 
 type TeamMemberSnapshot = {
@@ -22,6 +22,7 @@ export interface PvpFightDocument extends Document {
     opponentTeam:   TeamMemberSnapshot[]
     initialState:   FightSnapshot
     endState:       FightEndState
+    logs:           TurnLog[]
     createdAt:      Date
     updatedAt:      Date
 }
@@ -35,7 +36,8 @@ const PvpFightSchema = new Schema<PvpFightDocument>(
         playerTeam:     { type: [TeamMemberSnapshotSchema], required: true },
         opponentTeam:   { type: [TeamMemberSnapshotSchema], required: true },
         endState:       { type: Schema.Types.Mixed, required: true },
-        initialState:   { type: Schema.Types.Mixed, required: true }
+        initialState:   { type: Schema.Types.Mixed, required: true },
+        logs:           { type: Schema.Types.Mixed, required: true, default: [] }
     },
     { timestamps: true }
 )

@@ -1,6 +1,5 @@
 import { Router } from "express"
 import type { FightError, FightMapID, FightResult, PlayingTeamID, Result, TeamMemberData } from "@reflexer/engine"
-import { FightLogModel } from "@models/fight_log.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { UserModel } from "@models/user.model"
 import { NotificationModel } from "@models/notification.model"
@@ -15,6 +14,16 @@ router.post("/", async (req, res) => {
             playerId: string
             opponentId: string
             fightMapId: FightMapID
+        }
+
+        const [playerUser, opponentUser] = await Promise.all([
+            UserModel.findById(playerId, { name: 1 }),
+            UserModel.findById(opponentId, { name: 1 })
+        ])
+
+        if (! playerUser || ! opponentUser) {
+            res.status(404).json({ error: "USER_NOT_FOUND" })
+            return
         }
 
         const playerTeam   = await buildTeamFromUserId(playerId)
@@ -51,29 +60,22 @@ router.post("/", async (req, res) => {
             })),
             winnerId,
             endState: result.value.endState,
-            initialState: result.value.initialState
-        })
-
-        await FightLogModel.create({
-            fightId: fight._id,
+            initialState: result.value.initialState,
             logs: result.value.logs
         })
 
         // Notifier l'adversaire
-        const playerUser = await UserModel.findById(playerId, { name: 1 });
-        if (playerUser) {
-            await NotificationModel.create({
-                userId: opponentId,
-                fromName: playerUser.name,
-                fightId: fight._id,
-                winner: winnerTeamID
-            });
-        }
-
+        await NotificationModel.create({
+            userId: opponentId,
+            fromName: playerUser.name,
+            fightId: fight._id,
+            winner: winnerTeamID
+        });
+        
         res.status(201).json({
             ...fight.toObject(),
-            initialState: result.value.initialState,
-            logs:         result.value.logs,
+            playerUser,
+            opponentUser
         })
 
     } catch (error) {

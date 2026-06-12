@@ -6,6 +6,12 @@ import mongoose from 'mongoose';
 
 const router = Router();
 
+router.post("/batch", async (req, res) => {
+    const { ids } = req.body as { ids: string[] }
+    const users = await UserModel.find({ _id: { $in: ids } }).select("-password -secretAnswer")
+    res.json(users)
+})
+
 // Rechercher un joueur par pseudo
 router.get('/search', async (req, res) => {
   const { name } = req.query as { name: string };  

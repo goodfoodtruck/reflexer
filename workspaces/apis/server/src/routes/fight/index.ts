@@ -1,4 +1,3 @@
-// routes/fights/index.ts
 import { Router } from "express"
 import friendlyRouter from "./friendly.route"
 import historyRouter from './history.route'

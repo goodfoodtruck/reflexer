@@ -14,14 +14,14 @@ import CombatTransition from "@features/fight/vs-screen/CombatTransition";
 export type CombatPageLocationState = {
     playerName: string
     opponentName: string
-    fightResult: BasePvpFight
+    fight: BasePvpFight
 }
 
 export function CombatPage() {
     const location = useLocation() as { state: CombatPageLocationState }
-    const fightResult = location.state.fightResult
+    const fight = location.state.fight
     const [phase, setPhase] = useState<"TRANSITION" | "COMBAT">("TRANSITION")
-    const { containerRef, sceneRef, state } = useCombatScene(fightResult, phase === "COMBAT");
+    const { containerRef, sceneRef, state } = useCombatScene(fight, phase === "COMBAT");
 
     const stageWidth = (state.mapDimensions?.width ?? 10) * CELL_SIZE;
     const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;

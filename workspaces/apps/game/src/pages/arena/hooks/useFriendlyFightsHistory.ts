@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { FriendlyFightService, type FriendlyFight } from "@services/fight/friendlyFight.service"
+import { FriendlyFightService } from "@services/fight/friendlyFight.service"
+import type { FriendlyFight } from "@shared/fight.types"
 
 export function useFriendlyFightsHistory(userId: string) {
     const [fights, setFights] = useState<FriendlyFight[]>([])

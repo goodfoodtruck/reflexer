@@ -13,9 +13,7 @@ export type PlayerSearchResult = {
 }
 
 export const UserService = {
-    getById: (id: string) =>
-        api.get<User>(`/users/${id}`),
-
-    search: (name: string) =>
-        api.get<PlayerSearchResult[]>(`/users/search?name=${encodeURIComponent(name)}`),
+    getById: (id: string) => api.get<User>(`/users/${id}`),
+    getByIds: (ids: string[]) => api.post<User[]>("/users/batch", { ids }),
+    search: (name: string) => api.get<PlayerSearchResult[]>(`/users/search?name=${encodeURIComponent(name)}`),
 }

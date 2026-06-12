@@ -28,7 +28,7 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
 
     const onChallenge = async () => {        
         try {
-            const result = await FriendlyFightService.playFight({
+            const playedFight = await FriendlyFightService.playFight({
                 playerId: user!.id,
                 opponentId: opponent._id,
                 fightMapId: "TRAINING_GROUND"
@@ -38,9 +38,9 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
             
             navigate("/fight", { 
                 state: {
-                    playerName: user.name,
-                    opponentName: opponent.name,
-                    fightResult: result 
+                    playerName: playedFight.playerUser.name,
+                    opponentName: playedFight.opponentUser.name,
+                    fight: { ...playedFight }
                 } 
             })
         } catch (err) {

@@ -4,6 +4,19 @@ import { Router } from "express"
 
 const router = Router()
 
+router.get("/:fightId", async (req, res) => {
+    try {
+        const { fightId } = req.params
+
+        const fight = await PvpFightModel.findById(fightId)
+        if (! fight) { res.status(404).json({ error: "FIGHT_NOT_FOUND" }); return }
+
+        res.json(fight)
+    } catch (error) {
+        res.status(500).json({ error: "INTERNAL_ERROR" })
+    }
+})
+
 // GET /fights/history/friendly/:userId
 router.get("/friendly/:userId", async (req, res) => {
     try {

@@ -12,7 +12,7 @@ const FriendlyFightsSection: React.FC<FriendlyFightsSectionProps> = ({ userId })
 
     return (
         <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
-            <h2 className="text-bold text-xl">Défier un joueur</h2>
+            <h2 className="text-bold text-xl">Défi amical</h2>
 
             <PlayerSearchSection
                 currentUserId={userId}
