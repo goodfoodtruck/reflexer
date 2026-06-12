@@ -2,6 +2,7 @@ import type { PlayerSearchResult } from "@services/user.service"
 import { usePlayerSearch } from "@pages/arena/hooks/usePlayerSearch"
 import PlayerSearchInput from "./PlayerSearchInput"
 import PlayerSearchResults from "./PlayerSearchResults"
+import ErrorAlert from "@components/shared/ErrorAlert"
 
 interface PlayerSearchSectionProps {
     currentUserId: string | undefined
@@ -15,7 +16,7 @@ const PlayerSearchSection: React.FC<PlayerSearchSectionProps> = ({ currentUserId
         <div className="w-full flex flex-col gap-4">
             <PlayerSearchInput query={query} loading={loading} onChange={setQuery} />
 
-            {error && <ErrorBanner errorMessage={error} />}
+            {error && <ErrorAlert error={error} />}
 
             {results.length > 0 && <PlayerSearchResults results={results} onChallenge={onChallenge} />}
 
@@ -30,14 +31,3 @@ const PlayerSearchSection: React.FC<PlayerSearchSectionProps> = ({ currentUserId
 
 export default PlayerSearchSection
 
-interface ErrorBannerProps {
-    errorMessage: string
-}
-
-const ErrorBanner: React.FC<ErrorBannerProps> = ({ errorMessage }) => {
-    return (
-        <div className="text-rose-400 text-xs font-bold text-center bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3">
-            {errorMessage}
-        </div>
-    )
-}

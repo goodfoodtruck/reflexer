@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import type { FriendlyFight, RankedFight, BasePvpFight } from "@shared/fight.types"
@@ -23,7 +23,7 @@ const FightHistorySection: React.FC<FightHistorySectionProps> = ({ player, frien
     const navigate = useNavigate()
 
     const fights: BasePvpFight[] = activeTab === "FRIENDLY" ? friendlyFights : rankedFights
-    const allFights = [...friendlyFights, ...rankedFights]
+    const allFights = useMemo(() => [...friendlyFights, ...rankedFights], [friendlyFights, rankedFights])
     const opponentNames = useFightOpponentNames(allFights, player.id)
 
     const getOpponentName = (fight: BasePvpFight): string => {
