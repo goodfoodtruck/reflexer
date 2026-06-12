@@ -25,7 +25,6 @@ const FightHistoryRow: React.FC<FightHistoryRowProps> = ({ fight, playerId, oppo
             whileTap={{ scale: 0.99 }}
         >
             <div className="flex items-center gap-3">
-                <span className="text-sm">{won ? "⚔️" : "💀"}</span>
                 <div className="flex flex-col">
                     <span className="text-sm font-black tracking-widest uppercase text-white">
                         {opponentName}

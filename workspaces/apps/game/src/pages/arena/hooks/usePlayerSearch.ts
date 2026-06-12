@@ -16,7 +16,7 @@ const useDebounce = (callback: () => void, delay: number, deps: unknown[]) => {
     }, deps)
 }
 
-export const usePlayerSearch = (currentUserId: string | undefined) => {
+export const usePlayerSearch = (currentUserId: string) => {
     const [query, setQuery] = useState("")
     const [results, setResults] = useState<PlayerSearchResult[]>([])
     const [loading, setLoading] = useState(false)

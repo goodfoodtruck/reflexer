@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import ErrorAlert from "@components/shared/ErrorAlert"
 import type { RankedFight } from "@shared/fight.types"
 import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
+import RankedFightsHistory from "./history/RankedFightsHistory"
 
 interface RankedSectionProps {
     userRankedFightsHistory: RankedFight[]
@@ -58,7 +59,7 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
             <motion.button
                 onClick={onFindMatch}
                 disabled={loading}
-                className="w-max p-4 bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black tracking-widest uppercase text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-max p-4 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black tracking-widest uppercase text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
             >
@@ -79,6 +80,8 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
             { error && <ErrorAlert error={error}/> }
 
             <PlayerStats playerFights={userRankedFightsHistory} playerId={user.id}/>
+
+            <RankedFightsHistory user={user} fights={userRankedFightsHistory} />
 
             <Leaderboard />
         </div>

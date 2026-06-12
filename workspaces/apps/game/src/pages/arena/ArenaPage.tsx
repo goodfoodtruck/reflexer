@@ -5,10 +5,9 @@ import { useAuth } from "@hooks/useAuth"
 import bgHomeImage from "@assets/images/bg-home.png"
 import ErrorAlert from "@components/shared/ErrorAlert"
 import { useFriendlyFightsHistory } from "./hooks/useFriendlyFightsHistory"
-import FriendlyFightsSection from "./dashboard/sections/friendly-fight/FriendlyFightsSection"
-import FightHistorySection from "./dashboard/sections/fight-history/FightHistorySection"
-import { useRankedFightsHistory } from "./hooks/useRankedFightsHistory"
-import RankedSection from "./dashboard/sections/ranked/RankedSection"
+import FriendlyFightsSection from "@pages/arena/dashboard/sections/friendly/FriendlyFightsSection"
+import { useRankedFightsHistory } from "@pages/arena/hooks/useRankedFightsHistory"
+import RankedSection from "@pages/arena/dashboard/sections/ranked/RankedSection"
 
 const ArenaPage: React.FC = () => {
     const navigate = useNavigate()
@@ -33,16 +32,14 @@ const ArenaPage: React.FC = () => {
             <div className="relative z-10 flex flex-col h-full">
                 <Header title="Arène" subtitle="PvP" onBack={() => navigate("/")} />
                 <div className="flex flex-col p-4 gap-8">
+                    <RankedSection 
+                        user={user} 
+                        userRankedFightsHistory={rankedFights}
+                    />
 
-                    <RankedSection user={user} userRankedFightsHistory={rankedFights}/>
-
-                    <FriendlyFightsSection user={user} userFriendlyFightsHistory={friendlyFights}/>
-
-                    { /* Historique classé + amical */}
-                    <FightHistorySection 
-                        player={user} 
-                        friendlyFights={friendlyFights}
-                        rankedFights={rankedFights}
+                    <FriendlyFightsSection 
+                        user={user} 
+                        userFriendlyFightsHistory={friendlyFights}
                     />
                 </div>
             </div>

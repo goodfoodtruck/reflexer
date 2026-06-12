@@ -6,9 +6,9 @@ interface PlayerSearchInputProps {
 
 const PlayerSearchInput: React.FC<PlayerSearchInputProps> = ({ query, loading, onChange }) => {
     return (
-        <div className="flex flex-col gap-3">
-            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-amber-500">
-                Rechercher par pseudo
+        <div className="flex flex-col gap-5">
+            <p className="text-[14px] font-black tracking-[0.3em] uppercase text-amber-500">
+                Défier un joueur
             </p>
             <div className="relative">
                 <input
