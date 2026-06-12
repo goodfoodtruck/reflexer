@@ -33,13 +33,13 @@ function Badge({ label, tone }: { label: string; tone: string }) {
 }
 
 type Props = {
-    /** Personnages dans un ordre d'affichage figé (l'ordre ne bouge pas). */
+    /** Personnages triés par ordre de passage (le prochain à jouer en haut). */
     members: EntityView[]
     activeId: PlayingEntityID | null
     nextId: PlayingEntityID | null
 }
 
-/** Liste unifiée des personnages (ordre figé), couleur par équipe, badges Joue / Suivant. */
+/** Liste unifiée des personnages (ordre de passage), couleur par équipe, badges Joue / Suivant. */
 export function TurnRoster({ members, activeId, nextId }: Props) {
     return (
         <div className="h-full flex flex-col gap-2 min-h-0">

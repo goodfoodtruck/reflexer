@@ -1,5 +1,5 @@
 import type { ActionLog, PlayingEntityID } from "@reflexer/engine"
-import type { CombatLogLine, SpriteIcon } from "./combat-view.types"
+import type { CombatLogLine, LogActor, LogSkill, SpriteIcon } from "./combat-view.types"
 
 /** Sources visuelles à injecter dans les lignes de journal. */
 export type LogVisuals = {
@@ -35,52 +35,63 @@ export function formatActionLog(
     id: number
 ): CombatLogLine | null {
     const labelOf = (entityId: PlayingEntityID) => labels.get(entityId) ?? entityId
-    const actor = (entityId: PlayingEntityID) =>
-        ({ kind: "actor" as const, text: labelOf(entityId), sprite: visuals.icons.get(entityId) })
-    const target = (entityId: PlayingEntityID) =>
-        ({ kind: "target" as const, text: labelOf(entityId), sprite: visuals.icons.get(entityId) })
-    const skill = (actionId: string) =>
-        ({ kind: "skill" as const, text: visuals.actionName(actionId) ?? actionLabel(actionId), iconUrl: visuals.actionIcon(actionId) ?? undefined })
+    const entity = (entityId: PlayingEntityID): LogActor =>
+        ({ label: labelOf(entityId), sprite: visuals.icons.get(entityId) })
+    const skill = (actionId: string): LogSkill =>
+        ({ label: visuals.actionName(actionId) ?? actionLabel(actionId), iconUrl: visuals.actionIcon(actionId) ?? undefined })
 
     switch (log.type) {
-        case "damage_dealt":
+        case "damage_dealt": {
+            const damage = { kind: "damage" as const, text: `−${Math.round(log.amount)} PV` }
+            // Dégât sur soi (DoT type saignement, source === cible) : pas de
+            // lanceur tiers, la victime « subit » l'effet.
+            if (log.sourceId === log.targetId) {
+                return { id, actor: entity(log.targetId), verb: "subit", skill: skill(log.actionId), target: null, amount: damage }
+            }
             return {
                 id,
-                segments: [
-                    actor(log.sourceId),
-                    { kind: "plain", text: " lance " },
-                    skill(log.actionId),
-                    { kind: "plain", text: " sur " },
-                    target(log.targetId),
-                ],
+                actor: entity(log.sourceId),
+                verb: "lance",
+                skill: skill(log.actionId),
+                target: entity(log.targetId),
+                amount: damage,
+            }
+        }
+
+        case "heal_dealt":
+            return {
+                id,
+                actor: entity(log.sourceId),
+                verb: "soigne",
+                skill: null,
+                target: entity(log.targetId),
+                amount: { kind: "heal", text: `+${Math.round(log.amount)} PV` },
             }
 
         case "passive_applied":
             return {
                 id,
-                segments: [
-                    actor(log.sourceId),
-                    { kind: "plain", text: " applique " },
-                    skill(log.passiveId),
-                    { kind: "plain", text: " sur " },
-                    target(log.targetId),
-                ],
+                actor: entity(log.sourceId),
+                verb: "applique",
+                skill: skill(log.passiveId),
+                target: entity(log.targetId),
+                amount: null,
             }
 
         case "entity_died":
             return {
                 id,
-                segments: [
-                    target(log.entityId),
-                    { kind: "plain", text: " est vaincu" },
-                ],
+                actor: entity(log.entityId),
+                verb: "est vaincu",
+                skill: null,
+                target: null,
+                amount: null,
             }
 
         case "entity_moved":
         case "damage_skipped":
         case "action_failed":
         case "updated_energy":
-        case "heal_dealt":
         case "heal_skipped":
             return null
     }

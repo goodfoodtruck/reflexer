@@ -27,12 +27,15 @@ export function CombatPage() {
     const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;
 
     const activeId = state.currentTurnOwnerId;
-    const activeEntity = activeId ? state.entities[activeId] : undefined;
     const nextId = state.upcomingTurnOwners[0] ?? null;
 
-    // Ordre d'affichage figé (ordre d'init des entités) : seuls les badges
-    // « Joue » / « Suivant » bougent, pas les cartes.
-    const members = Object.values(state.entities);
+    // Ordre d'affichage = ordre de passage figé (1er en haut, 2e en dessous…).
+    // Les cartes ne bougent pas d'un tour à l'autre : seuls les badges
+    // « Joue » / « Suivant » descendent le long de la liste (et reviennent en
+    // haut après le dernier). `state.turnOrder` est calculé une seule fois.
+    const ordered = state.turnOrder.map(id => state.entities[id]).filter(Boolean);
+    const rest = Object.values(state.entities).filter(entity => !state.turnOrder.includes(entity.id));
+    const members = [...ordered, ...rest];
 
     return (
         <>
@@ -43,7 +46,7 @@ export function CombatPage() {
                     onComplete={() => setPhase("COMBAT")}
                 />
             )}
-            {phase === "COMBAT" && (
+            {phase == "COMBAT" && (
                 <div className={STYLES.container}>
                     {/* Bandeau haut : compteur de tour · statut */}
                     <div className={STYLES.topBar}>
@@ -55,15 +58,7 @@ export function CombatPage() {
                     </div>
 
                     <div className={STYLES.body}>
-                        {/* Colonne gauche : narration groupée (actif → feed) */}
-                        <div className={STYLES.leftColumn}>
-                            <ActiveEntityCard entity={activeEntity} />
-                            <div className={STYLES.feedScroll}>
-                                <CombatLog logs={state.logs} />
-                            </div>
-                        </div>
-
-                        {/* Centre : la grille Pixi + overlay barres de vie */}
+                        {/* Scène : la grille Pixi + overlay barres de vie, calée à gauche */}
                         <div className={STYLES.stageColumn}>
                             <div
                                 className={STYLES.stageWrapper}
@@ -74,14 +69,18 @@ export function CombatPage() {
                             </div>
                         </div>
 
-                        {/* Colonne droite : liste unique (ordre figé), badges Joue / Suivant */}
+                        {/* Colonne droite : roster (ordre de passage) puis journal dessous */}
                         <div className={STYLES.rightColumn}>
-                            <TurnRoster members={members} activeId={activeId} nextId={nextId} />
+                            <div className={STYLES.rosterPane}>
+                                <TurnRoster members={members} activeId={activeId} nextId={nextId} />
+                            </div>
+                            <div className={STYLES.feedScroll}>
+                                <CombatLog logs={state.logs} />
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
         </>
-        
     );
 }

@@ -21,20 +21,31 @@ export type EntityView = {
     icon: SpriteIcon | null
 }
 
-export type LogSegmentKind = "actor" | "skill" | "target" | "plain"
-
-export type LogSegment = {
-    text: string
-    kind: LogSegmentKind
-    /** Portrait de l'entité (segments acteur / cible). */
+/** Portrait + libellé d'une entité (acteur ou cible). */
+export type LogActor = {
+    label: string
     sprite?: SpriteIcon
-    /** Image plate d'une action (segment compétence) ; absente → icône par défaut. */
+}
+
+/** Compétence/action jouée : libellé + image (absente → icône par défaut). */
+export type LogSkill = {
+    label: string
     iconUrl?: string
+}
+
+/** Montant chiffré d'un effet, coloré selon son signe. */
+export type LogAmount = {
+    kind: "damage" | "heal"
+    text: string
 }
 
 export type CombatLogLine = {
     id: number
-    segments: LogSegment[]
+    actor: LogActor | null
+    verb: string
+    skill: LogSkill | null
+    target: LogActor | null
+    amount: LogAmount | null
 }
 
 export type CombatStatus = "idle" | "playing" | "ended"
@@ -45,6 +56,7 @@ export type CombatViewState = {
     turnIndex: number
     currentTurnOwnerId: PlayingEntityID | null
     upcomingTurnOwners: PlayingEntityID[]
+    turnOrder: PlayingEntityID[]
     currentAction: CombatLogLine | null
     logs: CombatLogLine[]
     status: CombatStatus

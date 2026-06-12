@@ -7,6 +7,7 @@ export const INITIAL_COMBAT_VIEW_STATE: CombatViewState = {
     turnIndex: 0,
     currentTurnOwnerId: null,
     upcomingTurnOwners: [],
+    turnOrder: [],
     currentAction: null,
     logs: [],
     status: "idle",
@@ -22,6 +23,7 @@ export type CombatAction =
     | { type: "beginTurn"; turnIndex: number; ownerId: PlayingEntityID; upcomingTurnOwners: PlayingEntityID[] }
     | { type: "pushAction"; line: CombatLogLine }
     | { type: "applyDamage"; targetId: PlayingEntityID; amount: number }
+    | { type: "applyHeal"; targetId: PlayingEntityID; amount: number }
     | { type: "setEnergy"; entityId: PlayingEntityID; value: number }
     | { type: "killEntity"; entityId: PlayingEntityID }
     | { type: "moveEntity"; entityId: PlayingEntityID; position: Position }
@@ -54,6 +56,10 @@ export function combatViewReducer(state: CombatViewState, action: CombatAction):
                 turnIndex: action.turnIndex,
                 currentTurnOwnerId: action.ownerId,
                 upcomingTurnOwners: action.upcomingTurnOwners,
+                turnOrder:
+                    state.turnOrder.length > 0
+                        ? state.turnOrder
+                        : dedupe([action.ownerId, ...action.upcomingTurnOwners]),
             }
 
         case "pushAction":
@@ -67,6 +73,9 @@ export function combatViewReducer(state: CombatViewState, action: CombatAction):
                 energy: Math.max(0, Math.min(entity.maxEnergy, action.value)),
             }))
 
+        case "applyHeal":
+            return patchEntity(state, action.targetId, entity => ({ hp: Math.min(entity.maxHp, entity.hp + action.amount) }))
+
         case "killEntity":
             return patchEntity(state, action.entityId, () => ({ alive: false, hp: 0 }))
 
@@ -76,6 +85,12 @@ export function combatViewReducer(state: CombatViewState, action: CombatAction):
         case "finish":
             return { ...state, status: "ended", currentAction: null }
     }
+}
+
+/** Conserve la première occurrence de chaque id, dans l'ordre. */
+function dedupe(ids: PlayingEntityID[]): PlayingEntityID[] {
+    const seen = new Set<PlayingEntityID>()
+    return ids.filter(id => (seen.has(id) ? false : seen.add(id) && true))
 }
 
 function patchEntity(
