@@ -8,7 +8,7 @@ export type PassiveProcessorParams = {
     readonly passiveId: PassiveID, 
     readonly duration: number | "PERMANENT" 
 }
-export type UseEnergyProcessorParams = { readonly energyAmount: number }
+export type UseEnergyProcessorParams = {}
 export type CheckEnergyProcessorParams = { readonly neededEnergy: number }
 
 export type AreaProcessorParams = {

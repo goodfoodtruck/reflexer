@@ -2,10 +2,15 @@ import { IActionRegistry } from "@data/IActionRegistry";
 import { ActionExecutionContext, ActionLog, ExecutionContext, IFightContextMutator, IFightContextReader, MovementExecutionContext } from "@fight/fight.types";
 import { ProcessorChain } from "@fight/processors/ProcessorChain";
 import { ProcessorFactory } from "@fight/processors/ProcessorFactory";
+import { ProcessorResult } from "@fight/processors/processor.types";
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
 import { WalkProcessor } from "@fight/processors/move/WalkProcessor";
 
 const MAX_REACTION_DEPTH = 1
+
+export type ActionOutcome =
+    | { status: "executed"; logs: ActionLog[] }
+    | { status: "aborted"; reason: string; logs: ActionLog[] }
 
 export class ActionChainExecutor {
     constructor(
@@ -15,12 +20,13 @@ export class ActionChainExecutor {
         private readonly processorChain: ProcessorChain
     ) {}
 
-    execute(
+    attempt(
         initialContext: ExecutionContext,
         fightContext: IFightContextMutator & IFightContextReader
-    ): ActionLog[] {
+    ): ActionOutcome {
         const logs: ActionLog[] = []
         const queue: ExecutionContext[] = [initialContext]
+        let abortReason: string | null = null
 
         while (queue.length > 0) {
             const ctx = queue.shift()!
@@ -28,27 +34,47 @@ export class ActionChainExecutor {
             // seules les actions ont une profondeur de réaction
             if (ctx.type === "action" && ctx.reactionDepth > MAX_REACTION_DEPTH) continue
 
-            const derivedContexts = ctx.type === "action"
+            const result = ctx.type === "action"
                 ? this.executeAction(ctx, fightContext)
                 : this.executeMovement(ctx, fightContext)
 
             const fightLogs = fightContext.drainLogs()
             logs.push(...fightLogs)
 
+            if (result.status === "aborted") {
+                if (ctx === initialContext) abortReason = result.reason
+                continue
+            }
+
             const reactionDepth = ctx.type === "action" ? ctx.reactionDepth : 0
             const reactions = this.resolveTriggeredPassivesReactions(fightLogs, fightContext, reactionDepth)
 
-            queue.unshift(...derivedContexts)
+            queue.unshift(...result.derivedContexts)
             queue.push(...reactions)
         }
 
-        return logs
+        if (abortReason !== null) {
+            const failureLog: ActionLog[] = initialContext.type === "action"
+                ? [{ type: "action_failed", reason: abortReason }]
+                : []
+            return { status: "aborted", reason: abortReason, logs: [...logs, ...failureLog] }
+        }
+
+        return { status: "executed", logs }
+    }
+
+    execute(
+        initialContext: ExecutionContext,
+        fightContext: IFightContextMutator & IFightContextReader
+    ): ActionLog[] {
+        const { logs } = this.attempt(initialContext, fightContext);
+        return logs;
     }
 
     private executeAction(
         ctx: ActionExecutionContext,
         fightContext: IFightContextMutator & IFightContextReader
-    ): ExecutionContext[] {
+    ): ProcessorResult {
         const action = this.actionRegistry.get(ctx.actionId)
         const processors = [...action.processorConfigs]
             .sort((a, b) => a.order - b.order)
@@ -60,7 +86,7 @@ export class ActionChainExecutor {
     private executeMovement(
         ctx: MovementExecutionContext,
         fightContext: IFightContextMutator & IFightContextReader
-    ): ExecutionContext[] {
+    ): ProcessorResult {
         return this.processorChain.execute(ctx, [new WalkProcessor()], fightContext)
     }
 

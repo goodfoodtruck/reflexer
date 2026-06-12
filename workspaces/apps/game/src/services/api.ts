@@ -13,6 +13,8 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown): Pro
         const error = await response.json().catch(() => ({ error: "Unknown error" }))
         throw new Error(error.error ?? `HTTP ${response.status}`)
     }
+    
+    if (response.status === 204) return undefined as T
 
     return response.json() as Promise<T>
 }

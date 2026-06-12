@@ -13,10 +13,12 @@ router.get("/", async (req, res) => {
  
 router.post("/", async (req, res) => {
     try {
-        const { characterId, priority, conditions, targetSelector, intent } = req.body as
-            { characterId: string } & Omit<Gambit, "id">
+        const { userId, name, characterId, priority, conditions, targetSelector, intent } = req.body as
+            { userId: string, name: string, characterId: string } & Omit<Gambit, "id">
  
         const gambit = await GambitModel.create({
+            userId,
+            name,
             characterId,
             priority,
             conditions,

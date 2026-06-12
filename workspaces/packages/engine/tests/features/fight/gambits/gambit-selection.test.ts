@@ -9,9 +9,9 @@ import { buildActionGambitResolver } from "@tests/builders/fight/gambits/ActionG
 const CASTER_ID: PlayingEntityID = "caster"
 const ENEMY_ID: PlayingEntityID = "enemy_1"
 
-describe("Récupérer un gambit parmi une liste de gambits", () => {
+describe("Récupérer les gambits d'action éligibles parmi une liste", () => {
 
-    it("renvoyer un ExecutionContext si la condition est vraie et qu'une cible existe", () => {
+    it("renvoie un candidat si la condition est vraie et qu'une cible existe", () => {
         const resolver = buildActionGambitResolver()
 
         const fightContext = buildFightContext([
@@ -34,17 +34,46 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
 
         const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
 
-        expect(result).not.toBeNull()
-        expect(result).toEqual({
+        expect(result).toEqual([{
             type: "action",
             casterId: CASTER_ID,
             actionId: "attack_basic",
             targetId: ENEMY_ID,
             reactionDepth: 0
-        })
+        }])
     });
 
-    it("renvoyer null si la liste de gambits est vide", () => {
+    it("renvoie les candidats par ordre de priorité (le repli reste dans la liste)", () => {
+        const resolver = buildActionGambitResolver()
+
+        const fightContext = buildFightContext([
+            {
+                id: CASTER_ID,
+                teamId: "PLAYER",
+                gambits: [
+                    buildActionGambit({
+                        priority: 1,
+                        intent: { kind: "ACTION", actionId: "heavy_attack" },
+                        conditions: buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } })
+                    }),
+                    buildActionGambit({
+                        priority: 2,
+                        intent: { kind: "ACTION", actionId: "attack" },
+                        conditions: buildExistsCondition({ context: { targetType: ETargetType.ENEMY, filters: [] } })
+                    })
+                ]
+            },
+            { id: ENEMY_ID, teamId: "ENEMY" }
+        ])
+
+        const caster = fightContext.getEntityById(CASTER_ID)!
+
+        const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
+
+        expect(result.map(c => c.actionId)).toEqual(["heavy_attack", "attack"])
+    });
+
+    it("renvoie une liste vide si la liste de gambits est vide", () => {
         const resolver = buildActionGambitResolver()
 
         const fightContext = buildFightContext([
@@ -56,10 +85,10 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
 
         const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
 
-        expect(result).toBeNull()
+        expect(result).toEqual([])
     });
 
-    it("renvoyer null si aucun gambit n'a ses conditions remplies", () => {
+    it("renvoie une liste vide si aucun gambit n'a ses conditions remplies", () => {
         const resolver = buildActionGambitResolver()
 
         const fightContext = buildFightContext([
@@ -88,10 +117,10 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
 
         const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
 
-        expect(result).toBeNull()
+        expect(result).toEqual([])
     });
 
-    it("renvoyer null si la condition est valide mais aucune cible ne matche", () => {
+    it("renvoie une liste vide si la condition est valide mais aucune cible ne matche", () => {
         const resolver = buildActionGambitResolver()
 
         const fightContext = buildFightContext([
@@ -124,6 +153,6 @@ describe("Récupérer un gambit parmi une liste de gambits", () => {
 
         const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
 
-        expect(result).toBeNull()
+        expect(result).toEqual([])
     });
 })

@@ -9,7 +9,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/team" element={<TeamSelectionPage />} />
-        <Route path="/gestion-gambits/:heroId" element={<GambitEditorPage />} />
+        <Route path="/gestion-gambits/:caracterId" element={<GambitEditorPage />} />
       </Routes>
     </BrowserRouter>
   );

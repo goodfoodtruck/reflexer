@@ -29,6 +29,7 @@ export interface TurnEvent {
 export type ExecutionState = {
     computedDamage: number
     computedHeal: number
+    computedEnergy: number
 }
 
 export type MovementContext = {
@@ -67,6 +68,14 @@ export type Action = {
     name?: Readonly<string>;
     /** Chemin logique de l'icône (ex. "attaque/Boule-feu.png"), résolu côté front. */
     icon?: Readonly<string>;
+    /**
+     * Libellé de regroupement dans l'éditeur de gambits (ex. "Attaque", "Malus").
+     * Métadonnée purement éditoriale : coût et effets, eux, sont dérivés des
+     * `processorConfigs` (voir front `actionCatalog.tsx`), jamais dupliqués ici.
+     */
+    category?: Readonly<string>;
+    /** Description affichée dans l'éditeur (texte d'ambiance, non dérivable). */
+    description?: Readonly<string>;
 };
 
 

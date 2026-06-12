@@ -6,7 +6,7 @@ import { InMemoryActionRegistry } from "@data/InMemoryActionRegistry"
 import { InMemoryEnemyRegistry } from "@data/InMemoryEnemyRegistry"
 import { InMemoryFightMapRegistry } from "@data/InMemoryFightMapRegistry"
 import { InMemoryPassiveRegistry } from "@data/InMemoryPassiveRegistry"
-import { MOCK_ACTIONS } from "@data/mockActions"
+import { ACTION_CATALOG } from "@data/mockActions"
 import { MOCK_PASSIVES } from "@data/mockPassives"
 import { MOCK_FIGHT_MAPS } from "@data/mockFightMaps"
 import { MOCK_ENEMIES } from "@data/mockCharacters"
@@ -41,7 +41,7 @@ const CYCLE_REPETITIONS = 4
 export function createGameEngine(): GameEngine {
     // Registres (sources de données mockées)
     const fightMapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
-    const actionRegistry = new InMemoryActionRegistry(MOCK_ACTIONS)
+    const actionRegistry = new InMemoryActionRegistry(ACTION_CATALOG)
     const passiveRegistry = new InMemoryPassiveRegistry(MOCK_PASSIVES)
     const enemyRegistry = new InMemoryEnemyRegistry(MOCK_ENEMIES)
 

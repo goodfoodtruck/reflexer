@@ -1,4 +1,4 @@
-import { ActionLineOfSightProcessorParams, ApplyDamageProcessorParams, ApplyHealProcessorParams, AreaProcessorParams, ArmorComputeProcessorParams, CheckEnergyProcessorParams, CheckRangeProcessorParams, ComputeDamageProcessorParams, ComputeHealProcessorParams, MovementLineOfSightProcessorParams, PassiveProcessorParams, ProcessorConfig, UseEnergyProcessorParams } from "@processors/processor.types";
+import { ActionLineOfSightProcessorParams, ApplyDamageProcessorParams, ApplyHealProcessorParams, AreaProcessorParams, ArmorComputeProcessorParams, CheckEnergyProcessorParams, CheckRangeProcessorParams, ComputeDamageProcessorParams, ComputeHealProcessorParams, MovementLineOfSightProcessorParams, PassiveProcessorParams, ProcessorConfig } from "@processors/processor.types";
 import { IProcessor } from "@processors/IProcessor";
 import { WalkProcessor } from "@fight/processors/move/WalkProcessor";
 import { IPassiveRegistry } from "@data/IPassiveRegistry";
@@ -27,7 +27,7 @@ export class ProcessorFactory {
             case "passive":        return new PassiveApplierProcessor(this.passiveRegistry, config.params as PassiveProcessorParams)
             case "area":           return new AreaProcessor(config.params as AreaProcessorParams)
             case "check_energy":   return new CheckEnergyProcessor(config.params as CheckEnergyProcessorParams)
-            case "use_energy":     return new UseEnergyProcessor(config.params as UseEnergyProcessorParams)
+            case "use_energy":     return new UseEnergyProcessor()
             case "compute_heal":   return new HealComputeProcessor(config.params as ComputeHealProcessorParams)
             case "apply_heal":     return new HealApplyProcessor(config.params as ApplyHealProcessorParams)
             case "check_range":    return new CheckRangeProcessor(config.params as CheckRangeProcessorParams)
