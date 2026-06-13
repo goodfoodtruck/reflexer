@@ -39,6 +39,7 @@ router.post("/", async (req, res) => {
             return
         }
 
+        // calcul du combat et désignation du vainqueur
         const result: Result<FightResult, FightError> = engine.playPvpFight(fightMapId, playerTeam, opponentTeam)
 
         if (! result.success) {
@@ -69,6 +70,7 @@ router.post("/", async (req, res) => {
             logs: result.value.logs
         })
 
+        // calcul et mise à jour des données de ranking des joueurs
         const playerRanking = await PlayerRankingModel.findOne({ playerId })
         const opponentRanking = await PlayerRankingModel.findOne({ playerId: opponentId })
 
@@ -78,19 +80,23 @@ router.post("/", async (req, res) => {
         }
 
         const playerWon = winnerId === playerId
-        const playerDeltaElo = computeEloChange(playerRanking.elo, opponentRanking.elo, playerWon ? 1 : 0)
-        const opponentDeltaElo = computeEloChange(opponentRanking.elo, playerRanking.elo, playerWon ? 0 : 1)
-        const playerEloAfter = Math.min(100, (playerRanking.elo + playerDeltaElo))
-        const opponentEloAfter = Math.min(100, (opponentRanking.elo + opponentDeltaElo))
+
+        const playerDeltaElo = computeEloChange(playerRanking.currentElo, opponentRanking.currentElo, playerWon ? 1 : 0)
+        const playerEloAfter = Math.min(100, (playerRanking.currentElo + playerDeltaElo))
+        const playerWinstreakAfter = playerWon ? playerRanking.currentWinstreak + 1 : 0
+
+        const opponentDeltaElo = computeEloChange(opponentRanking.currentElo, playerRanking.currentElo, playerWon ? 0 : 1)
+        const opponentEloAfter = Math.min(100, (opponentRanking.currentElo + opponentDeltaElo))
+        const opponentWinstreakAfter = playerWon ?  0 : opponentRanking.currentWinstreak + 1
 
         await FightRankingModel.create({
             fightId: fight.id,
             playerId,
             opponentId,
             winnerId,
-            playerEloBefore: playerRanking.elo,
+            playerEloBefore: playerRanking.currentElo,
             playerEloAfter,
-            opponentEloBefore: opponentRanking.elo,
+            opponentEloBefore: opponentRanking.currentElo,
             opponentEloAfter,
             eloDeltaPlayer: playerDeltaElo,
             eloDeltaOpponent: opponentDeltaElo
@@ -102,8 +108,10 @@ router.post("/", async (req, res) => {
             { playerId },
             {
                 $set: {
-                    elo: playerEloAfter,
-                    highestElo: Math.max(playerRanking.highestElo, playerEloAfter)
+                    currentElo: playerEloAfter,
+                    highestElo: Math.max(playerRanking.highestElo, playerEloAfter),
+                    currentWinstreak: playerWinstreakAfter,
+                    highestWinstreak: Math.max(playerRanking.highestWinstreak, playerWinstreakAfter)
                 },
                 $inc: {
                     rankedWins: playerWon ? 1 : 0,
@@ -117,8 +125,10 @@ router.post("/", async (req, res) => {
             { playerId: opponentId },
             {
                 $set: {
-                    elo: opponentEloAfter,
-                    highestElo: Math.max(opponentRanking.highestElo, opponentEloAfter)
+                    currentElo: opponentEloAfter,
+                    highestElo: Math.max(opponentRanking.highestElo, opponentEloAfter),
+                    currentWinstreak: opponentWinstreakAfter,
+                    highestWinstreak: Math.max(opponentRanking.highestWinstreak, opponentWinstreakAfter)
                 },
                 $inc: {
                     rankedWins: playerWon ? 0 : 1,
@@ -141,7 +151,7 @@ router.post("/", async (req, res) => {
             player: {
                 user: playerUser,
                 ranking: {
-                    eloBefore: playerRanking.elo,
+                    eloBefore: playerRanking.currentElo,
                     eloAfter: playerEloAfter,
                     eloDelta: playerDeltaElo,
                     won: playerWon
@@ -150,7 +160,7 @@ router.post("/", async (req, res) => {
             opponent: {
                 user: opponentUser,
                 ranking: {
-                    eloBefore: opponentRanking.elo,
+                    eloBefore: opponentRanking.currentElo,
                     eloAfter: opponentEloAfter,
                     eloDelta: opponentDeltaElo,
                     won: !playerWon

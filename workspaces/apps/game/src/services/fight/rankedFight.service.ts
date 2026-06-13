@@ -5,9 +5,9 @@ import type { User } from "@services/user.service"
 export type RankedPlayer = {
     user: User
     ranking: {
-        eloBefore: number,
-        eloAfter: number,
-        eloDelta: number,
+        eloBefore: number
+        eloAfter: number
+        eloDelta: number
         won: boolean
     }
 }
