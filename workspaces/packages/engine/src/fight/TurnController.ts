@@ -73,9 +73,9 @@ export class TurnController {
 
         const logs: ActionLog[] = []
         for (const candidate of candidates) {
-            const outcome = this.actionExecutor.attempt(candidate, fightContext)
+            const outcome = this.actionExecutor.attempt(candidate.context, fightContext)
 
-            logs.push(outcome.logs.map(log => { ...log, gambit: candidate.gambit }))
+            logs.push(...outcome.logs.map(log => ({ ...log, gambit: candidate.gambit })))
             if (outcome.status === "executed") break
         }
 
