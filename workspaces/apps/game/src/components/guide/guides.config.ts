@@ -20,7 +20,7 @@ export const GUIDES: Record<GuideName, GuideStep[]> = {
         {
             target:      "[data-guide='agent-card']",
             title:       "Choisis ton équipe",
-            description: "Tu pars avec deux agents — le guerrier encaisse, l'archère frappe de loin. Clique sur un agent pour configurer ses gambits, puis lance le déploiement.",
+            description: "Tu pars avec deux agents. Clique sur un pour configurer ses gambits, puis lance le déploiement.",
             position:    "right",
         },
         {
