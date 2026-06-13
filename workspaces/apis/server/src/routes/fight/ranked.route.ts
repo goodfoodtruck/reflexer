@@ -1,19 +1,32 @@
 import { Router } from "express"
-import type { FightError, FightMapID, FightResult, Result, TeamMemberData } from "@reflexer/engine"
-import { FightLogModel } from "@models/fight_log.model"
+import type { FightError, FightMapID, FightResult, PlayingTeamID, Result, TeamMemberData } from "@reflexer/engine"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
-import { engine } from "../index"
+import { UserModel } from "@models/user.model"
+import { NotificationModel } from "@models/notification.model"
 import { buildTeamFromUserId } from "@services/team.service"
+import { engine } from "../.."
  
 const router = Router()
 
-router.post("/friendly", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
-        const { playerId, opponentId, fightMapId } = req.body as {
-            playerId: string
-            opponentId: string
-            fightMapId: FightMapID
+        const { playerId } = req.body as { playerId: string }
+        const playerUser = await UserModel.findById(playerId, { name: 1 })
+        if (! playerUser) {
+            res.status(404).json({ error: "USER_NOT_FOUND" })
+            return
         }
+
+        // TODO: trouver adversaire avec elo similaire
+        const opponentId = "000000000000000000000001"
+        const opponentUser = await UserModel.findById(opponentId, { name: 1 })
+        if (! opponentUser) {
+            res.status(404).json({ error: "USER_NOT_FOUND" })
+            return
+        }
+
+        // TODO: carte alétoire
+        const fightMapId = "TRAINING_GROUND"
 
         const playerTeam   = await buildTeamFromUserId(playerId)
         const opponentTeam = await buildTeamFromUserId(opponentId)
@@ -30,10 +43,11 @@ router.post("/friendly", async (req, res) => {
             return
         }
 
-        const fightWinnerTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
+        const winnerId = result.value.endState.kind === "WON" ? playerId : opponentId
+        const winnerTeamID: PlayingTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
 
         const fight = await PvpFightModel.create({
-            mode: "FRIENDLY",
+            mode: "RANKED",
             playerUserId: playerId,
             opponentUserId: opponentId,
             playerTeam: playerTeam.map((teamMember: TeamMemberData) => ({
@@ -46,21 +60,27 @@ router.post("/friendly", async (req, res) => {
                 baseStats: teamMember.baseStats,
                 gambits: teamMember.gambits
             })),
-            winner: fightWinnerTeamID,
+            winnerId,
             endState: result.value.endState,
-            fightMapId
-        })
-
-        await FightLogModel.create({
-            fightId: fight._id,
-            fightType: "PVP",
+            initialState: result.value.initialState,
             logs: result.value.logs
         })
 
+        // calculer montée et baisse de elo pour gagnant, perdant
+
+        // Notifier l'adversaire
+        await NotificationModel.create({
+            userId: opponentId,
+            fromName: playerUser.name,
+            fightId: fight._id,
+            winner: winnerTeamID
+        });
+        
         res.status(201).json({
             ...fight.toObject(),
-            initialState: result.value.initialState,
-            logs:         result.value.logs,
+            playerUser,
+            opponentUser,
+            // TODO: données de ranked
         })
 
     } catch (error) {

@@ -7,8 +7,8 @@ import bgHomeImage from '../../assets/images/bg-home.png';
 import heroM from '../../assets/images/hero-m.png';
 import heroW from '../../assets/images/hero-w.png';
 import { AgentCard } from '../../components/ui/agent/AgentCard';
-import { CharacterService, type Character } from '../../services';
 import { STYLES } from './Team.styles';
+import { CharacterService, type Character } from '@services/character.service';
 
 export function TeamSelectionPage() {
   const navigate = useNavigate();

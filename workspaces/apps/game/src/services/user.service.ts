@@ -7,10 +7,13 @@ export type User = {
     updatedAt: string
 }
 
-export const UserService = {
-    create: (name: string) =>
-        api.post<User>("/users", { name }),
+export type PlayerSearchResult = {
+    _id:  string
+    name: string
+}
 
-    getById: (id: string) =>
-        api.get<User>(`/users/${id}`),
+export const UserService = {
+    getById: (id: string) => api.get<User>(`/users/${id}`),
+    getByIds: (ids: string[]) => api.post<User[]>("/users/batch", { ids }),
+    search: (name: string) => api.get<PlayerSearchResult[]>(`/users/search?name=${encodeURIComponent(name)}`),
 }

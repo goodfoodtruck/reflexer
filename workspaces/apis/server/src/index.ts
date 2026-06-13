@@ -6,9 +6,10 @@ import userRoutes   from "@routes/user.route"
 import characterRoutes   from "@routes/character.route"
 import gambitRoutes from "@routes/gambit.route"
 import runRoutes    from "@routes/run.route"
-import fightRoutes  from "@routes/fight.route"
+import fightRoutes  from "@routes/fight"
 import { createGameEngine } from "@reflexer/engine"
 import { seedDatabase } from "@scripts/seedDatabase"
+import authRoutes from "./routes/auth.route"
  
 dotenv.config()
 
@@ -23,11 +24,12 @@ app.use("/characters", characterRoutes)
 app.use("/gambits",    gambitRoutes)
 app.use("/runs",       runRoutes)
 app.use("/fights",     fightRoutes)
+app.use("/auth",    authRoutes)
  
 app.get("/", (_, res) => res.json({ status: "ok", service: "reflexer-server" }))
  
 const start = async () => {
-    const uri  = process.env.MONGODB_URI ?? "mongodb://mongodb:27017/reflexer"
+    const uri  = process.env.MONGODB_URI ?? "mongodb://localhost:27017/reflexer"
     await connectDatabase(uri)
     await seedDatabase()
  

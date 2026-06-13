@@ -3,9 +3,14 @@ const BASE_URL = import.meta.env.VITE_API_URL
 type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE"
 
 async function request<T>(method: HttpMethod, path: string, body?: unknown): Promise<T> {
+    const token = localStorage.getItem('reflexer_token')
+
     const response = await fetch(`${BASE_URL}${path}`, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
         body: body !== undefined ? JSON.stringify(body) : undefined,
     })
 

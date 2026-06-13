@@ -4,14 +4,20 @@ import { MenuButton } from "../../components/ui/MenuButton";
 import herosImage from "../../assets/images/heros.png";
 import bgHomeImage from "../../assets/images/bg-home.png"; 
 import STYLES from "./styles";
+import { OptionsPanel } from "../../components/ui/OptionsPanel";
+import { useState } from "react";
+import { NotificationBell } from "../../components/ui/NotificationBell";
 
 
 export function HomePage() {
   const navigate = useNavigate();
+  const [showOptions, setShowOptions] = useState(false);
 
-  const onStartGame = () => {
-    navigate("/team");
-  };
+  const onStartGame = () => navigate('/team');
+  const onEditGambit = () => navigate('/team');
+  const onArena    = () => navigate('/arena')
+  const onOpenOptions = () => setShowOptions(true);
+  const onCloseOptions = () => setShowOptions(false);
 
   return (
     <div className={STYLES.container}>
@@ -26,6 +32,7 @@ export function HomePage() {
 
       <div className={STYLES.overlay}></div>
       <div className={STYLES.foreground}>
+        <NotificationBell /> 
         
         <div className={STYLES.titleWrapper}>
           <h1 className={STYLES.mainTitle}>
@@ -51,12 +58,14 @@ export function HomePage() {
 
         <div className={STYLES.navContainer}>
           <MenuButton onClick={onStartGame}>Nouvelle partie</MenuButton>
+          <MenuButton onClick={onEditGambit}>Gambits</MenuButton>
+          <MenuButton onClick={onArena}>Arène</MenuButton>
           <MenuButton>Historique</MenuButton>
-          <MenuButton>Options</MenuButton>
-        </div> 
-        
+          <MenuButton onClick={onOpenOptions}>Options</MenuButton>
+        </div>
       </div>
-      
+
+      {showOptions && <OptionsPanel onClose={onCloseOptions} />}
     </div>
   );
 }

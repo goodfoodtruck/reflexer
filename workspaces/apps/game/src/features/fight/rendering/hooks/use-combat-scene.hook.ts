@@ -4,19 +4,15 @@ import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
-import { FightService } from "../../../../services"
+import type { BasePvpFight } from "@shared/fight.types"
 
-
-const PLAYER_ID = import.meta.env.VITE_FRIENDLY_PLAYER_ID ?? ""
-const OPPONENT_ID = import.meta.env.VITE_FRIENDLY_OPPONENT_ID ?? ""
-const FIGHT_MAP_ID = "TRAINING_GROUND"
-
-export function useCombatScene() {
+export function useCombatScene(fight: BasePvpFight, isTransitionFinished: boolean) {
     const containerRef = useRef<HTMLDivElement>(null)
     const sceneRef = useRef<CombatScene | null>(null)
     const [state, dispatch] = useReducer(combatViewReducer, INITIAL_COMBAT_VIEW_STATE)
 
     useEffect(() => {
+        if (!isTransitionFinished) return
         if (!containerRef.current) return
 
         let cancelled = false
@@ -35,10 +31,13 @@ export function useCombatScene() {
                 const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
                 const replayer = new CombatReplayer(scene, queue, dispatch, mapRegistry, characterRegistry)
 
-                const fight = await FightService.playFriendlyFight(PLAYER_ID, OPPONENT_ID, FIGHT_MAP_ID)
                 if (cancelled) return
 
-                replayer.play(fight)
+                replayer.play({
+                    initialState: fight.initialState,
+                    logs: fight.logs,
+                    endState: fight.endState
+                })
             })
             .catch(error => {
                 console.error("Combat : échec du chargement du combat", error)
@@ -49,7 +48,7 @@ export function useCombatScene() {
             sceneRef.current?.destroy()
             sceneRef.current = null
         }
-    }, [])
+    }, [isTransitionFinished])
 
     return { containerRef, sceneRef, state }
 }

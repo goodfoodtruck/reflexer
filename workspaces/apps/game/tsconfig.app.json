@@ -18,7 +18,17 @@
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "erasableSyntaxOnly": false,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@components/*": ["./src/components/*"],
+      "@pages/*":      ["./src/pages/*"],
+      "@hooks/*":      ["./src/hooks/*"],
+      "@services/*":   ["./src/services/*"],
+      "@assets/*":     ["./src/assets/*"],
+      "@features/*":   ["./src/features/*"],
+      "@shared/*":     ["./src/types/*"],
+    }
   },
   "include": ["src"]
 }
