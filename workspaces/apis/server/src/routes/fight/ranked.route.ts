@@ -80,8 +80,8 @@ router.post("/", async (req, res) => {
         const playerWon = winnerId === playerId
         const playerDeltaElo = computeEloChange(playerRanking.elo, opponentRanking.elo, playerWon ? 1 : 0)
         const opponentDeltaElo = computeEloChange(opponentRanking.elo, playerRanking.elo, playerWon ? 0 : 1)
-        const playerEloAfter = playerRanking.elo + playerDeltaElo
-        const opponentEloAfter = opponentRanking.elo + opponentDeltaElo
+        const playerEloAfter = Math.min(100, (playerRanking.elo + playerDeltaElo))
+        const opponentEloAfter = Math.min(100, (opponentRanking.elo + opponentDeltaElo))
 
         await FightRankingModel.create({
             fightId: fight.id,
