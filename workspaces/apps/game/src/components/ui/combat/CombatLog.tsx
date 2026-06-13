@@ -31,9 +31,9 @@ export function CombatLog({ logs }: { logs: CombatLogLine[] }) {
     const ordered = [...logs].reverse()
 
     return (
-        <div className="h-full flex flex-col rounded-xl bg-slate-900/40 border border-slate-700/40 overflow-hidden">
+        <div className="h-full flex flex-col rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-700/50 shadow-2xl overflow-hidden">
             <div className="flex-none flex items-center justify-between gap-2 px-3 pt-3 pb-2">
-                <span className="text-violet-300/70 text-xs font-bold tracking-[0.2em] uppercase">Journal</span>
+                <span className="text-amber-500/80 text-xs font-bold tracking-[0.2em] uppercase">Journal</span>
                 <span className="flex items-center gap-1 text-[10px] text-slate-500 normal-case tracking-normal">
                     plus récent
                     <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
@@ -50,7 +50,7 @@ export function CombatLog({ logs }: { logs: CombatLogLine[] }) {
                                 key={line.id}
                                 className={`animate-log-enter px-2 py-1.5 rounded-lg border transition-opacity ${
                                     isLatest
-                                        ? "bg-violet-950/40 border-violet-500/40"
+                                        ? "bg-amber-950/40 border-amber-500/40"
                                         : "bg-slate-800/40 border-slate-700/30 opacity-70"
                                 }`}
                             >

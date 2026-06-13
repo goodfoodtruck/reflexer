@@ -2,9 +2,10 @@ import { useCombatScene } from "@features/fight/rendering/hooks/use-combat-scene
 import { CELL_SIZE } from "@features/fight/rendering/CombatScene";
 import { HealthBarsOverlay } from "@components/ui/combat/HealthBarsOverlay";
 import { TurnCounter } from "@components/ui/combat/TurnCounter";
-import { ActiveEntityCard } from "@components/ui/combat/ActiveEntityCard";
 import { CombatLog } from "@components/ui/combat/CombatLog";
 import { TurnRoster } from "@components/ui/combat/TurnRoster";
+import { AnimatedBackground } from "@components/ui/AnimatedBackground";
+import bgHomeImage from "../../assets/images/bg-home.png";
 import STYLES from "./styles";
 import { useLocation } from "react-router-dom";
 import type { BasePvpFight } from "@shared/fight.types";
@@ -48,34 +49,47 @@ export function CombatPage() {
             )}
             {phase == "COMBAT" && (
                 <div className={STYLES.container}>
-                    {/* Bandeau haut : compteur de tour · statut */}
-                    <div className={STYLES.topBar}>
-                        <TurnCounter turnIndex={state.turnIndex} />
-                        <div className="flex-1" />
-                        <div className={STYLES.pauseZone}>
-                            <span>{state.status === "ended" ? "Terminé" : "En pause"}</span>
-                        </div>
+                    <style>{`
+                        @keyframes ambient-zoom {
+                            0% { transform: scale(1.05) translate(0, 0); }
+                            100% { transform: scale(1.15) translate(-1%, -1%); }
+                        }
+                    `}</style>
+
+                    <div className={STYLES.bgContainer}>
+                        <img src={bgHomeImage} alt="Champ de bataille" className={STYLES.bgImage} />
                     </div>
+                    <AnimatedBackground />
 
-                    <div className={STYLES.body}>
-                        {/* Scène : la grille Pixi + overlay barres de vie, calée à gauche */}
-                        <div className={STYLES.stageColumn}>
-                            <div
-                                className={STYLES.stageWrapper}
-                                style={{ width: stageWidth, height: stageHeight }}
-                            >
-                                <div ref={containerRef} style={{ width: stageWidth, height: stageHeight }} />
-                                <HealthBarsOverlay sceneRef={sceneRef} entities={state.entities} />
-                            </div>
+                    <div className={STYLES.overlay} />
+                    <div className={STYLES.scanlines} />
+
+                    <div className={STYLES.foreground}>
+                        {/* Bandeau haut : compteur de tour · statut */}
+                        <div className={STYLES.topBar}>
+                            <TurnCounter turnIndex={state.turnIndex} status={state.status} />
                         </div>
 
-                        {/* Colonne droite : roster (ordre de passage) puis journal dessous */}
-                        <div className={STYLES.rightColumn}>
-                            <div className={STYLES.rosterPane}>
-                                <TurnRoster members={members} activeId={activeId} nextId={nextId} />
+                        <div className={STYLES.body}>
+                            {/* Scène : la grille Pixi + overlay barres de vie, calée à gauche */}
+                            <div className={STYLES.stageColumn}>
+                                <div
+                                    className={STYLES.stageWrapper}
+                                    style={{ width: stageWidth, height: stageHeight }}
+                                >
+                                    <div ref={containerRef} style={{ width: stageWidth, height: stageHeight }} />
+                                    <HealthBarsOverlay sceneRef={sceneRef} entities={state.entities} />
+                                </div>
                             </div>
-                            <div className={STYLES.feedScroll}>
-                                <CombatLog logs={state.logs} />
+
+                            {/* Colonne droite : roster (ordre de passage) puis journal dessous */}
+                            <div className={STYLES.rightColumn}>
+                                <div className={STYLES.rosterPane}>
+                                    <TurnRoster members={members} activeId={activeId} nextId={nextId} />
+                                </div>
+                                <div className={STYLES.feedScroll}>
+                                    <CombatLog logs={state.logs} />
+                                </div>
                             </div>
                         </div>
                     </div>
