@@ -1,4 +1,4 @@
-import { ActionLog, PlayingEntity, PlayingEntityID, TurnLog } from "@fight/fight.types";
+import { ActionLog, MovementContext, PlayingEntity, PlayingEntityID, TurnLog } from "@fight/fight.types";
 import { FightContext } from "@fight/context/FightContext";
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor";
 import { EntityPassiveExecutor } from "@fight/turn-executors/EntityPassiveExecutor";
@@ -63,8 +63,23 @@ export class TurnController {
         const movementContext = this.movementResolver.resolve(entity, entityMovementGambits, fightContext)
         if (! movementContext) return []
 
-        const path: Position[] = [];
+        const path = this.resolveMovementPath(movementContext, fightContext)
         return this.movementExecutor.execute(path, movementContext, fightContext)
+    }
+
+    private resolveMovementPath(movementContext: MovementContext, fightContext: FightContext): Position[] {
+        const map = fightContext.getMap()
+
+        switch (movementContext.strategy) {
+            case "STAY":
+                return []
+            case "FLEE":
+                return map.findFleePath({ context: movementContext, fightContext })
+            case "APPROACH":
+                // pathFinding mène jusqu'à la case de la cible (occupée) : on s'arrête
+                // sur la case précédente pour finir adjacent à elle.
+                return map.pathFinding({ context: movementContext, fightContext }).slice(0, -1)
+        }
     }
 
     private executeEntityAction(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {

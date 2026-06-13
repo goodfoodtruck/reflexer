@@ -1,13 +1,13 @@
 import {DijkstraNode, Dimensions, Position} from "@helpers/types/helpers.types"
 import { MapCell, FightMapConfig, EObstacleType } from "@fight/map/fight.map.types"
 import { PathfindingParams } from "@fight/fight.types";
-import { getAdjacentPositions, isSamePosition, toPosKey } from "@helpers/map/utils";
+import { getAdjacentPositions, isSamePosition, manhattanDistance, toPosKey } from "@helpers/map/utils";
 import { bresenhamLine } from "@helpers/map/lineOfSight";
 
 export class FightMap {
     public readonly id: string;
-    private cells: MapCell[][]
-    private dimensions: Dimensions
+    private readonly cells: MapCell[][]
+    private readonly dimensions: Dimensions
 
     constructor(config: FightMapConfig) {
         this.id = config.id;
@@ -40,6 +40,42 @@ export class FightMap {
         const filteredObstacles = obstacles.filter(pos => !isSamePosition(pos, targetPos));
     
         return this.runDijkstra(startPos, targetPos, filteredObstacles);
+    }
+
+    findFleePath({ context, fightContext }: PathfindingParams): Position[] {
+        const startPos = fightContext.getAliveEntityOrThrow(context.casterId).position;
+        const threatPos = context.targetPosition;
+        const obstacles = fightContext.getObstacles();
+
+        const obstacleKeys = new Set(obstacles.map(toPosKey));
+        obstacleKeys.delete(toPosKey(startPos)); // sa propre case n'est pas un obstacle
+
+        const startNode: DijkstraNode = { position: startPos, parent: null, distance: 0 };
+        const queue: DijkstraNode[] = [startNode];
+        const visited = new Set<string>([toPosKey(startPos)]);
+
+        let best = startNode;
+        let bestThreatDistance = manhattanDistance(startPos, threatPos);
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+
+            const threatDistance = manhattanDistance(current.position, threatPos);
+            if (threatDistance > bestThreatDistance) {
+                best = current;
+                bestThreatDistance = threatDistance;
+            }
+
+            for (const neighbor of getAdjacentPositions(current.position)) {
+                const neighborKey = toPosKey(neighbor);
+                if (visited.has(neighborKey) || obstacleKeys.has(neighborKey) || !this.isWalkable(neighbor)) continue;
+
+                visited.add(neighborKey);
+                queue.push({ position: neighbor, parent: current, distance: current.distance + 1 });
+            }
+        }
+
+        return this.reconstructPath(best);
     }
 
     private runDijkstra(
