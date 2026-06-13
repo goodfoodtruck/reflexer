@@ -38,13 +38,15 @@ describe("FightMap.findFleePath", () => {
             fightContext
         })
 
-        const cells = [start, ...path]
-        for (let i = 1; i < cells.length; i++) {
-            expect(isAdjacent(cells[i - 1], cells[i])).toBe(true)
-            expect(fightContext.getMap().isWalkable(cells[i])).toBe(true)
+        let prev = start
+        for (const cell of path) {
+            expect(isAdjacent(prev, cell)).toBe(true)
+            expect(fightContext.getMap().isWalkable(cell)).toBe(true)
+            prev = cell
         }
         // La destination est strictement plus loin de la menace que le départ.
-        expect(manhattanDistance(path.at(-1)!, { x: 8, y: 4 })).toBeGreaterThan(
+        const destination = path.at(-1) ?? start
+        expect(manhattanDistance(destination, { x: 8, y: 4 })).toBeGreaterThan(
             manhattanDistance(start, { x: 8, y: 4 })
         )
     })
