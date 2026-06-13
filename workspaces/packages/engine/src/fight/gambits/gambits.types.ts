@@ -11,6 +11,8 @@ export type Status = "POISON" | "BURNT" | "PARALYZED"
 export type Gambit = {
     /** Identifiant unique du gambit */
     id: string
+    /** Libellé affichable (présentation). Porté par la donnée, optionnel côté gameplay. */
+    name?: string
     /** Ordre d'évaluation — priorité 1 évaluée en premier */
     priority: number
     /** Déclencheur : dans quelle situation ce gambit doit-il s'activer ? */

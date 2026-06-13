@@ -1,4 +1,4 @@
-import type { Dimensions, PlayingEntityID, PlayingTeamID, Position } from "@reflexer/engine"
+import type { Dimensions, Gambit, PlayingEntityID, PlayingTeamID, Position } from "@reflexer/engine"
 
 /** Première frame d'une spritesheet horizontale, pour un portrait statique. */
 export type SpriteIcon = {
@@ -46,6 +46,8 @@ export type CombatLogLine = {
     skill: LogSkill | null
     target: LogActor | null
     amount: LogAmount | null
+    /** Gambit ayant déclenché cette action, pour l'inspecteur de détail. */
+    gambit: Gambit | null
 }
 
 export type CombatStatus = "idle" | "playing" | "ended"

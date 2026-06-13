@@ -22,6 +22,9 @@ export default {
     stageColumn: "flex-none flex items-center",
     stageWrapper: "relative shrink-0 rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-700/50",
 
+    // Fenêtre de détail (gambit + action), à gauche de la colonne droite
+    inspectorColumn: "flex-none w-80 min-h-0",
+
     // Colonne droite collée à la carte (le gap-6 du body fait l'espacement)
     rightColumn: "flex-none w-72 flex flex-col gap-4 min-h-0",
     // Panneau ambré cohérent avec les autres pages

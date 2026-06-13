@@ -1,5 +1,5 @@
 import { FightContext } from "@fight/context/FightContext";
-import { ActionExecutionContext, PlayingEntity } from "@fight/fight.types";
+import {PlayingEntity, ResolvedActionGambit} from "@fight/fight.types";
 import { ConditionResolver, GambitTargetResolver, ActionGambit } from "@fight/gambits";
 
 export class ActionGambitResolver {
@@ -11,6 +11,9 @@ export class ActionGambitResolver {
 
     /**
      * Évalue les gambits d'action de l'entité.
+     * 
+     * Retourne le contexte d'exécution accompagné du gambit déclencheur si, pour un
+     * gambit, la condition est valide et que la cible existe, sinon null,
      *
      * Retourne un ExecutionContext si, pour un gambit, la condition est valide et que la cible existe, sinon null,
      * dans le cas où l'entité ne peut effectuer aucune action
@@ -23,8 +26,8 @@ export class ActionGambitResolver {
         playingEntity: Readonly<PlayingEntity>,
         playingEntityActionGambits: ActionGambit[],
         fightContext: FightContext
-    ): ActionExecutionContext[] {
-        const candidates: ActionExecutionContext[] = []
+    ): ResolvedActionGambit[] {
+        const candidates: ResolvedActionGambit[] = []
 
         for (const gambit of playingEntityActionGambits) {
             const conditionValidation = this.gambitConditionResolver.evaluateConditionGroup(gambit.conditions, playingEntity, { source: playingEntity, fightContext })
@@ -34,11 +37,14 @@ export class ActionGambitResolver {
             if (! targetId) continue
 
             candidates.push({
-                type: "action",
-                casterId: playingEntity.id,
-                actionId: gambit.intent.actionId,
-                targetId,
-                reactionDepth: 0
+                gambit,
+                context: {
+                    type: "action",
+                    casterId: playingEntity.id,
+                    actionId: gambit.intent.actionId,
+                    targetId,
+                    reactionDepth: 0
+                }
             })
         }
 

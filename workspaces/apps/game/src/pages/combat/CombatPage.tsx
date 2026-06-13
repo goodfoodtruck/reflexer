@@ -6,11 +6,13 @@ import { CombatLog } from "@components/ui/combat/CombatLog";
 import { TurnRoster } from "@components/ui/combat/TurnRoster";
 import { AnimatedBackground } from "@components/ui/AnimatedBackground";
 import bgHomeImage from "../../assets/images/bg-home.png";
+import type { CombatLogLine } from "../../features/fight/replay/combat-view.types";
 import STYLES from "./styles";
 import { useLocation } from "react-router-dom";
 import type { BasePvpFight } from "@shared/fight.types";
 import { useState } from "react";
 import CombatTransition from "@features/fight/vs-screen/CombatTransition";
+import {GambitInspector} from "../../components/ui/combat/GambitInspector.tsx";
 
 export type CombatPageLocationState = {
     playerName: string
@@ -19,6 +21,7 @@ export type CombatPageLocationState = {
 }
 
 export function CombatPage() {
+    const [selectedLog, setSelectedLog] = useState<CombatLogLine | null>(null);
     const location = useLocation() as { state: CombatPageLocationState }
     const fight = location.state.fight
     const [phase, setPhase] = useState<"TRANSITION" | "COMBAT">("TRANSITION")
@@ -71,7 +74,7 @@ export function CombatPage() {
                         </div>
 
                         <div className={STYLES.body}>
-                            {/* Scène : la grille Pixi + overlay barres de vie, calée à gauche */}
+                            {/* Scène : la grille Pixi + overlay barres de vie */}
                             <div className={STYLES.stageColumn}>
                                 <div
                                     className={STYLES.stageWrapper}
@@ -88,9 +91,20 @@ export function CombatPage() {
                                     <TurnRoster members={members} activeId={activeId} nextId={nextId} />
                                 </div>
                                 <div className={STYLES.feedScroll}>
-                                    <CombatLog logs={state.logs} />
+                                    <CombatLog
+                                        logs={state.logs}
+                                        selectedId={selectedLog?.id ?? null}
+                                        onSelect={line => setSelectedLog(prev => (prev?.id === line.id ? null : line))}
+                                    />
                                 </div>
                             </div>
+
+                            {/* Fenêtre de détail : apparaît à droite des logs au clic sur une ligne */}
+                            {selectedLog && (
+                                <div className={STYLES.inspectorColumn}>
+                                    <GambitInspector line={selectedLog} onClose={() => setSelectedLog(null)} />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

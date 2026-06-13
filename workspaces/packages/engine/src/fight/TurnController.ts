@@ -61,11 +61,10 @@ export class TurnController {
         const entityMovementGambits = entity.gambits.filter(isMovementGambit)
 
         const movementContext = this.movementResolver.resolve(entity, entityMovementGambits, fightContext)
+        if (! movementContext) return []
+
         const path: Position[] = [];
-        if (movementContext && path)
-            return this.movementExecutor.execute(path, movementContext, fightContext)
-        else 
-            return []
+        return this.movementExecutor.execute(path, movementContext, fightContext)
     }
 
     private executeEntityAction(entity: PlayingEntity, fightContext: FightContext): ActionLog[] {
@@ -75,7 +74,8 @@ export class TurnController {
         const logs: ActionLog[] = []
         for (const candidate of candidates) {
             const outcome = this.actionExecutor.attempt(candidate, fightContext)
-            logs.push(...outcome.logs)
+
+            logs.push(outcome.logs.map(log => { ...log, gambit: candidate.gambit }))
             if (outcome.status === "executed") break
         }
 

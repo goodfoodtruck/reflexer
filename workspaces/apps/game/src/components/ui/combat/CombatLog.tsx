@@ -5,8 +5,15 @@ import { LogLineText } from "./LogLineText"
 /** En deçà de ce seuil (px) on considère que l'utilisateur est « en haut ». */
 const TOP_THRESHOLD = 4
 
+type Props = {
+    logs: CombatLogLine[]
+    /** Clic sur une ligne : ouvre l'inspecteur de détail (gambit + action). */
+    onSelect?: (line: CombatLogLine) => void
+    selectedId?: number | null
+}
+
 /** Journal de combat scrollable : action la plus récente en haut, surlignée. */
-export function CombatLog({ logs }: { logs: CombatLogLine[] }) {
+export function CombatLog({ logs, onSelect, selectedId }: Props) {
     const scrollRef = useRef<HTMLDivElement>(null)
     const prevHeightRef = useRef(0)
 
@@ -45,13 +52,25 @@ export function CombatLog({ logs }: { logs: CombatLogLine[] }) {
                 <div className="flex flex-col gap-1.5">
                     {ordered.map((line, index) => {
                         const isLatest = index === 0
+                        const isSelected = selectedId === line.id
                         return (
                             <div
                                 key={line.id}
-                                className={`animate-log-enter px-2 py-1.5 rounded-lg border transition-opacity ${
-                                    isLatest
-                                        ? "bg-amber-950/40 border-amber-500/40"
-                                        : "bg-slate-800/40 border-slate-700/30 opacity-70"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => onSelect?.(line)}
+                                onKeyDown={event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        onSelect?.(line)
+                                    }
+                                }}
+                                className={`animate-log-enter px-2 py-1.5 rounded-lg border transition-all cursor-pointer hover:border-amber-500/60 hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
+                                    isSelected
+                                        ? "bg-amber-900/40 border-amber-400/70 ring-1 ring-amber-400/40 opacity-100"
+                                        : isLatest
+                                            ? "bg-amber-950/40 border-amber-500/40"
+                                            : "bg-slate-800/40 border-slate-700/30 opacity-70"
                                 }`}
                             >
                                 <LogLineText line={line} />

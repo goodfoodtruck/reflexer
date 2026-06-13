@@ -39,6 +39,7 @@ export function formatActionLog(
         ({ label: labelOf(entityId), sprite: visuals.icons.get(entityId) })
     const skill = (actionId: string): LogSkill =>
         ({ label: visuals.actionName(actionId) ?? actionLabel(actionId), iconUrl: visuals.actionIcon(actionId) ?? undefined })
+    const gambit = log.gambit ?? null
 
     switch (log.type) {
         case "damage_dealt": {
@@ -46,7 +47,7 @@ export function formatActionLog(
             // Dégât sur soi (DoT type saignement, source === cible) : pas de
             // lanceur tiers, la victime « subit » l'effet.
             if (log.sourceId === log.targetId) {
-                return { id, actor: entity(log.targetId), verb: "subit", skill: skill(log.actionId), target: null, amount: damage }
+                return { id, actor: entity(log.targetId), verb: "subit", skill: skill(log.actionId), target: null, amount: damage, gambit }
             }
             return {
                 id,
@@ -55,6 +56,7 @@ export function formatActionLog(
                 skill: skill(log.actionId),
                 target: entity(log.targetId),
                 amount: damage,
+                gambit,
             }
         }
 
@@ -66,6 +68,7 @@ export function formatActionLog(
                 skill: null,
                 target: entity(log.targetId),
                 amount: { kind: "heal", text: `+${Math.round(log.amount)} PV` },
+                gambit,
             }
 
         case "passive_applied":
@@ -76,6 +79,7 @@ export function formatActionLog(
                 skill: skill(log.passiveId),
                 target: entity(log.targetId),
                 amount: null,
+                gambit,
             }
 
         case "entity_died":
@@ -86,6 +90,7 @@ export function formatActionLog(
                 skill: null,
                 target: null,
                 amount: null,
+                gambit,
             }
 
         case "entity_moved":
