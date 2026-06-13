@@ -9,9 +9,9 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { GambitService } from '../../../services';
-import { CharacterService, type Character } from '../../../services';
 import type { DraftGambit, DisplayGambit } from './GambitTypes';
 import { draftToConditions, draftToIntent, draftToTargetSelector } from './gambit.adapter';
+import { CharacterService, type Character } from '@services/character.service';
 
 export function useGambitEditor() {
   const { caracterId } = useParams<{ caracterId: string }>();
