@@ -13,11 +13,11 @@ export interface PlayerRankingDocument extends Document {
 const PlayerRankingSchema = new Schema<PlayerRankingDocument>(
     {
         playerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        elo: { type: Number, required: true },
-        wins: { type: Number, required: true },
-        losses: { type: Number, required: true },
-        totalGames: { type: Number, required: true },
-        highestElo: { type: Number, required: true }
+        elo: { type: Number, required: true, default: 100 },
+        wins: { type: Number, required: true, default: 0 },
+        losses: { type: Number, required: true, default: 0 },
+        totalGames: { type: Number, required: true, default: 0 },
+        highestElo: { type: Number, required: true, default: 100 }
     },
     { timestamps: true }
 )

@@ -22,10 +22,10 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
     const onFightReady = (fight: PlayRankedFightResponse) => {
         navigate("/fight", { 
             state: {
-                playerName: fight.playerUser.name,
-                opponentName: fight.opponentUser.name,
+                playerName: fight.player.user.name,
+                opponentName: fight.opponent.user.name,
                 fight: { ...fight }
-            } 
+            }
         })
     }
 

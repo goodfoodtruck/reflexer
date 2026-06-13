@@ -2,10 +2,19 @@ import type { BasePvpFight, RankedFight } from "@shared/fight.types"
 import { api } from "@services/api"
 import type { User } from "@services/user.service"
 
+export type RankedPlayer = {
+    user: User
+    ranking: {
+        eloBefore: number,
+        eloAfter: number,
+        eloDelta: number,
+        won: boolean
+    }
+}
+
 export type PlayRankedFightResponse = BasePvpFight & {
-    playerUser:   User
-    opponentUser: User
-    // + données ranked
+    player: RankedPlayer
+    opponent: RankedPlayer
 }
 
 export const RankedFightService = {
