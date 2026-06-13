@@ -34,7 +34,7 @@ describe("Récupérer les gambits d'action éligibles parmi une liste", () => {
 
         const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
 
-        expect(result?.context).toEqual([{
+        expect(result.map(c => c.context)).toEqual([{
             type: "action",
             casterId: CASTER_ID,
             actionId: "attack_basic",
@@ -70,7 +70,7 @@ describe("Récupérer les gambits d'action éligibles parmi une liste", () => {
 
         const result = resolver.resolve(caster, caster.gambits.filter(isActionGambit), fightContext)
 
-        expect(result.map(c => c.actionId)).toEqual(["heavy_attack", "attack"])
+        expect(result.map(c => c.context.actionId)).toEqual(["heavy_attack", "attack"])
     });
 
     it("renvoie une liste vide si la liste de gambits est vide", () => {
