@@ -1,7 +1,7 @@
 import type { FightMapID } from "@reflexer/engine";
 import { api } from "@services/api"
 import type { User } from "@services/user.service";
-import type { BasePvpFight, FriendlyFight } from "@shared/fight.types"
+import type { BasePvpFight, FriendlyFight } from "../../shared/types/fight.types"
 
 interface PlayFightPayload {
     playerId: string

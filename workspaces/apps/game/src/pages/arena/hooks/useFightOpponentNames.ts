@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { UserService } from "@services/user.service"
-import type { BasePvpFight } from "@shared/fight.types"
+import type { BasePvpFight } from "../../../shared/types/fight.types"
 
 type UserID = string
 type Username = string

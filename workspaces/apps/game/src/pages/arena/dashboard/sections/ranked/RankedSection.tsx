@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Leaderboard from "./learderboard/Leaderboard"
 import { useNavigate } from "react-router-dom"
 import ErrorAlert from "@components/shared/ErrorAlert"
-import type { RankedFight } from "@shared/fight.types"
+import type { RankedFight } from "../../../../../shared/types/fight.types"
 import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
 import RankedFightsHistory from "./history/RankedFightsHistory"
 import type { UserRankingResponse } from "@services/userRanking.service"

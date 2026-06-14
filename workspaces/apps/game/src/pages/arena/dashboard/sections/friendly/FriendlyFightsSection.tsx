@@ -3,7 +3,7 @@ import type { PlayerSearchResult } from "@services/user.service"
 import ChallengeModal from "./challenge/ChallengeModal"
 import PlayerSearchSection from "./player-search/PlayerSearchSection"
 import type { AuthUser } from "@hooks/useAuth"
-import type { FriendlyFight } from "@shared/fight.types"
+import type { FriendlyFight } from "../../../../../shared/types/fight.types"
 import FriendlyFightsHistory from "@pages/arena/dashboard/sections/friendly/history/FriendlyFightsHistory"
 interface FriendlyFightsSectionProps {
     user: AuthUser

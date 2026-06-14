@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import type { BasePvpFight } from "@shared/fight.types"
+import type { BasePvpFight } from "../../../shared/types/fight.types"
 
 export function useCurrentWinstreak(fights: BasePvpFight[], playerId: string): number {
     return useMemo(() => {

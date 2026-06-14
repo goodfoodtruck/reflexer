@@ -1,4 +1,4 @@
-import type { BasePvpFight, RankedFight } from "@shared/fight.types"
+import type { BasePvpFight, RankedFight } from "../../shared/types/fight.types"
 import { api } from "@services/api"
 import type { AuthUser } from "@hooks/useAuth"
 

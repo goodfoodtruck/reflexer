@@ -9,7 +9,7 @@ import bgHomeImage from "../../assets/images/bg-home.png";
 import type { CombatLogLine } from "../../features/fight/replay/combat-view.types";
 import STYLES from "./styles";
 import { useLocation } from "react-router-dom";
-import type { BasePvpFight } from "@shared/fight.types";
+import type { BasePvpFight } from "../../shared/types/fight.types";
 import { useState } from "react";
 import CombatTransition from "@features/fight/vs-screen/CombatTransition";
 import {GambitInspector} from "../../components/ui/combat/GambitInspector.tsx";
