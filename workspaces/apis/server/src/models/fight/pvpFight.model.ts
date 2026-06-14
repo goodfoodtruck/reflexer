@@ -27,7 +27,7 @@ export interface PvpFightDocument extends Document {
     updatedAt:      Date
 }
 
-const PvpFightSchema = new Schema<PvpFightDocument>(
+export const PvpFightSchema = new Schema<PvpFightDocument>(
     {
         mode:           { type: String, required: true, enum: ["RANKED", "FRIENDLY"] },
         playerUserId:   { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -41,5 +41,15 @@ const PvpFightSchema = new Schema<PvpFightDocument>(
     },
     { timestamps: true }
 )
+
+PvpFightSchema.virtual("ranking", {
+    ref: "FightRanking",
+    localField: "_id",
+    foreignField: "fightId",
+    justOne: true
+})
+
+PvpFightSchema.set("toJSON", { virtuals: true })
+PvpFightSchema.set("toObject", { virtuals: true })
 
 export const PvpFightModel = model<PvpFightDocument>("PvpFight", PvpFightSchema)

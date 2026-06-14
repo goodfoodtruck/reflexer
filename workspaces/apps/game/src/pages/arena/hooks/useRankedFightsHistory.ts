@@ -10,7 +10,7 @@ export function useRankedFightsHistory(userId: string) {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const data = await RankedFightService.getHistory(userId)                
+                const data = await RankedFightService.getHistory(userId)
                 setFights(data)
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Erreur de chargement")

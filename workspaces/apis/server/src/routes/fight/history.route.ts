@@ -1,5 +1,5 @@
 import { PveFightModel } from "@models/fight/pveFight.model"
-import { PvpFightModel } from "@models/fight/pvpFight.model"
+import { PvpFightModel, PvpFightSchema } from "@models/fight/pvpFight.model"
 import { Router } from "express"
 
 const router = Router()
@@ -36,10 +36,14 @@ router.get("/friendly/:userId", async (req, res) => {
 router.get("/ranked/:userId", async (req, res) => {
     try {
         const { userId } = req.params
+        
         const fights = await PvpFightModel.find({
             mode: "RANKED",
             $or: [{ playerUserId: userId }, { opponentUserId: userId }]
-        }).sort({ createdAt: -1 }).limit(20)
+        })
+        .populate("ranking")
+        .sort({ createdAt: -1 })
+        .limit(20)        
 
         res.json(fights)
     } catch (error) {

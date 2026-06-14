@@ -31,6 +31,19 @@ export type PlayRankedFightResponse = BasePvpFight & {
     fightRankingData: FightRankingData
 }
 
+export type FightRanking = {
+    fightId: string
+    userId: string
+    opponentId: string
+    winnerId: string
+    userEloBefore: number
+    userEloAfter: number
+    opponentEloBefore: number
+    opponentEloAfter: number
+    eloDeltaUser: number
+    eloDeltaOpponent: number
+}
+
 export const RankedFightService = {
     findAndPlayMatch: (userId: string) => api.post<PlayRankedFightResponse>("/fights/ranked", { userId }),
     getHistory: (userId: string) => api.get<RankedFight[]>(`/fights/history/ranked/${userId}`)
