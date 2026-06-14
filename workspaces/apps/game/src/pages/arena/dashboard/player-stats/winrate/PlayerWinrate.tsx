@@ -1,24 +1,32 @@
-import { usePlayerWinrate } from "@pages/arena/hooks/usePlayerWinrate"
-import type { BasePvpFight } from "@shared/fight.types"
+import { useWinrate } from "@pages/arena/hooks/usePlayerWinrate"
 import WinrateBar from "./WinrateBar"
 import PlayerCurrentWinstreak from "./PlayerWinstreak"
 import NoFightRegisteredAlert from "./NoFightRegisteredAlert"
-
 interface PlayerWinrateProps {
-    playerId: string
-    playerFights: BasePvpFight[]
+    wins: number
+    losses: number
+    totalGames: number
+    currentWinstreak: number
+    highestWinstreak: number
 }
 
-const PlayerWinrate: React.FC<PlayerWinrateProps> = ({ playerFights, playerId }) => {
-    const { total, wins, losses, winrate } = usePlayerWinrate(playerFights, playerId)
+const PlayerWinrate: React.FC<PlayerWinrateProps> = ({ 
+    wins, 
+    losses, 
+    totalGames, 
+    currentWinstreak, 
+    highestWinstreak 
+}) => {    
+    
+    const winrate = useWinrate(wins, totalGames)
 
-    if (total === 0) return <NoFightRegisteredAlert/>
+    if (totalGames === 0) return <NoFightRegisteredAlert/>
     
     return (
         <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
                 <p className="text-lg text-slate-500 font-bold">
-                    {total} combat{total > 1 ? "s" : ""}
+                    {totalGames} combat{totalGames > 1 ? "s" : ""}
                 </p>
             </div>
 
@@ -33,7 +41,7 @@ const PlayerWinrate: React.FC<PlayerWinrateProps> = ({ playerFights, playerId })
                 </div>
 
                 <div className="flex-1 flex flex-col gap-2">
-                    <WinrateBar wins={wins} losses={losses} total={total} />
+                    <WinrateBar wins={wins} losses={losses} total={totalGames} />
 
                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
                         <span className="text-emerald-400">{wins} Victoire(s)</span>
@@ -42,7 +50,10 @@ const PlayerWinrate: React.FC<PlayerWinrateProps> = ({ playerFights, playerId })
                 </div>
             </div>
 
-            <PlayerCurrentWinstreak playerFights={playerFights} playerId={playerId} />
+            <PlayerCurrentWinstreak 
+                currentWinstreak={currentWinstreak}
+                highestWinstreak={highestWinstreak}
+            />
         </div>
     )
 }

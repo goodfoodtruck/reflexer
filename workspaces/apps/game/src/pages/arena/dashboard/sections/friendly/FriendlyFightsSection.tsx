@@ -4,9 +4,7 @@ import ChallengeModal from "./challenge/ChallengeModal"
 import PlayerSearchSection from "./player-search/PlayerSearchSection"
 import type { AuthUser } from "@hooks/useAuth"
 import type { FriendlyFight } from "@shared/fight.types"
-import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
-import FriendlyFightsHistory from "./history/FriendlyFightsHistory"
-
+import FriendlyFightsHistory from "@pages/arena/dashboard/sections/friendly/history/FriendlyFightsHistory"
 interface FriendlyFightsSectionProps {
     user: AuthUser
     userFriendlyFightsHistory: FriendlyFight[]
@@ -23,8 +21,6 @@ const FriendlyFightsSection: React.FC<FriendlyFightsSectionProps> = ({ user, use
                 </h2>
                 <div className="w-full h-px bg-slate-700"></div>
             </div>
-
-            <PlayerStats playerFights={userFriendlyFightsHistory} playerId={user.id}/>
 
             <PlayerSearchSection
                 currentUser={user}

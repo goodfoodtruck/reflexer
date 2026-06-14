@@ -1,7 +1,7 @@
 import { Schema, Types, model, type Document } from "mongoose"
  
-export interface PlayerRankingDocument extends Document {
-    playerId: Types.ObjectId
+export interface UserRankingDocument extends Document {
+    userId: Types.ObjectId
     currentElo: number
     highestElo: number
     wins:       number
@@ -12,9 +12,9 @@ export interface PlayerRankingDocument extends Document {
     updatedAt: Date
 }
 
-const PlayerRankingSchema = new Schema<PlayerRankingDocument>(
+const UserRankingSchema = new Schema<UserRankingDocument>(
     {
-        playerId:   { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        userId:   { type: Schema.Types.ObjectId, ref: 'User', required: true },
         currentElo: { type: Number, required: true, default: 100 },
         wins:       { type: Number, required: true, default: 0 },
         losses:     { type: Number, required: true, default: 0 },
@@ -26,5 +26,5 @@ const PlayerRankingSchema = new Schema<PlayerRankingDocument>(
     { timestamps: true }
 )
  
-export const PlayerRankingModel = model<PlayerRankingDocument>("PlayerRanking", PlayerRankingSchema)
+export const UserRankingModel = model<UserRankingDocument>("UserRanking", UserRankingSchema)
  

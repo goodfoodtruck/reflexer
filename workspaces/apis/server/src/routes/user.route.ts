@@ -29,6 +29,7 @@ router.get('/search', async (req, res) => {
   res.json(users);
 });
 
+
 router.get('/notifications', requireAuth, async (req, res) => {
   const notifications = await NotificationModel.find({
     userId: req.user!.userId,
@@ -37,6 +38,7 @@ router.get('/notifications', requireAuth, async (req, res) => {
 
   res.json(notifications);
 });
+
 
 // TODO :  test à supprimer pls tard
 router.post('/notifications/test', requireAuth, async (req, res) => {
@@ -48,6 +50,7 @@ router.post('/notifications/test', requireAuth, async (req, res) => {
     })
     res.status(201).json(notification)
 })
+
 
 router.patch('/notifications/:id/read', requireAuth, async (req, res) => {
   const notification = await NotificationModel.findOneAndUpdate(
@@ -64,9 +67,6 @@ router.patch('/notifications/:id/read', requireAuth, async (req, res) => {
   res.json(notification);
 });
 
-export default router;
-
-
 
 router.get("/:id", async (req, res) => {
   const user = await UserModel.findById(req.params.id, { name: 1 }); // return uniquement name
@@ -76,3 +76,6 @@ router.get("/:id", async (req, res) => {
   }
   res.json(user);
 });
+
+
+export default router;

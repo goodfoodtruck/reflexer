@@ -8,13 +8,15 @@ import ErrorAlert from "@components/shared/ErrorAlert"
 import type { RankedFight } from "@shared/fight.types"
 import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
 import RankedFightsHistory from "./history/RankedFightsHistory"
+import type { UserRankingResponse } from "@services/userRanking.service"
 
 interface RankedSectionProps {
     userRankedFightsHistory: RankedFight[]
+    userRanking: UserRankingResponse
     user: AuthUser
 }
 
-const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, user }) => {
+const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, userRanking, user }) => {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -36,6 +38,8 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
 
         try {
             const result = await RankedFightService.findAndPlayMatch(user.id)
+            console.log(result);
+            
             setTimeout(() => {}, 2000)
             onFightReady(result)
         } catch (err) {
@@ -79,7 +83,13 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
 
             { error && <ErrorAlert error={error}/> }
 
-            <PlayerStats playerFights={userRankedFightsHistory} playerId={user.id}/>
+            <PlayerStats 
+                wins={userRanking.ranking.wins}
+                losses={userRanking.ranking.losses}
+                totalGames={userRanking.ranking.totalGames}
+                currentWinstreak={userRanking.ranking.currentWinstreak}
+                highestWinstreak={userRanking.ranking.highestWinstreak}
+            />
 
             <RankedFightsHistory user={user} fights={userRankedFightsHistory} />
 

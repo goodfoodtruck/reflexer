@@ -2,14 +2,14 @@ import { Schema, Types, model, type Document } from "mongoose"
  
 export interface FightRankingDocument extends Document {
     fightId: Types.ObjectId
-    playerId: Types.ObjectId
+    userId: Types.ObjectId
     opponentId: Types.ObjectId
     winnerId: Types.ObjectId
-    playerEloBefore: number
-    playerEloAfter: number
+    userEloBefore: number
+    userEloAfter: number
     opponentEloBefore: number
     opponentEloAfter: number
-    eloDeltaPlayer: number
+    eloDeltaUser: number
     eloDeltaOpponent: number
     createdAt: Date
 }
@@ -17,17 +17,17 @@ export interface FightRankingDocument extends Document {
 const FightRankingSchema = new Schema<FightRankingDocument>(
     {
         fightId:    { type: Schema.Types.ObjectId, ref: 'PvpFight', required: true },
-        playerId:   { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        userId:     { type: Schema.Types.ObjectId, ref: 'User', required: true },
         opponentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         winnerId:   { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
-        playerEloBefore: { type: Number, required: true },
-        playerEloAfter:  { type: Number, required: true },
-        eloDeltaPlayer: { type: Number, required: true },
+        userEloBefore: { type: Number, required: true },
+        userEloAfter:  { type: Number, required: true },
+        eloDeltaUser:  { type: Number, required: true },
 
         opponentEloBefore: { type: Number, required: true },
         opponentEloAfter:  { type: Number, required: true },
-        eloDeltaOpponent: { type: Number, required: true },
+        eloDeltaOpponent:  { type: Number, required: true },
     },
     { timestamps: true }
 )

@@ -9,7 +9,8 @@ import runRoutes    from "@routes/run.route"
 import fightRoutes  from "@routes/fight"
 import { createGameEngine } from "@reflexer/engine"
 import { seedDatabase } from "@scripts/seedDatabase"
-import authRoutes from "./routes/auth.route"
+import authRoutes from "@routes/auth.route"
+import userRankingRoutes from "@routes/userRanking.route"
  
 dotenv.config()
 
@@ -19,12 +20,13 @@ const app = express()
 app.use(cors())
 app.use(express.json())
  
-app.use("/users",      userRoutes)
-app.use("/characters", characterRoutes)
-app.use("/gambits",    gambitRoutes)
-app.use("/runs",       runRoutes)
-app.use("/fights",     fightRoutes)
-app.use("/auth",    authRoutes)
+app.use("/users",         userRoutes)
+app.use("/users/ranking", userRankingRoutes)
+app.use("/characters",    characterRoutes)
+app.use("/gambits",       gambitRoutes)
+app.use("/runs",          runRoutes)
+app.use("/fights",        fightRoutes)
+app.use("/auth",          authRoutes)
  
 app.get("/", (_, res) => res.json({ status: "ok", service: "reflexer-server" }))
  

@@ -8,6 +8,7 @@ import { useFriendlyFightsHistory } from "./hooks/useFriendlyFightsHistory"
 import FriendlyFightsSection from "@pages/arena/dashboard/sections/friendly/FriendlyFightsSection"
 import { useRankedFightsHistory } from "@pages/arena/hooks/useRankedFightsHistory"
 import RankedSection from "@pages/arena/dashboard/sections/ranked/RankedSection"
+import { useUserRanking } from "@pages/arena/hooks/useUserRanking"
 
 const ArenaPage: React.FC = () => {
     const navigate = useNavigate()
@@ -15,9 +16,12 @@ const ArenaPage: React.FC = () => {
 
     if (! user) return null
 
+    const { userRanking, error: userRankingError } = useUserRanking(user.id)    
     const { fights: friendlyFights, error: friendlyFightsError } = useFriendlyFightsHistory(user.id)
     const { fights: rankedFights, error: rankedFightsError } = useRankedFightsHistory(user.id)
 
+    if (! userRanking) return <ErrorAlert error="Aucun ranking trouvé pour l'utilisateur."/>
+    if (userRankingError) return <ErrorAlert error={userRankingError}/>
     if (friendlyFightsError) return <ErrorAlert error={friendlyFightsError}/>
     if (rankedFightsError) return <ErrorAlert error={rankedFightsError}/>
 
@@ -34,6 +38,7 @@ const ArenaPage: React.FC = () => {
                 <div className="flex flex-col p-4 gap-8">
                     <RankedSection 
                         user={user} 
+                        userRanking={userRanking}
                         userRankedFightsHistory={rankedFights}
                     />
 
