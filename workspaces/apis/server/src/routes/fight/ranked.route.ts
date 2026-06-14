@@ -5,7 +5,7 @@ import { UserModel } from "@models/user.model"
 import { NotificationModel } from "@models/notification.model"
 import { buildTeamFromUserId } from "@services/team.service"
 import { engine } from "../.."
-import { UserRankingModel } from "@models/ranked/user_ranking.model"
+import { UserRankingDocument, UserRankingModel } from "@models/ranked/user_ranking.model"
 import { computeEloChange } from "@services/ranked.service"
 import { FightRankingModel } from "@models/ranked/fight_ranking.model"
  
@@ -20,8 +20,43 @@ router.post("/", async (req, res) => {
             return
         }
 
-        // TODO: trouver adversaire avec elo similaire
-        const opponentId = "000000000000000000000001"
+        const userRanking = await UserRankingModel.findOne({ userId })
+        if (! userRanking) {
+            res.status(404).json({ error: 'USER_RANKING_NOT_FOUND' })
+            return
+        }
+
+        const opponentsRanking: UserRankingDocument[] = await UserRankingModel.aggregate([
+            {
+                $match: {
+                    userId: { $ne: userId },
+                    currentElo: {
+                        $gte: userRanking.currentElo - 100,
+                        $lte: userRanking.currentElo + 100
+                    }
+                }
+            },
+            {
+                $addFields: {
+                    eloDistance: {
+                        $abs: {
+                            $subtract: ["$currentElo", userRanking.currentElo]
+                        }
+                    }
+                }
+            },
+            { $sort: { eloDistance: 1 } },
+            { $limit: 1 }
+        ])
+
+        if (! opponentsRanking.length) {
+            res.status(404).json({ error: "NO_OPPONENT_FOUND" })
+            return
+        }
+
+        const opponentRanking = opponentsRanking[0]!
+
+        const opponentId = opponentRanking.userId as unknown as string
         const opponentUser = await UserModel.findById(opponentId, { name: 1 })
         if (! opponentUser) {
             res.status(404).json({ error: "USER_NOT_FOUND" })
@@ -70,15 +105,8 @@ router.post("/", async (req, res) => {
             logs: result.value.logs
         })
 
-        // calcul et mise à jour des données de ranking des joueurs
-        const userRanking = await UserRankingModel.findOne({ userId })
-        const opponentRanking = await UserRankingModel.findOne({ userId: opponentId })
-
-        if (! userRanking || ! opponentRanking) {
-            res.status(400).json({ error: "User ranking not found." })
-            return
-        }
-
+        // calcul et mise à jour des données de ranking des joueurs        
+       
         const userWon = winnerId === userId
 
         const userDeltaElo = computeEloChange(userRanking.currentElo, opponentRanking.currentElo, userWon ? 1 : 0)

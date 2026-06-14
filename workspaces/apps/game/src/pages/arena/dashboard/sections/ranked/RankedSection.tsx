@@ -37,9 +37,7 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
         setLoading(true)
 
         try {
-            const result = await RankedFightService.findAndPlayMatch(user.id)
-            console.log(result);
-            
+            const result = await RankedFightService.findAndPlayMatch(user.id)            
             setTimeout(() => {}, 2000)
             onFightReady(result)
         } catch (err) {
