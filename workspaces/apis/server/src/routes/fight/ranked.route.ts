@@ -8,6 +8,7 @@ import { engine } from "../.."
 import { UserRankingDocument, UserRankingModel } from "@models/ranked/user_ranking.model"
 import { computeEloChange } from "@services/ranked.service"
 import { FightRankingModel } from "@models/ranked/fight_ranking.model"
+import { Types } from "mongoose"
  
 const router = Router()
 
@@ -26,10 +27,12 @@ router.post("/", async (req, res) => {
             return
         }
 
+        const userObjectId = new Types.ObjectId(userId)
+        
         const opponentsRanking: UserRankingDocument[] = await UserRankingModel.aggregate([
             {
                 $match: {
-                    userId: { $ne: userId },
+                    userId: { $ne: userObjectId },
                     currentElo: {
                         $gte: userRanking.currentElo - 100,
                         $lte: userRanking.currentElo + 100
