@@ -35,6 +35,7 @@ const ArenaPage: React.FC = () => {
 
             <div className="relative z-10 flex flex-col h-full">
                 <Header title="Arène" subtitle="PvP" onBack={() => navigate("/")} />
+                
                 <div className="flex flex-col p-4 gap-8">
                     <RankedSection 
                         user={user} 

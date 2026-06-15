@@ -9,6 +9,7 @@ import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
 import RankedFightsHistory from "./history/RankedFightsHistory"
 import type { UserRankingResponse } from "@services/userRanking.service"
 import NewGameButton from "./new-game/NewGameButton"
+import UserRankedProfile from "./user-profile/UserRankedProfile"
 
 interface RankedSectionProps {
     userRankedFightsHistory: RankedFight[]
@@ -56,6 +57,8 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
                 </h2>
                 <div className="w-full h-px bg-slate-700"></div>
             </div>
+
+            <UserRankedProfile user={user} userRanking={userRanking.ranking}/>
 
             <NewGameButton 
                 findMatch={findMatch} 
