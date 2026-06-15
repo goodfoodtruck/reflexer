@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { AnimatedBackground } from "../../components/ui/AnimatedBackground";
-import { MenuButton } from "../../components/ui/MenuButton";
+import { MenuButton } from "../../components/menu/MenuButton";
 import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../components/guide";
 import herosImage from "../../assets/images/heros.png";
 import bgHomeImage from "../../assets/images/bg-home.png"; 

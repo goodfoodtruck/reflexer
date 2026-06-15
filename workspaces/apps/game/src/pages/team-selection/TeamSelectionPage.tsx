@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatedBackground } from '../../components/ui/AnimatedBackground';
 import { Header } from '../../components/ui/header/Header';
-import { IconPause } from '../../assets/icons/IconPause';
 import bgHomeImage from '../../assets/images/bg-home.png';
 import heroM from '../../assets/images/hero-m.png';
 import heroW from '../../assets/images/hero-w.png';
@@ -77,23 +76,6 @@ export function TeamSelectionPage() {
             </div>
           ))}
         </div>
-
-        <footer className={STYLES.footer}>
-          {/* <button className={STYLES.launchButton} disabled> */}
-          <button className={STYLES.launchButton} disabled data-guide="lancer-deploiement">
-            <div className={STYLES.styleDiv} />
-            <span className={STYLES.styleSpan}>
-              <IconPause className="w-5 h-5 text-slate-700" />
-              Lancer le déploiement
-            </span>
-          </button>
-        </footer>
-
- 
-            {/* <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.2)_10px,rgba(0,0,0,0.2)_20px)] opacity-50" />
-            <span className="relative z-10 flex items-center gap-3">
-          */}
-
 
       </div>
 

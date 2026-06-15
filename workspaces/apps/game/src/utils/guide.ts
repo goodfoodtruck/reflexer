@@ -43,6 +43,12 @@ export const getTooltipPosition = (
         left: rect.left + rect.width + GAP,
         transform: 'translateY(-50%)'
       };
+    case 'center':
+      return {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)'
+      };
   }
 };
 
@@ -51,6 +57,8 @@ export const clampToViewport = (
   tooltipRect: DirectionPosition | null
 ): React.CSSProperties => {
   if (!tooltipRect) return style;
+
+  if (typeof style.top === 'string' || typeof style.left === 'string') return style
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;

@@ -36,14 +36,7 @@ export const GUIDES: Record<GuideName, GuideStep[]> = {
       title: 'Choisis ton équipe',
       description:
         'Tu pars avec deux agents. Clique sur un pour configurer ses gambits, puis lance le déploiement.',
-      position: 'right'
-    },
-    {
-      target: "[data-guide='lancer-deploiement']",
-      title: 'Lancer le déploiement',
-      description:
-        'Une fois tes agents configurés, lance la run. Tu ne peux plus intervenir en combat.',
-      position: 'top'
+      position: 'center'
     }
   ],
 

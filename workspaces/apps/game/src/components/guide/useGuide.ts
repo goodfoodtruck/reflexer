@@ -4,7 +4,7 @@ export type GuideStep = {
   target: string;
   title: string;
   description: string;
-  position: 'top' | 'bottom' | 'left' | 'right';
+  position: 'top' | 'bottom' | 'left' | 'right' | 'center';
 };
 
 export type GuideName = 'home' | 'team-selection' | 'gambit-editor';
