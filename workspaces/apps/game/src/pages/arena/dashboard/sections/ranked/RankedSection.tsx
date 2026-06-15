@@ -1,14 +1,14 @@
 import { useState } from "react"
 import { type AuthUser } from "@hooks/useAuth"
 import { RankedFightService, type PlayRankedFightResponse } from "@services/fight/rankedFight.service"
-import { motion } from 'framer-motion'
 import Leaderboard from "./learderboard/Leaderboard"
 import { useNavigate } from "react-router-dom"
 import ErrorAlert from "@components/shared/ErrorAlert"
-import type { RankedFight } from "../../../../../shared/types/fight.types"
+import type { RankedFight } from "@shared/types/fight.types"
 import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
 import RankedFightsHistory from "./history/RankedFightsHistory"
 import type { UserRankingResponse } from "@services/userRanking.service"
+import NewGameButton from "./new-game/NewGameButton"
 
 interface RankedSectionProps {
     userRankedFightsHistory: RankedFight[]
@@ -31,14 +31,13 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
         })
     }
 
-    const onFindMatch = async () => {
+    const findMatch = async () => {
         if (! user) return
         setError(null)
         setLoading(true)
 
         try {
             const result = await RankedFightService.findAndPlayMatch(user.id)            
-            setTimeout(() => {}, 2000)
             onFightReady(result)
         } catch (err) {
             setError(err instanceof Error ? err.message : "Impossible de trouver un adversaire")
@@ -58,26 +57,10 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
                 <div className="w-full h-px bg-slate-700"></div>
             </div>
 
-            <motion.button
-                onClick={onFindMatch}
-                disabled={loading}
-                className="w-max p-4 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black tracking-widest uppercase text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-            >
-                {loading ? (
-                    <span className="flex items-center justify-center gap-3">
-                        <motion.span
-                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full inline-block"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                        />
-                        Recherche d'un adversaire...
-                    </span>
-                ) : (
-                    "Nouvelle partie classée"
-                )}
-            </motion.button>
+            <NewGameButton 
+                findMatch={findMatch} 
+                matchFound={loading} 
+            />
 
             { error && <ErrorAlert error={error}/> }
 
