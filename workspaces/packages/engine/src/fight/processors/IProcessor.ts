@@ -1,0 +1,12 @@
+import { ExecutionContext, ExecutionState } from "@fight/fight.types";
+import { ProcessorResult } from "@processors/processor.types";
+import { IFightContextMutator } from "@fight/fight.types";
+import { IFightContextReader } from "@fight/fight.types";
+
+export interface IProcessor {
+    execute(
+        ctx: ExecutionContext,
+        execState: ExecutionState,
+        fightContext: IFightContextMutator & IFightContextReader
+    ): ProcessorResult;
+}

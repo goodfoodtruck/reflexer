@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "rootDir": ".",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "paths": {
+        "@routes/*": ["./src/routes/*"],
+        "@models/*": ["./src/models/*"],
+        "@scripts/*": ["./src/scripts/*"],
+        "@services/*": ["./src/services/*"]
+    }
+  },
+  "include": ["**/*.ts"]
+}

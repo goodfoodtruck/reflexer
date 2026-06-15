@@ -1,0 +1,79 @@
+[
+    {
+        "id": "map_crypt_01",
+        "size": "SMALL_RANGE",
+        "dimensions": { "width": 6, "height": 4 },
+        "cells": [
+            ["FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
+            ["FLOOR", "WALL",  "FLOOR", "FLOOR", "WALL",  "FLOOR"],
+            ["FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
+            ["FLOOR", "FLOOR", "WALL",  "WALL",  "FLOOR", "FLOOR"]
+        ],
+        "spawnPoints": {
+            "player": [
+                { "x": 0, "y": 0 },
+                { "x": 0, "y": 1 },
+                { "x": 0, "y": 2 },
+                { "x": 0, "y": 3 }
+            ],
+            "enemy": [
+                { "x": 5, "y": 0 },
+                { "x": 5, "y": 1 },
+                { "x": 5, "y": 2 },
+                { "x": 5, "y": 3 }
+            ]
+        }
+    },
+    {
+        "id": "map_forest_01",
+        "size": "MID_RANGE",
+        "dimensions": { "width": 10, "height": 5 },
+        "cells": [
+            ["FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR"],
+            ["FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR"],
+            ["FLOOR", "FLOOR", "FLOOR", "FLOOR", "HOLE",  "HOLE",  "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
+            ["FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR"],
+            ["FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR"]
+        ],
+        "spawnPoints": {
+            "player": [
+                { "x": 0, "y": 0 },
+                { "x": 0, "y": 2 },
+                { "x": 0, "y": 4 },
+                { "x": 1, "y": 2 }
+            ],
+            "enemy": [
+                { "x": 9, "y": 0 },
+                { "x": 9, "y": 2 },
+                { "x": 9, "y": 4 },
+                { "x": 8, "y": 2 }
+            ]
+        }
+    },
+    {
+        "id": "map_ramparts_01",
+        "size": "LONG_RANGE",
+        "dimensions": { "width": 14, "height": 5 },
+        "cells": [
+            ["FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
+            ["FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "HOLE",  "HOLE",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR"],
+            ["FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
+            ["FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "HOLE",  "HOLE",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR"],
+            ["FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "WALL",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR"]
+        ],
+        "spawnPoints": {
+            "player": [
+                { "x": 0, "y": 0 },
+                { "x": 0, "y": 2 },
+                { "x": 0, "y": 4 },
+                { "x": 1, "y": 2 }
+            ],
+            "enemy": [
+                { "x": 13, "y": 0 },
+                { "x": 13, "y": 2 },
+                { "x": 13, "y": 4 },
+                { "x": 12, "y": 2 }
+            ]
+        }
+    }
+]

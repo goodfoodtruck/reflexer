@@ -1,0 +1,81 @@
+[
+    {
+        "id": "attack",
+        "type": "attack",
+        "name": "Attaque",
+        "icon": "attaque/Attaque-Cinglant.png",
+        "category": "Attaque",
+        "description": "Coup de mêlée standard infligeant des dégâts modérés.",
+        "processorConfigs": [
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 18 } },
+            { "type": "apply_damage", "order": 2, "params": {} }
+        ]
+    },
+    {
+        "id": "heavy_attack",
+        "type": "attack",
+        "name": "Attaque lourde",
+        "icon": "attaque/Boule-feu.png",
+        "category": "Attaque",
+        "description": "Frappe puissante infligeant de lourds dégâts. Consomme de l'énergie.",
+        "processorConfigs": [
+            { "type": "check_energy", "order": 1, "params": { "neededEnergy": 15 } },
+            { "type": "use_energy", "order": 2, "params": {} },
+            { "type": "compute_damage", "order": 3, "params": { "initialDamage": 40 } },
+            { "type": "apply_damage", "order": 4, "params": {} }
+        ]
+    },
+    {
+        "id": "attack_bleed",
+        "type": "attack",
+        "name": "Entaille",
+        "icon": "attaque/Attaque-Cinglant.png",
+        "category": "Attaque",
+        "description": "Un coup rapide qui provoque un saignement dans la durée.",
+        "processorConfigs": [
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 12 } },
+            { "type": "apply_damage", "order": 2, "params": {} },
+            { "type": "passive", "order": 3, "params": { "passiveId": "bleed", "duration": 3 } }
+        ]
+    },
+    {
+        "id": "bleed_tick",
+        "type": "attack",
+        "name": "Saignement",
+        "processorConfigs": [
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 8 } },
+            { "type": "apply_damage", "order": 2, "params": {} }
+        ]
+    },
+    {
+        "id": "curse",
+        "type": "passive",
+        "name": "Malédiction",
+        "category": "Malus",
+        "description": "Marque la cible de vulnérabilité, augmentant les dégâts qu'elle subit.",
+        "processorConfigs": [
+            { "type": "passive", "order": 1, "params": { "passiveId": "vulnerable", "duration": 3 } }
+        ]
+    },
+    {
+        "id": "thorns_tick",
+        "type": "attack",
+        "name": "Épines",
+        "icon": "boost/Force-de-la-Terre.png",
+        "processorConfigs": [
+            { "type": "compute_damage", "order": 1, "params": { "initialDamage": 10 } },
+            { "type": "apply_damage", "order": 2, "params": {} }
+        ]
+    },
+    {
+        "id": "apply_thorns",
+        "type": "passive",
+        "name": "Carapace d'épines",
+        "icon": "boost/Force-de-la-Terre.png",
+        "category": "Boost",
+        "description": "Ancre une carapace défensive qui renvoie des dégâts aux attaquants.",
+        "processorConfigs": [
+            { "type": "passive", "order": 1, "params": { "passiveId": "thorns", "duration": "PERMANENT" } }
+        ]
+    }
+]
