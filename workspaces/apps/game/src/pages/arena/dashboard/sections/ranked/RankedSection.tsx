@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { AnimatePresence } from "framer-motion"
 import { type AuthUser } from "@hooks/useAuth"
 import { RankedFightService, type PlayRankedFightResponse } from "@services/fight/rankedFight.service"
 import Leaderboard from "./learderboard/Leaderboard"
@@ -10,6 +11,15 @@ import RankedFightsHistory from "./history/RankedFightsHistory"
 import type { UserRankingResponse } from "@services/userRanking.service"
 import NewGameButton from "./new-game/NewGameButton"
 import UserRankedProfile from "./user-profile/UserRankedProfile"
+import { withMinimumDuration } from "@shared/helpers/timing"
+import MatchmakingOverlay from "./new-game/MatchMakingOverlay"
+
+const MATCHMAKING_MIN_DURATION_MS = 4000
+
+type MatchmakingState =
+    | { status: "idle" }
+    | { status: "searching" }
+    | { status: "failed"; reason: string }
 
 interface RankedSectionProps {
     userRankedFightsHistory: RankedFight[]
@@ -19,35 +29,37 @@ interface RankedSectionProps {
 
 const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, userRanking, user }) => {
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [matchmaking, setMatchmaking] = useState<MatchmakingState>({ status: "idle" })
 
     const onFightReady = (fight: PlayRankedFightResponse) => {
-        navigate("/fight", { 
+        navigate("/fight", {
             state: {
                 playerName: fight.player.user.name,
                 opponentName: fight.opponent.user.name,
-                fight: { ...fight }
-            }
+                fight: { ...fight },
+            },
         })
     }
 
     const findMatch = async () => {
-        if (! user) return
-        setError(null)
-        setLoading(true)
+        if (!user) return
+        setMatchmaking({ status: "searching" })
 
         try {
-            const result = await RankedFightService.findAndPlayMatch(user.id)            
+            const result = await withMinimumDuration(
+                RankedFightService.findAndPlayMatch(user.id),
+                MATCHMAKING_MIN_DURATION_MS,
+            )
             onFightReady(result)
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Impossible de trouver un adversaire")
-        } finally {
-            setLoading(false)
+            setMatchmaking({
+                status: "failed",
+                reason: err instanceof Error ? err.message : "Impossible de trouver un adversaire",
+            })
         }
     }
 
-    if (! user) return null // TODO: redirection login ?
+    if (!user) return null // TODO: redirection login ?
 
     return (
         <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
@@ -58,16 +70,13 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
                 <div className="w-full h-px bg-slate-700"></div>
             </div>
 
-            <UserRankedProfile user={user} userRanking={userRanking.ranking}/>
+            <UserRankedProfile user={user} userRanking={userRanking.ranking} />
 
-            <NewGameButton 
-                findMatch={findMatch} 
-                matchFound={loading} 
-            />
+            <NewGameButton findMatch={findMatch} isSearching={matchmaking.status === "searching"} />
 
-            { error && <ErrorAlert error={error}/> }
+            {matchmaking.status === "failed" && <ErrorAlert error={matchmaking.reason} />}
 
-            <PlayerStats 
+            <PlayerStats
                 wins={userRanking.ranking.wins}
                 losses={userRanking.ranking.losses}
                 totalGames={userRanking.ranking.totalGames}
@@ -78,6 +87,10 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
             <RankedFightsHistory user={user} fights={userRankedFightsHistory} />
 
             <Leaderboard />
+
+            <AnimatePresence>
+                {matchmaking.status === "searching" && <MatchmakingOverlay />}
+            </AnimatePresence>
         </div>
     )
 }
