@@ -5,7 +5,7 @@ import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../components/gu
 import herosImage from "../../assets/images/heros.png";
 import bgHomeImage from "../../assets/images/bg-home.png"; 
 import STYLES from "./styles";
-import { OptionsPanel } from "../../components/ui/OptionsPanel";
+import { OptionsPanel } from "../../components/ui/optionPanel/OptionsPanel";
 import { useState } from "react";
 import { NotificationBell } from "../../components/ui/notificationBell/NotificationBell";
 

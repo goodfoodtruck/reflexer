@@ -5,6 +5,7 @@ export type DirectionPosition = { top: number; left: number; width: number; heig
 const GAP = 20; // espace de 20px entre tooltip et mon element x
 const MARGIN = 16; // distance de 16px entre le tooltip et le bord de ma fenetre
 
+// recuperer les coordonnees d'un element position + dimension
 export const getRectFromElement = (dataGuideId: string): DirectionPosition | null => {
   const elementSelected = document.querySelector(dataGuideId);
   if (!elementSelected) return null;
