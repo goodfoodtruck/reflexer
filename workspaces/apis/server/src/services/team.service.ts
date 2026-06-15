@@ -18,6 +18,7 @@ export async function buildTeamFromUserId(userId: string): Promise<TeamMemberDat
                 activePassiveIds: [],
                 gambits: gambits.map<Gambit>(g => ({
                     id: g._id.toString(),
+                    name: g.name,
                     priority: g.priority,
                     conditions: g.conditions,
                     targetSelector: g.targetSelector,

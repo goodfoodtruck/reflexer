@@ -2,7 +2,7 @@ import { IFightContextReader, MovementContext } from "@fight/fight.types";
 import { PlayingEntity } from "@fight/fight.types";
 import { MovementGambit } from "@fight/gambits/gambits.types";
 import { GambitTargetResolver } from "./target";
-import { ConditionResolver } from "./conditions/ConditionResolver";
+import { ConditionResolver } from "@fight/gambits";
 
 export class EntityMovementResolver {
 
@@ -12,8 +12,8 @@ export class EntityMovementResolver {
     ) {}
     
     resolve(
-        playingEntity: PlayingEntity, 
-        playingEntityMovementGambits: MovementGambit[], 
+        playingEntity: PlayingEntity,
+        playingEntityMovementGambits: MovementGambit[],
         fightContext: IFightContextReader
     ): MovementContext | null {
         for (const gambit of playingEntityMovementGambits) {

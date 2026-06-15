@@ -1,5 +1,5 @@
 import { EnemyName, EnemyTag, EntityName } from "@fight/fight.types"
-import { ConditionGroup, ETargetType, Gambit, TargetSelector, TargetSort } from "@fight/gambits/gambits.types"
+import { ConditionGroup, ETargetType, Gambit, MovementStrategy, TargetSelector, TargetSort } from "@fight/gambits/gambits.types"
 import { LivingEntityFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 import { CharacterConfig } from "./ICharacterRegistry"
 import { EntityVisual, SpriteClip } from "./visual.types"
@@ -39,7 +39,16 @@ const actionGambit = (
     actionId: string
 ): Gambit => ({ id, priority, conditions, targetSelector, intent: { kind: "ACTION", actionId } })
 
+const movementGambit = (
+    id: string,
+    priority: number,
+    conditions: ConditionGroup,
+    targetSelector: TargetSelector,
+    strategy: MovementStrategy
+): Gambit => ({ id, priority, conditions, targetSelector, intent: { kind: "MOVEMENT", strategy } })
+
 const BRUISER_GAMBITS: Gambit[] = [
+    movementGambit("bruiser_approach", 1, existsEnemy(), targetEnemy("LOWEST_HP"), "APPROACH"),
     actionGambit("bruiser_thorns", 1, not(existsSelf([hasPassive(THORNS_PASSIVE_ID)])), targetSelf(), APPLY_THORNS_ACTION_ID),
     actionGambit("bruiser_execute", 2, existsEnemy([hpBelow(30)]), targetEnemy("LOWEST_HP", [hpBelow(30)]), HEAVY_ATTACK_ACTION_ID),
     actionGambit("bruiser_bleed", 3, existsEnemy(), targetEnemy("LOWEST_HP"), ATTACK_BLEED_ACTION_ID),
@@ -47,6 +56,7 @@ const BRUISER_GAMBITS: Gambit[] = [
 
 /** Affaibliseur : maudit l'ennemi le plus sain (une fois), puis tape les gros. */
 const DEBUFFER_GAMBITS: Gambit[] = [
+    movementGambit("debuffer_approach", 1, existsEnemy(), targetEnemy("HIGHEST_HP"), "APPROACH"),
     actionGambit(
         "debuffer_curse",
         1,

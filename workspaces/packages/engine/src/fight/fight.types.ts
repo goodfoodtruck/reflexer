@@ -1,4 +1,4 @@
-import { Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
+import { ActionGambit, Gambit, MovementStrategy } from "@fight/gambits/gambits.types"
 import { Position } from "@helpers/types/helpers.types"
 import { ProcessorConfig } from "@processors/processor.types";
 import { EFightMapSize, FightMapID } from "@fight/map/fight.map.types";
@@ -56,6 +56,12 @@ export type ActionExecutionContext = {
     reactionDepth: Readonly<number>;
 };
 
+/** Gambit d'action résolu : contexte d'exécution + gambit l'ayant déclenché. */
+export type ResolvedActionGambit = {
+    context: ActionExecutionContext
+    gambit: ActionGambit
+}
+
 export type ActionID = string
 
 export type ActionCategory = "attack" | "heal" | "passive";
@@ -99,7 +105,7 @@ export type FightLog =
     | TurnEndLog
 
 
-export type ActionLog =
+export type ActionLog = (
     | DamageDealtLog
     | DamageSkippedLog
     | EntityDiedLog
@@ -109,6 +115,13 @@ export type ActionLog =
     | UpdatedEnergyLog
     | HealDealtLog
     | HealSkippedLog
+) & {
+    /**
+     * Gambit ayant déclenché ce log (présentation / traçabilité).
+     * Absent pour les logs non issus d'un gambit (passifs de début/fin de tour…).
+     */
+    gambit?: Readonly<Gambit>
+}
 
 export type HealDealtLog = {
     type: Readonly<'heal_dealt'>

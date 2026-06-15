@@ -116,6 +116,9 @@ export class CombatReplayer {
             case "updated_energy":
                 this.dispatch({ type: "setEnergy", entityId: log.targetId, value: log.updatedValue })
                 break
+            case "heal_dealt":
+                this.dispatch({ type: "applyHeal", targetId: log.targetId, amount: log.amount })
+                break
             case "entity_died":
                 this.dispatch({ type: "killEntity", entityId: log.entityId })
                 break
