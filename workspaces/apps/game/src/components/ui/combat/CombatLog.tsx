@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from "react"
-import type { CombatLogLine } from "../../../features/fight/replay/combat-view.types"
+import type { CombatLogLine } from "@features/fight/replay/combat-view.types.ts"
 import { LogLineText } from "./LogLineText"
 
 /** En deçà de ce seuil (px) on considère que l'utilisateur est « en haut ». */
@@ -38,9 +38,9 @@ export function CombatLog({ logs, onSelect, selectedId }: Props) {
     const ordered = [...logs].reverse()
 
     return (
-        <div className="h-full flex flex-col rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-700/50 shadow-2xl overflow-hidden">
+        <div className="h-full flex flex-col panel-glass overflow-hidden">
             <div className="flex-none flex items-center justify-between gap-2 px-3 pt-3 pb-2">
-                <span className="text-amber-500/80 text-xs font-bold tracking-[0.2em] uppercase">Journal</span>
+                <span className="text-amber-500/80 section-label">Journal</span>
                 <span className="flex items-center gap-1 text-[10px] text-slate-500 normal-case tracking-normal">
                     plus récent
                     <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>

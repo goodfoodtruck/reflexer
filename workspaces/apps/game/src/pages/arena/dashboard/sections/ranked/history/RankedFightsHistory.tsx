@@ -34,9 +34,9 @@ const RankedFightsHistory: React.FC<RankedFightsHistoryProps> = ({ user, fights 
     }
 
     return (
-        <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-6">
+        <div className="panel flex flex-col gap-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-[14px] font-black tracking-[0.3em] uppercase text-amber-500">
+                <h2 className="text-[14px] section-title text-amber-500">
                     Historique
                 </h2>
             </div>

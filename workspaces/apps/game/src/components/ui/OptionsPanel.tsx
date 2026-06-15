@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@hooks/useAuth.ts';
 
 type View = 'main' | 'reset';
 
@@ -15,7 +15,7 @@ const STYLES = {
   overlay: 'absolute inset-0 bg-black/60 backdrop-blur-sm',
   panel: 'relative z-10 w-full max-w-sm bg-slate-900/95 border border-slate-700/50 rounded-2xl p-8 flex flex-col gap-6 shadow-2xl',
   header: 'flex items-center justify-between',
-  title: 'text-xs font-black tracking-[0.3em] uppercase text-amber-500',
+  title: 'text-xs section-title text-amber-500',
   closeBtn: 'text-slate-500 hover:text-white transition-colors text-xl font-bold leading-none',
   userRow: 'flex items-center gap-4 p-4 bg-slate-800/50 border border-slate-700/30 rounded-xl',
   avatar: 'w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 font-black text-sm',

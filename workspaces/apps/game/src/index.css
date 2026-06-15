@@ -1,7 +1,37 @@
 @import "tailwindcss";
 
+/* Classes composantes réutilisables : motifs de rendu identiques répétés à
+   travers l'app. Les variantes (taille de texte, couleur, gap...) restent
+   inline sur chaque site car elles diffèrent. */
+@layer components {
+  /* Carte de contenu standard (sections du dashboard arène). */
+  .panel {
+    @apply bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6;
+  }
+
+  /* Panneau « verre » translucide (HUD de combat). */
+  .panel-glass {
+    @apply rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-700/50 shadow-2xl;
+  }
+
+  /* Titre de section en capitales très espacées. */
+  .section-title {
+    @apply font-black tracking-[0.3em] uppercase;
+  }
+
+  /* Libellé / sur-titre en petites capitales. */
+  .section-label {
+    @apply text-xs font-bold tracking-[0.2em] uppercase;
+  }
+
+  /* Séparateur horizontal pleine largeur. */
+  .divider-h {
+    @apply w-full h-px bg-slate-700;
+  }
+}
+
 @keyframes pan-grid {
-  0% { background-position: 0px 0px; }
+  0% { background-position: 0 0; }
   100% { background-position: 64px 64px; }
 }
 

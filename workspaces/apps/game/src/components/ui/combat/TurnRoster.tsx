@@ -1,5 +1,5 @@
 import type { PlayingEntityID, PlayingTeamID } from "@reflexer/engine"
-import type { EntityView } from "../../../features/fight/replay/combat-view.types"
+import type { EntityView } from "@features/fight/replay/combat-view.types.ts"
 import { SpriteFrame } from "./SpriteFrame"
 
 const TEAM_TONE: Record<PlayingTeamID, { dot: string; idle: string; active: string }> = {
@@ -43,7 +43,7 @@ type Props = {
 export function TurnRoster({ members, activeId, nextId }: Props) {
     return (
         <div className="h-full flex flex-col gap-2 min-h-0">
-            <div className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-slate-400">
+            <div className="flex items-center gap-2 section-label text-slate-400">
                 Combattants
                 <span className="ml-auto flex items-center gap-1 text-[9px] tracking-normal normal-case text-slate-500">
                     <span className="w-2 h-2 rounded-sm bg-sky-400" /> alliés

@@ -12,7 +12,7 @@ export function ChallengeConfirmView({
     return (
         <>
             <div className="flex flex-col gap-2">
-                <p className="text-[10px] font-black tracking-[0.3em] uppercase text-amber-500">
+                <p className="text-[10px] section-title text-amber-500">
                     Combat amical
                 </p>
 

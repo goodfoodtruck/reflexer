@@ -7,7 +7,7 @@ interface PlayerSearchInputProps {
 const PlayerSearchInput: React.FC<PlayerSearchInputProps> = ({ query, loading, onChange }) => {
     return (
         <div className="flex flex-col gap-5">
-            <p className="text-[14px] font-black tracking-[0.3em] uppercase text-amber-500">
+            <p className="text-[14px] section-title text-amber-500">
                 Défier un joueur
             </p>
             <div className="relative">

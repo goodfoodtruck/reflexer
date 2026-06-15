@@ -1,5 +1,5 @@
 import type { Gambit } from "@reflexer/engine"
-import type { CombatLogLine } from "../../../features/fight/replay/combat-view.types"
+import type { CombatLogLine } from "@features/fight/replay/combat-view.types.ts"
 
 // Le moteur expose les conditions/cibles sous une forme typée ; on en fait ici
 // une lecture « best effort » pour l'affichage (les champs sont des chaînes).
@@ -164,9 +164,9 @@ type Props = {
 /** Fenêtre de détail : le gambit déclencheur et l'action jouée pour un log. */
 export function GambitInspector({ line, onClose }: Props) {
     return (
-        <div className="h-full flex flex-col rounded-2xl bg-slate-900/60 backdrop-blur-md border border-slate-700/50 shadow-2xl overflow-hidden">
+        <div className="h-full flex flex-col panel-glass overflow-hidden">
             <div className="flex-none flex items-center justify-between gap-2 px-4 pt-3 pb-2 border-b border-slate-700/40">
-                <span className="text-amber-500/80 text-xs font-bold tracking-[0.2em] uppercase">Détail</span>
+                <span className="text-amber-500/80 section-label">Détail</span>
                 <button
                     onClick={onClose}
                     aria-label="Fermer"

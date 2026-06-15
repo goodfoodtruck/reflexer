@@ -18,7 +18,7 @@ const PlayerSearchResults: React.FC<PlayerSearchResultsProps> = ({ results, onCh
             transition={{ duration: 0.2 }}
         >
             <div className="flex items-center justify-between">
-                <p className="text-[10px] font-black tracking-[0.3em] uppercase text-slate-500">
+                <p className="text-[10px] section-title text-slate-500">
                     {results.length} joueur{results.length > 1 ? "s" : ""} trouvé{results.length > 1 ? "s" : ""}
                 </p>
             </div>
