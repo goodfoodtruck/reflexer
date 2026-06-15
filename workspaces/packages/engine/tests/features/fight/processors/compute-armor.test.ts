@@ -27,7 +27,7 @@ describe("Calcul de la réduction des dégats", () => {
         const fightContext = buildFightContext([{}], [target])
         const processor = new ArmorComputeProcessor({})
 
-        const initialExecState: ExecutionState = { computedDamage: 20, computedHeal: 0 }  // valeur d'entrée
+        const initialExecState: ExecutionState = { computedDamage: 20, computedHeal: 0, computedEnergy: 0 }  // valeur d'entrée
         processor.execute(ctx, initialExecState, fightContext)
 
         expect(initialExecState.computedDamage).toBe(10)  // 20 * 0.5
@@ -42,7 +42,7 @@ describe("Calcul de la réduction des dégats", () => {
         const fightContext = buildFightContext([{}], [target])
         const processor = new ArmorComputeProcessor({})
 
-        const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
+        const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0, computedEnergy: 0 }
         processor.execute(ctx, initialExecState, fightContext)
 
         expect(initialExecState.computedDamage).toBe(0)
@@ -57,7 +57,7 @@ describe("Calcul de la réduction des dégats", () => {
         const fightContext = buildFightContext([{}], [target])
         const processor = new ArmorComputeProcessor({})
 
-        const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
+        const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0, computedEnergy: 0 }
         processor.execute(ctx, initialExecState, fightContext)
 
         expect(initialExecState.computedDamage).toBe(15)  // 10 * (1 + 0.50) = 15
@@ -74,7 +74,7 @@ describe("Calcul de la réduction des dégats", () => {
             const fightContext = buildFightContext([{}], [target])
             const processor = new ArmorComputeProcessor({})
 
-            const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
+            const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0, computedEnergy: 0 }
             processor.execute(ctx, initialExecState, fightContext)
 
             expect(initialExecState.computedDamage).toBe(7)  // 10 * 0.67 = 6.70 → 7
@@ -89,7 +89,7 @@ describe("Calcul de la réduction des dégats", () => {
             const fightContext = buildFightContext([{}], [target])
             const processor = new ArmorComputeProcessor({})
 
-            const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0 }
+            const initialExecState: ExecutionState = { computedDamage: 10, computedHeal: 0, computedEnergy: 0 }
             processor.execute(ctx, initialExecState, fightContext)
 
             expect(initialExecState.computedDamage).toBe(7)  // 10 * 0.74 = 7.40 → 7 

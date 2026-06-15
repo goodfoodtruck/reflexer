@@ -17,7 +17,7 @@ export class PassiveApplierProcessor implements IProcessor {
         fightContext: FightContext
     ): ProcessorResult {
         const target = fightContext.getEntityById(ctx.targetId)
-        if (! target) return {
+        if (! target || target.isDead) return {
             status: 'aborted',
             reason: 'target_already_dead'
         }

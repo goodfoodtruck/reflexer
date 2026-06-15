@@ -27,7 +27,7 @@ export function setupFight(config: SetupFightConfig = {}) {
         })),
     )
 
-    const passiveRegistry = new InMemoryPassiveRegistry()
+    const passiveRegistry = new InMemoryPassiveRegistry({})
     const processorFactory = new ProcessorFactory(passiveRegistry)
     const filterEvaluatorRegistry = new FilterEvaluatorRegistry()
     const filterApplier = new FilterApplier(filterEvaluatorRegistry)

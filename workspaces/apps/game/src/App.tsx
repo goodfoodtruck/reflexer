@@ -16,7 +16,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/arena" element={<ArenaPage />} />
           <Route path="/team" element={<TeamSelectionPage />} />
-          <Route path="/gestion-gambits/:caracterId" element={<GambitEditorPage />} />
+          <Route path="/gestion-gambits/:characterId" element={<GambitEditorPage />} />
           <Route path="/fight" element={<CombatPage />} />
         </Route>
       </Routes>

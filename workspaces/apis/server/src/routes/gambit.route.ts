@@ -2,14 +2,22 @@ import { Router } from "express"
 import type { Gambit } from "@reflexer/engine"
 import { GambitModel } from "@models/gambit.model"
 import { Types } from "mongoose"
+import { GambitsByCharacter, getUserGambitsByCharacter } from "@services/gambits.service"
  
 const router = Router()
  
 router.get("/", async (req, res) => {
-    const { characterId } = req.query
-    if (! characterId) return res.status(400).json({ error: "characterId is required" })
-    const gambits = await GambitModel.find({ characterId }).sort({ priority: 1 })
-    res.json(gambits)
+    try {
+        const { userId } = req.query as { userId: string }
+        if (! userId) {
+            res.status(400).json({ error: "userId is required" })
+            return
+        }
+        const gambitsByCharacter: GambitsByCharacter[] = await getUserGambitsByCharacter(userId)
+        res.json(gambitsByCharacter)
+    } catch (error) {
+        res.status(500).json({ error: "INTERNAL_ERROR" })
+    }
 })
  
 router.post("/", async (req, res) => {

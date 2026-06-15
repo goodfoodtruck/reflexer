@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { DisplayGambit } from './GambitTypes';
 import { DragIcon } from '../../../assets/icons/IconDrag';
 import { ChevronIcon } from '../../../assets/icons/IconChevron';
 import { ArrowRightIcon } from '../../../assets/icons/IconArrowRight';
@@ -12,7 +11,7 @@ import { Styles_gambit_row } from './Gambit.styles';
 import { renderConditionNode, renderFilterText } from './gambit.utils';
 
 interface GambitRowProps {
-  gambit: DisplayGambit;
+  gambit: Gambit;
   onEdit: () => void;
   onDelete: () => void;
 }

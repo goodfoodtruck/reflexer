@@ -16,7 +16,7 @@ describe("Appliquer des dégâts à une entité", () => {
     it("réduit les PV de la cible du montant infligé", () => {
         const context = buildContextWithTargetHp(50)
         
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 20 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 20, actionId: "" })
 
         expect(context.getFightLogs()).toContainEqual(expect.objectContaining({
             type: "damage_dealt",
@@ -28,7 +28,7 @@ describe("Appliquer des dégâts à une entité", () => {
     it("ne descend pas les PV en dessous de zéro même avec un montant excessif", () => {
         const context = buildContextWithTargetHp(10)
 
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 999 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 999, actionId: "" })
 
         expect(context.getFightLogs()).toContainEqual(expect.objectContaining({
             type: "damage_dealt",
@@ -40,7 +40,7 @@ describe("Appliquer des dégâts à une entité", () => {
     it("marque l'entité comme morte quand ses PV atteignent zéro", () => {
         const context = buildContextWithTargetHp(10)
 
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 10 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 10, actionId: "" })
 
         expect(context.getFightLogs()).toContainEqual(expect.objectContaining({
             type: "entity_died",
@@ -51,7 +51,7 @@ describe("Appliquer des dégâts à une entité", () => {
     it("marque l'entité comme morte quand les dégâts dépassent ses PV", () => {
         const context = buildContextWithTargetHp(10)
 
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 999 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 999, actionId: "" })
 
         expect(context.getFightLogs()).toContainEqual(expect.objectContaining({
             type: "entity_died",
@@ -62,7 +62,7 @@ describe("Appliquer des dégâts à une entité", () => {
     it("ne marque pas l'entité comme morte si elle survit aux dégâts", () => {
         const context = buildContextWithTargetHp(50)
 
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 20 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 20, actionId: "" })
 
         expect(context.getFightLogs().some(l => l.type === "entity_died")).toBe(false)
     })
@@ -72,7 +72,7 @@ describe("Appliquer des dégâts à une entité", () => {
         const source = buildPlayingEntity({ id: "source", teamId: "PLAYER" })
         const context = buildFightContext([source], [target])
 
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 10 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 10, actionId: "" })
 
         expect(context.getFightLogs()).toContainEqual(expect.objectContaining({
             type: "damage_skipped",
@@ -86,7 +86,7 @@ describe("Appliquer des dégâts à une entité", () => {
         const source = buildPlayingEntity({ id: "source", teamId: "PLAYER" })
         const context = buildFightContext([source], [target])
 
-        context.applyDamage({ sourceId: "source", targetId: "target", amount: 10 })
+        context.applyDamage({ sourceId: "source", targetId: "target", amount: 10, actionId: "" })
 
         expect(context.getEntityById("target")?.currentStats.health).toBe(target.currentStats.health)
     })

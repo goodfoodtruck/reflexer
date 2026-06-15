@@ -1,7 +1,3 @@
-import type { Gambit } from '@reflexer/engine';
-
-export type DisplayGambit = Gambit & { name: string };
-
 export type DraftCondition = {
   id: string;
   scopeKind: "SELF" | "ALLY" | "ENEMY";
