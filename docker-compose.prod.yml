@@ -1,0 +1,35 @@
+services:
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: reflexer
+    ports:
+      - target: 27017
+        host_ip: 127.0.0.1
+        published: 27017
+        protocol: tcp
+    volumes:
+      - mongo_data:/data/db
+
+  server:
+    image: ghcr.io/goodfoodtruck/reflexer-server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017/reflexer"
+      PORT: "4000"
+      NODE_ENV: "production"
+    depends_on:
+      - mongodb
+
+  web:
+    image: ghcr.io/goodfoodtruck/reflexer-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo_data:
