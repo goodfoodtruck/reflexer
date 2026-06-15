@@ -13,7 +13,8 @@ import type { DraftGambit, DisplayGambit } from './GambitTypes';
 import { draftToConditions, draftToIntent, draftToTargetSelector } from './gambit.adapter';
 import { CharacterService, type Character } from '@services/character.service';
 
-export function useGambitEditor() {
+export function useGambitEditor(userId: string) {
+
   const { caracterId } = useParams<{ caracterId: string }>();
   const navigate = useNavigate();
 
@@ -130,7 +131,7 @@ export function useGambitEditor() {
           )
         );
       } else {
-        const created = await GambitService.add(draft.name, caracterId, {
+        const created = await GambitService.add(userId, draft.name, caracterId, {
           priority: gambits.length + 1,
           conditions: finalConditions,
           targetSelector,

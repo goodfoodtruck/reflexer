@@ -16,10 +16,7 @@ export const GambitService = {
     getAllByCharacter: (characterId: string) =>
         api.get<GambitDocument[]>(`/gambits?characterId=${characterId}`),
 
-    add: (name: string, characterId: string, gambit: GambitPayload) => {
-        // TODO a supprimé une fois l'auth est merge
-        // utiliser plutot le token
-        const userId = '6a258ffebe19cf55e02872c5'
+    add: (userId: string, name: string, characterId: string, gambit: GambitPayload) => {
         return api.post<GambitDocument>("/gambits", { userId, name, characterId, ...gambit })
     },
 

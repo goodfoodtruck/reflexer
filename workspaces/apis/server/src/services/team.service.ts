@@ -1,12 +1,13 @@
 import { CharacterModel } from "@models/character.model"
 import { GambitModel } from "@models/gambit.model"
 import type { Gambit, TeamMemberData } from "@reflexer/engine"
+import { Types } from "mongoose";
 
-export async function buildTeamFromUserId(userId: string): Promise<TeamMemberData[]> {
-    const characters = await CharacterModel.find()
+export async function buildTeamFromUserId(userId: Types.ObjectId): Promise<TeamMemberData[]> {
+    const characters = await CharacterModel.find()    
 
     return Promise.all(
-        characters.map(async (character) => {
+        characters.map(async (character) => {            
             const gambits = await GambitModel.find({
                 userId,
                 characterId: character._id

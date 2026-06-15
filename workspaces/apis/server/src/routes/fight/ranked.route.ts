@@ -68,9 +68,8 @@ router.post("/", async (req, res) => {
 
         // TODO: carte alétoire
         const fightMapId = "TRAINING_GROUND"
-
-        const userTeam   = await buildTeamFromUserId(userId)
-        const opponentTeam = await buildTeamFromUserId(opponentId)
+        const userTeam     = await buildTeamFromUserId(userObjectId)                
+        const opponentTeam = await buildTeamFromUserId(opponentRanking.userId)        
 
         if (! userTeam.length || ! opponentTeam.length) {
             res.status(400).json({ error: "TEAM_EMPTY" })
