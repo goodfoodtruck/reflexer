@@ -3,6 +3,7 @@ import FightRowLayout from "@pages/arena/dashboard/fight-history/FightRowLayout"
 import OpponentInfo from "@pages/arena/dashboard/fight-history/OpponentInfo"
 import ReplayFightButton from "@pages/arena/dashboard/fight-history/ReplayFightButton"
 import type { FriendlyFight } from "../../../../../../shared/types/fight.types"
+import FightTurnsCounter from "@pages/arena/dashboard/fight-history/FightTurnsCounter"
 
 
 interface FriendlyFightRowProps {
@@ -19,6 +20,8 @@ const FriendlyFightRow: React.FC<FriendlyFightRowProps> = ({ fight, userId, oppo
     return (
         <FightRowLayout index={index}>
             <OpponentInfo name={opponentName} date={new Date(fight.createdAt)} />
+
+            <FightTurnsCounter fightNbTurns={fight.logs.length} />
 
             <div className="flex items-center gap-3">
                 <FightResultBadge won={won} />

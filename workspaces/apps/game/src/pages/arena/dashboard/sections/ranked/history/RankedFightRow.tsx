@@ -4,6 +4,7 @@ import OpponentInfo from "@pages/arena/dashboard/fight-history/OpponentInfo"
 import ReplayFightButton from "@pages/arena/dashboard/fight-history/ReplayFightButton"
 import type { RankedFight } from "@shared/types/fight.types"
 import EloBadge from "./EloBadge"
+import FightTurnsCounter from "@pages/arena/dashboard/fight-history/FightTurnsCounter"
 
 interface RankedFightRowProps {
     fight: RankedFight
@@ -23,6 +24,8 @@ const RankedFightRow: React.FC<RankedFightRowProps> = ({ fight, playerId, oppone
     return (
         <FightRowLayout index={index}>
             <OpponentInfo name={opponentName} date={new Date(fight.createdAt)} />
+
+            <FightTurnsCounter fightNbTurns={fight.logs.length} />
 
             <div className="flex items-center gap-3">
                 {eloDelta !== null && <EloBadge delta={eloDelta} />}
