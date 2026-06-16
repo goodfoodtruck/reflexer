@@ -144,8 +144,8 @@ router.post("/", async (req, res) => {
                     highestWinstreak: Math.max(userRanking.highestWinstreak, userWinstreakAfter)
                 },
                 $inc: {
-                    rankedWins: userWon ? 1 : 0,
-                    rankedLosses: userWon ? 0 : 1,
+                    wins: userWon ? 1 : 0,
+                    wosses: userWon ? 0 : 1,
                     totalGames: 1
                 }
             }
@@ -161,8 +161,8 @@ router.post("/", async (req, res) => {
                     highestWinstreak: Math.max(opponentRanking.highestWinstreak, opponentWinstreakAfter)
                 },
                 $inc: {
-                    rankedWins: userWon ? 0 : 1,
-                    rankedLosses: userWon ? 1 : 0,
+                    wins: userWon ? 0 : 1,
+                    losses: userWon ? 1 : 0,
                     totalGames: 1
                 }
             }
