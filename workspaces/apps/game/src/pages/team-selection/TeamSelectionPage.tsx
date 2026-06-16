@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatedBackground } from '../../components/ui/AnimatedBackground';
 import { Header } from '../../components/ui/header/Header';
-import { IconPause } from '../../assets/icons/IconPause';
 import bgHomeImage from '../../assets/images/bg-home.png';
 import heroM from '../../assets/images/hero-m.png';
 import heroW from '../../assets/images/hero-w.png';
 import { AgentCard } from '../../components/ui/agent/AgentCard';
 import { STYLES } from './Team.styles';
 import { CharacterService, type Character } from '@services/character.service';
+import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../components/guide";
 
 export function TeamSelectionPage() {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ export function TeamSelectionPage() {
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
   const HERO_IMAGES = [heroM, heroW];
+  const guide = useGuide("team-selection", GUIDES["team-selection"]);
 
   useEffect(() => {
     CharacterService.getAll()
@@ -76,16 +77,19 @@ export function TeamSelectionPage() {
           ))}
         </div>
 
-        <footer className={STYLES.footer}>
-          <button className={STYLES.launchButton} disabled>
-            <div className={STYLES.styleDiv} />
-            <span className={STYLES.styleSpan}>
-              <IconPause className="w-5 h-5 text-slate-700" />
-              Lancer le déploiement
-            </span>
-          </button>
-        </footer>
       </div>
+
+      {guide.isVisible && (
+        <GuideOverlay
+          step={guide.step}
+          currentStep={guide.currentStep}
+          total={guide.total}
+          onNext={guide.next}
+          onPrev={guide.prev}
+          onClose={guide.close}
+        />
+      )}
+      <GuideButton onClick={guide.reset} />
     </div>
   );
 }
