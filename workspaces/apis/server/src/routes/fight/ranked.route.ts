@@ -30,24 +30,8 @@ router.post("/", async (req, res) => {
         const userObjectId = new Types.ObjectId(userId)
         
         const opponentsRanking: UserRankingDocument[] = await UserRankingModel.aggregate([
-            {
-                $match: {
-                    userId: { $ne: userObjectId },
-                    currentElo: {
-                        $gte: userRanking.currentElo - 100,
-                        $lte: userRanking.currentElo + 100
-                    }
-                }
-            },
-            {
-                $addFields: {
-                    eloDistance: {
-                        $abs: {
-                            $subtract: ["$currentElo", userRanking.currentElo]
-                        }
-                    }
-                }
-            },
+            { $match: { userId: { $ne: userObjectId } } },
+            { $addFields: { eloDistance: { $abs: { $subtract: ["$currentElo", userRanking.currentElo] } } } },
             { $sort: { eloDistance: 1 } },
             { $limit: 1 }
         ])
@@ -59,7 +43,7 @@ router.post("/", async (req, res) => {
 
         const opponentRanking = opponentsRanking[0]!
 
-        const opponentId = opponentRanking.userId as unknown as string
+        const opponentId = opponentRanking.userId.toString()
         const opponentUser = await UserModel.findById(opponentId, { name: 1 })
         if (! opponentUser) {
             res.status(404).json({ error: "USER_NOT_FOUND" })
