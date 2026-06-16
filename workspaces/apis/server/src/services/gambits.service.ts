@@ -1,11 +1,12 @@
 import { CharacterModel } from "@models/character.model"
-import { GambitModel, type GambitDocument } from "@models/gambit.model"
+import { GambitModel } from "@models/gambit.model"
+import { CharacterName, Gambit } from "@reflexer/engine"
 import type { Types } from "mongoose"
 
 export type GambitsByCharacter = {
     characterId: Types.ObjectId
-    characterName: string
-    gambits: GambitDocument[]
+    characterName: CharacterName
+    gambits: Gambit[]
 }
 
 export async function getUserGambitsByCharacter(userId: string): Promise<GambitsByCharacter[]> {
@@ -16,11 +17,15 @@ export async function getUserGambitsByCharacter(userId: string): Promise<Gambits
             const gambits = await GambitModel
                 .find({ userId, characterId: character._id })
                 .sort({ priority: 1 })
+                .lean()
 
             return {
                 characterId: character._id,
                 characterName: character.characterName,
-                gambits
+                gambits: gambits.map<Gambit>(gambit => ({
+                    ...gambit,
+                    id: gambit._id,
+                }))
             }
         })
     )

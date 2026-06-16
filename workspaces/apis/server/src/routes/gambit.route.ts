@@ -33,9 +33,9 @@ router.post("/", async (req, res) => {
             conditions,
             targetSelector,
             intent
-        })        
+        })
 
-        res.status(201).json(gambit)
+        res.status(201).json({ ...gambit, id: gambit._id })
     } catch (error) {
         res.status(400).json({ error: "Unable to create gambit", details: error })
     }
@@ -49,7 +49,7 @@ router.patch("/:id", async (req, res) => {
             { new: true }
         )
         if (! gambit) return res.status(404).json({ error: "Gambit not found" })
-        res.json(gambit)
+        res.json({ ...gambit, id: gambit._id })
     } catch (error) {
         res.status(400).json({ error: "Unable to update gambit", details: error })
     }

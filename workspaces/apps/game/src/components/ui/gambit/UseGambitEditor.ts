@@ -34,7 +34,7 @@ export function useGambitEditor(userId: string) {
       .catch((err) => console.error('Erreur chargement character:', err));
 
         GambitService.getUserGambitsByCharacter(userId)
-        .then((gambitsByCharacter) => {                        
+        .then((gambitsByCharacter) => {                                                
             const characterData = gambitsByCharacter.find(c => c.characterId === characterId)
             setGambits(characterData?.gambits ?? [])
         })
@@ -113,7 +113,7 @@ export function useGambitEditor(userId: string) {
           prev.map((g) =>
             g.id === editingGambitId
               ? {
-                  id: updated._id,
+                  id: updated.id,
                   name: updated.name,
                   priority: updated.priority,
                   conditions: updated.conditions,
@@ -133,7 +133,7 @@ export function useGambitEditor(userId: string) {
         setGambits((prev) => [
           ...prev,
           {
-            id: created._id,
+            id: created.id,
             name: created.name,
             priority: created.priority,
             conditions: created.conditions,

@@ -18,12 +18,8 @@ export async function buildTeamFromUserId(userId: Types.ObjectId): Promise<TeamM
                 baseStats: character.baseStats,
                 activePassiveIds: [],
                 gambits: gambits.map<Gambit>(g => ({
-                    id: g._id.toString(),
-                    name: g.name,
-                    priority: g.priority,
-                    conditions: g.conditions,
-                    targetSelector: g.targetSelector,
-                    intent: g.intent
+                    ...g,
+                    id: g._id.toString()
                 }))
             }
         })

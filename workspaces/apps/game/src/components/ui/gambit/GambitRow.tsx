@@ -9,6 +9,7 @@ import { IconEdit } from '../../../assets/icons/IconEdit';
 import { IconTrash } from '../../../assets/icons/IconTrash';
 import { Styles_gambit_row } from './Gambit.styles';
 import { renderConditionNode, renderFilterText } from './gambit.utils';
+import type { Gambit } from '@reflexer/engine';
 
 interface GambitRowProps {
   gambit: Gambit;
