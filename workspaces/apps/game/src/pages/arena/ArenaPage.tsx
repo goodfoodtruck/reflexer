@@ -9,6 +9,7 @@ import FriendlyFightsSection from "@pages/arena/dashboard/sections/friendly/Frie
 import { useRankedFightsHistory } from "@pages/arena/hooks/useRankedFightsHistory"
 import RankedSection from "@pages/arena/dashboard/sections/ranked/RankedSection"
 import { useUserRanking } from "@pages/arena/hooks/useUserRanking"
+import ArenaLoadingOverlay from "./ArenaLoadingOverlay"
 
 const ArenaPage: React.FC = () => {
     const navigate = useNavigate()
@@ -16,14 +17,12 @@ const ArenaPage: React.FC = () => {
 
     if (! user) return null
 
-    const { userRanking, error: userRankingError } = useUserRanking(user.id)    
-    const { fights: friendlyFights, error: friendlyFightsError } = useFriendlyFightsHistory(user.id)
-    const { fights: rankedFights, error: rankedFightsError } = useRankedFightsHistory(user.id)
+    const { userRanking, loading: rankingLoading, error: userRankingError } = useUserRanking(user.id)    
+    const { fights: friendlyFights, loading: friendlyLoading, error: friendlyFightsError } = useFriendlyFightsHistory(user.id)
+    const { fights: rankedFights, loading: rankedLoading, error: rankedFightsError } = useRankedFightsHistory(user.id)
 
-    if (! userRanking) return <ErrorAlert error="Aucun ranking trouvé pour l'utilisateur."/>
-    if (userRankingError) return <ErrorAlert error={userRankingError}/>
-    if (friendlyFightsError) return <ErrorAlert error={friendlyFightsError}/>
-    if (rankedFightsError) return <ErrorAlert error={rankedFightsError}/>
+    const isLoading = rankingLoading || friendlyLoading || rankedLoading
+    const error = userRankingError || friendlyFightsError || rankedFightsError
 
     return (
         <div className="w-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30">
@@ -35,20 +34,31 @@ const ArenaPage: React.FC = () => {
 
             <div className="relative z-10 flex flex-col h-full">
                 <Header title="Arène" subtitle="PvP" onBack={() => navigate("/")} />
-                
-                <div className="flex flex-col p-4 gap-8">
-                    <RankedSection 
-                        user={user} 
-                        userRanking={userRanking}
-                        userRankedFightsHistory={rankedFights}
-                    />
 
-                    <FriendlyFightsSection 
-                        user={user} 
-                        userFriendlyFightsHistory={friendlyFights}
-                    />
+                <div className="flex flex-col p-4 gap-8">
+                    {! isLoading && (
+                        error ? (
+                            <ErrorAlert error={error} />
+                        ) : (! userRanking) ? (
+                            <ErrorAlert error="Aucun ranking trouvé pour l'utilisateur." />
+                        ) : (
+                            <>
+                                <RankedSection
+                                    user={user}
+                                    userRanking={userRanking}
+                                    userRankedFightsHistory={rankedFights}
+                                />
+                                <FriendlyFightsSection
+                                    user={user}
+                                    userFriendlyFightsHistory={friendlyFights}
+                                />
+                            </>
+                        )
+                    )}
                 </div>
             </div>
+
+            {isLoading && <ArenaLoadingOverlay variant="overlay" label="Chargement de l'arène…" />}
         </div>
     )
 }

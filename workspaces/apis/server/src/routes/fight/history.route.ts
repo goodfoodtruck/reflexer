@@ -1,5 +1,5 @@
 import { PveFightModel } from "@models/fight/pveFight.model"
-import { PvpFightModel, PvpFightSchema } from "@models/fight/pvpFight.model"
+import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { Router } from "express"
 
 const router = Router()

@@ -42,7 +42,7 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
     }
 
     const findMatch = async () => {
-        if (!user) return
+        if (! user) return
         setMatchmaking({ status: "searching" })
 
         try {
