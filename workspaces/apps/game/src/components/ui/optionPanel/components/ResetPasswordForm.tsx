@@ -1,5 +1,10 @@
 import { STYLES } from "../optionsPanelStyle";
-import { useResetPassword } from "../useResetPassword";
+import { useState } from 'react';
+import { useAuth } from '../../../../hooks/useAuth';
+import { SecretQuestionField } from "@components/ui/auth/SecretQuestionField";
+import { FormField } from "@components/ui/auth/FormField";
+import { AlertMessage } from "@components/ui/auth/AlertMessage";
+import { SubmitButton } from "@components/ui/auth/SubmitButton";
 
 type Props = {
   userName: string;
@@ -7,56 +12,40 @@ type Props = {
   onBack: () => void;
 };
 
-const SECRET_QUESTION = 'Quel est le prénom de votre mère ?';
-
 export function ResetPasswordForm({ userName, onSuccess, onBack }: Props) {
-  const {
-    secretAnswer,
-    setSecretAnswer,
-    newPassword,
-    setNewPassword,
-    error,
-    loading,
-    isDisabled,
-    submit
-  } = useResetPassword(userName);
+  const { resetPassword, loading } = useAuth();
 
-  const handleSubmit = async () => {
-    const ok = await submit();
-    if (ok) onSuccess();
+  const [secretAnswer, setSecretAnswer] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const isDisabled = loading || secretAnswer.trim() === '' || newPassword === '';
+
+  const onSubmit = async () => {
+    setError(null);
+    try {
+      await resetPassword(userName, secretAnswer, newPassword);
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur');
+    }
   };
 
   return (
     <div className={STYLES.form}>
-      <div>
-        <p className={STYLES.label}>Question secrète</p>
-        <p className={STYLES.question}>{SECRET_QUESTION}</p>
-        <input
-          type="text"
-          className={STYLES.input}
-          placeholder="Votre réponse"
-          value={secretAnswer}
-          onChange={(e) => setSecretAnswer(e.target.value)}
-          autoFocus
-        />
-      </div>
+      <SecretQuestionField value={secretAnswer} onChange={setSecretAnswer} />
 
-      <div>
-        <p className={STYLES.label}>Nouveau mot de passe</p>
-        <input
-          type="password"
-          className={STYLES.input}
-          placeholder="••••••••"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </div>
+      <FormField
+        label="Nouveau mot de passe"
+        type="password"
+        placeholder="••••••••"
+        value={newPassword}
+        onChange={setNewPassword}
+      />
 
-      {error && <div className={STYLES.error}>{error}</div>}
+      {error && <AlertMessage type="error" message={error} />}
 
-      <button onClick={handleSubmit} disabled={isDisabled} className={STYLES.submitBtn}>
-        {loading ? '...' : 'Confirmer'}
-      </button>
+      <SubmitButton label="Confirmer" loading={loading} disabled={isDisabled} onClick={onSubmit} />
 
       <button onClick={onBack} className={STYLES.backBtn}>
         Retour
