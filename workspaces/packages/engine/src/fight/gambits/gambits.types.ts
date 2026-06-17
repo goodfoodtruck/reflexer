@@ -130,10 +130,16 @@ type TargetContext =
  * - HIGHEST_HP : celle avec le plus de HP restants
  */
 export type TargetSort =
+    // HP
     | "LOWEST_HP"
     | "HIGHEST_HP"
+    // ARMOR
     | "LOWEST_ARMOR"
     | "HIGHEST_ARMOR"
+    // ENERGY
+    | "LOWEST_ENERGY"
+    | "HIGHEST_ENERGY"
+    // DISTANCE
     | "NEAREST"
     | "FURTHEST"
     | "NEAREST_FROM_ALLY"

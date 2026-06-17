@@ -9,6 +9,8 @@ import { getNearestTarget, getFurthestTarget } from "@fight/gambits/resolvers/ta
 import { getNearestFromGroup, getFurthestFromGroup } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromGroup";
 import { getHighestArmorTarget } from "@fight/gambits/resolvers/target/extractors/armor/highestArmorTarget";
 import { getLowestArmorTarget } from "@fight/gambits/resolvers/target/extractors/armor/lowestArmorTarget";
+import { getLowestEnergyTarget } from "@fight/gambits/resolvers/target/extractors/energy/lowestEnergyTarget";
+import { getHighestEnergyTarget } from "@fight/gambits/resolvers/target/extractors/energy/highestEnergyTarget";
 
 export class GambitTargetResolver {
 
@@ -68,6 +70,9 @@ export class GambitTargetResolver {
 
             case "LOWEST_ARMOR": return getLowestArmorTarget(candidates)
             case "HIGHEST_ARMOR": return getHighestArmorTarget(candidates)
+
+            case "LOWEST_ENERGY": return getLowestEnergyTarget(candidates)
+            case "HIGHEST_ENERGY": return getHighestEnergyTarget(candidates)
         }
     }
 }
