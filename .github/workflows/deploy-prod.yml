@@ -78,6 +78,8 @@ jobs:
           context: .
           file: workspaces/apps/game/Dockerfile
           push: true
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
           tags: |
             ${{ env.WEB_IMAGE }}:latest
             ${{ env.WEB_IMAGE }}:${{ github.sha }}
