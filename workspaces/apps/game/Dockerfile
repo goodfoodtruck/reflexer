@@ -19,6 +19,10 @@ RUN pnpm --filter @reflexer/engine build
 
 # front (vite lit .env.production automatiquement en mode build)
 COPY workspaces/apps/game workspaces/apps/game
+
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN pnpm --filter game build
 
 # ---- runtime ----
