@@ -2,26 +2,26 @@ import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { DisplayGambit } from './GambitTypes';
-import { DragIcon } from '../../../assets/icons/IconDrag';
-import { ChevronIcon } from '../../../assets/icons/IconChevron';
-import { ArrowRightIcon } from '../../../assets/icons/IconArrowRight';
-import { IconEdit } from '../../../assets/icons/IconEdit';
-import { IconTrash } from '../../../assets/icons/IconTrash';
+import { DragIcon } from '@assets/icons/IconDrag';
+import { ChevronIcon } from '@assets/icons/IconChevron';
+import { ArrowRightIcon } from '@assets/icons/IconArrowRight';
+import { IconEdit } from '@assets/icons/IconEdit';
+import { IconTrash } from '@assets/icons/IconTrash';
 import { Styles_gambit_row } from './Gambit.styles';
 import { renderConditionNode, renderFilterText } from './gambit.utils';
+import type { StoredGambit } from '@services/gambit.service';
 
 interface GambitRowProps {
-  gambit: DisplayGambit;
+  gambit: StoredGambit;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
+export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {    
   const [isOpen, setIsOpen] = useState(false);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: gambit.id
+    id: gambit._id
   });
 
   const containerStyle = isDragging

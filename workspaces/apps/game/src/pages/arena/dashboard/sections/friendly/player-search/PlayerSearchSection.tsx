@@ -14,7 +14,7 @@ const PlayerSearchSection: React.FC<PlayerSearchSectionProps> = ({ currentUser, 
     const { query, setQuery, results, loading, error } = usePlayerSearch(currentUser.id)
 
     return (
-        <div className="w-full flex flex-col gap-4 bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6">
+        <div className="w-full flex flex-col gap-4 bg-slate-900/60 border border-slate-700/80 rounded-2xl p-6">
             <PlayerSearchInput query={query} loading={loading} onChange={setQuery} />
 
             {error && <ErrorAlert error={error} />}

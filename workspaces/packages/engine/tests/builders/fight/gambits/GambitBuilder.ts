@@ -8,10 +8,9 @@ import {
 } from "@gambits/gambits.types";
 import { buildTargetSelector } from "@tests/builders/fight/gambits/TargetSelectorBuilder";
 
-// Gambits
 export function buildGambit(overrides: Partial<Gambit> = {}): Gambit {
     return {
-        id: "test_gambit",
+        name : "Test Gambit",
         priority: 1,
         conditions: buildExistsCondition(),
         intent: buildActionIntent(),

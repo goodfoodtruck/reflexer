@@ -1,14 +1,50 @@
-import type { BasePvpFight, RankedFight } from "@shared/fight.types"
+import type { BasePvpFight, RankedFight } from "../../shared/types/fight.types"
 import { api } from "@services/api"
-import type { User } from "@services/user.service"
+import type { AuthUser } from "@hooks/useAuth"
+
+export type RankedUser = {
+    user: AuthUser
+    ranking: {
+        eloBefore: number
+        eloAfter: number
+        eloDelta: number
+        won: boolean
+    }
+}
+
+export type FightRankingData = {
+    fightId:           string
+    userId:            string
+    opponentId:        string
+    winnerId:          string
+    userEloBefore:     number
+    userEloAfter:      number
+    opponentEloBefore: number
+    opponentEloAfter:  number
+    eloDeltaUser:      number
+    eloDeltaOpponent:  number
+}
 
 export type PlayRankedFightResponse = BasePvpFight & {
-    playerUser:   User
-    opponentUser: User
-    // + données ranked
+    player: RankedUser
+    opponent: RankedUser
+    fightRankingData: FightRankingData
+}
+
+export type FightRanking = {
+    fightId: string
+    userId: string
+    opponentId: string
+    winnerId: string
+    userEloBefore: number
+    userEloAfter: number
+    opponentEloBefore: number
+    opponentEloAfter: number
+    eloDeltaUser: number
+    eloDeltaOpponent: number
 }
 
 export const RankedFightService = {
-    findAndPlayMatch: (userId: string) => api.post<PlayRankedFightResponse>("/fights/ranked", { playerId: userId }),
+    findAndPlayMatch: (userId: string) => api.post<PlayRankedFightResponse>("/fights/ranked", { userId }),
     getHistory: (userId: string) => api.get<RankedFight[]>(`/fights/history/ranked/${userId}`)
 }

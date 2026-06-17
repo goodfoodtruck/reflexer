@@ -8,6 +8,8 @@ import { useFriendlyFightsHistory } from "./hooks/useFriendlyFightsHistory"
 import FriendlyFightsSection from "@pages/arena/dashboard/sections/friendly/FriendlyFightsSection"
 import { useRankedFightsHistory } from "@pages/arena/hooks/useRankedFightsHistory"
 import RankedSection from "@pages/arena/dashboard/sections/ranked/RankedSection"
+import { useUserRanking } from "@pages/arena/hooks/useUserRanking"
+import ArenaLoadingOverlay from "./ArenaLoadingOverlay"
 
 const ArenaPage: React.FC = () => {
     const navigate = useNavigate()
@@ -15,34 +17,52 @@ const ArenaPage: React.FC = () => {
 
     if (! user) return null
 
-    const { fights: friendlyFights, error: friendlyFightsError } = useFriendlyFightsHistory(user.id)
-    const { fights: rankedFights, error: rankedFightsError } = useRankedFightsHistory(user.id)
+    const { userRanking, loading: rankingLoading, error: userRankingError } = useUserRanking(user.id)    
+    const { fights: friendlyFights, loading: friendlyLoading, error: friendlyFightsError } = useFriendlyFightsHistory(user.id)
+    const { fights: rankedFights, loading: rankedLoading, error: rankedFightsError } = useRankedFightsHistory(user.id)
 
-    if (friendlyFightsError) return <ErrorAlert error={friendlyFightsError}/>
-    if (rankedFightsError) return <ErrorAlert error={rankedFightsError}/>
+    const isLoading = rankingLoading || friendlyLoading || rankedLoading
+    const error = userRankingError || friendlyFightsError || rankedFightsError
 
     return (
-        <div className="w-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30">
+        <div className="w-full min-h-screen relative overflow-x-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30">
             <AnimatedBackground />
 
             <div className="absolute inset-0 z-0">
                 <img src={bgHomeImage} alt="background" className="w-full h-full object-cover opacity-15" />
             </div>
 
-            <div className="relative z-10 flex flex-col h-full">
+            <div className="relative z-10 flex flex-col flex-1">
                 <Header title="Arène" subtitle="PvP" onBack={() => navigate("/")} />
-                <div className="flex flex-col p-4 gap-8">
-                    <RankedSection 
-                        user={user} 
-                        userRankedFightsHistory={rankedFights}
-                    />
 
-                    <FriendlyFightsSection 
-                        user={user} 
-                        userFriendlyFightsHistory={friendlyFights}
-                    />
+                <div className="flex flex-col flex-1 p-3 gap-8">
+                    {!isLoading && (
+                        error ? (
+                            <ErrorAlert error={error} />
+                        ) : !userRanking ? (
+                            <ErrorAlert error="Aucun ranking trouvé pour l'utilisateur." />
+                        ) : (
+                            <div className="flex flex-col lg:flex-row flex-1 gap-4">
+                                <div className="w-full lg:basis-[60%] lg:min-w-0">
+                                    <RankedSection
+                                        user={user}
+                                        userRanking={userRanking}
+                                        userRankedFightsHistory={rankedFights}
+                                    />
+                                </div>
+                                <div className="w-full lg:flex-1 lg:min-w-0">
+                                    <FriendlyFightsSection
+                                        user={user}
+                                        userFriendlyFightsHistory={friendlyFights}
+                                    />
+                                </div>
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
+
+            {isLoading && <ArenaLoadingOverlay variant="overlay" label="Chargement de l'arène…" />}
         </div>
     )
 }

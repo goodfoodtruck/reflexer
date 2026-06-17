@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import type { DraftGambit, DisplayGambit } from './GambitTypes';
+import type { DraftGambit } from './GambitTypes';
 import { Style_gambit_edition } from './Gambit.styles';
 import { SituationStep } from './addGambit/Step1';
 import { ConditionStep } from './addGambit/Step2';
 import { IntentStep } from './addGambit/Step3/IntentStep';
 import { TargetStep } from './addGambit/Step4/TargetStep';
 import { buildInitialDraft } from './gambit.utils';
+import type { StoredGambit } from '@services/gambit.service';
 
 const STEPS = [
   { num: 1, label: 'Situation' },
@@ -16,7 +17,7 @@ const STEPS = [
 ];
 
 interface Props {
-  initialGambit?: DisplayGambit;
+  initialGambit?: StoredGambit;
   onCancel: () => void;
   onSave: (gambit: DraftGambit) => void;
 }

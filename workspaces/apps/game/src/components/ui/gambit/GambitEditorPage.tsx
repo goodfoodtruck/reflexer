@@ -8,8 +8,11 @@ import { GambitEdition } from './GambitEdition';
 import { Styles_gambit_editor } from './Gambit.styles';
 import { useGambitEditor } from './UseGambitEditor';
 import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../guide";
+import { useAuth } from '@hooks/useAuth';
 
 export function GambitEditorPage() {
+    const { user } = useAuth()
+    if (! user) return null
   const {
     navigate,
     character,
@@ -23,7 +26,7 @@ export function GambitEditorPage() {
     handleAddClick,
     handleCancelEdit,
     handleSaveGambit
-  } = useGambitEditor();
+  } = useGambitEditor(user.id);
 
   const guide = useGuide("gambit-editor", GUIDES["gambit-editor"]);
 

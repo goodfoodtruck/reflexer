@@ -4,7 +4,7 @@ import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
-import type { BasePvpFight } from "@shared/fight.types"
+import type { BasePvpFight } from "../../../../shared/types/fight.types"
 
 export function useCombatScene(fight: BasePvpFight, isTransitionFinished: boolean) {
     const containerRef = useRef<HTMLDivElement>(null)

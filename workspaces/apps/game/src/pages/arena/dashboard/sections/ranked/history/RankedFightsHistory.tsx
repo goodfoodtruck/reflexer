@@ -1,18 +1,14 @@
 import { useNavigate } from "react-router-dom"
-import { AnimatePresence, motion } from "framer-motion"
-import type { RankedFight, BasePvpFight } from "@shared/fight.types"
+import type { RankedFight, BasePvpFight } from "../../../../../../shared/types/fight.types"
 import { useFightOpponentNames } from "@pages/arena/hooks/useFightOpponentNames"
 import type { AuthUser } from "@hooks/useAuth"
-import EmptyHistory from "@pages/arena/dashboard/fight-history/EmptyHistory"
-import FightHistoryRow from "@pages/arena/dashboard/fight-history/FightHistoryRow"
-
+import FightHistoryList from "@pages/arena/dashboard/fight-history/FightHistoryList"
+import RankedFightRow from "@pages/arena/dashboard/sections/ranked/history/RankedFightRow"
 
 interface RankedFightsHistoryProps {
     user: AuthUser
     fights: RankedFight[]
 }
-
-const MAX_VISIBLE = 5
 
 const RankedFightsHistory: React.FC<RankedFightsHistoryProps> = ({ user, fights }) => {
     const navigate = useNavigate()
@@ -34,40 +30,24 @@ const RankedFightsHistory: React.FC<RankedFightsHistoryProps> = ({ user, fights 
     }
 
     return (
-        <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <h2 className="text-[14px] font-black tracking-[0.3em] uppercase text-amber-500">
-                    Historique
-                </h2>
-            </div>
+        <div className="bg-slate-900/60 border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-6">
+            <h2 className="text-[14px] font-black tracking-[0.3em] uppercase text-amber-500">
+                Historique
+            </h2>
 
-            <AnimatePresence mode="wait">
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.15 }}
-                >
-                    {fights.length === 0 ? (
-                        <EmptyHistory />
-                    ) : (
-                        <div className={`flex flex-col gap-2 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent pr-1 ${
-                            fights.length > MAX_VISIBLE ? "max-h-75" : ""
-                        }`}>
-                            {fights.map((fight, index) => (
-                                <FightHistoryRow
-                                    key={fight._id}
-                                    fight={fight}
-                                    playerId={user.id}
-                                    opponentName={getOpponentName(fight)}
-                                    index={index}
-                                    onClick={() => onFightClick(fight)}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </motion.div>
-            </AnimatePresence>
+            <FightHistoryList
+                fights={fights}
+                renderRow={(fight, index) => (
+                    <RankedFightRow
+                        key={fight._id}
+                        fight={fight}
+                        playerId={user.id}
+                        opponentName={getOpponentName(fight)}
+                        index={index}
+                        onReplay={() => onFightClick(fight)}
+                    />
+                )}
+            />
         </div>
     )
 }

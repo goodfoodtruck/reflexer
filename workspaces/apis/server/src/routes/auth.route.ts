@@ -1,7 +1,8 @@
 import { Router } from "express"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import { UserModel } from "../models/user.model"
+import { UserModel } from "@models/user.model"
+import { UserRankingModel } from "@models/ranked/user_ranking.model"
 
 const router      = Router()
 const JWT_SECRET  = process.env.JWT_SECRET ?? "reflexer_secret"
@@ -38,6 +39,9 @@ router.post("/register", async (req, res) => {
             password:     hashedPassword,
             secretAnswer: hashedSecretAnswer,
         })
+
+        // chaque joueur a des données de ranking par defaut
+        await UserRankingModel.create({ userId: user._id })
 
         const token = jwt.sign(
             { userId: user._id.toString(), name: user.name },

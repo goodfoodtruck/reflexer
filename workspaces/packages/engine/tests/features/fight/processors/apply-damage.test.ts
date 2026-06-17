@@ -12,7 +12,7 @@ describe("DamageApplyProcessor", () => {
         const fightContext = buildFightContext([{}], [{}])
         const processor = new DamageApplyProcessor()
 
-        const execState: ExecutionState = { computedDamage: 15, computedHeal: 0 }
+        const execState: ExecutionState = { computedDamage: 15, computedHeal: 0, computedEnergy: 0 }
         processor.execute(ctx, execState, fightContext)
 
         expect(fightContext.getEntityById("enemy_0")!.currentStats.health).toBe(85)

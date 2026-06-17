@@ -27,7 +27,7 @@
       "@services/*":   ["./src/services/*"],
       "@assets/*":     ["./src/assets/*"],
       "@features/*":   ["./src/features/*"],
-      "@shared/*":     ["./src/types/*"],
+      "@shared/*":     ["./src/shared/*"],
     }
   },
   "include": ["src"]

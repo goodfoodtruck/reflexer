@@ -1,5 +1,5 @@
-import type { AnyFilter, ConditionGroup } from '@reflexer/engine';
-import type { DraftCondition, DraftGambit, DisplayGambit } from './GambitTypes';
+import type { AnyFilter, ConditionGroup, Gambit } from '@reflexer/engine';
+import type { DraftCondition, DraftGambit } from './GambitTypes';
 import { conditionsToDraft, passiveIdToStatusLabel, rangeToLabel, targetFiltersToDraft } from './gambit.adapter';
 import { Styles_gambit_row } from './Gambit.styles';
 
@@ -86,7 +86,7 @@ export function extractDraftConditions(cond: ConditionGroup): DraftCondition[] {
   return conditionsToDraft(cond);
 }
 
-export function buildInitialDraft(initialGambit?: DisplayGambit): DraftGambit {
+export function buildInitialDraft(initialGambit?: Gambit): DraftGambit {
   if (!initialGambit) {
     return {
       name: '',

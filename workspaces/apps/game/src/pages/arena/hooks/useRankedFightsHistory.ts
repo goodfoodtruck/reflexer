@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { RankedFightService } from "@services/fight/rankedFight.service"
-import type { RankedFight } from "@shared/fight.types"
+import type { RankedFight } from "@shared/types/fight.types"
 
 export function useRankedFightsHistory(userId: string) {
     const [fights, setFights] = useState<RankedFight[]>([])
@@ -10,7 +10,7 @@ export function useRankedFightsHistory(userId: string) {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const data = await RankedFightService.getHistory(userId)                
+                const data = await RankedFightService.getHistory(userId)
                 setFights(data)
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Erreur de chargement")

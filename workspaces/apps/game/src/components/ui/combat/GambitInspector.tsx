@@ -127,7 +127,7 @@ function GambitDetail({ gambit }: { gambit: Gambit }) {
                     {String(gambit.priority).padStart(2, "0")}
                 </span>
                 <span className="text-sm font-bold text-slate-100 truncate capitalize">
-                    {(gambit.name ?? gambit.id).replace(/[_-]+/g, " ")}
+                    {gambit.name}
                 </span>
             </div>
 

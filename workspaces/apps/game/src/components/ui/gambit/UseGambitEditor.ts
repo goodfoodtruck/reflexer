@@ -8,44 +8,37 @@ import {
   type DragEndEvent
 } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { GambitService } from '../../../services';
-import type { DraftGambit, DisplayGambit } from './GambitTypes';
+import { GambitService, type StoredGambit } from '@services/gambit.service';
+import type { DraftGambit } from './GambitTypes';
 import { draftToConditions, draftToIntent, draftToTargetSelector } from './gambit.adapter';
 import { CharacterService, type Character } from '@services/character.service';
 
-export function useGambitEditor() {
-  const { caracterId } = useParams<{ caracterId: string }>();
+export function useGambitEditor(userId: string) {
+
+  const { characterId } = useParams<{ characterId: string }>();
   const navigate = useNavigate();
 
   const [character, setCharacter] = useState<Character | null>(null);
-  const [gambits, setGambits] = useState<DisplayGambit[]>([]);
+  const [gambits, setGambits] = useState<StoredGambit[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingGambitId, setEditingGambitId] = useState<string | null>(null);
 
-  const gambitToEdit = editingGambitId ? gambits.find((g) => g.id === editingGambitId) : undefined;
-
+  const gambitToEdit = editingGambitId ? gambits.find((g) => g._id === editingGambitId) : undefined;
+  
   useEffect(() => {
-    if (!caracterId) return;
+    if (! characterId) return;
 
-    CharacterService.getById(caracterId)
+    CharacterService.getById(characterId)
       .then(setCharacter)
       .catch((err) => console.error('Erreur chargement character:', err));
 
-    GambitService.getAllByCharacter(caracterId)
-      .then((docs) => {
-        setGambits(
-          docs.map((doc) => ({
-            id: doc._id,
-            name: doc.name,
-            priority: doc.priority,
-            conditions: doc.conditions,
-            targetSelector: doc.targetSelector,
-            intent: doc.intent
-          }))
-        );
-      })
-      .catch((err) => console.error('Erreur chargement gambits:', err));
-  }, [caracterId]);
+        GambitService.getUserGambitsByCharacter(userId)
+        .then((gambitsByCharacter) => {                                                
+            const characterData = gambitsByCharacter.find(c => c.characterId === characterId)
+            setGambits(characterData?.gambits ?? [])
+        })
+        .catch((err) => console.error("Erreur chargement gambits:", err))
+  }, [characterId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -57,14 +50,14 @@ export function useGambitEditor() {
     if (!over || active.id === over.id) return;
 
     setGambits((items) => {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over.id);
+      const oldIndex = items.findIndex((item) => item._id === active.id);
+      const newIndex = items.findIndex((item) => item._id === over.id);
       const reordered = arrayMove(items, oldIndex, newIndex).map((g, index) => ({
         ...g,
         priority: index + 1
       }));
       reordered.forEach((g) =>
-        GambitService.update(g.id, { priority: g.priority }).catch(console.error)
+        GambitService.update(g._id, { priority: g.priority }).catch(console.error)
       );
       return reordered;
     });
@@ -74,7 +67,7 @@ export function useGambitEditor() {
     try {
       await GambitService.delete(id);
       setGambits((prev) =>
-        prev.filter((g) => g.id !== id).map((g, index) => ({ ...g, priority: index + 1 }))
+        prev.filter((g) => g._id !== id).map((g, index) => ({ ...g, priority: index + 1 }))
       );
       if (editingGambitId === id) {
         setIsEditing(false);
@@ -101,8 +94,8 @@ export function useGambitEditor() {
   };
 
   const handleSaveGambit = async (draft: DraftGambit) => {
-    if (!caracterId) return;
-
+    if (!characterId) return;
+    
     const finalConditions = draftToConditions(draft);
     const targetSelector = draftToTargetSelector(draft);
     const intent = draftToIntent(draft);
@@ -117,9 +110,9 @@ export function useGambitEditor() {
         });
         setGambits((prev) =>
           prev.map((g) =>
-            g.id === editingGambitId
+            g._id === editingGambitId
               ? {
-                  id: updated._id,
+                  _id: updated.id,
                   name: updated.name,
                   priority: updated.priority,
                   conditions: updated.conditions,
@@ -130,16 +123,17 @@ export function useGambitEditor() {
           )
         );
       } else {
-        const created = await GambitService.add(draft.name, caracterId, {
+        const created = await GambitService.add(userId, draft.name, characterId, {
           priority: gambits.length + 1,
           conditions: finalConditions,
           targetSelector,
           intent
         });
+        
         setGambits((prev) => [
           ...prev,
           {
-            id: created._id,
+            _id: created._id,
             name: created.name,
             priority: created.priority,
             conditions: created.conditions,
@@ -155,7 +149,7 @@ export function useGambitEditor() {
   }
 
   return {
-    caracterId,
+    characterId,
     navigate,
     character,
     gambits,

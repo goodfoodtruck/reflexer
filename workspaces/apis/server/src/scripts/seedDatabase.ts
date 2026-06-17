@@ -3,6 +3,7 @@ import { MOCK_CHARACTERS, type CharacterName } from "@reflexer/engine"
 import { UserModel } from "@models/user.model"
 import { CharacterModel } from "@models/character.model"
 import { GambitModel } from "@models/gambit.model"
+import { UserRankingModel } from "@models/ranked/user_ranking.model"
 
 // Personnages jouables (les autres entrées de MOCK_CHARACTERS sont des ennemis).
 const PLAYABLE: CharacterName[] = ["CHARACTER_1", "CHARACTER_2"]
@@ -25,6 +26,7 @@ export async function seedDatabase(): Promise<void> {
     //    ancien seed à _id auto-généré).
     for (const user of SEED_USERS) {
         await UserModel.findByIdAndUpdate(user.id, { $set: { name: user.name } }, { upsert: true })
+        await UserRankingModel.create({ userId: user.id })
     }
     await UserModel.deleteMany({
         name: { $in: SEED_USERS.map(u => u.name) },
@@ -51,7 +53,7 @@ export async function seedDatabase(): Promise<void> {
             MOCK_CHARACTERS[characterName].gambits.map(gambit => ({
                 userId:         user.id,
                 characterId:    charactersByName.get(characterName)!,
-                name:           gambit.id,
+                name:           gambit.name,
                 priority:       gambit.priority,
                 conditions:     gambit.conditions,
                 targetSelector: gambit.targetSelector,

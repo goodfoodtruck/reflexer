@@ -1,89 +1,96 @@
 import { useState } from "react"
+import { AnimatePresence } from "framer-motion"
 import { type AuthUser } from "@hooks/useAuth"
 import { RankedFightService, type PlayRankedFightResponse } from "@services/fight/rankedFight.service"
-import { motion } from 'framer-motion'
 import Leaderboard from "./learderboard/Leaderboard"
 import { useNavigate } from "react-router-dom"
 import ErrorAlert from "@components/shared/ErrorAlert"
-import type { RankedFight } from "@shared/fight.types"
+import type { RankedFight } from "@shared/types/fight.types"
 import PlayerStats from "@pages/arena/dashboard/player-stats/PlayerStats"
 import RankedFightsHistory from "./history/RankedFightsHistory"
+import type { UserRankingResponse } from "@services/userRanking.service"
+import NewGameButton from "./new-game/NewGameButton"
+import UserRankedProfile from "./user-profile/UserRankedProfile"
+import { withMinimumDuration } from "@shared/helpers/timing"
+import MatchmakingOverlay from "./new-game/MatchMakingOverlay"
+
+const MATCHMAKING_MIN_DURATION_MS = 4000
+
+type MatchmakingState =
+    | { status: "idle" }
+    | { status: "searching" }
+    | { status: "failed"; reason: string }
 
 interface RankedSectionProps {
     userRankedFightsHistory: RankedFight[]
+    userRanking: UserRankingResponse
     user: AuthUser
 }
 
-const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, user }) => {
+const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, userRanking, user }) => {
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [matchmaking, setMatchmaking] = useState<MatchmakingState>({ status: "idle" })
 
     const onFightReady = (fight: PlayRankedFightResponse) => {
-        navigate("/fight", { 
+        navigate("/fight", {
             state: {
-                playerName: fight.playerUser.name,
-                opponentName: fight.opponentUser.name,
-                fight: { ...fight }
-            } 
+                playerName: fight.player.user.name,
+                opponentName: fight.opponent.user.name,
+                fight: { ...fight },
+            },
         })
     }
 
-    const onFindMatch = async () => {
+    const findMatch = async () => {
         if (! user) return
-        setError(null)
-        setLoading(true)
+        setMatchmaking({ status: "searching" })
 
         try {
-            const result = await RankedFightService.findAndPlayMatch(user.id)
-            setTimeout(() => {}, 2000)
+            const result = await withMinimumDuration(
+                RankedFightService.findAndPlayMatch(user.id),
+                MATCHMAKING_MIN_DURATION_MS,
+            )
             onFightReady(result)
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Impossible de trouver un adversaire")
-        } finally {
-            setLoading(false)
+            setMatchmaking({
+                status: "failed",
+                reason: err instanceof Error ? err.message : "Impossible de trouver un adversaire",
+            })
         }
     }
 
-    if (! user) return null // TODO: redirection login ?
+    if (!user) return null // TODO: redirection login ?
 
     return (
-        <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
+        <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-5 h-full">
             <div className="flex flex-col justify-between gap-6">
                 <h2 className="text-[15px] font-black tracking-[0.3em] uppercase text-white-500">
-                    Parties classées
+                    Classé
                 </h2>
                 <div className="w-full h-px bg-slate-700"></div>
             </div>
 
-            <motion.button
-                onClick={onFindMatch}
-                disabled={loading}
-                className="w-max p-4 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black tracking-widest uppercase text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-            >
-                {loading ? (
-                    <span className="flex items-center justify-center gap-3">
-                        <motion.span
-                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full inline-block"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                        />
-                        Recherche d'un adversaire...
-                    </span>
-                ) : (
-                    "Nouvelle partie classée"
-                )}
-            </motion.button>
+            <UserRankedProfile user={user} userRanking={userRanking.ranking} />
 
-            { error && <ErrorAlert error={error}/> }
+            <NewGameButton findMatch={findMatch} isSearching={matchmaking.status === "searching"} />
 
-            <PlayerStats playerFights={userRankedFightsHistory} playerId={user.id}/>
+            {matchmaking.status === "failed" && <ErrorAlert error={matchmaking.reason} />}
+
+            <PlayerStats
+                wins={userRanking.ranking.wins}
+                losses={userRanking.ranking.losses}
+                totalGames={userRanking.ranking.totalGames}
+                currentWinstreak={userRanking.ranking.currentWinstreak}
+                highestWinstreak={userRanking.ranking.highestWinstreak}
+            />
 
             <RankedFightsHistory user={user} fights={userRankedFightsHistory} />
 
             <Leaderboard />
+
+            <AnimatePresence>
+                {matchmaking.status === "searching" && <MatchmakingOverlay />}
+            </AnimatePresence>
         </div>
     )
 }
