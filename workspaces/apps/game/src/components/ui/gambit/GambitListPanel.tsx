@@ -7,14 +7,14 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GambitRow } from './GambitRow';
-import { AvatarIcon } from '../../../assets/icons/IconAvatar';
-import { AddIcon } from '../../../assets/icons/IconAdd';
+import { AvatarIcon } from '@assets/icons/IconAvatar';
+import { AddIcon } from '@assets/icons/IconAdd';
 import { PanelStyles } from './Gambit.styles';
-import type { Gambit } from '@reflexer/engine';
+import type { StoredGambit } from '@services/gambit.service';
 
 interface GambitListPanelProps {
   caracterName?: string;
-  gambits: Gambit[];
+  gambits: StoredGambit[];
   isEditing: boolean;
   onAddClick: () => void;
   onEdit: (id: string) => void;
@@ -32,7 +32,7 @@ export function GambitListPanel({
   onDelete,
   sensors,
   onDragEnd
-}: GambitListPanelProps) {
+}: GambitListPanelProps) {    
   return (
     <section
       data-guide="gambit-list"
@@ -56,13 +56,13 @@ export function GambitListPanel({
 
       <div className={PanelStyles.listContainer}>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-          <SortableContext items={gambits.map((g) => g.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={gambits.map((g) => g._id)} strategy={verticalListSortingStrategy}>
             {gambits.map((gambit) => (
               <GambitRow
-                key={gambit.id}
+                key={gambit._id}
                 gambit={gambit}
-                onEdit={() => onEdit(gambit.id)}
-                onDelete={() => onDelete(gambit.id)}
+                onEdit={() => onEdit(gambit._id)}
+                onDelete={() => onDelete(gambit._id)}
               />
             ))}
           </SortableContext>

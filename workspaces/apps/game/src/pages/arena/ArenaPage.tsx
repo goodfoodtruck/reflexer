@@ -25,34 +25,38 @@ const ArenaPage: React.FC = () => {
     const error = userRankingError || friendlyFightsError || rankedFightsError
 
     return (
-        <div className="w-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30">
+        <div className="w-full min-h-screen relative overflow-x-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30">
             <AnimatedBackground />
 
             <div className="absolute inset-0 z-0">
                 <img src={bgHomeImage} alt="background" className="w-full h-full object-cover opacity-15" />
             </div>
 
-            <div className="relative z-10 flex flex-col h-full">
+            <div className="relative z-10 flex flex-col flex-1">
                 <Header title="Arène" subtitle="PvP" onBack={() => navigate("/")} />
 
-                <div className="flex flex-col p-4 gap-8">
-                    {! isLoading && (
+                <div className="flex flex-col flex-1 p-3 gap-8">
+                    {!isLoading && (
                         error ? (
                             <ErrorAlert error={error} />
-                        ) : (! userRanking) ? (
+                        ) : !userRanking ? (
                             <ErrorAlert error="Aucun ranking trouvé pour l'utilisateur." />
                         ) : (
-                            <>
-                                <RankedSection
-                                    user={user}
-                                    userRanking={userRanking}
-                                    userRankedFightsHistory={rankedFights}
-                                />
-                                <FriendlyFightsSection
-                                    user={user}
-                                    userFriendlyFightsHistory={friendlyFights}
-                                />
-                            </>
+                            <div className="flex flex-col lg:flex-row flex-1 gap-4">
+                                <div className="w-full lg:basis-[60%] lg:min-w-0">
+                                    <RankedSection
+                                        user={user}
+                                        userRanking={userRanking}
+                                        userRankedFightsHistory={rankedFights}
+                                    />
+                                </div>
+                                <div className="w-full lg:flex-1 lg:min-w-0">
+                                    <FriendlyFightsSection
+                                        user={user}
+                                        userFriendlyFightsHistory={friendlyFights}
+                                    />
+                                </div>
+                            </div>
                         )
                     )}
                 </div>

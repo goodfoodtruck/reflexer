@@ -17,15 +17,12 @@ export async function getUserGambitsByCharacter(userId: string): Promise<Gambits
             const gambits = await GambitModel
                 .find({ userId, characterId: character._id })
                 .sort({ priority: 1 })
-                .lean()
+                .lean()                
 
             return {
                 characterId: character._id,
                 characterName: character.characterName,
-                gambits: gambits.map<Gambit>(gambit => ({
-                    ...gambit,
-                    id: gambit._id,
-                }))
+                gambits
             }
         })
     )

@@ -14,10 +14,10 @@ const FriendlyFightsSection: React.FC<FriendlyFightsSectionProps> = ({ user, use
     const [challengedPlayer, setChallengedPlayer] = useState<PlayerSearchResult | null>(null)
 
     return (
-        <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
+        <div className="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-5 h-full">
             <div className="flex flex-col justify-between gap-6">
                 <h2 className="text-[15px] font-black tracking-[0.3em] uppercase text-white-500">
-                    Parties amicales
+                    Amical
                 </h2>
                 <div className="w-full h-px bg-slate-700"></div>
             </div>

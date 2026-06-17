@@ -15,7 +15,7 @@ const UserRankedProfile: React.FC<UserRankedProfileProps> = ({ user, userRanking
 
     return (
         <motion.div
-            className="w-full bg-slate-900/60 border border-slate-700/40 rounded-2xl p-4 flex flex-col gap-5"
+            className="w-full bg-slate-900/60 border border-slate-700/80 rounded-2xl p-4 flex flex-col gap-5"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}

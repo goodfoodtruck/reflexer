@@ -14,6 +14,7 @@ router.get("/", async (req, res) => {
             return
         }
         const gambitsByCharacter: GambitsByCharacter[] = await getUserGambitsByCharacter(userId)
+        
         res.json(gambitsByCharacter)
     } catch (error) {
         res.status(500).json({ error: "INTERNAL_ERROR" })
@@ -35,7 +36,7 @@ router.post("/", async (req, res) => {
             intent
         })
 
-        res.status(201).json({ ...gambit, id: gambit._id })
+        res.status(201).json(gambit)
     } catch (error) {
         res.status(400).json({ error: "Unable to create gambit", details: error })
     }
@@ -49,7 +50,7 @@ router.patch("/:id", async (req, res) => {
             { new: true }
         )
         if (! gambit) return res.status(404).json({ error: "Gambit not found" })
-        res.json({ ...gambit, id: gambit._id })
+        res.json(gambit)
     } catch (error) {
         res.status(400).json({ error: "Unable to update gambit", details: error })
     }

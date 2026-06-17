@@ -14,14 +14,17 @@ export type GambitDocument = GambitPayload & {
 export type GambitsByCharacter = {
     characterId: string
     characterName: string
-    gambits: Gambit[]
+    gambits: StoredGambit[]
 }
+
+export type StoredGambit = Gambit & { _id: string }
+
 
 export const GambitService = {
     getUserGambitsByCharacter: (userId: string) => api.get<GambitsByCharacter[]>(`/gambits?userId=${userId}`),
 
     add: (userId: string, name: string, characterId: string, gambit: GambitPayload) => {
-        return api.post<GambitDocument>("/gambits", { userId, name, characterId, ...gambit })
+        return api.post<StoredGambit>("/gambits", { userId, name, characterId, ...gambit })
     },
 
     update: (id: string, gambit: Partial<GambitPayload & { name: string }>) =>

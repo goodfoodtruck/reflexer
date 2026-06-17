@@ -23,7 +23,7 @@ const PlayerWinrate: React.FC<PlayerWinrateProps> = ({
     if (totalGames === 0) return <NoFightRegisteredAlert/>
     
     return (
-        <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-6 flex flex-col gap-5">
+        <div className="bg-slate-900/60 border border-slate-700/80 rounded-2xl p-6 flex flex-col gap-5">
             <div className="flex items-center justify-between">
                 <p className="text-lg text-slate-500 font-bold">
                     {totalGames} combat{totalGames > 1 ? "s" : ""}

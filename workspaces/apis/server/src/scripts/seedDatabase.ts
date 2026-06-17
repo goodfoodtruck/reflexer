@@ -53,7 +53,7 @@ export async function seedDatabase(): Promise<void> {
             MOCK_CHARACTERS[characterName].gambits.map(gambit => ({
                 userId:         user.id,
                 characterId:    charactersByName.get(characterName)!,
-                name:           gambit.id,
+                name:           gambit.name,
                 priority:       gambit.priority,
                 conditions:     gambit.conditions,
                 targetSelector: gambit.targetSelector,

@@ -42,7 +42,7 @@ const MatchmakingProfileCard: React.FC<MatchmakingProfileCardProps> = ({ profile
             <AnimatePresence>
                 <motion.div
                     key={profile.id}
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/80 p-5"
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-700/80 bg-slate-900/80 p-5"
                     initial={{ opacity: 0, y: 18, scale: 0.92, rotateX: -18 }}
                     animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
                     exit={{ opacity: 0, y: -18, scale: 0.92, rotateX: 18 }}

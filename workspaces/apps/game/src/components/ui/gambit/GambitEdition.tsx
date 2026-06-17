@@ -7,7 +7,7 @@ import { ConditionStep } from './addGambit/Step2';
 import { IntentStep } from './addGambit/Step3/IntentStep';
 import { TargetStep } from './addGambit/Step4/TargetStep';
 import { buildInitialDraft } from './gambit.utils';
-import type { Gambit } from '@reflexer/engine';
+import type { StoredGambit } from '@services/gambit.service';
 
 const STEPS = [
   { num: 1, label: 'Situation' },
@@ -17,7 +17,7 @@ const STEPS = [
 ];
 
 interface Props {
-  initialGambit?: Gambit;
+  initialGambit?: StoredGambit;
   onCancel: () => void;
   onSave: (gambit: DraftGambit) => void;
 }

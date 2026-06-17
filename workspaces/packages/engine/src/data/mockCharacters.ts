@@ -32,48 +32,45 @@ const targetSelf = (): TargetSelector =>
     ({ context: { targetType: ETargetType.SELF }, sort: "LOWEST_HP" })
 
 const actionGambit = (
-    id: string,
     name: string,
     priority: number,
     conditions: ConditionGroup,
     targetSelector: TargetSelector,
     actionId: string
-): Gambit => ({ id, name, priority, conditions, targetSelector, intent: { kind: "ACTION", actionId } })
+): Gambit => ({ name, priority, conditions, targetSelector, intent: { kind: "ACTION", actionId } })
 
 const movementGambit = (
-    id: string,
     name: string,
     priority: number,
     conditions: ConditionGroup,
     targetSelector: TargetSelector,
     strategy: MovementStrategy
-): Gambit => ({ id, name, priority, conditions, targetSelector, intent: { kind: "MOVEMENT", strategy } })
+): Gambit => ({ name, priority, conditions, targetSelector, intent: { kind: "MOVEMENT", strategy } })
 
 const BRUISER_GAMBITS: Gambit[] = [
-    movementGambit("bruiser_approach", "Bruiser Approach", 1, existsEnemy(), targetEnemy("LOWEST_HP"), "APPROACH"),
-    actionGambit("bruiser_thorns", "Bruiser Thorns", 1, not(existsSelf([hasPassive(THORNS_PASSIVE_ID)])), targetSelf(), APPLY_THORNS_ACTION_ID),
-    actionGambit("bruiser_execute", "Bruiser Execute", 2, existsEnemy([hpBelow(30)]), targetEnemy("LOWEST_HP", [hpBelow(30)]), HEAVY_ATTACK_ACTION_ID),
-    actionGambit("bruiser_bleed", "Bruiser Bleed", 3, existsEnemy(), targetEnemy("LOWEST_HP"), ATTACK_BLEED_ACTION_ID),
+    movementGambit("Bruiser Approach", 1, existsEnemy(), targetEnemy("LOWEST_HP"), "APPROACH"),
+    actionGambit("Bruiser Thorns", 1, not(existsSelf([hasPassive(THORNS_PASSIVE_ID)])), targetSelf(), APPLY_THORNS_ACTION_ID),
+    actionGambit("Bruiser Execute", 2, existsEnemy([hpBelow(30)]), targetEnemy("LOWEST_HP", [hpBelow(30)]), HEAVY_ATTACK_ACTION_ID),
+    actionGambit("Bruiser Bleed", 3, existsEnemy(), targetEnemy("LOWEST_HP"), ATTACK_BLEED_ACTION_ID),
 ]
 
 /** Affaibliseur : maudit l'ennemi le plus sain (une fois), puis tape les gros. */
 const DEBUFFER_GAMBITS: Gambit[] = [
-    movementGambit("debuffer_approach", "Debuffer Approach", 1, existsEnemy(), targetEnemy("HIGHEST_HP"), "APPROACH"),
+    movementGambit("Debuffer Approach", 1, existsEnemy(), targetEnemy("HIGHEST_HP"), "APPROACH"),
     actionGambit(
-        "debuffer_curse",
         "Debuffer Curse",
         1,
         and([existsEnemy([hpAbove(50)]), not(existsEnemy([hasPassive(VULNERABLE_PASSIVE_ID)]))]),
         targetEnemy("HIGHEST_HP", [hpAbove(50)]),
         CURSE_ACTION_ID
     ),
-    actionGambit("debuffer_attack", "Debuffer Attack", 2, existsEnemy(), targetEnemy("HIGHEST_HP"), ATTACK_ACTION_ID),
+    actionGambit("Debuffer Attack", 2, existsEnemy(), targetEnemy("HIGHEST_HP"), ATTACK_ACTION_ID),
 ]
 
 /** Ennemi générique : achève les cibles à bas PV, sinon fait saigner. */
 const ENEMY_GAMBITS: Gambit[] = [
-    actionGambit("enemy_execute", "Enemy Execute", 1, existsEnemy([hpBelow(35)]), targetEnemy("LOWEST_HP", [hpBelow(35)]), HEAVY_ATTACK_ACTION_ID),
-    actionGambit("enemy_bleed", "Enemy Bleed", 2, existsEnemy(), targetEnemy("LOWEST_HP"), ATTACK_BLEED_ACTION_ID),
+    actionGambit("Enemy Execute", 1, existsEnemy([hpBelow(35)]), targetEnemy("LOWEST_HP", [hpBelow(35)]), HEAVY_ATTACK_ACTION_ID),
+    actionGambit("Enemy Bleed", 2, existsEnemy(), targetEnemy("LOWEST_HP"), ATTACK_BLEED_ACTION_ID),
 ]
 
 // --- Descripteurs visuels (chemins logiques + métadonnées d'animation) ---------

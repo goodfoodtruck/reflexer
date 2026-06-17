@@ -19,7 +19,6 @@ export type DraftGambit = {
   }[];
 };
 
-
 export type ActionItem = {
   id: string;
   name: string;

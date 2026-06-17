@@ -10,7 +10,6 @@ import { buildTargetSelector } from "@tests/builders/fight/gambits/TargetSelecto
 
 export function buildGambit(overrides: Partial<Gambit> = {}): Gambit {
     return {
-        id: "test_gambit",
         name : "Test Gambit",
         priority: 1,
         conditions: buildExistsCondition(),
