@@ -5,8 +5,10 @@ import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/h
 import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/hp/lowestHPTarget";
 import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
-import { getNearestTarget, getFurthestTarget } from "./extractors/distance/distanceFromSource";
-import { getNearestFromGroup, getFurthestFromGroup } from "./extractors/distance/distanceFromGroup";
+import { getNearestTarget, getFurthestTarget } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromSource";
+import { getNearestFromGroup, getFurthestFromGroup } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromGroup";
+import { getHighestArmorTarget } from "@fight/gambits/resolvers/target/extractors/armor/highestArmorTarget";
+import { getLowestArmorTarget } from "@fight/gambits/resolvers/target/extractors/armor/lowestArmorTarget";
 
 export class GambitTargetResolver {
 
@@ -54,12 +56,18 @@ export class GambitTargetResolver {
         switch (targetSort) {
             case "HIGHEST_HP": return getHighestHpTarget(candidates)
             case "LOWEST_HP": return getLowestHpTarget(candidates)
+
             case "NEAREST": return getNearestTarget(sourceEntity, candidates)
             case "FURTHEST": return getFurthestTarget(sourceEntity, candidates)
+
             case "NEAREST_FROM_ALLY": return getNearestFromGroup(candidates, fightContext.getAllies(sourceEntity))
             case "NEAREST_FROM_ENEMY": return getNearestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
+
             case "FURTHEST_FROM_ALLY": return getFurthestFromGroup(candidates, fightContext.getAllies(sourceEntity))
             case "FURTHEST_FROM_ENEMY": return getFurthestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
+
+            case "LOWEST_ARMOR": return getLowestArmorTarget(candidates)
+            case "HIGHEST_ARMOR": return getHighestArmorTarget(candidates)
         }
     }
 }

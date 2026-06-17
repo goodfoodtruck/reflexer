@@ -132,6 +132,8 @@ type TargetContext =
 export type TargetSort =
     | "LOWEST_HP"
     | "HIGHEST_HP"
+    | "LOWEST_ARMOR"
+    | "HIGHEST_ARMOR"
     | "NEAREST"
     | "FURTHEST"
     | "NEAREST_FROM_ALLY"
