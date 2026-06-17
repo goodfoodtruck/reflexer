@@ -20,47 +20,63 @@ export type FilterEvaluator<TFilter> = (
 
 
 /** Filtres applicables à toute entité vivante (soi-même, allié, ennemi) */
-export type HpBelowFilter =     { type: "HP_BELOW",    threshold: number }
-export type HpAboveFilter =     { type: "HP_ABOVE",    threshold: number }
+export type HpBelowFilter =      { type: "HP_BELOW",    threshold: number }
+export type HpAboveFilter =      { type: "HP_ABOVE",    threshold: number }
+
+export type ArmorBelowFilter =   { type: "ARMOR_BELOW",    threshold: number }
+export type ArmorAboveFilter =   { type: "ARMOR_ABOVE",    threshold: number }
+
+export type EnergyBelowFilter =  { type: "ENERGY_BELOW",    threshold: number }
+export type EnergyAboveFilter =  { type: "ENERGY_ABOVE",    threshold: number }
+
 export type HasPassiveFilter =  { type: "HAS_PASSIVE", passiveId: PassiveID }
 
 export type LivingEntityFilter =
+    // HP
     | HpBelowFilter
     | HpAboveFilter
+    // ARMOR
+    | ArmorBelowFilter
+    | ArmorAboveFilter
+    // ENERGY
+    | EnergyBelowFilter
+    | EnergyAboveFilter
+    // HAS PASSIVE
     | HasPassiveFilter
 
 
 /** Filtres applicables à soi-même. */
 export type SelfFilter = LivingEntityFilter
 
-
-/** applicable à un allié ou un ennemi, pour vérifier si il est à portée */
+/** applicable à un allié ou un ennemi, pour vérifier si il est à portée, non-applicable à soi-même */
 export type InRangeFilter = { type: "IN_RANGE", range: ERange }
 
+
+
 /** Filtres applicables aux alliés */
-export type CharacterInRangeOfEnemyFilter = { type: "ALLY_IN_RANGE_OF_ENEMY", range: ERange }
-export type CharacterInRangeOfCharacterFilter =  { type: "ALLY_IN_RANGE_OF_ALLY",  range: ERange }
+export type CharacterInRangeOfEnemyFilter = { type: "CHARACTER_IN_RANGE_OF_ENEMY", range: ERange }
+export type CharacterInRangeOfAnotherFilter =  { type: "CHARACTER_IN_RANGE_OF_ANOTHER",  range: ERange }
 
 export type CharacterFilter =
     | LivingEntityFilter
     | CharacterInRangeOfEnemyFilter
-    | CharacterInRangeOfCharacterFilter
+    | CharacterInRangeOfAnotherFilter
     | InRangeFilter
 
 
 
 
 /** Filtres applicables aux ennemis */
-export type EnemyInRangeOfCharacterFilter = { type: "ENEMY_IN_RANGE_OF_ALLY", range: ERange }
-export type IsAttackingCharacterFilter =    { type: "IS_ATTACKING_ALLY" }
-export type IsAttackingSelfFilter =    { type: "IS_ATTACKING_SELF" }
+export type EnemyInRangeOfCharacterFilter =   { type: "ENEMY_IN_RANGE_OF_CHARACTER",  range: ERange }
+export type EnemyInRangeOfAnotherFilter =     { type: "ENEMY_IN_RANGE_OF_ANOTHER", range: ERange }
 
 export type EnemyFilter =
     | LivingEntityFilter
+    | EnemyInRangeOfAnotherFilter
     | EnemyInRangeOfCharacterFilter
-    | IsAttackingCharacterFilter
-    | IsAttackingSelfFilter
     | InRangeFilter
+
+
 
     
 export type AnyFilter = 
@@ -69,7 +85,7 @@ export type AnyFilter =
     | SelfFilter
 
 
-// "HP_BELOW" | "HP_ABOVE" | "HAS_PASSIVE" | "IN_RANGE" | "ALLY_IN_RANGE_OF_ENEMY" | ...
+// "HP_BELOW" | "HP_ABOVE" | "HAS_PASSIVE" | "IN_RANGE" | "CHARACTER_IN_RANGE_OF_ENEMY" | ...
 export type FilterType =
     | LivingEntityFilter["type"]
     | CharacterFilter["type"]

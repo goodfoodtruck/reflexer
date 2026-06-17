@@ -1,6 +1,6 @@
 import { PlayingEntity } from "@fight/fight.types";
 import { HpAboveFilter } from "@fight/gambits/resolvers/filters/entityFilters.types";
-import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator";
+import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/hp/HpAboveEvaluator";
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder";
 import { buildPlayingEntity, withBaseStats, withCurrentStats } from "@tests/builders/fight/PlayingEntityBuilder";
 import { describe, expect, it } from "vitest";
