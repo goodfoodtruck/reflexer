@@ -1,0 +1,39 @@
+services:
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: reflexer
+    # Exposé sur l'hôte en 127.0.0.1 uniquement (jamais sur Internet) : accès
+    # via tunnel SSH pour inspection (Compass/mongo-express). Port 27019 pour
+    # ne pas entrer en conflit avec le 27017 de la prod.
+    ports:
+      - target: 27017
+        host_ip: 127.0.0.1
+        published: 27019
+        protocol: tcp
+    volumes:
+      - mongo_data_dev:/data/db
+
+  server:
+    image: ghcr.io/goodfoodtruck/reflexer-server:${IMAGE_TAG:-dev}
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017/reflexer"
+      PORT: "4000"
+      NODE_ENV: "production"
+    depends_on:
+      - mongodb
+
+  web:
+    image: ghcr.io/goodfoodtruck/reflexer-web:${IMAGE_TAG:-dev}
+    restart: unless-stopped
+    # Port dédié à la démo dev (la prod occupe déjà 8080).
+    ports:
+      - "8090:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo_data_dev:
