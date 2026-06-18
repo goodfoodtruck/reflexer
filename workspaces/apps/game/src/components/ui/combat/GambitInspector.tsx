@@ -28,6 +28,10 @@ const SORT_LABELS: Record<string, string> = {
     NEAREST_FROM_ENEMY: "le plus proche d'un ennemi",
     FURTHEST_FROM_ALLY: "le plus éloigné d'un allié",
     FURTHEST_FROM_ENEMY: "le plus éloigné d'un ennemi",
+    LOWEST_ARMOR: "le moins d'armure",
+    HIGHEST_ARMOR: "le plus d'armure",
+    LOWEST_ENERGY: "le moins d'énergie",
+    HIGHEST_ENERGY: "le plus d'énergie",
 }
 
 const STRATEGY_LABELS: Record<string, string> = {
@@ -36,17 +40,20 @@ const STRATEGY_LABELS: Record<string, string> = {
     STAY: "rester sur place",
 }
 
-function filterText(filter: AnyFilter): string {
+function filterText(filter: AnyFilter): string {        
     switch (filter.type) {
-        case "HP_BELOW": return `PV < ${filter.threshold}%`
-        case "HP_ABOVE": return `PV > ${filter.threshold}%`
-        case "HAS_PASSIVE": return `a le statut ${filter.passiveId}`
-        case "IN_RANGE": return `à portée ${filter.range}`
-        case "ALLY_IN_RANGE_OF_ENEMY": return `à portée ${filter.range} d'un ennemi`
-        case "ALLY_IN_RANGE_OF_ALLY": return `à portée ${filter.range} d'un allié`
-        case "ENEMY_IN_RANGE_OF_ALLY": return `à portée ${filter.range} d'un allié`
-        case "IS_ATTACKING_ALLY": return "attaque un allié"
-        case "IS_ATTACKING_SELF": return "attaque soi-même"
+        case "HP_BELOW":    return `PV < ${filter.threshold}%`
+        case "HP_ABOVE":    return `PV > ${filter.threshold}%`
+        case "ARMOR_BELOW": return `armure < ${filter.threshold}%`
+        case "ARMOR_ABOVE": return `armure > ${filter.threshold}%`
+        case "ENERGY_BELOW": return `énergie < ${filter.threshold}%`
+        case "ENERGY_ABOVE": return `énergie > ${filter.threshold}%`
+        case "HAS_PASSIVE":  return `a le statut ${filter.passiveId}`
+        case "IN_RANGE":     return `à portée ${filter.range}`
+        case "CHARACTER_IN_RANGE_OF_ANOTHER": return `un allié à portée ${filter.range} d'un allié`
+        case "CHARACTER_IN_RANGE_OF_ENEMY":   return `un allié à portée ${filter.range} d'un ennemi`
+        case "ENEMY_IN_RANGE_OF_ANOTHER":     return `un ennemi à portée ${filter.range} d'un ennemi`
+        case "ENEMY_IN_RANGE_OF_CHARACTER":   return `un ennemi à portée ${filter.range} d'un allié`
         default: return filter.type
     }
 }
