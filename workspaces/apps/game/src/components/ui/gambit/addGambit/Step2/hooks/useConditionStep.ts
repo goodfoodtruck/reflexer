@@ -11,7 +11,7 @@ import {
   rangeToLabel,
   statusLabelToPassiveId
 } from '../../../gambit.adapter';
-import { CRITERIA_DATA_CONDITION_STEP } from '../../../gambitEditorOptions';
+import { FILTER_CATEGORIES } from '../../../gambitEditorOptions';
 import { buildBannerText } from '../utils';
 
 export type ViewMode = 'SELECT_TARGET' | 'BUILD_CONDITION';
@@ -23,15 +23,27 @@ interface UseConditionStepProps {
 
 function draftConditionToBlock(c: DraftCondition): ConditionBlock {
   switch (c.filterType) {
-    case 'HP_BELOW':
-      return { categoryId: 'health', values: [`PV < ${c.value}%`] };
-    case 'HP_ABOVE':
-      return { categoryId: 'health', values: [`PV > ${c.value}%`] };
+    case 'HP_BELOW':     return { categoryId: 'health', values: [`PV < ${c.value}%`] };
+    case 'HP_ABOVE':     return { categoryId: 'health', values: [`PV > ${c.value}%`] };
+    case 'ARMOR_BELOW':  return { categoryId: 'armor',  values: [`ARMURE < ${c.value}%`] };
+    case 'ARMOR_ABOVE':  return { categoryId: 'armor',  values: [`ARMURE > ${c.value}%`] };
+    case 'ENERGY_BELOW': return { categoryId: 'energy', values: [`ÉNERGIE < ${c.value}%`] };
+    case 'ENERGY_ABOVE': return { categoryId: 'energy', values: [`ÉNERGIE > ${c.value}%`] };
+
+    case 'CHARACTER_IN_RANGE_OF_ANOTHER':
+    case 'ENEMY_IN_RANGE_OF_CHARACTER':
+      return { categoryId: 'in_range_of_ally', values: [rangeToLabel(Number(c.value))] };
+
+    case 'CHARACTER_IN_RANGE_OF_ENEMY':
+    case 'ENEMY_IN_RANGE_OF_ANOTHER':
+      return { categoryId: 'in_range_of_enemy', values: [rangeToLabel(Number(c.value))] };
+
     case 'IN_RANGE':
       return {
         categoryId: c.scopeKind === 'ALLY' ? 'distance_character' : 'distance_enemy',
         values: [rangeToLabel(Number(c.value))]
       };
+
     case 'HAS_PASSIVE':
       return {
         categoryId: 'status',
@@ -67,6 +79,17 @@ function toScope(targetId: string): 'SELF' | 'ALLY' | 'ENEMY' {
     | 'ENEMY';
 }
 
+const RANGE_RELATION_MAP: Record<string, Record<string, DraftCondition['filterType']>> = {
+  ALLY: {
+    'in_range_of_ally':  'CHARACTER_IN_RANGE_OF_ANOTHER',
+    'in_range_of_enemy': 'CHARACTER_IN_RANGE_OF_ENEMY'
+  },
+  ENEMY: {
+    'in_range_of_ally':  'ENEMY_IN_RANGE_OF_CHARACTER',
+    'in_range_of_enemy': 'ENEMY_IN_RANGE_OF_ANOTHER'
+  }
+};
+
 function blockToDraftCondition(
   block: ConditionBlock,
   targetId: string,
@@ -75,26 +98,58 @@ function blockToDraftCondition(
   let filterType: DraftCondition['filterType'];
   let value: number | string;
 
-  if (block.categoryId === 'health') {
-    const label = block.values[0] ?? '';
-    filterType = label.includes('>') ? 'HP_ABOVE' : 'HP_BELOW';
-    value = parseInt(label.match(/\d+/)?.[0] ?? '0', 10);
-  } else if (block.categoryId.includes('distance')) {
-    filterType = 'IN_RANGE';
-    value = rangeLabelToRange(block.values[0] ?? '');
-  } else if (block.categoryId === 'status') {
-    filterType = 'HAS_PASSIVE';
-    value = block.values
-      .map(statusLabelToPassiveId)
-      .filter(Boolean)
-      .join(',');
-  } else {
-    return null;
+  const parseThreshold = (label: string): { above: boolean; n: number } => ({
+    above: label.includes('>'),
+    n: parseInt(label.match(/\d+/)?.[0] ?? '0', 10)
+  });
+
+  const scope = toScope(targetId);
+
+  switch (block.categoryId) {
+    case 'health': {
+      const { above, n } = parseThreshold(block.values[0] ?? '');
+      filterType = above ? 'HP_ABOVE' : 'HP_BELOW';
+      value = n;
+      break;
+    }
+    case 'armor': {
+      const { above, n } = parseThreshold(block.values[0] ?? '');
+      filterType = above ? 'ARMOR_ABOVE' : 'ARMOR_BELOW';
+      value = n;
+      break;
+    }
+    case 'energy': {
+      const { above, n } = parseThreshold(block.values[0] ?? '');
+      filterType = above ? 'ENERGY_ABOVE' : 'ENERGY_BELOW';
+      value = n;
+      break;
+    }
+    case 'distance_character':
+    case 'distance_enemy': {
+      filterType = 'IN_RANGE';
+      value = rangeLabelToRange(block.values[0] ?? '');
+      break;
+    }
+    case 'in_range_of_ally':
+    case 'in_range_of_enemy': {
+      const resolved = RANGE_RELATION_MAP[scope]?.[block.categoryId];
+      if (!resolved) return null;
+      filterType = resolved;
+      value = rangeLabelToRange(block.values[0] ?? '');
+      break;
+    }
+    case 'status': {
+      filterType = 'HAS_PASSIVE';
+      value = block.values.map(statusLabelToPassiveId).filter(Boolean).join(',');
+      break;
+    }
+    default:
+      return null;
   }
 
   return {
     id: `temp-${targetId}-${block.categoryId}-${index}`,
-    scopeKind: toScope(targetId),
+    scopeKind: scope,
     filterType,
     value
   };
@@ -143,7 +198,7 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
   }, [effectiveConditions]);
 
   const catOptions = currentCat
-    ? (CRITERIA_DATA_CONDITION_STEP.find((c) => c.id === currentCat)?.options ?? [])
+    ? (FILTER_CATEGORIES.find((c) => c.id === currentCat)?.options ?? [])
     : [];
 
   const bannerText = buildBannerText(activeTargetContext, blocks, currentCat, currentValues);

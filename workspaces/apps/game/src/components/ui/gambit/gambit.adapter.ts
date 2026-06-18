@@ -1,12 +1,15 @@
 import { ERange, ETargetType } from '@reflexer/engine';
 import type {
   AnyFilter,
+  ArmorAboveFilter,
+  ArmorBelowFilter,
   CharacterFilter,
   ConditionGroup,
   EnemyFilter,
+  EnergyAboveFilter,
+  EnergyBelowFilter,
   ExistsCondition,
   GambitIntent,
-  HasPassiveFilter,
   HpAboveFilter,
   HpBelowFilter,
   InRangeFilter,
@@ -37,14 +40,37 @@ export const passiveIdToStatusLabel = (passiveId: string): string =>
 
 const SORT_LABEL_TO_SORT: Record<string, TargetSort> = {
   'LE PLUS PROCHE': 'NEAREST',
-  'LE PLUS ELOIGNE': 'FURTHEST',
-  'LES PLUS ELEVES': 'HIGHEST_HP',
-  'LES MOINS ELEVES': 'LOWEST_HP'
+  'LE PLUS ÉLOIGNÉ': 'FURTHEST',
+
+  "LE PLUS PROCHE D'UN ALLIÉ": 'NEAREST_FROM_ALLY',
+  "LE PLUS ÉLOIGNÉ D'UN ALLIÉ": 'FURTHEST_FROM_ALLY',
+
+  "LE PLUS PROCHE D'UN ENNEMI": 'NEAREST_FROM_ENEMY',
+  "LE PLUS ÉLOIGNÉ D'UN ENNEMI": 'FURTHEST_FROM_ENEMY',
+
+  'LES PLUS ÉLEVÉS': 'HIGHEST_HP',
+  'LES MOINS ÉLEVÉS': 'LOWEST_HP',
+
+  "LE PLUS D'ARMURE": 'HIGHEST_ARMOR',
+  "LE MOINS D'ARMURE": 'LOWEST_ARMOR',
+
+  "LE PLUS D'ÉNERGIE": 'HIGHEST_ENERGY',
+  "LE MOINS D'ÉNERGIE": 'LOWEST_ENERGY'
 };
 
 const KNOWN_SORTS: TargetSort[] = [
-  'LOWEST_HP', 'HIGHEST_HP', 'NEAREST', 'FURTHEST',
-  'NEAREST_FROM_ALLY', 'NEAREST_FROM_ENEMY', 'FURTHEST_FROM_ALLY', 'FURTHEST_FROM_ENEMY'
+  'LOWEST_HP', 
+  'HIGHEST_HP', 
+  'NEAREST', 
+  'FURTHEST',
+  'NEAREST_FROM_ALLY', 
+  'NEAREST_FROM_ENEMY', 
+  'FURTHEST_FROM_ALLY', 
+  'FURTHEST_FROM_ENEMY',
+  'LOWEST_ARMOR',
+  'HIGHEST_ARMOR',
+  'LOWEST_ENERGY',
+  'HIGHEST_ENERGY'
 ];
 
 /** Libellé du picker de tri -> valeur moteur. Accepte aussi une valeur moteur déjà convertie. */
@@ -60,9 +86,9 @@ export const sortToLabel = (sort: string): string => {
 };
 
 const RANGE_LABEL_TO_RANGE: Record<string, ERange> = {
-  'FAIBLE DISTANCE': ERange.SHORT,
-  'MOYENNE DISTANCE': ERange.MEDIUM,
-  'LONGUE DISTANCE': ERange.LONG
+  'À COURTE PORTÉE':  ERange.SHORT,
+  'À MOYENNE PORTÉE': ERange.MEDIUM,
+  'À LONGUE PORTÉE':  ERange.LONG
 };
 
 export const rangeLabelToRange = (label: string): ERange =>
@@ -71,6 +97,14 @@ export const rangeLabelToRange = (label: string): ERange =>
 export const rangeToLabel = (range: number): string => {
   const entry = Object.entries(RANGE_LABEL_TO_RANGE).find(([, v]) => v === range);
   return entry ? entry[0] : `PORTÉE ${range}`;
+};
+
+// Inverse : filterType → categoryId
+const FILTER_TYPE_TO_CATEGORY: Record<string, string> = {
+  'CHARACTER_IN_RANGE_OF_ANOTHER': 'in_range_of_ally',
+  'CHARACTER_IN_RANGE_OF_ENEMY':   'in_range_of_enemy',
+  'ENEMY_IN_RANGE_OF_CHARACTER':   'in_range_of_ally',
+  'ENEMY_IN_RANGE_OF_ANOTHER':     'in_range_of_enemy'
 };
 
 /** 'PV < 25%' / 'PV > 50%' -> filtre HP moteur */
@@ -83,18 +117,44 @@ const parseHpLabel = (label: string): HpBelowFilter | HpAboveFilter | null => {
     : { type: 'HP_ABOVE', threshold };
 };
 
-type CommonFilter = HpBelowFilter | HpAboveFilter | HasPassiveFilter | InRangeFilter;
+/** ENERGY < 25%' / 'ENERGY > 50%' -> filtre ENERGY moteur */
+const parseEnergyLabel = (label: string): EnergyBelowFilter | EnergyAboveFilter | null => {
+  const match = label.match(/ÉNERGIE\s*([<>])\s*(\d+)/);
+  if (!match) return null;
+  const threshold = parseInt(match[2]!, 10);
+  return match[1] === '<'
+    ? { type: 'ENERGY_BELOW', threshold }
+    : { type: 'ENERGY_ABOVE', threshold };
+};
 
-const draftConditionToFilters = (c: DraftCondition): CommonFilter[] => {
+/** 'ARMURE < 25%' / 'ARMURE > 50%' -> filtre ARMOR moteur */
+const parseArmorLabel = (label: string): ArmorBelowFilter | ArmorAboveFilter | null => {
+  const match = label.match(/ARMURE\s*([<>])\s*(\d+)/);
+  if (!match) return null;
+  const threshold = parseInt(match[2]!, 10);
+  return match[1] === '<'
+    ? { type: 'ARMOR_BELOW', threshold }
+    : { type: 'ARMOR_ABOVE', threshold };
+};
+
+
+const draftConditionToFilters = (c: DraftCondition): AnyFilter[] => {
   switch (c.filterType) {
-    case 'HP_BELOW': return [{ type: 'HP_BELOW', threshold: Number(c.value) }];
-    case 'HP_ABOVE': return [{ type: 'HP_ABOVE', threshold: Number(c.value) }];
-    case 'IN_RANGE': return [{ type: 'IN_RANGE', range: Number(c.value) }];
+    case 'ARMOR_BELOW':  return [{ type: 'ARMOR_BELOW',  threshold: Number(c.value) }];
+    case 'ARMOR_ABOVE':  return [{ type: 'ARMOR_ABOVE',  threshold: Number(c.value) }];
+    case 'ENERGY_BELOW': return [{ type: 'ENERGY_BELOW', threshold: Number(c.value) }];
+    case 'ENERGY_ABOVE': return [{ type: 'ENERGY_ABOVE', threshold: Number(c.value) }];
+    case 'HP_BELOW':     return [{ type: 'HP_BELOW',     threshold: Number(c.value) }];
+    case 'HP_ABOVE':     return [{ type: 'HP_ABOVE',     threshold: Number(c.value) }];
+    case 'IN_RANGE':     return [{ type: 'IN_RANGE',     range: Number(c.value) }];
+
+    case 'CHARACTER_IN_RANGE_OF_ANOTHER': return [{ type: 'CHARACTER_IN_RANGE_OF_ANOTHER', range: Number(c.value) }];
+    case 'CHARACTER_IN_RANGE_OF_ENEMY':   return [{ type: 'CHARACTER_IN_RANGE_OF_ENEMY',   range: Number(c.value) }];
+    case 'ENEMY_IN_RANGE_OF_ANOTHER':     return [{ type: 'ENEMY_IN_RANGE_OF_ANOTHER',     range: Number(c.value) }];
+    case 'ENEMY_IN_RANGE_OF_CHARACTER':   return [{ type: 'ENEMY_IN_RANGE_OF_CHARACTER',   range: Number(c.value) }];
+
     case 'HAS_PASSIVE':
-      return String(c.value)
-        .split(',')
-        .filter(Boolean)
-        .map((passiveId) => ({ type: 'HAS_PASSIVE', passiveId }));
+      return String(c.value).split(',').filter(Boolean).map(passiveId => ({ type: 'HAS_PASSIVE', passiveId }));
   }
 };
 
@@ -107,7 +167,7 @@ const toExistsCondition = (c: DraftCondition): ExistsCondition => {
         type: 'EXISTS',
         context: {
           targetType: ETargetType.SELF,
-          filters: filters.filter((f): f is Exclude<CommonFilter, InRangeFilter> => f.type !== 'IN_RANGE') as SelfFilter[]
+          filters: filters.filter((f): f is Exclude<AnyFilter, InRangeFilter> => f.type !== 'IN_RANGE') as SelfFilter[]
         }
       };
     case 'ALLY':
@@ -125,20 +185,27 @@ export const draftToConditions = (draft: DraftGambit): ConditionGroup => {
 };
 
 /** Blocs de filtres de cible (categoryId + libellés) -> filtres moteur */
-const targetFiltersToEngine = (
-  targetFilters: DraftGambit['targetFilters']
-): CommonFilter[] =>
+const targetFiltersToEngine = (targetFilters: DraftGambit['targetFilters']): AnyFilter[] =>
   targetFilters.flatMap((block) =>
-    block.values.flatMap((label): CommonFilter[] => {
-      if (block.categoryId === 'health') {
-        const filter = parseHpLabel(label);
-        return filter ? [filter] : [];
+    block.values.flatMap((label): AnyFilter[] => {
+      switch (block.categoryId) {
+        case 'health': { const f = parseHpLabel(label);     return f ? [f] : []; }
+        case 'energy': { const f = parseEnergyLabel(label); return f ? [f] : []; }
+        case 'armor':  { const f = parseArmorLabel(label);  return f ? [f] : []; }
+        case 'status': {
+          const passiveId = statusLabelToPassiveId(label);
+          return passiveId ? [{ type: 'HAS_PASSIVE', passiveId }] : [];
+        }
+        case 'distance_me':
+        case 'distance_character':
+        case 'distance_enemy':
+          return [{ type: 'IN_RANGE', range: rangeLabelToRange(label) }];
+        case 'in_range_of_ally':
+        case 'in_range_of_enemy':
+          // Pour les filtres de target, on utilise IN_RANGE car on n'a pas le scopeKind ici
+          return [{ type: 'IN_RANGE', range: rangeLabelToRange(label) }];
+        default: return [];
       }
-      if (block.categoryId === 'status') {
-        const passiveId = statusLabelToPassiveId(label);
-        return passiveId ? [{ type: 'HAS_PASSIVE', passiveId }] : [];
-      }
-      return [];
     })
   );
 
@@ -186,7 +253,19 @@ const filterToDraftFields = (
   switch (filter.type) {
     case 'HP_BELOW': return { filterType: 'HP_BELOW', value: filter.threshold };
     case 'HP_ABOVE': return { filterType: 'HP_ABOVE', value: filter.threshold };
+
+    case 'ENERGY_BELOW': return { filterType: 'ENERGY_BELOW', value: filter.threshold };
+    case 'ENERGY_ABOVE': return { filterType: 'ENERGY_ABOVE', value: filter.threshold };
+
+    case 'ARMOR_BELOW': return { filterType: 'ARMOR_BELOW', value: filter.threshold };
+    case 'ARMOR_ABOVE': return { filterType: 'ARMOR_ABOVE', value: filter.threshold };
+
     case 'IN_RANGE': return { filterType: 'IN_RANGE', value: filter.range };
+    case 'CHARACTER_IN_RANGE_OF_ANOTHER': return { filterType: 'CHARACTER_IN_RANGE_OF_ANOTHER', value: filter.range };
+    case 'CHARACTER_IN_RANGE_OF_ENEMY':   return { filterType: 'CHARACTER_IN_RANGE_OF_ENEMY', value: filter.range };
+    case 'ENEMY_IN_RANGE_OF_ANOTHER':   return { filterType: 'ENEMY_IN_RANGE_OF_ANOTHER', value: filter.range };
+    case 'ENEMY_IN_RANGE_OF_CHARACTER': return { filterType: 'ENEMY_IN_RANGE_OF_CHARACTER', value: filter.range };
+
     case 'HAS_PASSIVE': return { filterType: 'HAS_PASSIVE', value: filter.passiveId };
     default: return null;
   }
@@ -209,15 +288,30 @@ export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
   return [];
 };
 
-export const targetFiltersToDraft = (
-  selector: TargetSelector
-): DraftGambit['targetFilters'] => {
+export const targetFiltersToDraft = (selector: TargetSelector): DraftGambit['targetFilters'] => {
   if (!('filters' in selector.context)) return [];
+
+  const inRangeCategory =
+    selector.context.targetType === ETargetType.ALLY ? 'distance_character' : 'distance_enemy';
+
   return selector.context.filters.flatMap((filter) => {
     switch (filter.type) {
-      case 'HP_BELOW': return [{ categoryId: 'health', values: [`PV < ${filter.threshold}%`] }];
-      case 'HP_ABOVE': return [{ categoryId: 'health', values: [`PV > ${filter.threshold}%`] }];
-      case 'HAS_PASSIVE': return [{ categoryId: 'status', values: [passiveIdToStatusLabel(filter.passiveId)] }];
+      case 'HP_BELOW':     return [{ categoryId: 'health', values: [`PV < ${filter.threshold}%`] }];
+      case 'HP_ABOVE':     return [{ categoryId: 'health', values: [`PV > ${filter.threshold}%`] }];
+      case 'ARMOR_BELOW':  return [{ categoryId: 'armor',  values: [`ARMURE < ${filter.threshold}%`] }];
+      case 'ARMOR_ABOVE':  return [{ categoryId: 'armor',  values: [`ARMURE > ${filter.threshold}%`] }];
+      case 'ENERGY_BELOW': return [{ categoryId: 'energy', values: [`ÉNERGIE < ${filter.threshold}%`] }];
+      case 'ENERGY_ABOVE': return [{ categoryId: 'energy', values: [`ÉNERGIE > ${filter.threshold}%`] }];
+      case 'IN_RANGE':     return [{ categoryId: inRangeCategory, values: [rangeToLabel(Number(filter.range))] }];
+
+      case 'CHARACTER_IN_RANGE_OF_ANOTHER':
+      case 'CHARACTER_IN_RANGE_OF_ENEMY':
+      case 'ENEMY_IN_RANGE_OF_ANOTHER':
+      case 'ENEMY_IN_RANGE_OF_CHARACTER':
+        return [{ categoryId: FILTER_TYPE_TO_CATEGORY[filter.type]!, values: [rangeToLabel(Number(filter.range))] }];
+
+      case 'HAS_PASSIVE':
+        return [{ categoryId: 'status', values: [passiveIdToStatusLabel(filter.passiveId)] }];
       default: return [];
     }
   });

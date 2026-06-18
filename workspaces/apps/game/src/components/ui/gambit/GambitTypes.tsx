@@ -1,7 +1,9 @@
+import type { FilterType } from "@reflexer/engine";
+
 export type DraftCondition = {
   id: string;
   scopeKind: "SELF" | "ALLY" | "ENEMY";
-  filterType: "HP_BELOW" | "HP_ABOVE" | "IN_RANGE" | "HAS_PASSIVE";
+  filterType: FilterType
   value: number | string;
 };
 

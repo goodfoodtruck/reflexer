@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CRITERIA_DATA_CONDITION_STEP } from '../../../gambitEditorOptions';
+import { FILTER_CATEGORIES } from '../../../gambitEditorOptions';
 import type { ConditionBlock } from '../../../GambitTypes';
 import { ANIMATIONS } from '../constants/condition.constants';
 import { Styles } from '../Condition.styles';
@@ -44,7 +44,7 @@ export function BuildConditionView({
   onRemoveCurrentValue,
   onSave,
 }: BuildConditionViewProps) {
-  const categoryItems = CRITERIA_DATA_CONDITION_STEP.map((c) => ({ id: c.id, label: c.label }));
+  const categoryItems = FILTER_CATEGORIES.map((c) => ({ id: c.id, label: c.label }));
 
   return (
     <motion.div {...ANIMATIONS.buildCondition} className={Styles.container}>

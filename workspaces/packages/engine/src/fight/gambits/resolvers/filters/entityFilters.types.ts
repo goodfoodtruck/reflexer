@@ -86,7 +86,4 @@ export type AnyFilter =
 
 
 // "HP_BELOW" | "HP_ABOVE" | "HAS_PASSIVE" | "IN_RANGE" | "CHARACTER_IN_RANGE_OF_ENEMY" | ...
-export type FilterType =
-    | LivingEntityFilter["type"]
-    | CharacterFilter["type"]
-    | EnemyFilter["type"]
+export type FilterType = AnyFilter["type"]
