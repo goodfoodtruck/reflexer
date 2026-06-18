@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { pickRandomFightMapId } from "@reflexer/engine"
 import { useAuth } from "@hooks/useAuth"
 import { FriendlyFightService } from "@services/fight/friendlyFight.service"
 import type { PlayerSearchResult } from "@services/user.service"
@@ -31,7 +32,7 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
             const playedFight = await FriendlyFightService.playFight({
                 playerId: user!.id,
                 opponentId: opponent._id,
-                fightMapId: "TRAINING_GROUND"
+                fightMapId: pickRandomFightMapId()
             })
 
             onClose()

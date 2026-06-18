@@ -18,9 +18,9 @@ export default {
 
     feedScroll: "flex-1 min-h-0",
 
-    // Scène centrée verticalement dans le bloc
-    stageColumn: "flex-none flex items-center",
-    stageWrapper: "relative shrink-0 rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-700/50",
+    // Scène : prend l'espace restant et se centre ; la mise à l'échelle est gérée en JS
+    stageColumn: "flex-1 min-w-0 flex items-center justify-center",
+    stageWrapper: "relative rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-700/50",
 
     // Fenêtre de détail (gambit + action), à gauche de la colonne droite
     inspectorColumn: "flex-none w-80 min-h-0",

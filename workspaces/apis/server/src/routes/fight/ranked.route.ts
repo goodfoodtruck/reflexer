@@ -1,5 +1,6 @@
 import { Router } from "express"
 import type { FightError, FightResult, PlayingTeamID, Result, TeamMemberData } from "@reflexer/engine"
+import { pickRandomFightMapId } from "@reflexer/engine"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { UserModel } from "@models/user.model"
 import { NotificationModel } from "@models/notification.model"
@@ -50,8 +51,7 @@ router.post("/", async (req, res) => {
             return
         }
 
-        // TODO: carte alétoire
-        const fightMapId = "TRAINING_GROUND"
+        const fightMapId = pickRandomFightMapId()
         const userTeam     = await buildTeamFromUserId(userId)                
         const opponentTeam = await buildTeamFromUserId(opponentId)        
 

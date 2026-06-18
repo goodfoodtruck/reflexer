@@ -25,6 +25,7 @@ export type FightMapConfig = {
     size: EFightMapSize
     cells: EObstacleType[][]
     spawnPoints: FightMapSpawnPoints
+    background?: string
 }
 
 export type MapCell = {

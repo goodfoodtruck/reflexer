@@ -31,9 +31,31 @@ export function resolveSpriteUrl(logicalPath: string): string {
     return url
 }
 
-/** Tuiles de décor, par type d'obstacle (chemins logiques, memes que les sprites). */
-export const TILE_PATHS = {
-    floor: "tiles/floor.png",
-    wall: "tiles/wall.png",
-    hole: "tiles/hole.png",
-} as const
+/**
+ * Fonds de carte plein-cadre (PNG ou GIF animé), bundlés depuis
+ * `src/assets/maps/**`. Le chemin logique porté par `FightMapConfig.background`
+ * est le nom de fichier relatif à ce dossier (ex. "lake.gif", "chemin.png").
+ */
+const MAPS_ROOT = "assets/maps/"
+
+const mapModules = import.meta.glob("../../../assets/maps/**/*.{png,gif}", {
+    eager: true,
+    query: "?url",
+    import: "default",
+}) as Record<string, string>
+
+const urlByMapBackground = new Map<string, string>()
+for (const [moduleKey, url] of Object.entries(mapModules)) {
+    const at = moduleKey.indexOf(MAPS_ROOT)
+    if (at === -1) continue
+    urlByMapBackground.set(moduleKey.slice(at + MAPS_ROOT.length), url)
+}
+
+/** Résout un chemin logique de fond de carte vers l'URL bundlée, ou jette si absent. */
+export function resolveMapBackgroundUrl(logicalPath: string): string {
+    const url = urlByMapBackground.get(logicalPath)
+    if (!url) {
+        throw new Error(`Asset de fond de carte introuvable pour le chemin logique « ${logicalPath} »`)
+    }
+    return url
+}

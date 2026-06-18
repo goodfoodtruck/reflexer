@@ -8,7 +8,7 @@ import { InMemoryFightMapRegistry } from "@data/InMemoryFightMapRegistry"
 import { InMemoryPassiveRegistry } from "@data/InMemoryPassiveRegistry"
 import { ACTION_CATALOG } from "@data/mockActions"
 import { MOCK_PASSIVES } from "@data/mockPassives"
-import { MOCK_FIGHT_MAPS } from "@data/mockFightMaps"
+import { MOCK_FIGHT_MAPS, pickRandomFightMapId } from "@data/mockFightMaps"
 import { MOCK_ENEMIES } from "@data/mockCharacters"
 import { FightContextFactory, FightEntitiesValidator, NbEnemiesResolver, EnemyBuilder, EnemyCompositionResolver, TeamBuilder } from "@fight/context"
 import { FightOrchestrator } from "@fight/FightOrchestrator"
@@ -80,7 +80,7 @@ export function createGameEngine(): GameEngine {
     const deps: GameEngineDeps = {
         mapGenerator: { generate: () => ({}) },
         mapCommandHandler: {
-            selectMapNode: () => ({ success: true, value: { nodeType: "COMBAT", fightMapId: "TRAINING_GROUND" } }),
+            selectMapNode: () => ({ success: true, value: { nodeType: "COMBAT", fightMapId: pickRandomFightMapId() } }),
         },
         fightHandler,
         shopHandler: { buyItem: () => { throw new Error("Shop non implémenté") } },
