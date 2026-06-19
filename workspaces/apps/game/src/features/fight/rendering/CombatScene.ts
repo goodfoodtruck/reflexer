@@ -1,5 +1,6 @@
 import { Application, Container, Sprite, AnimatedSprite, Texture, Rectangle, Assets } from "pixi.js"
 import type { Ticker } from "pixi.js"
+import { GifSprite, type GifSource } from "pixi.js/gif"
 import type {
     FightSnapshot,
     FightMapConfig,
@@ -9,28 +10,18 @@ import type {
     EntityVisual,
     SpriteClip,
 } from "@reflexer/engine"
-import { EObstacleType } from "@reflexer/engine"
 import { makeTween, type TweenFn } from "./animations/tween"
 import { playMove } from "./animations/playMove"
 import { playDeath } from "./animations/playDeath"
 import { playPassive } from "./animations/playPassive"
 import { playHitFlash } from "./animations/playHitFlash"
 import { playLunge } from "./animations/playLunge"
-import { resolveSpriteUrl, TILE_PATHS } from "./sprite-assets"
+import { resolveSpriteUrl, resolveMapBackgroundUrl } from "./sprite-assets"
 
-/** Taille d'une cellule en pixels (échelle de rendu, indépendante de la carte). */
 export const CELL_SIZE = 64
 
-/** Hauteur d'affichage cible du corps d'un combattant au repos (uniforme, quelle que soit l'échelle source). */
 const COMBATANT_BODY_HEIGHT = CELL_SIZE * 0.85
 
-const TILE_BY_OBSTACLE: Record<EObstacleType, string> = {
-    [EObstacleType.FLOOR]: TILE_PATHS.floor,
-    [EObstacleType.WALL]: TILE_PATHS.wall,
-    [EObstacleType.HOLE]: TILE_PATHS.hole,
-}
-
-/** Vitesse d'animation Pixi (frames/tick @60fps) pour jouer un clip sur sa durée. */
 function clipSpeed(clip: SpriteClip): number {
     return clip.frames / ((clip.durationMs / 1000) * 60)
 }
@@ -42,7 +33,6 @@ export class CombatScene {
     private entityContainer = new Container()
     private entities = new Map<PlayingEntityID, AnimatedSprite>()
     private visuals = new Map<PlayingEntityID, EntityVisual>()
-    /** Frames découpées, mises en cache par chemin logique de clip. */
     private clipFrames = new Map<string, Texture[]>()
     private readonly tween: TweenFn
 
@@ -56,7 +46,6 @@ export class CombatScene {
         const app = new Application()
         await app.init({
             background: "#1a1a2e",
-            resizeTo: mount,
             antialias: false,
         })
         mount.appendChild(app.canvas)
@@ -68,6 +57,7 @@ export class CombatScene {
     }
 
     async setup(snapshot: FightSnapshot, map: FightMapConfig, getVisual: VisualResolver): Promise<void> {
+        this.app.renderer.resize(map.dimensions.width * CELL_SIZE, map.dimensions.height * CELL_SIZE)
         await this.drawGrid(map)
         for (const entity of snapshot.entities) {
             await this.spawnEntity(entity, getVisual(entity))
@@ -75,21 +65,34 @@ export class CombatScene {
     }
 
     private async drawGrid(map: FightMapConfig): Promise<void> {
-        const tileTextures = new Map<string, Texture>()
-        for (const path of Object.values(TILE_PATHS)) {
-            tileTextures.set(path, await this.loadTexture(path))
+        if (!map.background) {
+            throw new Error(`Carte « ${map.id} » sans image de fond (champ background manquant)`)
+        }
+        await this.drawBackground(map.background, map.dimensions)
+    }
+
+    private async drawBackground(logicalPath: string, dimensions: { width: number; height: number }): Promise<void> {
+        const width = dimensions.width * CELL_SIZE
+        const height = dimensions.height * CELL_SIZE
+        const url = resolveMapBackgroundUrl(logicalPath)
+
+        if (logicalPath.toLowerCase().endsWith(".gif")) {
+            const source = await Assets.load<GifSource>(url)
+            for (const texture of source.textures) texture.source.scaleMode = "nearest"
+            const gif = new GifSprite({ source, loop: true, autoPlay: true, autoUpdate: false })
+            gif.width = width
+            gif.height = height
+            this.app.ticker.add(ticker => gif.update(ticker))
+            this.gridContainer.addChild(gif)
+            return
         }
 
-        map.cells.forEach((row, y) => {
-            row.forEach((type, x) => {
-                const tile = new Sprite(tileTextures.get(TILE_BY_OBSTACLE[type]))
-                tile.x = x * CELL_SIZE
-                tile.y = y * CELL_SIZE
-                tile.width = CELL_SIZE
-                tile.height = CELL_SIZE
-                this.gridContainer.addChild(tile)
-            })
-        })
+        const texture = await Assets.load<Texture>(url)
+        texture.source.scaleMode = "nearest"
+        const sprite = new Sprite(texture)
+        sprite.width = width
+        sprite.height = height
+        this.gridContainer.addChild(sprite)
     }
 
     private async spawnEntity(entity: EntitySnapshot, visual: EntityVisual): Promise<void> {

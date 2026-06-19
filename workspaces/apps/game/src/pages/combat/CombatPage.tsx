@@ -1,4 +1,5 @@
 import { useCombatScene } from "@features/fight/rendering/hooks/use-combat-scene.hook";
+import { useStageFit } from "@features/fight/rendering/hooks/use-stage-fit.hook";
 import { CELL_SIZE } from "@features/fight/rendering/CombatScene";
 import { HealthBarsOverlay } from "@components/ui/combat/HealthBarsOverlay";
 import { TurnCounter } from "@components/ui/combat/TurnCounter";
@@ -6,13 +7,13 @@ import { CombatLog } from "@components/ui/combat/CombatLog";
 import { TurnRoster } from "@components/ui/combat/TurnRoster";
 import { AnimatedBackground } from "@components/ui/AnimatedBackground";
 import bgHomeImage from "../../assets/images/bg-home.png";
-import type { CombatLogLine } from "../../features/fight/replay/combat-view.types";
+import type { CombatLogLine } from "@features/fight/replay/combat-view.types.ts";
 import STYLES from "./styles";
 import { useLocation } from "react-router-dom";
-import type { BasePvpFight } from "../../shared/types/fight.types";
+import type { BasePvpFight } from "@shared/types/fight.types.ts";
 import { useState } from "react";
 import CombatTransition from "@features/fight/vs-screen/CombatTransition";
-import {GambitInspector} from "../../components/ui/combat/GambitInspector.tsx";
+import {GambitInspector} from "@components/ui/combat/GambitInspector.tsx";
 
 export type CombatPageLocationState = {
     playerName: string
@@ -29,6 +30,7 @@ export function CombatPage() {
 
     const stageWidth = (state.mapDimensions?.width ?? 10) * CELL_SIZE;
     const stageHeight = (state.mapDimensions?.height ?? 10) * CELL_SIZE;
+    const { fitRef, scale } = useStageFit(stageWidth, stageHeight);
 
     const activeId = state.currentTurnOwnerId;
     const nextId = state.upcomingTurnOwners[0] ?? null;
@@ -75,13 +77,22 @@ export function CombatPage() {
 
                         <div className={STYLES.body}>
                             {/* Scène : la grille Pixi + overlay barres de vie */}
-                            <div className={STYLES.stageColumn}>
-                                <div
-                                    className={STYLES.stageWrapper}
-                                    style={{ width: stageWidth, height: stageHeight }}
-                                >
-                                    <div ref={containerRef} style={{ width: stageWidth, height: stageHeight }} />
-                                    <HealthBarsOverlay sceneRef={sceneRef} entities={state.entities} />
+                            <div ref={fitRef} className={STYLES.stageColumn}>
+                                {/* Boîte qui ne réserve que la taille mise à l'échelle ; la scène
+                                    Pixi rend à sa taille logique et est réduite via transform. */}
+                                <div className="shrink-0" style={{ width: stageWidth * scale, height: stageHeight * scale }}>
+                                    <div
+                                        className={STYLES.stageWrapper}
+                                        style={{
+                                            width: stageWidth,
+                                            height: stageHeight,
+                                            transform: `scale(${scale})`,
+                                            transformOrigin: "top left",
+                                        }}
+                                    >
+                                        <div ref={containerRef} style={{ width: stageWidth, height: stageHeight }} />
+                                        <HealthBarsOverlay sceneRef={sceneRef} entities={state.entities} />
+                                    </div>
                                 </div>
                             </div>
 
