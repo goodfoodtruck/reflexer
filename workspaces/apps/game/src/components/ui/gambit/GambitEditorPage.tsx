@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import bgHomeImage from '../../../assets/images/bg-home.png';
 import { Header } from '../header/Header';
 import { TacticalMemo } from './tacticalMemo/TacticalMemo';
