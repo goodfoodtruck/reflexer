@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { UserModel } from "@models/user.model"
 import { UserRankingModel } from "@models/ranked/user_ranking.model"
+import { requireAuth } from "../auth.middleware"
 
 const router      = Router()
 const JWT_SECRET  = process.env.JWT_SECRET ?? "reflexer_secret"
@@ -123,6 +124,20 @@ router.post("/reset-password", async (req, res) => {
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: "Erreur lors de la réinitialisation" })
+    }
+})
+
+router.get("/me", requireAuth, async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.user!.userId, { name: 1 })
+        if (! user) {
+            res.status(401).json({ error: "Utilisateur introuvable" })
+            return
+        }
+        res.json({ id: user._id, name: user.name })
+    } catch (error) {
+        console.error("Erreur GET /auth/me:", error)
+        res.status(500).json({ error: "INTERNAL_ERROR" })
     }
 })
 
