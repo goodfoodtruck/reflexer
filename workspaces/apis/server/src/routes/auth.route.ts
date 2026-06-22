@@ -7,8 +7,6 @@ import { UserRankingModel } from "@models/ranked/user_ranking.model"
 const router      = Router()
 const JWT_SECRET  = process.env.JWT_SECRET ?? "reflexer_secret"
 const SALT_ROUNDS = 10
-const SECRET_QUESTION = "Quel est le prénom de votre mère ?"
-
 router.post("/register", async (req, res) => {
     try {
         const { name, password, secretAnswer } = req.body as {
@@ -88,10 +86,6 @@ router.post("/login", async (req, res) => {
         console.error(error)
         res.status(500).json({ error: "Erreur lors de la connexion" })
     }
-})
-
-router.get("/question", (_, res) => {
-    res.json({ question: SECRET_QUESTION })
 })
 
 router.post("/reset-password", async (req, res) => {
