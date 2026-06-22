@@ -3,16 +3,17 @@ import type {
   ConditionBlock,
   DraftCondition,
   DraftGambit,
-  SavedCondition
+  SavedCondition,
 } from '../../../GambitTypes';
-import {
-  passiveIdToStatusLabel,
-  rangeLabelToRange,
-  rangeToLabel,
-  statusLabelToPassiveId
-} from '../../../gambit.adapter';
-import { FILTER_CATEGORIES } from '../../../gambitEditorOptions';
 import { buildBannerText } from '../utils';
+import {
+  categoriesForScope,
+  sameBlockValue,
+  type BlockValue,
+  type CategoryDefinition,
+  type CategoryId,
+  type Scope,
+} from '@components/ui/gambit/filters/filterRegistry';
 
 export type ViewMode = 'SELECT_TARGET' | 'BUILD_CONDITION';
 
@@ -21,49 +22,28 @@ interface UseConditionStepProps {
   updateDraft: (updates: Partial<DraftGambit>) => void;
 }
 
-function draftConditionToBlock(c: DraftCondition): ConditionBlock {
-  switch (c.filterType) {
-    case 'HP_BELOW':     return { categoryId: 'health', values: [`PV < ${c.value}%`] };
-    case 'HP_ABOVE':     return { categoryId: 'health', values: [`PV > ${c.value}%`] };
-    case 'ARMOR_BELOW':  return { categoryId: 'armor',  values: [`ARMURE < ${c.value}%`] };
-    case 'ARMOR_ABOVE':  return { categoryId: 'armor',  values: [`ARMURE > ${c.value}%`] };
-    case 'ENERGY_BELOW': return { categoryId: 'energy', values: [`ÉNERGIE < ${c.value}%`] };
-    case 'ENERGY_ABOVE': return { categoryId: 'energy', values: [`ÉNERGIE > ${c.value}%`] };
-
-    case 'CHARACTER_IN_RANGE_OF_ANOTHER':
-    case 'ENEMY_IN_RANGE_OF_CHARACTER':
-      return { categoryId: 'in_range_of_ally', values: [rangeToLabel(Number(c.value))] };
-
-    case 'CHARACTER_IN_RANGE_OF_ENEMY':
-    case 'ENEMY_IN_RANGE_OF_ANOTHER':
-      return { categoryId: 'in_range_of_enemy', values: [rangeToLabel(Number(c.value))] };
-
-    case 'IN_RANGE':
-      return {
-        categoryId: c.scopeKind === 'ALLY' ? 'distance_character' : 'distance_enemy',
-        values: [rangeToLabel(Number(c.value))]
-      };
-
-    case 'HAS_PASSIVE':
-      return {
-        categoryId: 'status',
-        values: String(c.value).split(',').filter(Boolean).map(passiveIdToStatusLabel)
-      };
-  }
+function toScope(targetId: string): Scope {
+  return (['SELF', 'ALLY', 'ENEMY'].includes(targetId) ? targetId : 'ENEMY') as Scope;
 }
 
+/** Réouverture en édition : un DraftCondition = un bloc (catégorie + valeurs). */
 function initSavedConditions(draft: DraftGambit): SavedCondition[] {
-  if (!draft.conditions || draft.conditions.length === 0) return [];
-
-  const grouped: Record<string, ConditionBlock[]> = {};
-  draft.conditions.forEach((c) => {
-    if (!grouped[c.scopeKind]) grouped[c.scopeKind] = [];
-    grouped[c.scopeKind].push(draftConditionToBlock(c));
-  });
-
-  return Object.keys(grouped).map((targetId) => ({
+  const grouped = new Map<Scope, { blocks: ConditionBlock[]; blockOperator: 'AND' | 'OR' }>();
+  for (const c of draft.conditions) {
+    const existing = grouped.get(c.scopeKind);
+    if (existing) {
+      existing.blocks.push({ categoryId: c.filterTypeCategory, values: c.blockValues });
+    } else {
+      grouped.set(c.scopeKind, {
+        blocks: [{ categoryId: c.filterTypeCategory, values: c.blockValues }],
+        blockOperator: c.scopeOperator ?? 'AND',
+      });
+    }
+  }
+  return Array.from(grouped.entries()).map(([targetId, { blocks, blockOperator }]) => ({
     targetId,
-    blocks: grouped[targetId]
+    blocks,
+    blockOperator,
   }));
 }
 
@@ -72,107 +52,26 @@ function initConfiguredTargets(draft: DraftGambit): string[] {
   return Array.from(new Set(draft.conditions.map((c) => c.scopeKind)));
 }
 
-function toScope(targetId: string): 'SELF' | 'ALLY' | 'ENEMY' {
-  return (['SELF', 'ALLY', 'ENEMY'].includes(targetId) ? targetId : 'ENEMY') as
-    | 'SELF'
-    | 'ALLY'
-    | 'ENEMY';
-}
-
-const RANGE_RELATION_MAP: Record<string, Record<string, DraftCondition['filterType']>> = {
-  ALLY: {
-    'in_range_of_ally':  'CHARACTER_IN_RANGE_OF_ANOTHER',
-    'in_range_of_enemy': 'CHARACTER_IN_RANGE_OF_ENEMY'
-  },
-  ENEMY: {
-    'in_range_of_ally':  'ENEMY_IN_RANGE_OF_CHARACTER',
-    'in_range_of_enemy': 'ENEMY_IN_RANGE_OF_ANOTHER'
-  }
-};
-
-function blockToDraftCondition(
-  block: ConditionBlock,
-  targetId: string,
-  index: number
-): DraftCondition | null {
-  let filterType: DraftCondition['filterType'];
-  let value: number | string;
-
-  const parseThreshold = (label: string): { above: boolean; n: number } => ({
-    above: label.includes('>'),
-    n: parseInt(label.match(/\d+/)?.[0] ?? '0', 10)
-  });
-
-  const scope = toScope(targetId);
-
-  switch (block.categoryId) {
-    case 'health': {
-      const { above, n } = parseThreshold(block.values[0] ?? '');
-      filterType = above ? 'HP_ABOVE' : 'HP_BELOW';
-      value = n;
-      break;
-    }
-    case 'armor': {
-      const { above, n } = parseThreshold(block.values[0] ?? '');
-      filterType = above ? 'ARMOR_ABOVE' : 'ARMOR_BELOW';
-      value = n;
-      break;
-    }
-    case 'energy': {
-      const { above, n } = parseThreshold(block.values[0] ?? '');
-      filterType = above ? 'ENERGY_ABOVE' : 'ENERGY_BELOW';
-      value = n;
-      break;
-    }
-    case 'distance_character':
-    case 'distance_enemy': {
-      filterType = 'IN_RANGE';
-      value = rangeLabelToRange(block.values[0] ?? '');
-      break;
-    }
-    case 'in_range_of_ally':
-    case 'in_range_of_enemy': {
-      const resolved = RANGE_RELATION_MAP[scope]?.[block.categoryId];
-      if (!resolved) return null;
-      filterType = resolved;
-      value = rangeLabelToRange(block.values[0] ?? '');
-      break;
-    }
-    case 'status': {
-      filterType = 'HAS_PASSIVE';
-      value = block.values.map(statusLabelToPassiveId).filter(Boolean).join(',');
-      break;
-    }
-    default:
-      return null;
-  }
-
-  return {
-    id: `temp-${targetId}-${block.categoryId}-${index}`,
-    scopeKind: scope,
-    filterType,
-    value
-  };
-}
-
 export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('SELECT_TARGET');
   const [activeTargetContext, setActiveTargetContext] = useState<string | null>(null);
   const [savedConditions, setSavedConditions] = useState<SavedCondition[]>(() =>
-    initSavedConditions(draft)
+    initSavedConditions(draft),
   );
   const [configuredTargets, setConfiguredTargets] = useState<string[]>(() =>
-    initConfiguredTargets(draft)
+    initConfiguredTargets(draft),
   );
   const [blocks, setBlocks] = useState<ConditionBlock[]>([]);
-  const [currentCat, setCurrentCat] = useState<string | null>(null);
-  const [currentValues, setCurrentValues] = useState<string[]>([]);
+  const [blockOperator, setBlockOperator] = useState<'AND' | 'OR'>('AND');
+  const [currentCat, setCurrentCat] = useState<CategoryId | null>(null);
+  const [currentValues, setCurrentValues] = useState<BlockValue[]>([]);
 
   const updateDraftRef = useRef(updateDraft);
   useEffect(() => {
     updateDraftRef.current = updateDraft;
   });
 
+  /* Aperçu vivant : blocs validés + bloc en cours. */
   const effectiveConditions = useMemo<SavedCondition[]>(() => {
     if (viewMode !== 'BUILD_CONDITION' || !activeTargetContext) return savedConditions;
 
@@ -184,40 +83,73 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
 
     return [
       ...savedConditions.filter((c) => c.targetId !== activeTargetContext),
-      { targetId: activeTargetContext, blocks: pendingBlocks }
+      { targetId: activeTargetContext, blocks: pendingBlocks, blockOperator },
     ];
-  }, [viewMode, savedConditions, activeTargetContext, blocks, currentCat, currentValues]);
+  }, [viewMode, savedConditions, activeTargetContext, blocks, currentCat, currentValues, blockOperator]);
 
+  /* Push vers le draft : UN DraftCondition par bloc (toutes ses valeurs). */
   useEffect(() => {
     const formatted: DraftCondition[] = effectiveConditions.flatMap((cond) =>
-      cond.blocks
-        .map((block, i) => blockToDraftCondition(block, cond.targetId, i))
-        .filter((c): c is DraftCondition => c !== null)
+      cond.blocks.map((block) => ({
+        id: `temp-${cond.targetId}-${block.categoryId}`,
+        scopeKind: toScope(cond.targetId),
+        filterTypeCategory: block.categoryId,
+        blockValues: block.values,
+        scopeOperator: cond.blockOperator,
+      })),
     );
     updateDraftRef.current({ conditions: formatted });
   }, [effectiveConditions]);
 
-  const catOptions = currentCat
-    ? (FILTER_CATEGORIES.find((c) => c.id === currentCat)?.options ?? [])
-    : [];
+  /* Catégories proposées selon le scope (déclaratif, via le registry). */
+  const availableCategories = useMemo<readonly CategoryDefinition[]>(
+    () => (activeTargetContext ? categoriesForScope(toScope(activeTargetContext)) : []),
+    [activeTargetContext],
+  );
 
-  const bannerText = buildBannerText(activeTargetContext, blocks, currentCat, currentValues);
+  /* Options du picker courant. */
+  const catOptions = useMemo(
+    () => (currentCat ? (availableCategories.find((c) => c.id === currentCat)?.options ?? []) : []),
+    [currentCat, availableCategories],
+  );
+
+  const bannerText = buildBannerText(activeTargetContext, blocks, blockOperator, currentCat, currentValues);
+
+  /* ---------------- Handlers ---------------- */
 
   const handleSelectTarget = (id: string) => {
     const existing = savedConditions.find((c) => c.targetId === id);
     setBlocks(existing ? [...existing.blocks] : []);
+    setBlockOperator(existing?.blockOperator ?? 'AND');
     setCurrentCat(null);
     setCurrentValues([]);
     setActiveTargetContext(id);
     setViewMode('BUILD_CONDITION');
   };
 
-  const handleToggleValue = (v: string) => {
-    setCurrentValues((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
+  const handleToggleBlockOperator = () => {
+    setBlockOperator((prev) => (prev === 'AND' ? 'OR' : 'AND'));
+  };
+
+  /** Changer de catégorie valide le bloc en cours (évite la réinterprétation). */
+  const handleSelectCat = (id: CategoryId) => {
+    if (currentCat && currentCat !== id && currentValues.length > 0) {
+      setBlocks((prev) => [...prev, { categoryId: currentCat, values: currentValues }]);
+      setCurrentValues([]);
+    }
+    setCurrentCat(id);
+  };
+
+  const handleToggleValue = (v: BlockValue) => {
+    setCurrentValues((prev) =>
+      prev.some((x) => sameBlockValue(x, v))
+        ? prev.filter((x) => !sameBlockValue(x, v))
+        : [...prev, v],
+    );
   };
 
   const handleConfirmBlock = () => {
-    if (!currentCat) return;
+    if (!currentCat || currentValues.length === 0) return;
     setBlocks((prev) => [...prev, { categoryId: currentCat, values: currentValues }]);
     setCurrentCat(null);
     setCurrentValues([]);
@@ -227,8 +159,8 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     setBlocks((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleRemoveCurrentValue = (v: string) => {
-    setCurrentValues((prev) => prev.filter((x) => x !== v));
+  const handleRemoveCurrentValue = (v: BlockValue) => {
+    setCurrentValues((prev) => prev.filter((x) => !sameBlockValue(x, v)));
   };
 
   const handleRemoveTarget = (targetId: string) => {
@@ -238,17 +170,18 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
 
   const handleSaveConditionGroup = () => {
     const final = [...blocks];
-    if (currentCat && currentValues.length > 0)
+    if (currentCat && currentValues.length > 0) {
       final.push({ categoryId: currentCat, values: currentValues });
+    }
 
     if (activeTargetContext) {
       if (final.length > 0) {
         setSavedConditions((prev) => [
           ...prev.filter((c) => c.targetId !== activeTargetContext),
-          { targetId: activeTargetContext, blocks: final }
+          { targetId: activeTargetContext, blocks: final, blockOperator },
         ]);
         setConfiguredTargets((prev) =>
-          prev.includes(activeTargetContext) ? prev : [...prev, activeTargetContext]
+          prev.includes(activeTargetContext) ? prev : [...prev, activeTargetContext],
         );
       } else {
         setSavedConditions((prev) => prev.filter((c) => c.targetId !== activeTargetContext));
@@ -271,6 +204,8 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     activeTargetContext,
     configuredTargets,
     blocks,
+    blockOperator,
+    availableCategories,
     currentCat,
     currentValues,
     catOptions,
@@ -281,9 +216,10 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     handleConfirmBlock,
     handleSaveConditionGroup,
     handleCancelBuild,
-    setCurrentCat,
+    handleToggleBlockOperator,
+    setCurrentCat: handleSelectCat,
     handleRemoveBlock,
     handleRemoveCurrentValue,
-    handleRemoveTarget
+    handleRemoveTarget,
   };
 }

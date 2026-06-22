@@ -46,7 +46,7 @@ export type LivingEntityFilter =
 
 
 /** Filtres applicables à soi-même. */
-export type SelfFilter = LivingEntityFilter
+export type SelfFilter = LivingEntityFilter 
 
 /** applicable à un allié ou un ennemi, pour vérifier si il est à portée, non-applicable à soi-même */
 export type InRangeFilter = { type: "IN_RANGE", range: ERange }

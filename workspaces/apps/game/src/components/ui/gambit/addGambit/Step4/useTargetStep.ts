@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import type { DraftGambit } from '../../GambitTypes';
+import type { DraftGambit, ConditionBlock } from '../../GambitTypes';
 import { sortLabelToSort, sortToLabel } from '../../gambit.adapter';
-import { FILTER_CATEGORIES } from '../../gambitEditorOptions';
+import {
+  formatBlockValue,
+  sameBlockValue,
+  type BlockValue,
+  type CategoryId,
+} from '@components/ui/gambit/filters/filterRegistry';
 
 export type InternalStep = 1 | 2 | 3;
 
-export type FilterBlock = { categoryId: string; values: string[] };
+export type FilterBlock = ConditionBlock;
 export type ConfiguredTarget = { kind: string; filters: FilterBlock[]; sortVal: string | null };
 
 interface UseTargetStepProps {
@@ -13,9 +18,10 @@ interface UseTargetStepProps {
   updateDraft: (updates: Partial<DraftGambit>) => void;
 }
 
-export function formatBlockText(catId: string, values: string[]): string {
+export function formatBlockText(categoryId: CategoryId, values: BlockValue[]): string {
   if (values.length === 0) return '';
-  return catId === 'type' ? `DE TYPE ${values.join(' OU ')}` : values.join(' OU ');
+  const labels = values.map((v) => formatBlockValue(categoryId, v));
+  return labels.join(' OU ');
 }
 
 export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
@@ -25,7 +31,7 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     if (draft.targetKind && draft.targetSort) {
       return {
         kind: draft.targetKind,
-        filters: draft.targetFilters.map((f) => ({ categoryId: f.categoryId, values: f.values })),
+        filters: draft.targetFilters,
         sortVal: sortToLabel(draft.targetSort)
       };
     }
@@ -37,13 +43,9 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     draft.targetSort ? sortToLabel(draft.targetSort) : null
   );
   const [filterBlocks, setFilterBlocks] = useState<FilterBlock[]>([]);
-  const [currentFilterCat, setCurrentFilterCat] = useState<string | null>(null);
-  const [currentFilterVals, setCurrentFilterVals] = useState<string[]>([]);
+  const [currentFilterCat, setCurrentFilterCat] = useState<CategoryId | null>(null);
+  const [currentFilterVals, setCurrentFilterVals] = useState<BlockValue[]>([]);
   const [sortCat, setSortCat] = useState<string | null>(null);
-
-  const catOptions = currentFilterCat
-    ? (FILTER_CATEGORIES.find((c) => c.id === currentFilterCat)?.options ?? [])
-    : [];
 
   const handleSelectKind = (kind: string) => {
     setLocalKind(kind);
@@ -60,9 +62,11 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     setInternalStep(2);
   };
 
-  const handleToggleFilterVal = (val: string) => {
+  const handleToggleFilterVal = (val: BlockValue) => {
     setCurrentFilterVals((prev) =>
-      prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]
+      prev.some((v) => sameBlockValue(v, val))
+        ? prev.filter((v) => !sameBlockValue(v, val))
+        : [...prev, val]
     );
   };
 
@@ -74,6 +78,10 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     ]);
     setCurrentFilterCat(null);
     setCurrentFilterVals([]);
+  };
+
+  const handleRemoveFilterBlock = (index: number) => {
+    setFilterBlocks((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleRemoveFilter = (index: number) => {
@@ -129,10 +137,10 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     currentFilterVals,
     sortCat,
     setSortCat,
-    catOptions,
     handleSelectKind,
     handleToggleFilterVal,
     handleConfirmFilterBlock,
+    handleRemoveFilterBlock,
     handleGoToSort,
     handleSave,
     handleReset,

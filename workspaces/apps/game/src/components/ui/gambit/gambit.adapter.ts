@@ -1,318 +1,302 @@
-import { ERange, ETargetType } from '@reflexer/engine';
+/**
+ * Conversion bidirectionnelle entre l'éditeur (DraftGambit) et les types du moteur.
+ *
+ * Ce fichier ne contient QUE de la logique de conversion de données.
+ * Tout ce qui est "affichage" (libellés, labels) vit dans display.ts.
+ * Tout ce qui est "définition de filtres/catégories" vit dans filters/filterRegistry.ts.
+ *
+ * Sémantique des opérateurs :
+ *  - plusieurs valeurs dans un même bloc  → OU  (ex: "à courte OU moyenne portée")
+ *  - plusieurs blocs sur un même scope    → scopeOperator (ET par défaut)
+ *  - plusieurs scopes                     → draft.operator
+ */
+import { ETargetType } from '@reflexer/engine';
 import type {
-  AnyFilter,
-  ArmorAboveFilter,
-  ArmorBelowFilter,
-  CharacterFilter,
-  ConditionGroup,
-  EnemyFilter,
-  EnergyAboveFilter,
-  EnergyBelowFilter,
-  ExistsCondition,
-  GambitIntent,
-  HpAboveFilter,
-  HpBelowFilter,
-  InRangeFilter,
-  SelfFilter,
-  TargetSelector,
-  TargetSort
+  AnyFilter, CharacterFilter, ConditionGroup, EnemyFilter,
+  ExistsCondition, GambitIntent, SelfFilter, TargetSelector,
 } from '@reflexer/engine';
 import type { DraftCondition, DraftGambit } from './GambitTypes';
+import {
+  filterToCategory,
+  getCategory,
+  type BlockValue,
+  type CategoryId,
+  type Scope,
+} from './filters/filterRegistry';
+import { sortLabelToSort, sortToLabel } from './sorts/sortRegistry';
+import type { StoredGambit } from '@services/gambit.service';
 
-/**
- * Couche de conversion entre les données de l'éditeur (libellés affichés au
- * joueur, DraftGambit) et les formes canoniques du moteur, persistées telles
- * quelles en base. Toute correspondance UI <-> moteur vit ici.
- */
+export { sortLabelToSort, sortToLabel };
 
-/** Passifs réellement définis dans le moteur, avec leur libellé joueur */
-export const STATUS_OPTIONS = [
-  { passiveId: 'bleed', label: 'SAIGNEMENT' },
-  { passiveId: 'vulnerable', label: 'VULNÉRABLE' },
-  { passiveId: 'thorns', label: 'ÉPINES' }
-] as const;
-
-export const statusLabelToPassiveId = (label: string): string | null =>
-  STATUS_OPTIONS.find((s) => s.label === label)?.passiveId ?? null;
-
-export const passiveIdToStatusLabel = (passiveId: string): string =>
-  STATUS_OPTIONS.find((s) => s.passiveId === passiveId)?.label ?? passiveId;
-
-const SORT_LABEL_TO_SORT: Record<string, TargetSort> = {
-  'LE PLUS PROCHE': 'NEAREST',
-  'LE PLUS ÉLOIGNÉ': 'FURTHEST',
-
-  "LE PLUS PROCHE D'UN ALLIÉ": 'NEAREST_FROM_ALLY',
-  "LE PLUS ÉLOIGNÉ D'UN ALLIÉ": 'FURTHEST_FROM_ALLY',
-
-  "LE PLUS PROCHE D'UN ENNEMI": 'NEAREST_FROM_ENEMY',
-  "LE PLUS ÉLOIGNÉ D'UN ENNEMI": 'FURTHEST_FROM_ENEMY',
-
-  'LES PLUS ÉLEVÉS': 'HIGHEST_HP',
-  'LES MOINS ÉLEVÉS': 'LOWEST_HP',
-
-  "LE PLUS D'ARMURE": 'HIGHEST_ARMOR',
-  "LE MOINS D'ARMURE": 'LOWEST_ARMOR',
-
-  "LE PLUS D'ÉNERGIE": 'HIGHEST_ENERGY',
-  "LE MOINS D'ÉNERGIE": 'LOWEST_ENERGY'
-};
-
-const KNOWN_SORTS: TargetSort[] = [
-  'LOWEST_HP', 
-  'HIGHEST_HP', 
-  'NEAREST', 
-  'FURTHEST',
-  'NEAREST_FROM_ALLY', 
-  'NEAREST_FROM_ENEMY', 
-  'FURTHEST_FROM_ALLY', 
-  'FURTHEST_FROM_ENEMY',
-  'LOWEST_ARMOR',
-  'HIGHEST_ARMOR',
-  'LOWEST_ENERGY',
-  'HIGHEST_ENERGY'
-];
-
-/** Libellé du picker de tri -> valeur moteur. Accepte aussi une valeur moteur déjà convertie. */
-export const sortLabelToSort = (value: string | null): TargetSort => {
-  if (!value) return 'NEAREST';
-  if (KNOWN_SORTS.includes(value as TargetSort)) return value as TargetSort;
-  return SORT_LABEL_TO_SORT[value] ?? 'NEAREST';
-};
-
-export const sortToLabel = (sort: string): string => {
-  const entry = Object.entries(SORT_LABEL_TO_SORT).find(([, v]) => v === sort);
-  return entry ? entry[0] : sort;
-};
-
-const RANGE_LABEL_TO_RANGE: Record<string, ERange> = {
-  'À COURTE PORTÉE':  ERange.SHORT,
-  'À MOYENNE PORTÉE': ERange.MEDIUM,
-  'À LONGUE PORTÉE':  ERange.LONG
-};
-
-export const rangeLabelToRange = (label: string): ERange =>
-  RANGE_LABEL_TO_RANGE[label] ?? ERange.LONG;
-
-export const rangeToLabel = (range: number): string => {
-  const entry = Object.entries(RANGE_LABEL_TO_RANGE).find(([, v]) => v === range);
-  return entry ? entry[0] : `PORTÉE ${range}`;
-};
-
-// Inverse : filterType → categoryId
-const FILTER_TYPE_TO_CATEGORY: Record<string, string> = {
-  'CHARACTER_IN_RANGE_OF_ANOTHER': 'in_range_of_ally',
-  'CHARACTER_IN_RANGE_OF_ENEMY':   'in_range_of_enemy',
-  'ENEMY_IN_RANGE_OF_CHARACTER':   'in_range_of_ally',
-  'ENEMY_IN_RANGE_OF_ANOTHER':     'in_range_of_enemy'
-};
-
-/** 'PV < 25%' / 'PV > 50%' -> filtre HP moteur */
-const parseHpLabel = (label: string): HpBelowFilter | HpAboveFilter | null => {
-  const match = label.match(/PV\s*([<>])\s*(\d+)/);
-  if (!match) return null;
-  const threshold = parseInt(match[2]!, 10);
-  return match[1] === '<'
-    ? { type: 'HP_BELOW', threshold }
-    : { type: 'HP_ABOVE', threshold };
-};
-
-/** ENERGY < 25%' / 'ENERGY > 50%' -> filtre ENERGY moteur */
-const parseEnergyLabel = (label: string): EnergyBelowFilter | EnergyAboveFilter | null => {
-  const match = label.match(/ÉNERGIE\s*([<>])\s*(\d+)/);
-  if (!match) return null;
-  const threshold = parseInt(match[2]!, 10);
-  return match[1] === '<'
-    ? { type: 'ENERGY_BELOW', threshold }
-    : { type: 'ENERGY_ABOVE', threshold };
-};
-
-/** 'ARMURE < 25%' / 'ARMURE > 50%' -> filtre ARMOR moteur */
-const parseArmorLabel = (label: string): ArmorBelowFilter | ArmorAboveFilter | null => {
-  const match = label.match(/ARMURE\s*([<>])\s*(\d+)/);
-  if (!match) return null;
-  const threshold = parseInt(match[2]!, 10);
-  return match[1] === '<'
-    ? { type: 'ARMOR_BELOW', threshold }
-    : { type: 'ARMOR_ABOVE', threshold };
-};
-
-
-const draftConditionToFilters = (c: DraftCondition): AnyFilter[] => {
-  switch (c.filterType) {
-    case 'ARMOR_BELOW':  return [{ type: 'ARMOR_BELOW',  threshold: Number(c.value) }];
-    case 'ARMOR_ABOVE':  return [{ type: 'ARMOR_ABOVE',  threshold: Number(c.value) }];
-    case 'ENERGY_BELOW': return [{ type: 'ENERGY_BELOW', threshold: Number(c.value) }];
-    case 'ENERGY_ABOVE': return [{ type: 'ENERGY_ABOVE', threshold: Number(c.value) }];
-    case 'HP_BELOW':     return [{ type: 'HP_BELOW',     threshold: Number(c.value) }];
-    case 'HP_ABOVE':     return [{ type: 'HP_ABOVE',     threshold: Number(c.value) }];
-    case 'IN_RANGE':     return [{ type: 'IN_RANGE',     range: Number(c.value) }];
-
-    case 'CHARACTER_IN_RANGE_OF_ANOTHER': return [{ type: 'CHARACTER_IN_RANGE_OF_ANOTHER', range: Number(c.value) }];
-    case 'CHARACTER_IN_RANGE_OF_ENEMY':   return [{ type: 'CHARACTER_IN_RANGE_OF_ENEMY',   range: Number(c.value) }];
-    case 'ENEMY_IN_RANGE_OF_ANOTHER':     return [{ type: 'ENEMY_IN_RANGE_OF_ANOTHER',     range: Number(c.value) }];
-    case 'ENEMY_IN_RANGE_OF_CHARACTER':   return [{ type: 'ENEMY_IN_RANGE_OF_CHARACTER',   range: Number(c.value) }];
-
-    case 'HAS_PASSIVE':
-      return String(c.value).split(',').filter(Boolean).map(passiveId => ({ type: 'HAS_PASSIVE', passiveId }));
-  }
-};
-
-const toExistsCondition = (c: DraftCondition): ExistsCondition => {
-  const filters = draftConditionToFilters(c);
-  switch (c.scopeKind) {
-    case 'SELF':
-      // SELF n'accepte pas IN_RANGE (distance à soi-même sans objet)
-      return {
-        type: 'EXISTS',
-        context: {
-          targetType: ETargetType.SELF,
-          filters: filters.filter((f): f is Exclude<AnyFilter, InRangeFilter> => f.type !== 'IN_RANGE') as SelfFilter[]
-        }
-      };
-    case 'ALLY':
-      return { type: 'EXISTS', context: { targetType: ETargetType.ALLY, filters: filters as CharacterFilter[] } };
-    case 'ENEMY':
-      return { type: 'EXISTS', context: { targetType: ETargetType.ENEMY, filters: filters as EnemyFilter[] } };
-  }
-};
+/* ────────────────────────────────────────────────────────────────────────────
+ * DRAFT → MOTEUR
+ * ────────────────────────────────────────────────────────────────────────── */
 
 export const draftToConditions = (draft: DraftGambit): ConditionGroup => {
-  const exists = draft.conditions.map(toExistsCondition);
-  return exists.length === 1
-    ? exists[0]!
-    : { operator: draft.operator, conditions: exists };
+  const byScope = new Map<Scope, DraftCondition[]>();
+  for (const c of draft.conditions) {
+    const existing = byScope.get(c.scopeKind) ?? [];
+    existing.push(c);
+    byScope.set(c.scopeKind, existing);
+  }
+
+  const scopeNodes = Array.from(byScope.entries()).map(
+    ([scope, conditions]) => buildScopeCondition(scope, conditions),
+  );
+
+  if (scopeNodes.length === 1) return scopeNodes[0]!;
+  return { operator: draft.operator, conditions: scopeNodes };
 };
 
-/** Blocs de filtres de cible (categoryId + libellés) -> filtres moteur */
-const targetFiltersToEngine = (targetFilters: DraftGambit['targetFilters']): AnyFilter[] =>
+/** Blocs d'un même scope, reliés par leur opérateur (ET par défaut). */
+function buildScopeCondition(scope: Scope, conditions: DraftCondition[]): ConditionGroup {
+  const blockNodes = conditions.map((c) => blockToCondition(scope, c));
+  if (blockNodes.length === 1) return blockNodes[0]!;
+  const op = conditions[0]?.scopeOperator ?? 'AND';
+  return { operator: op, conditions: blockNodes };
+}
+
+/** 1 valeur → EXISTS simple ; N valeurs → OU d'EXISTS. */
+function blockToCondition(scope: Scope, c: DraftCondition): ConditionGroup {
+  const cat = getCategory(c.filterTypeCategory);
+  const filters = c.blockValues
+    .map((v) => cat.blockValueToFilter(v, scope))
+    .filter((f): f is AnyFilter => f !== null);
+
+  if (filters.length <= 1) return buildExistsForScope(scope, filters);
+  return { operator: 'OR', conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+}
+
+function buildExistsForScope(scope: Scope, filters: AnyFilter[]): ExistsCondition {
+  switch (scope) {
+    case 'SELF':  return { type: 'EXISTS', context: { targetType: ETargetType.SELF,  filters: filters as SelfFilter[] } };
+    case 'ALLY':  return { type: 'EXISTS', context: { targetType: ETargetType.ALLY,  filters: filters as CharacterFilter[] } };
+    case 'ENEMY': return { type: 'EXISTS', context: { targetType: ETargetType.ENEMY, filters: filters as EnemyFilter[] } };
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * MOTEUR → DRAFT (réouverture en édition)
+ * ────────────────────────────────────────────────────────────────────────── */
+
+let reverseCounter = 0;
+
+function makeDraftCondition(scope: Scope, categoryId: CategoryId, blockValues: BlockValue[]): DraftCondition {
+  return {
+    id: `loaded-${scope}-${categoryId}-${reverseCounter++}-${Math.random().toString(36).slice(2, 9)}`,
+    scopeKind: scope,
+    filterTypeCategory: categoryId,
+    blockValues,
+  };
+}
+
+function existsToBlocks(exists: ExistsCondition): DraftCondition[] {
+  const scope = exists.context.targetType as Scope;
+  const byCat = new Map<CategoryId, BlockValue[]>();
+
+  for (const filter of exists.context.filters) {
+    const found = filterToCategory(filter);
+    if (!found) continue;
+    const existing = byCat.get(found.categoryId) ?? [];
+    existing.push(found.value);
+    byCat.set(found.categoryId, existing);
+  }
+
+  return Array.from(byCat.entries()).map(([categoryId, values]) =>
+    makeDraftCondition(scope, categoryId, values),
+  );
+}
+
+/**
+ * OU de EXISTS (même scope, même catégorie) → un seul bloc multi-valeurs.
+ * ex : { OR: [EXISTS SELF HP<25, EXISTS SELF HP<50] } → bloc { health: [<25, <50] }
+ */
+function tryParseOrAsMultiValueBlock(conditions: ConditionGroup[]): DraftCondition | null {
+  const parsed: { scope: Scope; categoryId: CategoryId; value: BlockValue }[] = [];
+
+  for (const child of conditions) {
+    if (!('type' in child) || child.type !== 'EXISTS') return null;
+    if (child.context.filters.length !== 1) return null;
+    const found = filterToCategory(child.context.filters[0]!);
+    if (!found) return null;
+    parsed.push({ scope: child.context.targetType as Scope, categoryId: found.categoryId, value: found.value });
+  }
+
+  if (parsed.length === 0) return null;
+  const { scope, categoryId } = parsed[0]!;
+  if (!parsed.every((p) => p.scope === scope && p.categoryId === categoryId)) return null;
+
+  return makeDraftCondition(scope, categoryId, parsed.map((p) => p.value));
+}
+
+/**
+ * OU de EXISTS (même scope, catégories différentes) → plusieurs blocs avec scopeOperator:'OR'.
+ * ex : { OR: [EXISTS SELF HP<25, EXISTS SELF ARMOR<5] } → deux blocs OR'd
+ */
+function tryParseCrossCategoryOrBlock(conditions: ConditionGroup[]): DraftCondition[] | null {
+  for (const child of conditions) {
+    if (!('type' in child) || child.type !== 'EXISTS') return null;
+  }
+  const scopes = conditions.map((c) =>
+    ('type' in c && c.type === 'EXISTS') ? (c.context.targetType as Scope) : null,
+  );
+  if (scopes.length === 0 || !scopes.every((s) => s === scopes[0]) || scopes[0] === null) return null;
+
+  const result: DraftCondition[] = [];
+  for (const c of conditions) {
+    if (!('type' in c) || c.type !== 'EXISTS') return null;
+    result.push(...existsToBlocks(c).map((b) => ({ ...b, scopeOperator: 'OR' as const })));
+  }
+  return result;
+}
+
+export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
+  if ('operator' in cond && cond.operator === 'NOT') return conditionsToDraft(cond.condition);
+
+  if ('operator' in cond && (cond.operator === 'AND' || cond.operator === 'OR')) {
+    if (cond.operator === 'OR') {
+      const asBlock = tryParseOrAsMultiValueBlock(cond.conditions);
+      if (asBlock) return [asBlock];
+      const crossCat = tryParseCrossCategoryOrBlock(cond.conditions);
+      if (crossCat) return crossCat;
+    }
+    return cond.conditions.flatMap(conditionsToDraft);
+  }
+
+  if ('type' in cond && cond.type === 'EXISTS') return existsToBlocks(cond);
+
+  return [];
+};
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Target selector
+ *
+ * ⚠️ Un TargetSelector a une liste plate de filtres (moteur : ET implicite).
+ *    Pour l'affichage, on reconstruit la même sémantique que les conditions :
+ *    plusieurs valeurs d'une même catégorie = OU, plusieurs catégories = ET.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+const targetFiltersToEngine = (
+  targetFilters: DraftGambit['targetFilters'],
+  scope: Scope,
+): AnyFilter[] =>
   targetFilters.flatMap((block) =>
-    block.values.flatMap((label): AnyFilter[] => {
-      switch (block.categoryId) {
-        case 'health': { const f = parseHpLabel(label);     return f ? [f] : []; }
-        case 'energy': { const f = parseEnergyLabel(label); return f ? [f] : []; }
-        case 'armor':  { const f = parseArmorLabel(label);  return f ? [f] : []; }
-        case 'status': {
-          const passiveId = statusLabelToPassiveId(label);
-          return passiveId ? [{ type: 'HAS_PASSIVE', passiveId }] : [];
-        }
-        case 'distance_me':
-        case 'distance_character':
-        case 'distance_enemy':
-          return [{ type: 'IN_RANGE', range: rangeLabelToRange(label) }];
-        case 'in_range_of_ally':
-        case 'in_range_of_enemy':
-          // Pour les filtres de target, on utilise IN_RANGE car on n'a pas le scopeKind ici
-          return [{ type: 'IN_RANGE', range: rangeLabelToRange(label) }];
-        default: return [];
-      }
-    })
+    block.values.flatMap((value): AnyFilter[] => {
+      const cat = getCategory(block.categoryId);
+      const filter = cat.blockValueToFilter(value, scope);
+      return filter ? [filter] : [];
+    }),
   );
 
 export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
   const sort = sortLabelToSort(draft.targetSort);
   switch (draft.targetKind) {
-    case 'SELF':
-      return { context: { targetType: ETargetType.SELF }, sort };
-    case 'ALLY':
-      return {
-        context: { targetType: ETargetType.ALLY, filters: targetFiltersToEngine(draft.targetFilters) as CharacterFilter[] },
-        sort
-      };
-    // targetKind vient de chaînes UI : tout inattendu retombe sur ENEMY
-    // plutôt que de produire un selector invalide rejeté par l'API
+    case 'SELF': return { context: { targetType: ETargetType.SELF }, sort };
+    case 'ALLY': return {
+      context: { targetType: ETargetType.ALLY, filters: targetFiltersToEngine(draft.targetFilters, 'ALLY') as CharacterFilter[] },
+      sort,
+    };
     case 'ENEMY':
-    default:
-      return {
-        context: { targetType: ETargetType.ENEMY, filters: targetFiltersToEngine(draft.targetFilters) as EnemyFilter[] },
-        sort
-      };
+    default:     return {
+      context: { targetType: ETargetType.ENEMY, filters: targetFiltersToEngine(draft.targetFilters, 'ENEMY') as EnemyFilter[] },
+      sort,
+    };
   }
-};
-
-const MOVEMENT_STRATEGIES = ['APPROACH', 'FLEE', 'STAY'] as const;
-type MovementStrategy = (typeof MOVEMENT_STRATEGIES)[number];
-
-const isMovementStrategy = (value: string): value is MovementStrategy =>
-  (MOVEMENT_STRATEGIES as readonly string[]).includes(value);
-
-export const draftToIntent = (draft: DraftGambit): GambitIntent =>
-  draft.intentKind === 'MOVEMENT'
-    ? {
-        kind: 'MOVEMENT',
-        strategy: isMovementStrategy(draft.intentValue) ? draft.intentValue : 'APPROACH'
-      }
-    : { kind: 'ACTION', actionId: draft.intentValue };
-
-/* ------------------------------------------------------------------ */
-/* Sens inverse : formes moteur -> draft, pour rouvrir un gambit en édition */
-
-const filterToDraftFields = (
-  filter: AnyFilter
-): Pick<DraftCondition, 'filterType' | 'value'> | null => {
-  switch (filter.type) {
-    case 'HP_BELOW': return { filterType: 'HP_BELOW', value: filter.threshold };
-    case 'HP_ABOVE': return { filterType: 'HP_ABOVE', value: filter.threshold };
-
-    case 'ENERGY_BELOW': return { filterType: 'ENERGY_BELOW', value: filter.threshold };
-    case 'ENERGY_ABOVE': return { filterType: 'ENERGY_ABOVE', value: filter.threshold };
-
-    case 'ARMOR_BELOW': return { filterType: 'ARMOR_BELOW', value: filter.threshold };
-    case 'ARMOR_ABOVE': return { filterType: 'ARMOR_ABOVE', value: filter.threshold };
-
-    case 'IN_RANGE': return { filterType: 'IN_RANGE', value: filter.range };
-    case 'CHARACTER_IN_RANGE_OF_ANOTHER': return { filterType: 'CHARACTER_IN_RANGE_OF_ANOTHER', value: filter.range };
-    case 'CHARACTER_IN_RANGE_OF_ENEMY':   return { filterType: 'CHARACTER_IN_RANGE_OF_ENEMY', value: filter.range };
-    case 'ENEMY_IN_RANGE_OF_ANOTHER':   return { filterType: 'ENEMY_IN_RANGE_OF_ANOTHER', value: filter.range };
-    case 'ENEMY_IN_RANGE_OF_CHARACTER': return { filterType: 'ENEMY_IN_RANGE_OF_CHARACTER', value: filter.range };
-
-    case 'HAS_PASSIVE': return { filterType: 'HAS_PASSIVE', value: filter.passiveId };
-    default: return null;
-  }
-};
-
-export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
-  if ('type' in cond && cond.type === 'EXISTS') {
-    return cond.context.filters.flatMap((filter, i) => {
-      const fields = filterToDraftFields(filter);
-      if (!fields) return [];
-      return [{
-        id: `loaded-${cond.context.targetType}-${filter.type}-${i}-${Math.random().toString(36).slice(2, 9)}`,
-        scopeKind: cond.context.targetType,
-        ...fields
-      }];
-    });
-  }
-  if ('operator' in cond && cond.operator === 'NOT') return conditionsToDraft(cond.condition);
-  if ('operator' in cond) return cond.conditions.flatMap(conditionsToDraft);
-  return [];
 };
 
 export const targetFiltersToDraft = (selector: TargetSelector): DraftGambit['targetFilters'] => {
   if (!('filters' in selector.context)) return [];
 
-  const inRangeCategory =
-    selector.context.targetType === ETargetType.ALLY ? 'distance_character' : 'distance_enemy';
+  const byCat = new Map<CategoryId, BlockValue[]>();
+  for (const filter of selector.context.filters) {
+    const found = filterToCategory(filter);
+    if (!found) continue;
+    const existing = byCat.get(found.categoryId) ?? [];
+    existing.push(found.value);
+    byCat.set(found.categoryId, existing);
+  }
 
-  return selector.context.filters.flatMap((filter) => {
-    switch (filter.type) {
-      case 'HP_BELOW':     return [{ categoryId: 'health', values: [`PV < ${filter.threshold}%`] }];
-      case 'HP_ABOVE':     return [{ categoryId: 'health', values: [`PV > ${filter.threshold}%`] }];
-      case 'ARMOR_BELOW':  return [{ categoryId: 'armor',  values: [`ARMURE < ${filter.threshold}%`] }];
-      case 'ARMOR_ABOVE':  return [{ categoryId: 'armor',  values: [`ARMURE > ${filter.threshold}%`] }];
-      case 'ENERGY_BELOW': return [{ categoryId: 'energy', values: [`ÉNERGIE < ${filter.threshold}%`] }];
-      case 'ENERGY_ABOVE': return [{ categoryId: 'energy', values: [`ÉNERGIE > ${filter.threshold}%`] }];
-      case 'IN_RANGE':     return [{ categoryId: inRangeCategory, values: [rangeToLabel(Number(filter.range))] }];
-
-      case 'CHARACTER_IN_RANGE_OF_ANOTHER':
-      case 'CHARACTER_IN_RANGE_OF_ENEMY':
-      case 'ENEMY_IN_RANGE_OF_ANOTHER':
-      case 'ENEMY_IN_RANGE_OF_CHARACTER':
-        return [{ categoryId: FILTER_TYPE_TO_CATEGORY[filter.type]!, values: [rangeToLabel(Number(filter.range))] }];
-
-      case 'HAS_PASSIVE':
-        return [{ categoryId: 'status', values: [passiveIdToStatusLabel(filter.passiveId)] }];
-      default: return [];
-    }
-  });
+  return Array.from(byCat.entries()).map(([categoryId, values]) => ({ categoryId, values }));
 };
+
+/**
+ * Convertit un TargetSelector en ConditionGroup pour l'affichage dans GambitRow.
+ * Même sémantique que Step2 : plusieurs valeurs dans un même bloc → OU,
+ * plusieurs blocs → ET. La reconstruction regroupe par catégorie (targetFiltersToDraft),
+ * puis chaque groupe multi-valeurs devient un OU d'EXISTS, comme blockToCondition.
+ */
+export const targetSelectorToConditionGroup = (selector: TargetSelector): ConditionGroup => {
+  const blocks = targetFiltersToDraft(selector);
+  const scope = selector.context.targetType as Scope;
+
+  if (blocks.length === 0) return buildExistsForScope(scope, []);
+
+  const blockToNode = (block: { categoryId: CategoryId; values: BlockValue[] }): ConditionGroup => {
+    const cat = getCategory(block.categoryId);
+    const filters = block.values
+      .map((v) => cat.blockValueToFilter(v, scope))
+      .filter((f): f is AnyFilter => f !== null);
+
+    if (filters.length <= 1) return buildExistsForScope(scope, filters);
+    // Plusieurs valeurs dans un bloc = OU (même logique que blockToCondition en Step2).
+    return { operator: 'OR', conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+  };
+
+  if (blocks.length === 1) return blockToNode(blocks[0]!);
+
+  return { operator: 'AND', conditions: blocks.map(blockToNode) };
+};
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Intent
+ * ────────────────────────────────────────────────────────────────────────── */
+
+const MOVEMENT_STRATEGIES = ['APPROACH', 'FLEE', 'STAY'] as const;
+type MovementStrategy = (typeof MOVEMENT_STRATEGIES)[number];
+
+const isMovementStrategy = (v: string): v is MovementStrategy =>
+  (MOVEMENT_STRATEGIES as readonly string[]).includes(v);
+
+export const draftToIntent = (draft: DraftGambit): GambitIntent =>
+  draft.intentKind === 'MOVEMENT'
+    ? { kind: 'MOVEMENT', strategy: isMovementStrategy(draft.intentValue) ? draft.intentValue : 'APPROACH' }
+    : { kind: 'ACTION', actionId: draft.intentValue };
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Initialisation du draft depuis un gambit existant (ouverture en édition)
+ * ────────────────────────────────────────────────────────────────────────── */
+
+export function buildInitialDraft(initialGambit?: StoredGambit): DraftGambit {
+  if (!initialGambit) {
+    return {
+      name: '',
+      operator: 'AND',
+      conditions: [],
+      intentKind: 'ACTION',
+      intentValue: '',
+      targetKind: 'ENEMY',
+      targetSort: '',
+      targetFilters: [],
+    };
+  }
+
+  const conditions = initialGambit.conditions;
+  const operator =
+    'operator' in conditions && (conditions.operator === 'AND' || conditions.operator === 'OR')
+      ? conditions.operator
+      : 'AND';
+
+  return {
+    name: initialGambit.name,
+    operator,
+    conditions: conditionsToDraft(conditions),
+    intentKind: initialGambit.intent.kind,
+    intentValue:
+      initialGambit.intent.kind === 'MOVEMENT'
+        ? initialGambit.intent.strategy || ''
+        : initialGambit.intent.actionId || '',
+    targetKind: initialGambit.targetSelector.context.targetType,
+    targetSort: initialGambit.targetSelector.sort || 'NEAREST',
+    targetFilters: targetFiltersToDraft(initialGambit.targetSelector),
+  };
+}

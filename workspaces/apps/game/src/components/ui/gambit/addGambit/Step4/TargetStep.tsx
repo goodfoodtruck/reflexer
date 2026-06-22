@@ -2,11 +2,12 @@ import { IconEnemy } from '../../../../../assets/icons/IconEnemy';
 import { IconCharacter } from '../../../../../assets/icons/IconCharacter';
 import { IconSelf } from '../../../../../assets/icons/IconSelf';
 import type { DraftGambit } from '../../GambitTypes';
-import { SORT_CATEGORIES } from '../../gambitEditorOptions';
+import { SORT_CATEGORIES } from '../../sorts/sortRegistry';
 import { useTargetStep } from './useTargetStep';
 import { StepSelectTarget } from './components/StepSelectTarget';
 import { StepFilterCriteria } from './components/StepFilterCriteria';
 import { StepSortPriority } from './components/StepSortPriority';
+import { TARGET_FILTER_CATEGORIES } from '../../filters/filterRegistry';
 
 const TARGET_KINDS = [
   { id: 'ENEMY', icon: <IconEnemy /> },
@@ -33,10 +34,10 @@ export function TargetStep({ draft, updateDraft }: Props) {
     currentFilterVals,
     sortCat,
     setSortCat,
-    catOptions,
     handleSelectKind,
     handleToggleFilterVal,
     handleConfirmFilterBlock,
+    handleRemoveFilterBlock,
     handleRemoveFilter,
     handleGoToSort,
     handleSave,
@@ -45,6 +46,9 @@ export function TargetStep({ draft, updateDraft }: Props) {
 
   const activeIcon = TARGET_KINDS.find((t) => t.id === localKind)?.icon;
   const sortOptions = sortCat ? (SORT_CATEGORIES.find((c) => c.id === sortCat)?.options ?? []) : [];
+  const catOptions = currentFilterCat
+    ? (TARGET_FILTER_CATEGORIES.find((c) => c.id === currentFilterCat)?.options ?? [])
+    : [];
 
   if (internalStep === 1)
     return (
@@ -69,6 +73,7 @@ export function TargetStep({ draft, updateDraft }: Props) {
         onSelectCat={setCurrentFilterCat}
         onToggleVal={handleToggleFilterVal}
         onConfirmBlock={handleConfirmFilterBlock}
+        onRemoveBlock={handleRemoveFilterBlock}
         onCancel={() => setInternalStep(1)}
         onNext={handleGoToSort}
       />

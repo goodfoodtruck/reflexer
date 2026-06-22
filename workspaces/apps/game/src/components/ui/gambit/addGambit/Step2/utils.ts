@@ -1,21 +1,28 @@
 import type { ConditionBlock } from "../../GambitTypes";
+import { formatBlockValue, type BlockValue, type CategoryId } from "@components/ui/gambit/filters/filterRegistry";
 
-export function formatBlockText(catId: string, values: string[]): string {
+export function formatBlockText(categoryId: CategoryId, values: BlockValue[]): string {
   if (values.length === 0) return '';
-  if (catId === 'status') return `STATUS: ${values.join('/')}`;
-  return values.join(' OU ');
+  const labels = values.map((v) => formatBlockValue(categoryId, v));
+  if (categoryId === 'status') return `STATUS: ${labels.join('/')}`;
+  return labels.join(' OU ');
 }
 
 export function buildBannerText(
   activeTarget: string | null,
   blocks: ConditionBlock[],
-  currentCat: string | null,
-  currentValues: string[],
+  blockOperator: 'AND' | 'OR',
+  currentCat: CategoryId | null,
+  currentValues: BlockValue[],
 ): string {
   if (!activeTarget) return '';
+
   const all = [...blocks];
-  if (currentCat && currentValues.length > 0)
+  if (currentCat && currentValues.length > 0) {
     all.push({ categoryId: currentCat, values: currentValues });
+  }
+
+  const sep = blockOperator === 'OR' ? ' OU ' : ' ET ';
   const parts = all.map((b) => formatBlockText(b.categoryId, b.values));
-  return `${activeTarget} : ${parts.length > 0 ? parts.join(' ET ') : '(SÉLECTIONNEZ UN CRITÈRE)'}`.toUpperCase();
+  return `${activeTarget} : ${parts.length > 0 ? parts.join(sep) : '(SÉLECTIONNEZ UN CRITÈRE)'}`.toUpperCase();
 }

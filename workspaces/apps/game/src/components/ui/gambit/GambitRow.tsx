@@ -8,8 +8,9 @@ import { ArrowRightIcon } from '@assets/icons/IconArrowRight';
 import { IconEdit } from '@assets/icons/IconEdit';
 import { IconTrash } from '@assets/icons/IconTrash';
 import { Styles_gambit_row } from './Gambit.styles';
-import { renderConditionNode, renderFilterText } from './gambit.utils';
 import type { StoredGambit } from '@services/gambit.service';
+import { renderConditionNode } from './ConditionTreeView';
+import { sortToLabel, targetSelectorToConditionGroup } from './gambit.adapter';
 
 interface GambitRowProps {
   gambit: StoredGambit;
@@ -95,25 +96,19 @@ export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
             <div className={Styles_gambit_row.detailsPanel}>
               <div className={Styles_gambit_row.detailsGrid}>
                 <div className={Styles_gambit_row.sectionLabel}>Quand</div>
-                <div className="flex flex-col">{renderConditionNode(gambit.conditions)}</div>
+                <div className="flex flex-col min-w-0">{renderConditionNode(gambit.conditions)}</div>
 
                 <div className={Styles_gambit_row.sectionLabel}>Cibler</div>
-                <div className={Styles_gambit_row.targetFlex}>
-                  <div className={Styles_gambit_row.targetBox}>
-                    <span className={Styles_gambit_row.targetKindBadge}>
-                      {gambit.targetSelector.context.targetType}
-                    </span>
-                    {'filters' in gambit.targetSelector.context &&
-                      gambit.targetSelector.context.filters.map((f, i) => (
-                        <span key={i} className={Styles_gambit_row.targetFilterText}>
-                          ({renderFilterText(f)})
-                        </span>
-                      ))}
+                <div className={Styles_gambit_row.targetSection}>
+                  <div className="flex flex-col min-w-0">
+                    {renderConditionNode(targetSelectorToConditionGroup(gambit.targetSelector))}
                   </div>
-                  <ArrowRightIcon className={Styles_gambit_row.targetArrow} />
-                  <span className={Styles_gambit_row.targetSortBadge}>
-                    {gambit.targetSelector.sort.replace(/_/g, ' ')}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <ArrowRightIcon className={Styles_gambit_row.targetArrow} />
+                    <span className={Styles_gambit_row.targetSortBadge}>
+                      {sortToLabel(gambit.targetSelector.sort)}
+                    </span>
+                  </div>
                 </div>
 
                 <div className={Styles_gambit_row.sectionLabel}>Faire</div>

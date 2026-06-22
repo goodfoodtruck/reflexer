@@ -8,13 +8,13 @@ import type {
   PassiveProcessorParams
 } from '@reflexer/engine';
 import type { ActionCategory, ActionItem } from './GambitTypes';
-import { passiveIdToStatusLabel } from './gambit.adapter';
-import { resolveActionIconUrl } from '@features/fight/replay/action-assets.ts';
-import { AttackIcon } from '@assets/icons/IconAttack.tsx';
-import { DefenseIcon } from '@assets/icons/IconDefense.tsx';
-import { HealIcon } from '@assets/icons/IconHeal.tsx';
-import { MovementIcon } from '@assets/icons/IconMovement.tsx';
-import { BoostIcon } from '@assets/icons/IconBoost.tsx';
+import { passiveIdToStatusLabel } from './display';
+import { resolveActionIconUrl } from '@features/fight/replay/action-assets';
+import { AttackIcon } from '@assets/icons/IconAttack';
+import { DefenseIcon } from '@assets/icons/IconDefense';
+import { HealIcon } from '@assets/icons/IconHeal';
+import { MovementIcon } from '@assets/icons/IconMovement';
+import { BoostIcon } from '@assets/icons/IconBoost';
 
 /**
  * Catalogue d'actions de l'éditeur de gambits, **entièrement dérivé de la donnée

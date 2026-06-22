@@ -14,9 +14,11 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     activeTargetContext,
     configuredTargets,
     blocks,
+    blockOperator,
     currentCat,
     currentValues,
     catOptions,
+    availableCategories,
     bannerText,
     canSave,
     handleSelectTarget,
@@ -24,6 +26,7 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     handleConfirmBlock,
     handleSaveConditionGroup,
     handleCancelBuild,
+    handleToggleBlockOperator,
     setCurrentCat,
     handleRemoveBlock,
     handleRemoveCurrentValue,
@@ -36,9 +39,11 @@ export function ConditionStep({ draft, updateDraft }: Props) {
         activeTargetContext={activeTargetContext}
         bannerText={bannerText}
         blocks={blocks}
+        blockOperator={blockOperator}
         currentCat={currentCat}
         currentValues={currentValues}
         catOptions={catOptions}
+        availableCategories={availableCategories}
         canSave={canSave}
         onBack={handleCancelBuild}
         onSelectCat={setCurrentCat}
@@ -46,6 +51,7 @@ export function ConditionStep({ draft, updateDraft }: Props) {
         onConfirmBlock={handleConfirmBlock}
         onRemoveBlock={handleRemoveBlock}
         onRemoveCurrentValue={handleRemoveCurrentValue}
+        onToggleBlockOperator={handleToggleBlockOperator}
         onSave={handleSaveConditionGroup}
       />
     );

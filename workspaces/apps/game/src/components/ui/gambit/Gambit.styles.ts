@@ -84,14 +84,12 @@ export const Styles_gambit_row = {
     'flex items-center gap-2 bg-[#1A1D24] border border-red-500/20 rounded-md py-1 px-1.5 w-fit',
   notBadge:
     'text-[10px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded-sm bg-red-500/10 text-red-500',
-  targetFlex: 'flex items-center gap-3',
-  targetBox: 'flex items-center gap-2 bg-[#1A1D24] border border-[#2A2E39] rounded-md py-1.5 px-2',
-  targetKindBadge:
-    'text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-sm bg-slate-800 text-slate-300',
-  targetFilterText: 'text-xs font-medium text-slate-400 pr-1',
+  targetSection: 'flex flex-col gap-2 min-w-0',
   targetArrow: 'w-4 h-4 text-slate-600',
   targetSortBadge:
     'text-xs font-black tracking-widest text-amber-500 uppercase bg-amber-500/10 px-3 py-1.5 rounded-md border border-amber-500/20',
+  conditionGroupAnd: 'flex flex-col gap-2 pl-3 border-l-2 border-slate-700/60',
+  conditionGroupOr: 'flex flex-col gap-2 pl-3 border-l-2 border-amber-500/35',
   intentBadgeBase:
     'text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-md border inline-block',
   intentMovement: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
@@ -110,7 +108,7 @@ export const PanelStyles = {
   heroTitle: "text-xl font-black text-white tracking-widest uppercase drop-shadow-md",
   heroSubtitle: "text-[10px] text-amber-500 font-bold uppercase tracking-[0.2em] mt-1 flex items-center gap-2",
   heroPulseDot: "w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse",
-  listContainer: "flex-1 overflow-y-auto p-5 space-y-3 custom-scrollbar",
+  listContainer: "flex-1 overflow-y-auto overflow-x-hidden p-5 space-y-3 custom-scrollbar",
   addButtonWrapper: "flex-none px-4 py-2 border-t border-slate-700/50 bg-transparent",
   addButton: "w-full py-3 bg-transparent text-slate-500 font-bold tracking-[0.2em] text-[10px] hover:text-amber-500 transition-colors focus-visible:outline-none uppercase flex justify-center items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed",
   addButtonIcon: "w-4 h-4",

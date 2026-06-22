@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
-import { IconPlus } from '../../../../../../assets/icons/IconPlus';
-import { FILTER_CATEGORIES } from '../../../gambitEditorOptions';
+import {
+  formatBlockValue,
+  TARGET_FILTER_CATEGORIES,
+  type BlockValue,
+  type BlockValueOption,
+  type CategoryId,
+} from '@components/ui/gambit/filters/filterRegistry';
+import { ConditionStack } from '../../Step2/components/ConditionStack';
+import { CriteriaListPane } from '../../Step2/components/CriteriaListPane';
 import type { FilterBlock } from '../useTargetStep';
 import { formatBlockText } from '../useTargetStep';
 import { Styles } from '../Target.styles';
@@ -9,12 +16,13 @@ interface StepFilterCriteriaProps {
   localKind: string | null;
   activeIcon: React.ReactNode;
   filterBlocks: FilterBlock[];
-  currentFilterCat: string | null;
-  currentFilterVals: string[];
-  catOptions: readonly string[];
-  onSelectCat: (id: string) => void;
-  onToggleVal: (val: string) => void;
+  currentFilterCat: CategoryId | null;
+  currentFilterVals: BlockValue[];
+  catOptions: readonly BlockValueOption[];
+  onSelectCat: (id: CategoryId) => void;
+  onToggleVal: (val: BlockValue) => void;
   onConfirmBlock: () => void;
+  onRemoveBlock: (index: number) => void;
   onCancel: () => void;
   onNext: () => void;
 }
@@ -29,15 +37,20 @@ export function StepFilterCriteria({
   onSelectCat,
   onToggleVal,
   onConfirmBlock,
+  onRemoveBlock,
   onCancel,
-  onNext
+  onNext,
 }: StepFilterCriteriaProps) {
+  const categoryItems = TARGET_FILTER_CATEGORIES.map((c) => ({ id: c.id, label: c.label }));
+
+  const valueItems = catOptions.map((o) => ({ id: o.label, label: o.label, value: o.value }));
+
+  const selectedValueIds = currentFilterCat
+    ? currentFilterVals.map((v) => formatBlockValue(currentFilterCat, v))
+    : [];
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className={Styles.container}
-    >
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className={Styles.container}>
       <div className={Styles.breadcrumb}>
         Cible &gt; <span className={Styles.activeBread}>Critères</span>
       </div>
@@ -49,63 +62,39 @@ export function StepFilterCriteria({
       </div>
 
       <div className={Styles.layoutCols}>
-        <div className="flex flex-col items-center gap-2 min-w-[200px]">
+        <div className="flex flex-col items-center gap-4">
           <div className={Styles.smallIconBox}>{activeIcon}</div>
-          <div className="flex flex-col gap-2 w-full">
-            {filterBlocks.map((b, i) => (
-              <div key={i} className={`${Styles.blockContainer} ${Styles.blockSolid}`}>
-                {formatBlockText(b.categoryId, b.values)}
-              </div>
-            ))}
-            {currentFilterVals.length > 0 ? (
-              <>
-                <div className={`${Styles.blockContainer} ${Styles.blockSolid}`}>
-                  {formatBlockText(currentFilterCat!, currentFilterVals)}
-                </div>
-                <button onClick={onConfirmBlock} className={Styles.btnAdd}>
-                  <IconPlus />
-                </button>
-              </>
-            ) : (
-              <div className={`${Styles.blockContainer} ${Styles.blockDashed}`}>
-                Filtre Optionnel
-              </div>
-            )}
-          </div>
+          <ConditionStack
+            blocks={filterBlocks}
+            currentCat={currentFilterCat}
+            currentValues={currentFilterVals}
+            onConfirmBlock={onConfirmBlock}
+            onRemoveBlock={onRemoveBlock}
+            onRemoveCurrentValue={onToggleVal}
+          />
         </div>
 
-        <div className={Styles.colList}>
-          {FILTER_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCat(cat.id)}
-              className={`${Styles.listItem} ${currentFilterCat === cat.id ? Styles.listItemActive : Styles.listItemIdle}`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        <CriteriaListPane
+          items={categoryItems}
+          selectedIds={currentFilterCat ? [currentFilterCat] : []}
+          onSelect={(id) => onSelectCat(id as CategoryId)}
+        />
 
-        <div className={Styles.colList}>
-          {catOptions.map((val) => (
-            <button
-              key={val}
-              onClick={() => onToggleVal(val)}
-              className={`${Styles.listItem} ${currentFilterVals.includes(val) ? Styles.listItemActive : Styles.listItemIdle}`}
-            >
-              {val}
-            </button>
-          ))}
-        </div>
+        {currentFilterCat && (
+          <CriteriaListPane
+            items={valueItems}
+            selectedIds={selectedValueIds}
+            onSelect={(id) => {
+              const opt = valueItems.find((v) => v.id === id);
+              if (opt) onToggleVal(opt.value);
+            }}
+          />
+        )}
       </div>
 
       <div className={Styles.footer}>
-        <button onClick={onCancel} className={`${Styles.btnBase} ${Styles.btnSecondary}`}>
-          Annuler
-        </button>
-        <button onClick={onNext} className={`${Styles.btnBase} ${Styles.btnPrimary}`}>
-          Suivant
-        </button>
+        <button onClick={onCancel} className={`${Styles.btnBase} ${Styles.btnSecondary}`}>Annuler</button>
+        <button onClick={onNext} className={`${Styles.btnBase} ${Styles.btnPrimary}`}>Suivant</button>
       </div>
     </motion.div>
   );

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { SORT_CATEGORIES } from '../../../gambitEditorOptions';
+import { SORT_CATEGORIES } from '../../../sorts/sortRegistry';
 import { Styles } from '../Target.styles';
 
 interface StepSortPriorityProps {
@@ -39,7 +39,7 @@ export function StepSortPriority({
       </div>
 
       <div className={Styles.layoutCols}>
-        <div className="flex flex-col items-center gap-2 min-w-[200px]">
+        <div className="flex flex-col items-center gap-2 min-w-50">
           <div className={Styles.smallIconBox}>{activeIcon}</div>
         </div>
 

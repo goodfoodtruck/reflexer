@@ -5,7 +5,7 @@ import { TacticalMemo } from './tacticalMemo/TacticalMemo';
 import { GambitListPanel } from './GambitListPanel';
 import { GambitEdition } from './GambitEdition';
 import { Styles_gambit_editor } from './Gambit.styles';
-import { useGambitEditor } from './UseGambitEditor';
+import { useGambitEditor } from './useGambitEditor';
 import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../guide";
 import { useAuth } from '@hooks/useAuth';
 import { resolveCharacterImages } from '../images/characterImages';

@@ -6,7 +6,7 @@ import { SituationStep } from './addGambit/Step1';
 import { ConditionStep } from './addGambit/Step2';
 import { IntentStep } from './addGambit/Step3/IntentStep';
 import { TargetStep } from './addGambit/Step4/TargetStep';
-import { buildInitialDraft } from './gambit.utils';
+import { buildInitialDraft } from './gambit.adapter';
 import type { StoredGambit } from '@services/gambit.service';
 
 const STEPS = [
