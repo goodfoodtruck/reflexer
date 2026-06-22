@@ -4,6 +4,7 @@ import { UserModel } from "@models/user.model"
 import { CharacterModel } from "@models/character.model"
 import { GambitModel } from "@models/gambit.model"
 import { UserRankingModel } from "@models/ranked/user_ranking.model"
+import { seedCharacters } from "./seedCharacters"
 
 // Personnages jouables (les autres entrées de MOCK_CHARACTERS sont des ennemis).
 const PLAYABLE: CharacterName[] = ["CHARACTER_1", "CHARACTER_2"]
@@ -22,6 +23,8 @@ export const SEED_USERS = [
  * la repeuple, sinon il remet les gambits en cohérence avec les characters.
  */
 export async function seedDatabase(): Promise<void> {
+    await seedCharacters()
+
     // 1. Users à _id fixes (+ purge d'éventuels doublons par nom hérités d'un
     //    ancien seed à _id auto-généré).
     for (const user of SEED_USERS) {
