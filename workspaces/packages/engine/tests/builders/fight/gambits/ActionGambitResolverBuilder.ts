@@ -14,8 +14,8 @@ export function buildActionGambitResolver(overrides: {
 } = {}) {
     const scopeResolver = overrides.scopeResolver ?? new EntityScopeResolver()
     const filterApplier = overrides.filterApplier ?? new FilterApplier(buildFilterRegistry())
-    const targetResolver = overrides.targetResolver ?? new GambitTargetResolver(filterApplier, scopeResolver)
     const conditionResolver = overrides.conditionResolver ?? new ConditionResolver(filterApplier, scopeResolver)
+    const targetResolver = overrides.targetResolver ?? new GambitTargetResolver(conditionResolver, scopeResolver)
 
     return new ActionGambitResolver(conditionResolver, targetResolver)
 }

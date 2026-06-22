@@ -18,7 +18,7 @@ describe("Décrémentation des passifs des entités", () => {
         config: buildConfig(),
         triggerType: "damage_dealt",
         triggeredActionId: "any_action",
-        targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
+        targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" },
         ...overrides
     })
 

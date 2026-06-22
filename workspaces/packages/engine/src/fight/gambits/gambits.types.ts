@@ -114,13 +114,15 @@ export type TargetSelector = {
 
 /**
  * Discriminant par type de cible.
- * Les filtres réduisent le pool avant application du tri.
- * SELF n'a pas de filtres — il n'y a qu'une seule entité possible.
+ * `condition` est un ConditionGroup évalué comme prédicat sur chaque candidat
+ * (même type que les conditions de gambit, mais interprété par entité et non
+ * comme requête existentielle). Absent → tous les candidats du scope sont acceptés.
+ * SELF n'a pas de condition — il n'y a qu'une seule entité possible.
  */
 type TargetContext =
     | { targetType: ETargetType.SELF }
-    | { targetType: ETargetType.ENEMY, filters: EnemyFilter[] }
-    | { targetType: ETargetType.ALLY,  filters: CharacterFilter[] }
+    | { targetType: ETargetType.ENEMY; condition?: ConditionGroup }
+    | { targetType: ETargetType.ALLY;  condition?: ConditionGroup }
 
 /**
  * Critère de sélection de la cible finale parmi les candidats filtrés.

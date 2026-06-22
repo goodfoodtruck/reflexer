@@ -171,52 +171,75 @@ export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
 /* ────────────────────────────────────────────────────────────────────────────
  * Target selector
  *
- * ⚠️ Un TargetSelector a une liste plate de filtres (moteur : ET implicite).
- *    Pour l'affichage, on reconstruit la même sémantique que les conditions :
- *    plusieurs valeurs d'une même catégorie = OU, plusieurs catégories = ET.
+ * Les filtres cible sont stockés comme un ConditionGroup (même type que les
+ * conditions de gambit). Sémantique identique à Step2 :
+ *   plusieurs valeurs dans un bloc → OU d'EXISTS
+ *   plusieurs blocs                → ET
+ * Le moteur évalue chaque candidat individuellement contre ce ConditionGroup.
  * ────────────────────────────────────────────────────────────────────────── */
 
-const targetFiltersToEngine = (
-  targetFilters: DraftGambit['targetFilters'],
+/** Construit le ConditionGroup cible depuis les blocs du draft (même logique que blockToCondition). */
+function buildTargetCondition(
   scope: Scope,
-): AnyFilter[] =>
-  targetFilters.flatMap((block) =>
-    block.values.flatMap((value): AnyFilter[] => {
-      const cat = getCategory(block.categoryId);
-      const filter = cat.blockValueToFilter(value, scope);
-      return filter ? [filter] : [];
-    }),
-  );
+  blocks: DraftGambit['targetFilters'],
+): ConditionGroup | undefined {
+  if (blocks.length === 0) return undefined;
+
+  const blockToNode = (block: { categoryId: CategoryId; values: BlockValue[] }): ConditionGroup => {
+    const cat = getCategory(block.categoryId);
+    const filters = block.values
+      .map((v) => cat.blockValueToFilter(v, scope))
+      .filter((f): f is AnyFilter => f !== null);
+
+    if (filters.length <= 1) return buildExistsForScope(scope, filters);
+    return { operator: 'OR', conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+  };
+
+  if (blocks.length === 1) return blockToNode(blocks[0]!);
+  return { operator: 'AND', conditions: blocks.map(blockToNode) };
+}
 
 export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
   const sort = sortLabelToSort(draft.targetSort);
   switch (draft.targetKind) {
-    case 'SELF': return { context: { targetType: ETargetType.SELF }, sort };
-    case 'ALLY': return {
-      context: { targetType: ETargetType.ALLY, filters: targetFiltersToEngine(draft.targetFilters, 'ALLY') as CharacterFilter[] },
-      sort,
-    };
+    case 'SELF':  return { context: { targetType: ETargetType.SELF }, sort };
+    case 'ALLY':  return { context: { targetType: ETargetType.ALLY,  condition: buildTargetCondition('ALLY',  draft.targetFilters) }, sort };
     case 'ENEMY':
-    default:     return {
-      context: { targetType: ETargetType.ENEMY, filters: targetFiltersToEngine(draft.targetFilters, 'ENEMY') as EnemyFilter[] },
-      sort,
-    };
+    default:      return { context: { targetType: ETargetType.ENEMY, condition: buildTargetCondition('ENEMY', draft.targetFilters) }, sort };
   }
 };
 
-export const targetFiltersToDraft = (selector: TargetSelector): DraftGambit['targetFilters'] => {
-  if (!('filters' in selector.context)) return [];
-
-  const byCat = new Map<CategoryId, BlockValue[]>();
-  for (const filter of selector.context.filters) {
-    const found = filterToCategory(filter);
-    if (!found) continue;
-    const existing = byCat.get(found.categoryId) ?? [];
-    existing.push(found.value);
-    byCat.set(found.categoryId, existing);
+/** Reconstruit les FilterBlock[] depuis le ConditionGroup stocké (inverse de buildTargetCondition). */
+function conditionToTargetBlocks(
+  condition: ConditionGroup,
+): DraftGambit['targetFilters'] {
+  // EXISTS simple → un bloc avec ses filtres regroupés par catégorie
+  if ('type' in condition && condition.type === 'EXISTS') {
+    const byCat = new Map<CategoryId, BlockValue[]>();
+    for (const filter of condition.context.filters) {
+      const found = filterToCategory(filter);
+      if (!found) continue;
+      const existing = byCat.get(found.categoryId) ?? [];
+      existing.push(found.value);
+      byCat.set(found.categoryId, existing);
+    }
+    return Array.from(byCat.entries()).map(([categoryId, values]) => ({ categoryId, values }));
   }
+  // OU d'EXISTS (même catégorie) → un bloc multi-valeurs
+  if ('operator' in condition && condition.operator === 'OR') {
+    const asBlock = tryParseOrAsMultiValueBlock(condition.conditions);
+    if (asBlock) return [{ categoryId: asBlock.filterTypeCategory, values: asBlock.blockValues }];
+  }
+  // ET de blocs → plusieurs blocs
+  if ('operator' in condition && condition.operator === 'AND') {
+    return condition.conditions.flatMap(conditionToTargetBlocks);
+  }
+  return [];
+}
 
-  return Array.from(byCat.entries()).map(([categoryId, values]) => ({ categoryId, values }));
+export const targetFiltersToDraft = (selector: TargetSelector): DraftGambit['targetFilters'] => {
+  if (selector.context.targetType === ETargetType.SELF || !selector.context.condition) return [];
+  return conditionToTargetBlocks(selector.context.condition);
 };
 
 /**

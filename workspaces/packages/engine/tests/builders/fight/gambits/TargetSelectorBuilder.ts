@@ -4,7 +4,7 @@ export function buildTargetSelector(
     overrides: Partial<TargetSelector> = {}
 ): TargetSelector {
     return {
-        context: { targetType: ETargetType.ENEMY, filters: [] },
+        context: { targetType: ETargetType.ENEMY },
         sort: "LOWEST_HP" as TargetSort,
         ...overrides
     }

@@ -3,7 +3,6 @@ import { PlayingEntity, PlayingEntityID } from "@fight/fight.types";
 import { ETargetType, TargetSelector, TargetSort } from "@fight/gambits/gambits.types";
 import { getHighestHpTarget } from "@fight/gambits/resolvers/target/extractors/hp/highestHPTarget";
 import { getLowestHpTarget } from "@fight/gambits/resolvers/target/extractors/hp/lowestHPTarget";
-import { FilterApplier } from "@fight/gambits/resolvers/filters/FilterApplier";
 import { EntityScopeResolver } from "@fight/gambits/resolvers/EntityScopeResolver";
 import { getNearestTarget, getFurthestTarget } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromSource";
 import { getNearestFromGroup, getFurthestFromGroup } from "@fight/gambits/resolvers/target/extractors/distance/distanceFromGroup";
@@ -11,30 +10,29 @@ import { getHighestArmorTarget } from "@fight/gambits/resolvers/target/extractor
 import { getLowestArmorTarget } from "@fight/gambits/resolvers/target/extractors/armor/lowestArmorTarget";
 import { getLowestEnergyTarget } from "@fight/gambits/resolvers/target/extractors/energy/lowestEnergyTarget";
 import { getHighestEnergyTarget } from "@fight/gambits/resolvers/target/extractors/energy/highestEnergyTarget";
+import { ConditionResolver } from "@fight/gambits/resolvers/conditions/ConditionResolver";
 
 export class GambitTargetResolver {
 
     constructor(
-        private readonly filterApplier: FilterApplier,
+        private readonly conditionResolver: ConditionResolver,
         private readonly entityScopeResolver: EntityScopeResolver
     ) {}
 
-    /**
-     * 
-     * @param playingEntity 
-     * @param fightContext 
-     * @param selector 
-     * @returns 
-     */
     resolve(
-        playingEntity: Readonly<PlayingEntity>, 
-        fightContext: IFightContextReader, 
+        playingEntity: Readonly<PlayingEntity>,
+        fightContext: IFightContextReader,
         selector: TargetSelector
     ): PlayingEntityID | null {
         let candidates = this.entityScopeResolver.resolveScope(selector.context.targetType, playingEntity, fightContext)
 
-        if (selector.context.targetType !== ETargetType.SELF)
-            candidates = this.filterApplier.applyAll(candidates, selector.context.filters, { source: playingEntity, fightContext })
+        if (selector.context.targetType !== ETargetType.SELF && selector.context.condition) {
+            const condition = selector.context.condition
+            const ctx = { source: playingEntity, fightContext }
+            candidates = candidates.filter(c =>
+                this.conditionResolver.evaluateConditionForCandidate(condition, c, ctx)
+            )
+        }
 
         if (! candidates.length) return null
 

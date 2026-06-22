@@ -1,5 +1,5 @@
-import { EnemyName, EnemyTag } from "@fight/fight.types"
-import { ConditionGroup, ETargetType, Gambit, MovementStrategy, TargetSelector, TargetSort } from "@fight/gambits/gambits.types"
+import { EnemyName, EnemyTag, EntityName } from "@fight/fight.types"
+import { ConditionGroup, ETargetType, ExistsCondition, Gambit, MovementStrategy, TargetSelector, TargetSort } from "@fight/gambits/gambits.types"
 import { LivingEntityFilter } from "@fight/gambits/resolvers/filters/entityFilters.types"
 import { CharacterConfig } from "./ICharacterRegistry"
 import { EntityVisual, SpriteClip } from "./visual.types"
@@ -16,8 +16,17 @@ const hpBelow = (pct: number): LivingEntityFilter => ({ type: "HP_BELOW", thresh
 const existsEnemy = (filters: LivingEntityFilter[] = []): ConditionGroup =>
     ({ type: "EXISTS", context: { targetType: ETargetType.ENEMY, filters }, threshold: 1 })
 
-const targetEnemy = (sort: TargetSort, filters: LivingEntityFilter[] = []): TargetSelector =>
-    ({ context: { targetType: ETargetType.ENEMY, filters }, sort })
+const existsEnemyCondition = (filters: LivingEntityFilter[]): ExistsCondition =>
+    ({ type: "EXISTS", context: { targetType: ETargetType.ENEMY, filters }, threshold: 1 })
+
+const targetEnemy = (sort: TargetSort, filters?: LivingEntityFilter[]): TargetSelector => {
+    const condition = filters?.length ? existsEnemyCondition(filters) : undefined
+    return condition
+        ? { context: { targetType: ETargetType.ENEMY, condition }, sort }
+        : { context: { targetType: ETargetType.ENEMY }, sort }
+}
+const targetSelf = (): TargetSelector =>
+    ({ context: { targetType: ETargetType.SELF }, sort: "LOWEST_HP" })
 
 const actionGambit = (
     name: string,

@@ -42,6 +42,6 @@ export const MOCK_PASSIVES: Record<PassiveID, Passive> = {
         config: { duration: "PERMANENT", applicationStrategy: { type: "RESET" } },
         triggerType: "damage_dealt",
         triggeredActionId: THORNS_TICK_ACTION_ID,
-        targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "HIGHEST_HP" },
+        targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "HIGHEST_HP" },
     },
 }

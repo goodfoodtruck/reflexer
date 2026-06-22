@@ -135,7 +135,10 @@ describe("Récupérer les gambits d'action éligibles parmi une liste", () => {
                         targetSelector: {
                             context: {
                                 targetType: ETargetType.ENEMY,
-                                filters: [{ type: "HP_BELOW", threshold: 1 }]
+                                condition: {
+                                    type: "EXISTS",
+                                    context: { targetType: ETargetType.ENEMY, filters: [{ type: "HP_BELOW", threshold: 1 }] }
+                                }
                             },
                             sort: "LOWEST_HP"
                         }
