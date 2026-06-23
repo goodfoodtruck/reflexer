@@ -13,7 +13,7 @@ export class TeamBuilder implements ITeamBuilder {
             id: `${teamId.toLowerCase()}_${index}`,
             name: member.characterName,
             teamId,
-            tags: [member.characterName],
+            tag: member.characterTag,
             position: spawnPositions[index]!,
             baseStats: { ...member.baseStats },
             currentStats: { ...member.baseStats },

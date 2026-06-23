@@ -1,10 +1,12 @@
 import { useEffect, useReducer, useRef } from "react"
-import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_CHARACTERS } from "@reflexer/engine"
+import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_ENEMY_CONFIGS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
 import type { BasePvpFight } from "../../../../shared/types/fight.types"
+import { CharacterService } from "@services/character.service"
+import { buildCatalogCharacterConfig } from "./Buildcatalogcharacterconfig "
 
 export function useCombatScene(fight: BasePvpFight, isTransitionFinished: boolean) {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -28,7 +30,21 @@ export function useCombatScene(fight: BasePvpFight, isTransitionFinished: boolea
 
                 const queue = new AnimationQueue(scene)
                 const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
-                const characterRegistry = new InMemoryCharacterRegistry(MOCK_CHARACTERS)
+
+                // Ennemis : config mockée, déjà prête (ALIEN/KNIGHT/GOBLIN).
+                // Persos joueurs : leur EntityName est leur `slug` ; on va chercher leur fiche en DB et on construit leur visuel
+                const catalogCharacters = await CharacterService.getAll().catch(() => [])
+
+                const catalogConfigs: Record<string, ReturnType<typeof buildCatalogCharacterConfig>> = {}
+                for (const character of catalogCharacters) {
+                    catalogConfigs[character.slug] = buildCatalogCharacterConfig(character)
+                }
+
+                const characterRegistry = new InMemoryCharacterRegistry({
+                    ...MOCK_ENEMY_CONFIGS,
+                    ...catalogConfigs,
+                })
+
                 const replayer = new CombatReplayer(scene, queue, dispatch, mapRegistry, characterRegistry)
 
                 if (cancelled) return

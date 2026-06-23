@@ -20,7 +20,7 @@ export class EnemyBuilder implements IEnemyBuilder {
             id: this.generateEnemyID(enemyTag, inTeamOrder),
             name: randomEnemyName,
             teamId: "ENEMY",
-            tags: [enemyTag],
+            tag: enemyTag,
             position: position,
             baseStats: { ...enemyConfig.baseStats },
             currentStats: { ...enemyConfig.baseStats },

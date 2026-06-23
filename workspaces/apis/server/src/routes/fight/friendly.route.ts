@@ -50,11 +50,13 @@ router.post("/", async (req, res) => {
             opponentUserId: opponentId,
             playerTeam: playerTeam.map((teamMember: TeamMemberData) => ({
                 characterName: teamMember.characterName,
+                characterTag: teamMember.characterTag,
                 baseStats: teamMember.baseStats,
                 gambits: teamMember.gambits
             })),
             opponentTeam: opponentTeam.map((teamMember: TeamMemberData) => ({
                 characterName: teamMember.characterName,
+                characterTag: teamMember.characterTag,
                 baseStats: teamMember.baseStats,
                 gambits: teamMember.gambits
             })),

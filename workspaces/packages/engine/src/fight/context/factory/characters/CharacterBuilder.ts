@@ -11,7 +11,7 @@ export class CharacterBuilder implements ICharacterBuilder {
             id: this.generateCharacterID(data.characterName, index),
             name: data.characterName,
             teamId: "PLAYER",
-            tags: [data.characterName],
+            tag: data.characterTag,
             position: position,
             baseStats: { ...data.baseStats },
             currentStats: { ...data.baseStats },

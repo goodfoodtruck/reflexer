@@ -217,7 +217,7 @@ export type EntitySnapshot = {
     id: PlayingEntityID
     name: EntityName
     teamId: PlayingTeamID
-    tags: EntityTag[]
+    tag: EntityTag
     position: Position
     currentStats: EntityStats
     passives: PassiveID[]
@@ -233,7 +233,7 @@ export type PlayingTeamID = "PLAYER" | "ENEMY"
 export type PlayingEntityID = string
 
 
-export type CharacterName = "CHARACTER_1" | "CHARACTER_2"
+export type CharacterName = string
 
 export type EnemyTag = 
     | "ENEMY_MELEE"
@@ -257,7 +257,7 @@ export type PlayingEntity = {
     id: PlayingEntityID
     name: EntityName
     teamId: PlayingTeamID
-    tags: EntityTag[]
+    tag: EntityTag
     position: Position
     baseStats: Readonly<EntityStats>
     currentStats: EntityStats
