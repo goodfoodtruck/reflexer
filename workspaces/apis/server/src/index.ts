@@ -11,6 +11,7 @@ import { createGameEngine } from "@reflexer/engine"
 import { seedDatabase } from "@scripts/seedDatabase"
 import authRoutes from "@routes/auth.route"
 import userRankingRoutes from "@routes/userRanking.route"
+import teamRoutes   from "@routes/team.route"
  
 dotenv.config()
 
@@ -26,7 +27,8 @@ app.use("/characters",    characterRoutes)
 app.use("/gambits",       gambitRoutes)
 app.use("/runs",          runRoutes)
 app.use("/fights",        fightRoutes)
-app.use("/auth",          authRoutes)
+app.use("/teams",      teamRoutes)
+app.use("/auth",    authRoutes)
  
 app.get("/", (_, res) => res.json({ status: "ok", service: "reflexer-server" }))
  

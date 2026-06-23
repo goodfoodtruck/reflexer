@@ -20,7 +20,7 @@ const SUBMIT_LABELS: Record<Mode, string> = {
 
 export function AuthPage() {
   const navigate = useNavigate();
-  const { login, register, resetPassword, loading, error, isAuthenticated } = useAuth();
+  const { login, register, resetPassword, loading, error, isAuthenticated, checkingSession } = useAuth();
 
   const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
@@ -30,8 +30,8 @@ export function AuthPage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated) navigate('/');
-  }, [isAuthenticated, navigate]);
+    if (!checkingSession && isAuthenticated) navigate('/');
+  }, [isAuthenticated, checkingSession, navigate]);
 
   const switchMode = (next: Mode) => {
     setMode(next);

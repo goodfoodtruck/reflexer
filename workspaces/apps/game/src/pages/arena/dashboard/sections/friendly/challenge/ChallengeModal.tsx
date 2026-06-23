@@ -2,12 +2,14 @@ import { useState } from "react"
 import { pickRandomFightMapId } from "@reflexer/engine"
 import { useAuth } from "@hooks/useAuth"
 import { FriendlyFightService } from "@services/fight/friendlyFight.service"
+import { TeamService } from "@services/team.service"
 import type { PlayerSearchResult } from "@services/user.service"
 import { ChallengeErrorView } from "./views/ChallengeErrorView"
 import { ChallengeLoadingView } from "./views/ChallengeLoadingView"
 import { ChallengeConfirmView } from "./views/ChallengeConfirmView"
 import { AnimatePresence, motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
+import { CharacterRequireGambit } from "../../CharacterRequireGambit"
 
 type ModalState =
     | { step: "CONFIRM" }
@@ -24,10 +26,11 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
     const { user } = useAuth()
     const navigate = useNavigate()
     const [state, setState] = useState<ModalState>({ step: "CONFIRM" })
+    const [missingCharacterNames, setMissingCharacterNames] = useState<string[] | null>(null)
 
     if (! user) return null // TODO: rediriger vers login ?
 
-    const onChallenge = async () => {        
+    const launchFight = async () => {
         try {
             const playedFight = await FriendlyFightService.playFight({
                 playerId: user!.id,
@@ -47,6 +50,28 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
         } catch (err) {
             setState({ step: "ERROR", message: err instanceof Error ? err.message : "Erreur" })
         }
+    }
+
+    const onChallenge = async () => {
+        try {
+            const { ready, missingCharacterNames } = await TeamService.checkReadiness()
+            if (!ready) {
+                setMissingCharacterNames(missingCharacterNames)
+                return
+            }
+        } catch (err) {
+            console.error("Erreur vérification équipe:", err)
+        }
+        launchFight()
+    }
+
+    if (missingCharacterNames !== null) {
+        return (
+            <CharacterRequireGambit
+                onClose={() => setMissingCharacterNames(null)}
+                missingCharacterNames={missingCharacterNames}
+            />
+        )
     }
 
     return (

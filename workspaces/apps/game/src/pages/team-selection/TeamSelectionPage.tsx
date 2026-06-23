@@ -1,95 +1,84 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatedBackground } from '../../components/ui/AnimatedBackground';
-import { Header } from '../../components/ui/header/Header';
-import bgHomeImage from '../../assets/images/bg-home.png';
-import heroM from '../../assets/images/hero-m.png';
-import heroW from '../../assets/images/hero-w.png';
-import { AgentCard } from '../../components/ui/agent/AgentCard';
-import { STYLES } from './Team.styles';
-import { CharacterService, type Character } from '@services/character.service';
-import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../components/guide";
+import { TeamService } from '@services/team.service';
+import { useAuth } from '@hooks/useAuth';
+import { resolveCharacterImages } from '@components/ui/images/characterImages';
+import { CharacterSelectScreen } from '@components/ui/team/CharacterSelectScreen';
+import { TeamConfigureScreen } from '@components/ui/team/TeamConfigureScreen';
+import type { SelectedCharacter } from '@components/ui/team/type';
+
+type View = 'loading' | 'select' | 'configure';
 
 export function TeamSelectionPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
+  const [view, setView] = useState<View>('loading');
+  const [selectedCharacters, setSelectedCharacters] = useState<
+    [SelectedCharacter, SelectedCharacter] | null
+  >(null);
 
-  const HERO_IMAGES = [heroM, heroW];
-  const guide = useGuide("team-selection", GUIDES["team-selection"]);
-
+  // si le joueur a déjà une équipe enregistrée, on saute l'écran de sélection
   useEffect(() => {
-    CharacterService.getAll()
-      .then((data) => setCharacters(data))
-      .catch((err) => console.error('Erreur chargement characters:', err));
-  }, []);
+    if (!user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setView('select');
+      return;
+    }
+
+    TeamService.getMine()
+      .then((team) => {
+        if (!team) {
+          setView('select');
+          return;
+        }
+
+        const visuals = team.characterIds.map((char) => ({
+          id: char._id,
+          slug: char.slug,
+          name: char.characterName,
+          description: char.description,
+          baseStats: char.baseStats as { health: number; energy: number; armor: number },
+          ...resolveCharacterImages(char.slug)
+        })) as [SelectedCharacter, SelectedCharacter];
+
+        setSelectedCharacters(visuals);
+        setView('configure');
+      })
+      .catch((err) => {
+        console.error('Erreur chargement équipe:', err);
+        setView('select');
+      });
+  }, [user]);
 
   const handleBack = () => navigate('/');
+  const handleBackToSelect = () => setView('select');
   const handleBuildHero = (characterId: string) => navigate(`/gestion-gambits/${characterId}`);
 
+  const handleTeamConfirm = async (team: [SelectedCharacter, SelectedCharacter]) => {
+    setSelectedCharacters(team);
+    setView('configure');
+    try {
+      await TeamService.save([team[0].id, team[1].id]);
+    } catch (err) {
+      console.error('Erreur sauvegarde équipe:', err);
+    }
+  };
+
+  if (view === 'loading') {
+    return null;
+  }
+
+  if (view === 'select') {
+    return <CharacterSelectScreen onConfirm={handleTeamConfirm} onBack={handleBack} />;
+  }
+
   return (
-    <div className={STYLES.container}>
-      <style>{`
-                @keyframes ambient-zoom {
-                    0%   { transform: scale(1.05) translate(0, 0); }
-                    100% { transform: scale(1.15) translate(-1%, -1%); }
-                }
-                @keyframes float {
-                    0%, 100% { transform: translateY(0); }
-                    50%       { transform: translateY(-15px); }
-                }
-            `}</style>
-
-      <div className={STYLES.bgContainer}>
-        <img src={bgHomeImage} alt="Champ de bataille" className={STYLES.bgImage} />
-      </div>
-      <AnimatedBackground />
-
-      <div className={STYLES.overlay} />
-      <div className={STYLES.scanlines} />
-
-      <div className={STYLES.foreground}>
-        <Header title="Configure ton duo" subtitle="Nouvelle partie" onBack={handleBack} />
-
-        <div className={STYLES.titleContainer}>
-          <h2 className={STYLES.mainTitle}>Choisissez un agent</h2>
-          <p className={STYLES.subTitle}>Configuration des modules tactiques</p>
-        </div>
-
-        <div className={STYLES.grid}>
-          {characters.map((character, index) => (
-            <div
-              key={character._id}
-              className={index === 0 ? STYLES.cardWrapper1 : STYLES.cardWrapper2}
-            >
-              <AgentCard
-                id={index + 1}
-                name={character.characterName}
-                heroClass={index === 0 ? 'Guerrier Lourd' : 'Archère Tactique'}
-                imageSrc={HERO_IMAGES[index] ?? heroM}
-                isDimmed={hoveredAgent !== null && hoveredAgent !== character._id}
-                onSelect={() => handleBuildHero(character._id)}
-                onMouseEnter={() => setHoveredAgent(character._id)}
-                onMouseLeave={() => setHoveredAgent(null)}
-              />
-            </div>
-          ))}
-        </div>
-
-      </div>
-
-      {guide.isVisible && (
-        <GuideOverlay
-          step={guide.step}
-          currentStep={guide.currentStep}
-          total={guide.total}
-          onNext={guide.next}
-          onPrev={guide.prev}
-          onClose={guide.close}
-        />
-      )}
-      <GuideButton onClick={guide.reset} />
-    </div>
+    <TeamConfigureScreen
+      team={selectedCharacters!}
+      onChangeTeam={handleBackToSelect}
+      onBuildHero={handleBuildHero}
+      onBack={handleBack}
+    />
   );
 }

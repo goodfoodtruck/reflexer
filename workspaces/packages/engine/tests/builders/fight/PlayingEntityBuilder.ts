@@ -5,7 +5,7 @@ export const buildPlayingEntity = (overrides: Partial<PlayingEntity> = {}): Play
         id: 'entity_default',
         name: 'CHARACTER_1',
         teamId: 'PLAYER',
-        tags: [],
+        tag: 'CHARACTER_1',
         position: { x: 0, y: 0 },
         isDead: false,
         baseStats: { health: 100, energy: 10, armor: 0 },

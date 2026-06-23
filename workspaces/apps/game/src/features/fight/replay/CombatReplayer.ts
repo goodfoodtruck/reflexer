@@ -36,7 +36,7 @@ export class CombatReplayer {
 
     async play(result: FightResult): Promise<void> {
         const map = this.mapRegistry.getConfig(result.initialState.mapId)
-        await this.scene.setup(result.initialState, map, entity => this.characterRegistry.getConfig(entity.name).visual)
+        await this.scene.setup(result.initialState, map, entity => this.characterRegistry.getConfig(entity.tag).visual)
 
         const labels = this.buildLabels(result.initialState.entities)
         const icons = this.buildIcons(result.initialState.entities)
@@ -87,7 +87,7 @@ export class CombatReplayer {
     private buildLabels(entities: EntitySnapshot[]): Map<PlayingEntityID, string> {
         const labels = new Map<PlayingEntityID, string>()
         for (const entity of entities) {
-            labels.set(entity.id, this.characterRegistry.getConfig(entity.name).name)
+            labels.set(entity.id, this.characterRegistry.getConfig(entity.tag).name)
         }
         return labels
     }
@@ -96,7 +96,7 @@ export class CombatReplayer {
     private buildIcons(entities: EntitySnapshot[]): Map<PlayingEntityID, SpriteIcon> {
         const icons = new Map<PlayingEntityID, SpriteIcon>()
         for (const entity of entities) {
-            const { idle } = this.characterRegistry.getConfig(entity.name).visual
+            const { idle } = this.characterRegistry.getConfig(entity.tag).visual
             icons.set(entity.id, {
                 url: resolveSpriteUrl(idle.path),
                 frames: idle.frames,

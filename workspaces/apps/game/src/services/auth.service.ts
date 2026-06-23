@@ -8,6 +8,11 @@ export type AuthResponse = {
   };
 };
 
+export type AuthUser = {
+  id: string;
+  name: string;
+};
+
 export const AuthService = {
   register: (name: string, password: string, secretAnswer: string) =>
     api.post<AuthResponse>('/auth/register', { name, password, secretAnswer }),
@@ -16,5 +21,7 @@ export const AuthService = {
     api.post<AuthResponse>('/auth/login', { name, password }),
 
   resetPassword: (name: string, secretAnswer: string, newPassword: string) =>
-    api.post<{ message: string }>('/auth/reset-password', { name, secretAnswer, newPassword })
+    api.post<{ message: string }>('/auth/reset-password', { name, secretAnswer, newPassword }),
+
+  me: () => api.get<AuthUser>('/auth/me'),
 };

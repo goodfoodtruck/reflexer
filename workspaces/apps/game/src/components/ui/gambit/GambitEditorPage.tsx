@@ -1,5 +1,4 @@
-import heroM from '../../../assets/images/hero-m.png';
-import heroW from '../../../assets/images/hero-w.png';
+/* eslint-disable react-hooks/rules-of-hooks */
 import bgHomeImage from '../../../assets/images/bg-home.png';
 import { Header } from '../header/Header';
 import { TacticalMemo } from './tacticalMemo/TacticalMemo';
@@ -9,6 +8,7 @@ import { Styles_gambit_editor } from './Gambit.styles';
 import { useGambitEditor } from './UseGambitEditor';
 import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../guide";
 import { useAuth } from '@hooks/useAuth';
+import { resolveCharacterImages } from '../images/characterImages';
 
 export function GambitEditorPage() {
     const { user } = useAuth()
@@ -30,7 +30,9 @@ export function GambitEditorPage() {
 
   const guide = useGuide("gambit-editor", GUIDES["gambit-editor"]);
 
-  const currentHeroImage = character?.characterName === 'CHARACTER_1' ? heroM : heroW;
+  const currentHeroImage = character?.slug
+    ? resolveCharacterImages(character.slug).illustration || bgHomeImage
+    : bgHomeImage;
 
   return (
     <div className={Styles_gambit_editor.container}>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthService } from '../services/auth.service';
 
 const TOKEN_KEY = 'reflexer_token';
@@ -17,6 +17,25 @@ export function useAuth() {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(USER_KEY);
+    if (!stored) {
+      setCheckingSession(false);
+      return;
+    }
+
+    AuthService.me()
+      .then((freshUser) => {
+        localStorage.setItem(USER_KEY, JSON.stringify(freshUser));
+        setUser(freshUser);
+      })
+      .catch(() => {
+        logout();
+      })
+      .finally(() => setCheckingSession(false));
+  }, []);
 
   const login = async (name: string, password: string) => {
     setError(null);
@@ -74,5 +93,15 @@ export function useAuth() {
 
   const isAuthenticated = user !== null;
 
-  return { user, error, loading, login, register, resetPassword, logout, isAuthenticated };
+  return {
+    user,
+    error,
+    loading,
+    checkingSession,
+    login,
+    register,
+    resetPassword,
+    logout,
+    isAuthenticated,
+  };
 }

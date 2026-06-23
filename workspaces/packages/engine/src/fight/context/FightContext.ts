@@ -150,7 +150,7 @@ export class FightContext implements IFightContextReader, IFightContextMutator {
                 id: e.id,
                 name: e.name,
                 teamId: e.teamId,
-                tags: [...e.tags],
+                tag: e.tag,
                 position: { ...e.position },
                 currentStats: { ...e.currentStats },
                 passives: e.activePassives.map(ap => ap.passive.id)

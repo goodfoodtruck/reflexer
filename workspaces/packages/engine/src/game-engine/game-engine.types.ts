@@ -46,6 +46,7 @@ export type RunPlayerData = {
 
 export type TeamMemberData = {
     characterName: CharacterName
+    characterTag: string
     baseStats: EntityStats
     gambits: Gambit[]
     activePassiveIds: PassiveID[]
