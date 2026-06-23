@@ -1,6 +1,6 @@
 import { Application, Container, Sprite, AnimatedSprite, Texture, Rectangle, Assets } from "pixi.js"
 import type { Ticker } from "pixi.js"
-import { GifSprite, type GifSource } from "pixi.js/gif"
+import { GifSprite, GifSource } from "pixi.js/gif"
 import type {
     FightSnapshot,
     FightMapConfig,
@@ -77,7 +77,8 @@ export class CombatScene {
         const url = resolveMapBackgroundUrl(logicalPath)
 
         if (logicalPath.toLowerCase().endsWith(".gif")) {
-            const source = await Assets.load<GifSource>(url)
+            const buffer = await (await fetch(url)).arrayBuffer()
+            const source = GifSource.from(buffer)
             for (const texture of source.textures) texture.source.scaleMode = "nearest"
             const gif = new GifSprite({ source, loop: true, autoPlay: true, autoUpdate: false })
             gif.width = width
