@@ -1,5 +1,6 @@
 import { Router } from "express"
-import { CharacterModel } from "@models/character.model"
+import { CharacterModel, type CharacterDocument } from "@models/character.model"
+import { GambitModel } from "@models/gambit.model"
 import { TeamModel } from "@models/team.model"
 import { requireAuth } from "../auth.middleware"
 
@@ -41,6 +42,31 @@ router.post("/me", async (req, res) => {
         res.json(team)
     } catch (error) {
         console.error("Erreur POST /teams/me:", error)
+        res.status(500).json({ error: "INTERNAL_ERROR" })
+    }
+})
+
+// Vérifie qu'au moins 1 gambit existe pour chacun des 2 personnages de l'équipe.
+router.get("/me/readiness", async (req, res) => {
+    try {
+        const team = await TeamModel.findOne({ userId: req.user!.userId }).populate("characterIds")
+        if (!team) {
+            res.json({ ready: false, missingCharacterNames: [] })
+            return
+        }
+
+        const characters = team.characterIds as unknown as CharacterDocument[]
+        const missingCharacterNames: string[] = []
+        for (const character of characters) {
+            const count = await GambitModel.countDocuments({
+                userId: req.user!.userId,
+                characterId: character._id
+            })
+            if (count === 0) missingCharacterNames.push(character.characterName)
+        }
+
+        res.json({ ready: missingCharacterNames.length === 0, missingCharacterNames })
+    } catch (error) {
         res.status(500).json({ error: "INTERNAL_ERROR" })
     }
 })

@@ -9,10 +9,18 @@ export type Team = {
     updatedAt:    string
 }
 
+export type TeamReadiness = {
+    ready: boolean
+    missingCharacterNames: string[]
+}
+
 export const TeamService = {
     getMine: async (): Promise<Team | null> => 
         api.get<Team | null>('/teams/me'),
 
     save: (characterIds: [string, string]) =>
-        api.post<Team>('/teams/me', { characterIds })
+        api.post<Team>('/teams/me', { characterIds }),
+
+    checkReadiness: () =>
+        api.get<TeamReadiness>('/teams/me/readiness')
 }
