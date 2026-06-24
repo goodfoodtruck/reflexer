@@ -1,5 +1,5 @@
-import type { CategoryId, BlockValue, ConditionBlock } from './filters/filterRegistry';
-export type { ConditionBlock };
+import type { CategoryId, BlockValue, ConditionBlock, FilterEntry, FilterOrGroup } from './filters/filterRegistry';
+export type { ConditionBlock, FilterEntry, FilterOrGroup };
 
 export type Scope = 'SELF' | 'ALLY' | 'ENEMY';
 
@@ -15,6 +15,8 @@ export type DraftCondition = {
   blockValues: BlockValue[];
   /** Opérateur entre les blocs de ce scope (ET par défaut). */
   scopeOperator?: 'AND' | 'OR';
+  /** Opérateur entre les valeurs de ce bloc (OU par défaut). */
+  valuesOperator?: 'AND' | 'OR';
 };
 
 export type DraftGambit = {
@@ -25,7 +27,7 @@ export type DraftGambit = {
   intentValue: string;
   targetKind: Scope;
   targetSort: string;
-  targetFilters: ConditionBlock[];
+  targetFilters: FilterOrGroup[];
 };
 
 export type ActionItem = {
@@ -48,5 +50,7 @@ export type ActionCategory = {
 export type SavedCondition = {
   targetId: string;
   blocks: ConditionBlock[];
-  blockOperator: 'AND' | 'OR';
+  /** One operator per block: blockOperators[i] = connector between block[i] and block[i+1].
+   *  Length equals blocks.length; the last entry is the default for the next pending group. */
+  blockOperators: ('AND' | 'OR')[];
 };

@@ -31,7 +31,7 @@ export function TargetStep({ draft, updateDraft }: Props) {
     filterBlocks,
     currentFilterCat,
     setCurrentFilterCat,
-    currentFilterVals,
+    currentBlockEntries,
     sortCat,
     setSortCat,
     handleSelectKind,
@@ -68,12 +68,13 @@ export function TargetStep({ draft, updateDraft }: Props) {
         activeIcon={activeIcon}
         filterBlocks={filterBlocks}
         currentFilterCat={currentFilterCat}
-        currentFilterVals={currentFilterVals}
+        currentBlockEntries={currentBlockEntries}
         catOptions={catOptions}
         onSelectCat={setCurrentFilterCat}
         onToggleVal={handleToggleFilterVal}
         onConfirmBlock={handleConfirmFilterBlock}
         onRemoveBlock={handleRemoveFilterBlock}
+        onRemoveEntry={(entry) => handleToggleFilterVal(entry.value)}
         onCancel={() => setInternalStep(1)}
         onNext={handleGoToSort}
       />

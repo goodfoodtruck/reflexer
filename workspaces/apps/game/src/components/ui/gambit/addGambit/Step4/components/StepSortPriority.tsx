@@ -14,6 +14,8 @@ interface StepSortPriorityProps {
   onSave: () => void;
 }
 
+const KIND_LABELS: Record<string, string> = { ENEMY: 'Ennemi', ALLY: 'Allié', SELF: 'Moi-même' };
+
 export function StepSortPriority({
   localKind,
   activeIcon,
@@ -25,6 +27,7 @@ export function StepSortPriority({
   onBack,
   onSave
 }: StepSortPriorityProps) {
+  const kindLabel = KIND_LABELS[localKind ?? ''] ?? localKind;
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -35,7 +38,7 @@ export function StepSortPriority({
         Critères &gt; <span className={Styles.activeBread}>Priorité</span>
       </div>
       <div className={Styles.headerBar}>
-        {localKind}: <span className="text-slate-300">{sortVal || 'Sélectionnez un tri'}</span>
+        {kindLabel}: <span className="text-slate-300">{sortVal || 'Sélectionnez un tri'}</span>
       </div>
 
       <div className={Styles.layoutCols}>

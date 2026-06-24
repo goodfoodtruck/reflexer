@@ -14,7 +14,7 @@ export function FocusTargetIcon({ targetId }: FocusTargetIconProps) {
       <div className={Styles.focusIconBox}>
         {target?.icon}
         <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-          {targetId}
+          {target?.label ?? targetId}
         </span>
       </div>
     </div>

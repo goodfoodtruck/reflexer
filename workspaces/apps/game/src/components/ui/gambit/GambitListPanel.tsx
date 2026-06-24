@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -32,7 +33,13 @@ export function GambitListPanel({
   onDelete,
   sensors,
   onDragEnd
-}: GambitListPanelProps) {    
+}: GambitListPanelProps) {
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  const handleToggle = (id: string) => {
+    setOpenId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <section
       data-guide="gambit-list"
@@ -61,6 +68,8 @@ export function GambitListPanel({
               <GambitRow
                 key={gambit._id}
                 gambit={gambit}
+                isOpen={openId === gambit._id}
+                onToggle={() => handleToggle(gambit._id)}
                 onEdit={() => onEdit(gambit._id)}
                 onDelete={() => onDelete(gambit._id)}
               />

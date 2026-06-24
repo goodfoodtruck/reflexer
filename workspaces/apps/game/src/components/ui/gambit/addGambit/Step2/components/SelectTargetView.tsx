@@ -17,7 +17,7 @@ export function SelectTargetView({
   onRemoveTarget
 }: SelectTargetViewProps) {
   return (
-    <motion.div {...ANIMATIONS.selectTarget} className={Styles.container}>
+    <motion.div key="step2" {...ANIMATIONS.selectTarget} className={Styles.container}>
       <ConditionBreadcrumb backLabel="RAJOUTER UNE CONDITION" activeLabel="CIBLE" />
       <TargetSummaryBar
         configuredTargets={configuredTargets}

@@ -29,6 +29,12 @@ function LogicConnector({ op }: { op: string }) {
 
 /* ─── ExistsContextDisplay — partagé avec GambitRow (section Cibler) ── */
 
+const SCOPE_LABELS: Record<string, string> = {
+  SELF: 'MOI-MÊME',
+  ENEMY: 'ENNEMI',
+  ALLY: 'ALLIÉ',
+};
+
 function scopeBadgeColor(targetType: string): string {
   if (targetType === 'SELF')  return Styles_gambit_row.conditionSelf;
   if (targetType === 'ENEMY') return Styles_gambit_row.conditionEnemy;
@@ -45,7 +51,7 @@ export function ExistsContextDisplay({
   return (
     <div className={Styles_gambit_row.conditionBox}>
       <span className={`${Styles_gambit_row.conditionBadgeBase} ${scopeBadgeColor(targetType)}`}>
-        {targetType}
+        {SCOPE_LABELS[targetType] ?? targetType}
       </span>
       {filters.map((filter, i) => (
         <span key={i} className="flex items-center gap-1.5">

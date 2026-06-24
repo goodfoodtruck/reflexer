@@ -41,6 +41,8 @@ export const Styles = {
     'relative w-full px-5 py-3.5 rounded-xl text-[11px] font-black cursor-pointer transition-all border overflow-hidden group tracking-[0.1em] uppercase',
   listSelected:
     'bg-amber-500 border-amber-400 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]',
+  listFocused:
+    'bg-sky-500/20 border-sky-500/50 text-sky-300 shadow-[0_0_12px_rgba(14,165,233,0.2)]',
   listIdle:
     'bg-[#161925] border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-200 hover:bg-slate-800/50',
   footer: 'flex justify-end gap-4 mt-auto pt-8 border-t border-slate-800/50',

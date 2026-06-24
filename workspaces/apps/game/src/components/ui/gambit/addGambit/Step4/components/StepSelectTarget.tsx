@@ -7,9 +7,9 @@ import { Styles } from '../Target.styles';
 import { TargetRecap } from './TargetRecap';
 
 const TARGET_KINDS = [
-  { id: 'ENEMY', label: 'Enemy', icon: <IconEnemy /> },
-  { id: 'ALLY', label: 'Character', icon: <IconCharacter /> },
-  { id: 'SELF', label: 'Moi-même', icon: <IconSelf /> }
+  { id: 'ENEMY', label: 'Ennemi',   icon: <IconEnemy /> },
+  { id: 'ALLY',  label: 'Allié',    icon: <IconCharacter /> },
+  { id: 'SELF',  label: 'Moi-même', icon: <IconSelf /> },
 ];
 
 interface StepSelectTargetProps {

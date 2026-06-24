@@ -30,7 +30,12 @@ export type BlockValue =
   | { kind: 'passive';   passiveId: string };              // status
 
 /** Ce qu'un EXISTS produit et consomme à l'écran. */
-export type ConditionBlock = { categoryId: CategoryId; values: BlockValue[] };
+export type ConditionBlock = {
+  categoryId: CategoryId;
+  values: BlockValue[];
+  /** Opérateur entre les valeurs du bloc (OU par défaut). */
+  valuesOperator?: 'AND' | 'OR';
+};
 
 export type Scope = 'SELF' | 'ALLY' | 'ENEMY';
 
@@ -55,6 +60,12 @@ export type CategoryDefinition = {
 
 /** Une option proposée dans le picker = un BlockValue + son libellé. */
 export type BlockValueOption = { value: BlockValue; label: string };
+
+/** Une entrée dans un bloc OR multi-catégories (chaque valeur connaît sa catégorie). */
+export type FilterEntry = { categoryId: CategoryId; value: BlockValue };
+
+/** Un groupe OU : toutes les entrées sont OR'd ensemble, potentiellement de catégories différentes. */
+export type FilterOrGroup = FilterEntry[];
 
 /* --- Fabriques d'options réutilisables ------------------------------- */
 

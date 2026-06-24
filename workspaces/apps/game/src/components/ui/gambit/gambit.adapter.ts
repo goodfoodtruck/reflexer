@@ -21,6 +21,8 @@ import {
   getCategory,
   type BlockValue,
   type CategoryId,
+  type FilterEntry,
+  type FilterOrGroup,
   type Scope,
 } from './filters/filterRegistry';
 import { sortLabelToSort, sortToLabel } from './sorts/sortRegistry';
@@ -48,15 +50,39 @@ export const draftToConditions = (draft: DraftGambit): ConditionGroup => {
   return { operator: draft.operator, conditions: scopeNodes };
 };
 
-/** Blocs d'un même scope, reliés par leur opérateur (ET par défaut). */
+/** Blocs d'un même scope, reliés par leurs opérateurs individuels. */
 function buildScopeCondition(scope: Scope, conditions: DraftCondition[]): ConditionGroup {
   const blockNodes = conditions.map((c) => blockToCondition(scope, c));
   if (blockNodes.length === 1) return blockNodes[0]!;
-  const op = conditions[0]?.scopeOperator ?? 'AND';
-  return { operator: op, conditions: blockNodes };
+
+  // operators[i] = opérateur entre blockNodes[i] et blockNodes[i+1]
+  const operators = conditions.slice(0, -1).map((c) => c.scopeOperator ?? 'AND');
+
+  if (operators.every((op) => op === operators[0])) {
+    return { operator: operators[0]!, conditions: blockNodes };
+  }
+
+  // Opérateurs mixtes : AND prioritaire — regrouper les blocs consécutifs en ET, puis OU
+  const orGroups: ConditionGroup[][] = [];
+  let currentGroup: ConditionGroup[] = [blockNodes[0]!];
+  for (let i = 0; i < operators.length; i++) {
+    const next = blockNodes[i + 1]!;
+    if (operators[i] === 'AND') {
+      currentGroup.push(next);
+    } else {
+      orGroups.push(currentGroup);
+      currentGroup = [next];
+    }
+  }
+  orGroups.push(currentGroup);
+
+  const andGroups: ConditionGroup[] = orGroups.map((g) =>
+    g.length === 1 ? g[0]! : { operator: 'AND' as const, conditions: g },
+  );
+  return andGroups.length === 1 ? andGroups[0]! : { operator: 'OR' as const, conditions: andGroups };
 }
 
-/** 1 valeur → EXISTS simple ; N valeurs → OU d'EXISTS. */
+/** 1 valeur → EXISTS simple ; N valeurs → ET/OU d'EXISTS selon valuesOperator. */
 function blockToCondition(scope: Scope, c: DraftCondition): ConditionGroup {
   const cat = getCategory(c.filterTypeCategory);
   const filters = c.blockValues
@@ -64,7 +90,8 @@ function blockToCondition(scope: Scope, c: DraftCondition): ConditionGroup {
     .filter((f): f is AnyFilter => f !== null);
 
   if (filters.length <= 1) return buildExistsForScope(scope, filters);
-  return { operator: 'OR', conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+  const op = c.valuesOperator ?? 'OR';
+  return { operator: op, conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
 }
 
 function buildExistsForScope(scope: Scope, filters: AnyFilter[]): ExistsCondition {
@@ -81,12 +108,13 @@ function buildExistsForScope(scope: Scope, filters: AnyFilter[]): ExistsConditio
 
 let reverseCounter = 0;
 
-function makeDraftCondition(scope: Scope, categoryId: CategoryId, blockValues: BlockValue[]): DraftCondition {
+function makeDraftCondition(scope: Scope, categoryId: CategoryId, blockValues: BlockValue[], valuesOperator?: 'AND' | 'OR'): DraftCondition {
   return {
     id: `loaded-${scope}-${categoryId}-${reverseCounter++}-${Math.random().toString(36).slice(2, 9)}`,
     scopeKind: scope,
     filterTypeCategory: categoryId,
     blockValues,
+    valuesOperator,
   };
 }
 
@@ -108,10 +136,11 @@ function existsToBlocks(exists: ExistsCondition): DraftCondition[] {
 }
 
 /**
- * OU de EXISTS (même scope, même catégorie) → un seul bloc multi-valeurs.
- * ex : { OR: [EXISTS SELF HP<25, EXISTS SELF HP<50] } → bloc { health: [<25, <50] }
+ * ET/OU de EXISTS (même scope, même catégorie) → un seul bloc multi-valeurs.
+ * ex : { OR: [EXISTS SELF HP<25, EXISTS SELF HP<50] } → bloc { health: [<25, <50], valuesOperator: 'OR' }
+ * ex : { AND: [EXISTS SELF HP<25, EXISTS SELF HP<50] } → bloc { health: [<25, <50], valuesOperator: 'AND' }
  */
-function tryParseOrAsMultiValueBlock(conditions: ConditionGroup[]): DraftCondition | null {
+function tryParseMultiValueBlock(operator: 'AND' | 'OR', conditions: ConditionGroup[]): DraftCondition | null {
   const parsed: { scope: Scope; categoryId: CategoryId; value: BlockValue }[] = [];
 
   for (const child of conditions) {
@@ -126,7 +155,7 @@ function tryParseOrAsMultiValueBlock(conditions: ConditionGroup[]): DraftConditi
   const { scope, categoryId } = parsed[0]!;
   if (!parsed.every((p) => p.scope === scope && p.categoryId === categoryId)) return null;
 
-  return makeDraftCondition(scope, categoryId, parsed.map((p) => p.value));
+  return makeDraftCondition(scope, categoryId, parsed.map((p) => p.value), operator);
 }
 
 /**
@@ -154,9 +183,9 @@ export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
   if ('operator' in cond && cond.operator === 'NOT') return conditionsToDraft(cond.condition);
 
   if ('operator' in cond && (cond.operator === 'AND' || cond.operator === 'OR')) {
+    const asBlock = tryParseMultiValueBlock(cond.operator, cond.conditions);
+    if (asBlock) return [asBlock];
     if (cond.operator === 'OR') {
-      const asBlock = tryParseOrAsMultiValueBlock(cond.conditions);
-      if (asBlock) return [asBlock];
       const crossCat = tryParseCrossCategoryOrBlock(cond.conditions);
       if (crossCat) return crossCat;
     }
@@ -178,25 +207,32 @@ export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
  * Le moteur évalue chaque candidat individuellement contre ce ConditionGroup.
  * ────────────────────────────────────────────────────────────────────────── */
 
-/** Construit le ConditionGroup cible depuis les blocs du draft (même logique que blockToCondition). */
+/**
+ * Construit un ConditionGroup depuis un tableau de groupes OU (FilterOrGroup[]).
+ * Chaque groupe OU peut contenir des entrées de catégories différentes.
+ * Plusieurs groupes → ET de OU.
+ */
 function buildTargetCondition(
   scope: Scope,
-  blocks: DraftGambit['targetFilters'],
+  orGroups: FilterOrGroup[],
 ): ConditionGroup | undefined {
-  if (blocks.length === 0) return undefined;
+  if (orGroups.length === 0) return undefined;
 
-  const blockToNode = (block: { categoryId: CategoryId; values: BlockValue[] }): ConditionGroup => {
-    const cat = getCategory(block.categoryId);
-    const filters = block.values
-      .map((v) => cat.blockValueToFilter(v, scope))
-      .filter((f): f is AnyFilter => f !== null);
+  const groupToNode = (group: FilterOrGroup): ConditionGroup => {
+    const exists = group
+      .map((e) => {
+        const filter = getCategory(e.categoryId).blockValueToFilter(e.value, scope);
+        return filter ? buildExistsForScope(scope, [filter]) : null;
+      })
+      .filter((e): e is ExistsCondition => e !== null);
 
-    if (filters.length <= 1) return buildExistsForScope(scope, filters);
-    return { operator: 'OR', conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+    if (exists.length === 0) return buildExistsForScope(scope, []);
+    if (exists.length === 1) return exists[0];
+    return { operator: 'OR', conditions: exists };
   };
 
-  if (blocks.length === 1) return blockToNode(blocks[0]!);
-  return { operator: 'AND', conditions: blocks.map(blockToNode) };
+  if (orGroups.length === 1) return groupToNode(orGroups[0]!);
+  return { operator: 'AND', conditions: orGroups.map(groupToNode) };
 }
 
 export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
@@ -209,65 +245,45 @@ export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
   }
 };
 
-/** Reconstruit les FilterBlock[] depuis le ConditionGroup stocké (inverse de buildTargetCondition). */
-function conditionToTargetBlocks(
-  condition: ConditionGroup,
-): DraftGambit['targetFilters'] {
-  // EXISTS simple → un bloc avec ses filtres regroupés par catégorie
+/**
+ * Reconstruit un FilterOrGroup[] depuis le ConditionGroup stocké.
+ * OR d'EXISTS → un groupe (multi-catégories possible).
+ * AND → plusieurs groupes.
+ */
+function conditionToTargetBlocks(condition: ConditionGroup): FilterOrGroup[] {
   if ('type' in condition && condition.type === 'EXISTS') {
-    const byCat = new Map<CategoryId, BlockValue[]>();
-    for (const filter of condition.context.filters) {
-      const found = filterToCategory(filter);
-      if (!found) continue;
-      const existing = byCat.get(found.categoryId) ?? [];
-      existing.push(found.value);
-      byCat.set(found.categoryId, existing);
-    }
-    return Array.from(byCat.entries()).map(([categoryId, values]) => ({ categoryId, values }));
+    const entries: FilterEntry[] = condition.context.filters
+      .map((f) => filterToCategory(f))
+      .filter((r): r is NonNullable<typeof r> => r !== null)
+      .map((r) => ({ categoryId: r.categoryId, value: r.value }));
+    return entries.length > 0 ? [entries] : [];
   }
-  // OU d'EXISTS (même catégorie) → un bloc multi-valeurs
   if ('operator' in condition && condition.operator === 'OR') {
-    const asBlock = tryParseOrAsMultiValueBlock(condition.conditions);
-    if (asBlock) return [{ categoryId: asBlock.filterTypeCategory, values: asBlock.blockValues }];
+    const entries: FilterEntry[] = condition.conditions.flatMap((child) => {
+      if (!('type' in child) || child.type !== 'EXISTS') return [];
+      return child.context.filters
+        .map((f) => filterToCategory(f))
+        .filter((r): r is NonNullable<typeof r> => r !== null)
+        .map((r) => ({ categoryId: r.categoryId, value: r.value }));
+    });
+    return entries.length > 0 ? [entries] : [];
   }
-  // ET de blocs → plusieurs blocs
   if ('operator' in condition && condition.operator === 'AND') {
     return condition.conditions.flatMap(conditionToTargetBlocks);
   }
   return [];
 }
 
-export const targetFiltersToDraft = (selector: TargetSelector): DraftGambit['targetFilters'] => {
+export const targetFiltersToDraft = (selector: TargetSelector): FilterOrGroup[] => {
   if (selector.context.targetType === ETargetType.SELF || !selector.context.condition) return [];
   return conditionToTargetBlocks(selector.context.condition);
 };
 
-/**
- * Convertit un TargetSelector en ConditionGroup pour l'affichage dans GambitRow.
- * Même sémantique que Step2 : plusieurs valeurs dans un même bloc → OU,
- * plusieurs blocs → ET. La reconstruction regroupe par catégorie (targetFiltersToDraft),
- * puis chaque groupe multi-valeurs devient un OU d'EXISTS, comme blockToCondition.
- */
+/** Retourne le ConditionGroup stocké directement pour l'affichage dans GambitRow. */
 export const targetSelectorToConditionGroup = (selector: TargetSelector): ConditionGroup => {
-  const blocks = targetFiltersToDraft(selector);
-  const scope = selector.context.targetType as Scope;
-
-  if (blocks.length === 0) return buildExistsForScope(scope, []);
-
-  const blockToNode = (block: { categoryId: CategoryId; values: BlockValue[] }): ConditionGroup => {
-    const cat = getCategory(block.categoryId);
-    const filters = block.values
-      .map((v) => cat.blockValueToFilter(v, scope))
-      .filter((f): f is AnyFilter => f !== null);
-
-    if (filters.length <= 1) return buildExistsForScope(scope, filters);
-    // Plusieurs valeurs dans un bloc = OU (même logique que blockToCondition en Step2).
-    return { operator: 'OR', conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
-  };
-
-  if (blocks.length === 1) return blockToNode(blocks[0]!);
-
-  return { operator: 'AND', conditions: blocks.map(blockToNode) };
+  if (selector.context.targetType === ETargetType.SELF || !selector.context.condition)
+    return buildExistsForScope(selector.context.targetType as Scope, []);
+  return selector.context.condition;
 };
 
 /* ────────────────────────────────────────────────────────────────────────────

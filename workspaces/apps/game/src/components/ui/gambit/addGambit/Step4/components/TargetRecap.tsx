@@ -1,13 +1,13 @@
-import type { ConfiguredTarget, FilterBlock } from '../useTargetStep';
-import { formatBlockText } from '../useTargetStep';
+import type { ConfiguredTarget, FilterOrGroup } from '../useTargetStep';
+import { formatOrGroup } from '../useTargetStep';
 import { IconEdit } from '../../../../../../assets/icons/IconEdit';
 import { IconTrash } from '../../../../../../assets/icons/IconTrash';
 import { Styles_recap } from '../Target.styles';
 
 const TARGET_KINDS = [
-  { id: 'ENEMY', label: 'Enemy' },
-  { id: 'ALLY', label: 'Character' },
-  { id: 'SELF', label: 'Moi-même' }
+  { id: 'ENEMY', label: 'Ennemi' },
+  { id: 'ALLY',  label: 'Allié' },
+  { id: 'SELF',  label: 'Moi-même' },
 ];
 
 interface TargetRecapProps {
@@ -59,15 +59,14 @@ export function TargetRecap({
         </div>
       </div>
 
-      {/* SELF ne désigne qu'une entité : pas de critères ni de priorité de ciblage */}
       {!isSelf && (
         <>
           <div className={Styles_recap.recapContainer}>
             <span className={Styles_recap.label}>Critères</span>
             {hasFilters ? (
               <div className={Styles_recap.recapFiltersRow}>
-                {configuredTarget.filters.map((b, i) => (
-                  <FilterBadge key={i} block={b} index={i} onRemove={onRemoveFilter} />
+                {configuredTarget.filters.map((group, i) => (
+                  <FilterBadge key={i} group={group} index={i} onRemove={onRemoveFilter} />
                 ))}
               </div>
             ) : (
@@ -92,19 +91,17 @@ export function TargetRecap({
 }
 
 function FilterBadge({
-  block,
+  group,
   index,
   onRemove
 }: {
-  block: FilterBlock;
+  group: FilterOrGroup;
   index: number;
   onRemove: (i: number) => void;
 }) {
   return (
     <div className={Styles_recap.filterBadge}>
-      <span className={Styles_recap.filterBadgeText}>
-        {formatBlockText(block.categoryId, block.values)}
-      </span>
+      <span className={Styles_recap.filterBadgeText}>{formatOrGroup(group)}</span>
       <button
         onClick={() => onRemove(index)}
         className={Styles_recap.filterBadgeDelete}

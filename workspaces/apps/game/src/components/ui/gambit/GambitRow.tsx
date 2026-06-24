@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,15 +10,35 @@ import { Styles_gambit_row } from './Gambit.styles';
 import type { StoredGambit } from '@services/gambit.service';
 import { renderConditionNode } from './ConditionTreeView';
 import { sortToLabel, targetSelectorToConditionGroup } from './gambit.adapter';
+import { ACTION_CATEGORIES } from './actionCatalog';
+
+const STRATEGY_LABELS: Record<string, string> = {
+  APPROACH: 'Chargez !',
+  FLEE: 'Fuite',
+  STAY: 'Tenir la position',
+};
+
+function resolveIntentLabel(intent: StoredGambit['intent']): string {
+  if (intent.kind === 'MOVEMENT') {
+    const label = STRATEGY_LABELS[intent.strategy] ?? intent.strategy;
+    return `DÉPLACEMENT : ${label}`;
+  }
+  for (const cat of ACTION_CATEGORIES) {
+    const found = cat.items.find((item) => item.id === intent.actionId);
+    if (found) return `ACTION : ${found.name}`;
+  }
+  return `ACTION : ${intent.actionId}`;
+}
 
 interface GambitRowProps {
   gambit: StoredGambit;
+  isOpen: boolean;
+  onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {    
-  const [isOpen, setIsOpen] = useState(false);
+export function GambitRow({ gambit, isOpen, onToggle, onEdit, onDelete }: GambitRowProps) {
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: gambit._id
@@ -51,7 +70,7 @@ export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
           {gambit.priority.toString().padStart(2, '0')}
         </div>
 
-        <div className={Styles_gambit_row.toggleArea} onClick={() => setIsOpen(!isOpen)}>
+        <div className={Styles_gambit_row.toggleArea} onClick={onToggle}>
           <span className={Styles_gambit_row.titleText}>{gambit.name}</span>
 
           <div className="flex items-center gap-4">
@@ -114,9 +133,7 @@ export function GambitRow({ gambit, onEdit, onDelete }: GambitRowProps) {
                 <div className={Styles_gambit_row.sectionLabel}>Faire</div>
                 <div>
                   <span className={`${Styles_gambit_row.intentBadgeBase} ${intentStyle}`}>
-                    {gambit.intent.kind === 'MOVEMENT'
-                      ? `DÉPLACEMENT : ${gambit.intent.strategy}`
-                      : `ACTION : ${gambit.intent.actionId}`}
+                    {resolveIntentLabel(gambit.intent)}
                   </span>
                 </div>
               </div>
