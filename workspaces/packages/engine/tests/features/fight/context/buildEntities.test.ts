@@ -30,6 +30,7 @@ describe("FightContextFactory — construction des entités", () => {
 
     const buildMapConfig = (): FightMapConfig => ({
         id: "fight_map_1",
+        name: "Fight Map 1",
         size: EFightMapSize.SMALL_RANGE,
         cells: [],
         dimensions: { width: 10, height: 10 },

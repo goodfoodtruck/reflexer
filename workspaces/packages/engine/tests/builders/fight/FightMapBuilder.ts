@@ -6,6 +6,7 @@ export function buildFightMap(overrides: Partial<FightMapConfig> = {}): FightMap
 
     const defaultConfig: FightMapConfig = {
         id: "default",
+        name: "Default",
         size: EFightMapSize.LONG_RANGE,
         dimensions,
         cells: new Array(dimensions.height).fill(0).map(_ => new Array(dimensions.width).fill(EObstacleType.FLOOR)),

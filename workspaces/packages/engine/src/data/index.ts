@@ -11,7 +11,7 @@ export * from "./InMemoryFightMapRegistry";
 export * from "./InMemoryPassiveRegistry";
 export * from "./mockActions";
 export * from "./mockPassives";
-export * from "./mockFightMaps";
+export * from "./fightMaps";
 export * from "./ICharacterRegistry";
 export * from "./visual.types";
 export * from "./InMemoryCharacterRegistry";

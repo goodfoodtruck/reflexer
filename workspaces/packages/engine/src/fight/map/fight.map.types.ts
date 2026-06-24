@@ -21,11 +21,13 @@ export type FightMapSpawnPoints = {
 
 export type FightMapConfig = {
     id: FightMapID
+    name: string
     dimensions: Dimensions
     size: EFightMapSize
     cells: EObstacleType[][]
     spawnPoints: FightMapSpawnPoints
-    background?: string
+    background: string
+    thumbnail: string
 }
 
 export type MapCell = {

@@ -1,10 +1,10 @@
 import { useEffect, useReducer, useRef } from "react"
-import { InMemoryFightMapRegistry, MOCK_FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_ENEMY_CONFIGS } from "@reflexer/engine"
+import { InMemoryFightMapRegistry, FIGHT_MAPS, InMemoryCharacterRegistry, MOCK_ENEMY_CONFIGS } from "@reflexer/engine"
 import { CombatScene } from "../CombatScene"
 import { AnimationQueue } from "../../replay/AnimationQueue"
 import { CombatReplayer } from "../../replay/CombatReplayer"
 import { combatViewReducer, INITIAL_COMBAT_VIEW_STATE } from "../../replay/combat-view.reducer"
-import type { BasePvpFight } from "../../../../shared/types/fight.types"
+import type { BasePvpFight } from "@shared/types/fight.types.ts"
 import { CharacterService } from "@services/character.service"
 import { buildCatalogCharacterConfig } from "./Buildcatalogcharacterconfig "
 
@@ -29,7 +29,7 @@ export function useCombatScene(fight: BasePvpFight, isTransitionFinished: boolea
                 sceneRef.current = scene
 
                 const queue = new AnimationQueue(scene)
-                const mapRegistry = new InMemoryFightMapRegistry(MOCK_FIGHT_MAPS)
+                const mapRegistry = new InMemoryFightMapRegistry(FIGHT_MAPS)
 
                 // Ennemis : config mockée, déjà prête (ALIEN/KNIGHT/GOBLIN).
                 // Persos joueurs : leur EntityName est leur `slug` ; on va chercher leur fiche en DB et on construit leur visuel
