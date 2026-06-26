@@ -45,7 +45,7 @@ export const Styles_gambit_editor = {
 
 export const Styles_gambit_row = {
   containerBase: 'group relative flex flex-col rounded-xl border transition-all duration-200',
-  containerDragging: 'bg-[#11131A] border-amber-500 shadow-xl scale-[1.02] z-50',
+  containerDragging: 'bg-[#11131A] border-amber-500 shadow-xl z-50',
   containerOpen: 'bg-[#11131A] border-[#2A2E39] shadow-lg',
   containerClosed: 'bg-[#11131A] border-transparent hover:border-[#2A2E39]',
   headerArea: 'flex items-center gap-4 p-4 relative z-10',
@@ -93,7 +93,10 @@ export const Styles_gambit_row = {
   intentBadgeBase:
     'text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-md border inline-block',
   intentMovement: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  intentAction: 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+  intentAction: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  actionSubtitle: 'text-[10px] font-bold tracking-widest text-slate-500 uppercase truncate max-w-xs',
+  opBadgeAnd: 'inline-block text-[9px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded border border-slate-700/60 text-slate-500 bg-transparent mx-0.5',
+  opBadgeOr: 'inline-block text-[9px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded border border-amber-500/40 text-amber-400 bg-amber-500/10 mx-0.5'
 };
 
 export const PanelStyles = {

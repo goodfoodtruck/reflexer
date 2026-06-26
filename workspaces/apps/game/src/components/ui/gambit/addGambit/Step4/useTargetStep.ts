@@ -1,161 +1,87 @@
-import { useState } from 'react';
-import type { DraftGambit } from '../../GambitTypes';
-import type { FilterEntry, FilterOrGroup } from '../../filters/filterRegistry';
-import { formatBlockValue, sameBlockValue, type CategoryId } from '@components/ui/gambit/filters/filterRegistry';
-import { sortLabelToSort, sortToLabel } from '../../gambit.adapter';
-
-export type InternalStep = 1 | 2 | 3;
-
-export type ConfiguredTarget = { kind: string; filters: FilterOrGroup[]; sortVal: string | null };
+import { useState, useMemo } from 'react';
+import type { DraftGambit, Scope } from '../../GambitTypes';
+import {
+  categoriesForScope,
+  type CategoryDefinition,
+  type CategoryId,
+  type BlockValue,
+  type FilterEntry,
+  type FilterOrGroup,
+} from '@components/ui/gambit/filters/filterRegistry';
 
 export type { FilterEntry, FilterOrGroup };
+
+type PickerBatch = { categoryId: CategoryId; values: BlockValue[]; valuesOp: 'AND' | 'OR' };
 
 interface UseTargetStepProps {
   draft: DraftGambit;
   updateDraft: (updates: Partial<DraftGambit>) => void;
 }
 
-/** Formate un groupe OU multi-catégories pour l'affichage. */
-export function formatOrGroup(group: FilterOrGroup): string {
-  if (group.length === 0) return '';
-  return group.map((e) => formatBlockValue(e.categoryId, e.value)).join(' OU ');
-}
-
 export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
-  const [internalStep, setInternalStep] = useState<InternalStep>(1);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerCat, setPickerCat] = useState<CategoryId | null>(null);
 
-  const [configuredTarget, setConfiguredTarget] = useState<ConfiguredTarget | null>(() => {
-    if (draft.targetKind && draft.targetSort) {
-      return {
-        kind: draft.targetKind,
-        filters: draft.targetFilters,
-        sortVal: sortToLabel(draft.targetSort),
-      };
-    }
-    return null;
-  });
-
-  const [localKind, setLocalKind] = useState<string | null>(draft.targetKind || null);
-  const [sortVal, setSortVal] = useState<string | null>(
-    draft.targetSort ? sortToLabel(draft.targetSort) : null,
+  const filterCategories = useMemo<readonly CategoryDefinition[]>(
+    () => (draft.targetKind ? categoriesForScope(draft.targetKind as Scope) : []),
+    [draft.targetKind],
   );
-  /** Groupes OR confirmés (reliés par ET). */
-  const [filterBlocks, setFilterBlocks] = useState<FilterOrGroup[]>([]);
-  /** Catégorie actuellement sélectionnée dans le panneau central (affichage des valeurs à droite). */
-  const [currentFilterCat, setCurrentFilterCat] = useState<CategoryId | null>(null);
-  /** Entrées du groupe OR en cours de construction (multi-catégories, pas encore confirmées). */
-  const [currentBlockEntries, setCurrentBlockEntries] = useState<FilterEntry[]>([]);
-  const [sortCat, setSortCat] = useState<string | null>(null);
 
-  const handleSelectKind = (kind: string) => {
-    setLocalKind(kind);
-    setFilterBlocks([]);
-    setCurrentBlockEntries([]);
-    setSortVal(null);
-
+  const handleSelectKind = (kind: Scope) => {
     if (kind === 'SELF') {
-      setConfiguredTarget({ kind, filters: [], sortVal: null });
-      setInternalStep(1);
       updateDraft({ targetKind: 'SELF', targetSort: 'NEAREST', targetFilters: [] });
-      return;
+    } else {
+      updateDraft({ targetKind: kind, targetFilters: [] });
     }
-
-    setInternalStep(2);
+    setPickerOpen(false);
+    setPickerCat(null);
   };
 
-  /**
-   * Toggle une valeur dans le groupe OR en cours.
-   * La valeur est associée à sa catégorie via FilterEntry — pas de confusion cross-cat.
-   */
-  const handleToggleFilterVal = (val: BlockValue) => {
-    if (!currentFilterCat) return;
-    const cat = currentFilterCat;
-    setCurrentBlockEntries((prev) => {
-      const idx = prev.findIndex(
-        (e) => e.categoryId === cat && sameBlockValue(e.value, val),
-      );
-      if (idx >= 0) return prev.filter((_, i) => i !== idx);
-      return [...prev, { categoryId: cat, value: val }];
-    });
-  };
-
-  /**
-   * "+" : confirme le groupe OR en cours comme nouveau bloc ET.
-   * La catégorie sélectionnée reste active (pas de reset).
-   */
-  const handleConfirmFilterBlock = () => {
-    if (currentBlockEntries.length === 0) return;
-    setFilterBlocks((prev) => [...prev, currentBlockEntries]);
-    setCurrentBlockEntries([]);
-    // currentFilterCat intentionnellement préservé
-  };
-
-  const handleRemoveFilterBlock = (index: number) => {
-    setFilterBlocks((prev) => prev.filter((_, i) => i !== index));
+  const handleAddFilters = (batch: PickerBatch[]) => {
+    const newGroups: FilterOrGroup[] = [];
+    for (const { categoryId, values, valuesOp } of batch) {
+      if (valuesOp === 'AND') {
+        for (const value of values) {
+          newGroups.push([{ categoryId, value }]);
+        }
+      } else {
+        newGroups.push(values.map((value) => ({ categoryId, value })));
+      }
+    }
+    if (newGroups.length === 0) return;
+    updateDraft({ targetFilters: [...draft.targetFilters, ...newGroups] });
+    setPickerOpen(false);
+    setPickerCat(null);
   };
 
   const handleRemoveFilter = (index: number) => {
-    if (!configuredTarget) return;
-    const updated = {
-      ...configuredTarget,
-      filters: configuredTarget.filters.filter((_, i) => i !== index),
-    };
-    setConfiguredTarget(updated);
-    updateDraft({ targetFilters: updated.filters });
+    updateDraft({ targetFilters: draft.targetFilters.filter((_, i) => i !== index) });
   };
 
-  const handleGoToSort = () => {
-    if (currentBlockEntries.length > 0) {
-      setFilterBlocks((prev) => [...prev, currentBlockEntries]);
-      setCurrentBlockEntries([]);
-    }
-    setInternalStep(3);
+  const handleSelectSort = (sortId: string) => {
+    updateDraft({ targetSort: sortId });
   };
 
-  const handleSave = () => {
-    if (!localKind) return;
-    const saved: ConfiguredTarget = { kind: localKind, filters: filterBlocks, sortVal };
-    setConfiguredTarget(saved);
-    setInternalStep(1);
-    updateDraft({
-      targetKind: localKind as DraftGambit['targetKind'],
-      targetSort: sortLabelToSort(sortVal),
-      targetFilters: filterBlocks,
-    });
+  const openPicker = () => {
+    setPickerOpen(true);
+    setPickerCat(null);
   };
 
-  const handleReset = () => {
-    setConfiguredTarget(null);
-    setLocalKind(null);
-    setSortVal(null);
-    setFilterBlocks([]);
-    setCurrentBlockEntries([]);
-    updateDraft({ targetKind: 'ENEMY', targetSort: '' });
+  const closePicker = () => {
+    setPickerOpen(false);
+    setPickerCat(null);
   };
 
   return {
-    internalStep,
-    setInternalStep,
-    configuredTarget,
-    localKind,
-    sortVal,
-    setSortVal,
-    filterBlocks,
-    currentFilterCat,
-    setCurrentFilterCat,
-    currentBlockEntries,
-    sortCat,
-    setSortCat,
+    pickerOpen,
+    pickerCat,
+    setPickerCat,
+    filterCategories,
     handleSelectKind,
-    handleToggleFilterVal,
-    handleConfirmFilterBlock,
-    handleRemoveFilterBlock,
-    handleGoToSort,
-    handleSave,
-    handleReset,
+    handleAddFilters,
     handleRemoveFilter,
+    handleSelectSort,
+    openPicker,
+    closePicker,
   };
 }
-
-// Re-export de BlockValue pour les consommateurs du hook
-export type { BlockValue } from '@components/ui/gambit/filters/filterRegistry';

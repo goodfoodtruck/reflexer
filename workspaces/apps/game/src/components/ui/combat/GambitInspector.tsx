@@ -1,6 +1,7 @@
 import type { ConditionGroup, Gambit } from "@reflexer/engine"
 import type { CombatLogLine } from "../../../features/fight/replay/combat-view.types"
 import { filterToLabel, sortToLabel } from "../gambit/display"
+import { ACTION_CATEGORIES } from "../gambit/actionCatalog"
 
 const TARGET_LABELS: Record<string, string> = {
     SELF: "Soi",
@@ -35,7 +36,7 @@ function ConditionLeaf({ node }: { node: Extract<ConditionGroup, { type: 'EXISTS
         : filters.map((f, i) => (
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && (
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-500/70">ET</span>
+                <span className="text-[9px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded border border-slate-700/60 text-slate-500 bg-transparent">ET</span>
               )}
               <span className="text-xs text-slate-300">{filterToLabel(f)}</span>
             </span>
@@ -55,12 +56,20 @@ function ConditionNode({ node }: { node: ConditionGroup }) {
     );
   }
   if ('operator' in node && (node.operator === 'AND' || node.operator === 'OR')) {
-    const joinLabel = node.operator === 'AND' ? 'ET' : 'OU';
+    const isAnd = node.operator === 'AND';
     return (
       <div className="flex flex-col gap-1.5">
         {node.conditions.map((child, i) => (
           <div key={i} className="flex flex-col gap-1.5">
-            {i > 0 && <span className="text-[10px] font-black uppercase tracking-wider text-amber-500/70">{joinLabel}</span>}
+            {i > 0 && (
+              <span className={`self-start text-[9px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded border ${
+                isAnd
+                  ? 'border-slate-700/60 text-slate-500 bg-transparent'
+                  : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
+              }`}>
+                {isAnd ? 'ET' : 'OU'}
+              </span>
+            )}
             <ConditionNode node={child} />
           </div>
         ))}
@@ -114,7 +123,7 @@ function GambitDetail({ gambit }: { gambit: Gambit }) {
                 <span className="text-xs font-bold text-slate-200">
                     {intent.kind === "MOVEMENT"
                         ? `Déplacement — ${STRATEGY_LABELS[intent.strategy] ?? intent.strategy}`
-                        : `Action — ${intent.actionId}`}
+                        : `Action — ${ACTION_CATEGORIES.flatMap(c => c.items).find(i => i.id === intent.actionId)?.name ?? intent.actionId}`}
                 </span>
             </Section>
         </div>

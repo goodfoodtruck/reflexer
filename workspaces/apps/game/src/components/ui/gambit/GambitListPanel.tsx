@@ -4,7 +4,8 @@ import {
   closestCenter,
   type DragEndEvent,
   type SensorDescriptor,
-  type SensorOptions
+  type SensorOptions,
+  type Modifier,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GambitRow } from './GambitRow';
@@ -12,6 +13,11 @@ import { AvatarIcon } from '@assets/icons/IconAvatar';
 import { AddIcon } from '@assets/icons/IconAdd';
 import { PanelStyles } from './Gambit.styles';
 import type { StoredGambit } from '@services/gambit.service';
+
+const restrictToVerticalAxis: Modifier = ({ transform }) => ({
+  ...transform,
+  x: 0,
+});
 
 interface GambitListPanelProps {
   caracterName?: string;
@@ -32,7 +38,7 @@ export function GambitListPanel({
   onEdit,
   onDelete,
   sensors,
-  onDragEnd
+  onDragEnd,
 }: GambitListPanelProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -62,7 +68,12 @@ export function GambitListPanel({
       </div>
 
       <div className={PanelStyles.listContainer}>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragEnd={onDragEnd}
+        >
           <SortableContext items={gambits.map((g) => g._id)} strategy={verticalListSortingStrategy}>
             {gambits.map((gambit) => (
               <GambitRow

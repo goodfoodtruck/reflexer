@@ -19,15 +19,21 @@ const STRATEGY_LABELS: Record<string, string> = {
 };
 
 function resolveIntentLabel(intent: StoredGambit['intent']): string {
-  if (intent.kind === 'MOVEMENT') {
-    const label = STRATEGY_LABELS[intent.strategy] ?? intent.strategy;
-    return `DÉPLACEMENT : ${label}`;
-  }
+  if (intent.kind === 'MOVEMENT') return STRATEGY_LABELS[intent.strategy] ?? intent.strategy;
   for (const cat of ACTION_CATEGORIES) {
     const found = cat.items.find((item) => item.id === intent.actionId);
-    if (found) return `ACTION : ${found.name}`;
+    if (found) return found.name;
   }
-  return `ACTION : ${intent.actionId}`;
+  return intent.actionId;
+}
+
+function resolveIntentImage(intent: StoredGambit['intent']): string | undefined {
+  if (intent.kind === 'MOVEMENT') return undefined;
+  for (const cat of ACTION_CATEGORIES) {
+    const found = cat.items.find((item) => item.id === intent.actionId);
+    if (found) return found.image;
+  }
+  return undefined;
 }
 
 interface GambitRowProps {
@@ -41,7 +47,8 @@ interface GambitRowProps {
 export function GambitRow({ gambit, isOpen, onToggle, onEdit, onDelete }: GambitRowProps) {
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: gambit._id
+    id: gambit._id,
+    transition: { duration: 150, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' },
   });
 
   const containerStyle = isDragging
@@ -71,7 +78,26 @@ export function GambitRow({ gambit, isOpen, onToggle, onEdit, onDelete }: Gambit
         </div>
 
         <div className={Styles_gambit_row.toggleArea} onClick={onToggle}>
-          <span className={Styles_gambit_row.titleText}>{gambit.name}</span>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className={Styles_gambit_row.titleText}>{gambit.name}</span>
+            <div className="flex items-center gap-1.5">
+              {resolveIntentImage(gambit.intent)
+                ? (
+                  <img
+                    src={resolveIntentImage(gambit.intent)}
+                    alt=""
+                    className="w-4 h-4 rounded object-contain opacity-70 shrink-0"
+                  />
+                )
+                : (
+                  <span className="text-[9px] text-slate-600 shrink-0">
+                    {gambit.intent.kind === 'MOVEMENT' ? '🏃' : '⚔'}
+                  </span>
+                )
+              }
+              <span className={Styles_gambit_row.actionSubtitle}>{resolveIntentLabel(gambit.intent)}</span>
+            </div>
+          </div>
 
           <div className="flex items-center gap-4">
             <div className={Styles_gambit_row.actionsWrapper}>

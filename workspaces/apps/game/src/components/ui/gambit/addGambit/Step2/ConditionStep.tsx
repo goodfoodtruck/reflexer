@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import type { DraftGambit } from '../../GambitTypes';
 import { useConditionStep } from './hooks/useConditionStep';
-import { SelectTargetView } from './components/SelectTargetView';
-import { BuildConditionView } from './components/BuildConditionView';
-import { Styles } from './Condition.styles';
+import { ScopeTabs } from '../shared/ScopeTabs';
+import { ConditionList } from './components/ConditionList';
+import { ConditionInlinePicker } from '../shared/ConditionInlinePicker';
 
 interface Props {
   draft: DraftGambit;
@@ -12,88 +12,69 @@ interface Props {
 
 export function ConditionStep({ draft, updateDraft }: Props) {
   const {
-    viewMode,
-    activeTargetContext,
-    configuredTargets,
-    blocks,
-    blockOperators,
-    currentCat,
-    currentBlockEntries,
-    catOptions,
+    activeScope,
+    setActiveScope,
+    pickerOpen,
+    pickerCat,
+    setPickerCat,
     availableCategories,
-    bannerText,
-    canSave,
-    pendingValuesOperators,
-    handleSelectTarget,
-    handleToggleValue,
-    handleConfirmBlock,
-    handleSaveConditionGroup,
-    handleCancelBuild,
-    handleToggleBlockOperator,
-    handleToggleBlockValuesOperator,
-    handleTogglePendingValuesOperator,
-    setCurrentCat,
-    handleRemoveBlock,
-    handleRemoveCurrentEntry,
-    handleRemoveTarget,
+    conditionsForScope,
+    conditionCounts,
+    handleAddConditions,
+    handleRemoveCondition,
+    handleToggleScopeOp,
+    openPicker,
+    closePicker,
   } = useConditionStep({ draft, updateDraft });
 
-  if (viewMode === 'BUILD_CONDITION') {
-    if (activeTargetContext === 'OTHER') {
-      return (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`${Styles.container} items-center justify-center gap-6`}
-        >
-          <div className="flex flex-col items-center gap-3 text-center max-w-xs">
-            <span className="text-3xl opacity-40">⚙</span>
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Aucun filtre disponible</p>
-            <p className="text-xs text-slate-500">
-              Les filtres pour la cible <span className="text-slate-300 font-semibold">OTHER</span> ne sont pas encore configurés.
-            </p>
-            <button
-              onClick={handleCancelBuild}
-              className="mt-2 px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:border-slate-400 transition-colors"
-            >
-              ← Retour
-            </button>
-          </div>
-        </motion.div>
-      );
-    }
-
-    return (
-      <BuildConditionView
-        activeTargetContext={activeTargetContext}
-        bannerText={bannerText}
-        blocks={blocks}
-        blockOperators={blockOperators}
-        currentCat={currentCat}
-        currentBlockEntries={currentBlockEntries}
-        catOptions={catOptions}
-        availableCategories={availableCategories}
-        canSave={canSave}
-        pendingValuesOperators={pendingValuesOperators}
-        onBack={handleCancelBuild}
-        onSelectCat={setCurrentCat}
-        onToggleValue={handleToggleValue}
-        onConfirmBlock={handleConfirmBlock}
-        onRemoveBlock={handleRemoveBlock}
-        onRemoveCurrentEntry={handleRemoveCurrentEntry}
-        onToggleBlockOperator={handleToggleBlockOperator}
-        onToggleBlockValuesOperator={handleToggleBlockValuesOperator}
-        onTogglePendingValuesOperator={handleTogglePendingValuesOperator}
-        onSave={handleSaveConditionGroup}
-      />
-    );
-  }
+  const conditions = conditionsForScope(activeScope);
 
   return (
-    <SelectTargetView
-      configuredTargets={configuredTargets}
-      onSelectTarget={handleSelectTarget}
-      onRemoveTarget={handleRemoveTarget}
-    />
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col h-full"
+    >
+      <div className="mb-6">
+        <h2 className="text-2xl font-black text-white mb-2">Quand agir ?</h2>
+        <p className="text-sm text-slate-400 font-medium">
+          Définissez les conditions qui déclenchent ce gambit. Sans conditions, il est toujours actif.
+        </p>
+      </div>
+
+      <ScopeTabs
+        activeScope={activeScope}
+        onSelect={setActiveScope}
+        conditionCounts={conditionCounts}
+      />
+
+      <div className="mt-5 flex flex-col gap-4 flex-1">
+        <ConditionList
+          conditions={conditions}
+          scope={activeScope}
+          onRemove={handleRemoveCondition}
+          onToggleOperator={handleToggleScopeOp}
+        />
+
+        {!pickerOpen ? (
+          <button
+            onClick={openPicker}
+            className="self-start flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-slate-700 text-slate-500 hover:text-slate-300 hover:border-slate-500 text-xs font-bold uppercase tracking-widest transition-all duration-150"
+          >
+            <span className="text-base leading-none">+</span>
+            Ajouter une condition
+          </button>
+        ) : (
+          <ConditionInlinePicker
+            scope={activeScope}
+            categories={availableCategories}
+            selectedCat={pickerCat}
+            onSelectCat={setPickerCat}
+            onAdd={(batch) => handleAddConditions(activeScope, batch)}
+            onCancel={closePicker}
+          />
+        )}
+      </div>
+    </motion.div>
   );
 }

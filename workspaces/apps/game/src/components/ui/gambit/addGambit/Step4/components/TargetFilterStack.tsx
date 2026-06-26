@@ -1,29 +1,33 @@
-import { IconPlus } from '../../../../../../assets/icons/IconPlus';
-import { IconTrash } from '../../../../../../assets/icons/IconTrash';
-import { formatBlockValue, type BlockValue, type CategoryId } from '@components/ui/gambit/filters/filterRegistry';
+import { IconTrash } from '@assets/icons/IconTrash';
+import type { CategoryId } from '@components/ui/gambit/filters/filterRegistry';
 import type { FilterEntry, FilterOrGroup } from '../useTargetStep';
 import { formatOrGroup } from '../useTargetStep';
-import { Styles_conditionStack } from '../../Step2/Condition.styles';
+import { Styles_conditionStack } from '../../shared/blockStack.styles';
+import { PendingBlockView } from '../../shared/PendingBlockView';
 
 interface TargetFilterStackProps {
-  /** Groupes OR confirmés (reliés par ET). */
   orGroups: FilterOrGroup[];
-  /** Entrées du groupe OR en cours de construction (multi-catégories). */
   currentBlockEntries: FilterEntry[];
-  /** Catégorie active dans le panneau de droite (pour afficher les valeurs de la cat courante). */
   currentFilterCat: CategoryId | null;
+  pendingValuesOperators: Record<string, 'AND' | 'OR'>;
+  pendingGroupOperator: 'AND' | 'OR';
   onConfirmBlock: () => void;
   onRemoveBlock: (index: number) => void;
   onRemoveEntry: (entry: FilterEntry) => void;
+  onTogglePendingValuesOperator: (categoryId: CategoryId) => void;
+  onTogglePendingGroupOperator: () => void;
 }
 
 export function TargetFilterStack({
   orGroups,
   currentBlockEntries,
-  currentFilterCat,
+  pendingValuesOperators,
+  pendingGroupOperator,
   onConfirmBlock,
   onRemoveBlock,
   onRemoveEntry,
+  onTogglePendingValuesOperator,
+  onTogglePendingGroupOperator,
 }: TargetFilterStackProps) {
   return (
     <div className={Styles_conditionStack.stackWrapper}>
@@ -44,30 +48,15 @@ export function TargetFilterStack({
       ))}
 
       {currentBlockEntries.length > 0 ? (
-        <div className="flex flex-col items-center gap-3 w-full">
-          <div
-            className={`${Styles_conditionStack.stackItem} ${Styles_conditionStack.stackItemActive} ${Styles_conditionStack.stackActiveBlock}`}
-          >
-            {currentBlockEntries.map((entry, i) => {
-              const label = formatBlockValue(entry.categoryId, entry.value);
-              return (
-                <div key={`${entry.categoryId}-${i}-${label}`} className={Styles_conditionStack.stackActiveRow}>
-                  <span className={Styles_conditionStack.stackActiveText}>{label}</span>
-                  <button
-                    onClick={() => onRemoveEntry(entry)}
-                    className={Styles_conditionStack.stackActiveDelete}
-                    title="Retirer cette valeur"
-                  >
-                    <IconTrash />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          <button className={Styles_conditionStack.stackAddBtn} onClick={onConfirmBlock}>
-            <IconPlus />
-          </button>
-        </div>
+        <PendingBlockView
+          entries={currentBlockEntries}
+          pendingValuesOperators={pendingValuesOperators}
+          pendingGroupOperator={pendingGroupOperator}
+          onRemoveEntry={onRemoveEntry}
+          onConfirmBlock={onConfirmBlock}
+          onTogglePendingValuesOperator={onTogglePendingValuesOperator}
+          onTogglePendingGroupOperator={onTogglePendingGroupOperator}
+        />
       ) : (
         <div className={`${Styles_conditionStack.stackItem} ${Styles_conditionStack.stackItemEmpty}`}>
           {orGroups.length > 0 ? '(Nouveau groupe ET)' : '(Choisissez une catégorie)'}

@@ -19,7 +19,6 @@ import { IconArrows } from '../../../../../../assets/icons/IconArrows';
 
 interface BuildConditionViewProps {
   activeTargetContext: string | null;
-  bannerText: string;
   blocks: ConditionBlock[];
   blockOperators: ('AND' | 'OR')[];
   currentCat: CategoryId | null;
@@ -28,6 +27,7 @@ interface BuildConditionViewProps {
   availableCategories: readonly CategoryDefinition[];
   canSave: boolean;
   pendingValuesOperators: Record<string, 'AND' | 'OR'>;
+  pendingGroupOperator: 'AND' | 'OR';
   onBack: () => void;
   onSelectCat: (id: CategoryId) => void;
   onToggleValue: (v: FilterEntry['value']) => void;
@@ -37,12 +37,12 @@ interface BuildConditionViewProps {
   onToggleBlockOperator: (index: number) => void;
   onToggleBlockValuesOperator: (index: number) => void;
   onTogglePendingValuesOperator: (categoryId: CategoryId) => void;
+  onTogglePendingGroupOperator: () => void;
   onSave: () => void;
 }
 
 export function BuildConditionView({
   activeTargetContext,
-  bannerText,
   blocks,
   blockOperators,
   currentCat,
@@ -51,6 +51,7 @@ export function BuildConditionView({
   availableCategories,
   canSave,
   pendingValuesOperators,
+  pendingGroupOperator,
   onBack,
   onSelectCat,
   onToggleValue,
@@ -60,6 +61,7 @@ export function BuildConditionView({
   onToggleBlockOperator,
   onToggleBlockValuesOperator,
   onTogglePendingValuesOperator,
+  onTogglePendingGroupOperator,
   onSave,
 }: BuildConditionViewProps) {
   const categoryItems = availableCategories.map((c) => ({ id: c.id, label: c.label }));
@@ -88,7 +90,14 @@ export function BuildConditionView({
         onBack={onBack}
       />
 
-      <ConditionBanner text={bannerText} />
+      <ConditionBanner
+        activeTarget={activeTargetContext}
+        blocks={blocks}
+        blockOperators={blockOperators}
+        pendingEntries={currentBlockEntries}
+        pendingValuesOperators={pendingValuesOperators}
+        pendingGroupOperator={pendingGroupOperator}
+      />
 
       <div className={Styles.workArea}>
         <div className={Styles.workLayout}>
@@ -99,13 +108,16 @@ export function BuildConditionView({
           <ConditionStack
             blocks={blocks}
             blockOperators={blockOperators}
-            currentCat={currentCat}
             currentBlockEntries={currentBlockEntries}
+            pendingValuesOperators={pendingValuesOperators}
+            pendingGroupOperator={pendingGroupOperator}
             onConfirmBlock={onConfirmBlock}
             onRemoveBlock={onRemoveBlock}
             onRemoveCurrentEntry={onRemoveCurrentEntry}
             onToggleBlockOperator={onToggleBlockOperator}
             onToggleBlockValuesOperator={onToggleBlockValuesOperator}
+            onTogglePendingValuesOperator={onTogglePendingValuesOperator}
+            onTogglePendingGroupOperator={onTogglePendingGroupOperator}
           />
 
           <IconArrows />
@@ -121,29 +133,15 @@ export function BuildConditionView({
           {currentCat && (
             <>
               <IconArrows />
-              <div className="flex flex-col items-center gap-2">
-                {selectedValueIds.length > 1 && (
-                  <button
-                    onClick={() => onTogglePendingValuesOperator(currentCat)}
-                    className={`font-black uppercase text-[10px] px-3 py-1 rounded border transition-colors ${
-                      (pendingValuesOperators[currentCat] ?? 'OR') === 'AND'
-                        ? 'bg-sky-500/20 border-sky-500/50 text-sky-300 hover:bg-sky-500/30'
-                        : 'bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30'
-                    }`}
-                    title="Basculer l'opérateur entre les valeurs sélectionnées"
-                  >
-                    {(pendingValuesOperators[currentCat] ?? 'OR') === 'AND' ? 'ET' : 'OU'}
-                  </button>
-                )}
-                <CriteriaListPane
-                  items={valueItems.map((v) => ({ id: v.id, label: v.label }))}
-                  selectedIds={selectedValueIds}
-                  onSelect={(id) => {
-                    const found = valueItems.find((v) => v.id === id);
-                    if (found) onToggleValue(found.value);
-                  }}
-                />
-              </div>
+              <CriteriaListPane
+                items={valueItems.map((v) => ({ id: v.id, label: v.label }))}
+                selectedIds={selectedValueIds}
+                showIcons={false}
+                onSelect={(id) => {
+                  const found = valueItems.find((v) => v.id === id);
+                  if (found) onToggleValue(found.value);
+                }}
+              />
             </>
           )}
         </div>

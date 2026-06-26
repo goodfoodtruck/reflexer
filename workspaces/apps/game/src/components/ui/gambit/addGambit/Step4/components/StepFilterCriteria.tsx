@@ -18,11 +18,15 @@ interface StepFilterCriteriaProps {
   currentFilterCat: CategoryId | null;
   currentBlockEntries: FilterEntry[];
   catOptions: readonly BlockValueOption[];
+  pendingValuesOperators: Record<string, 'AND' | 'OR'>;
+  pendingGroupOperator: 'AND' | 'OR';
   onSelectCat: (id: CategoryId) => void;
   onToggleVal: (val: FilterEntry['value']) => void;
   onConfirmBlock: () => void;
   onRemoveBlock: (index: number) => void;
   onRemoveEntry: (entry: FilterEntry) => void;
+  onTogglePendingValuesOperator: (categoryId: CategoryId) => void;
+  onTogglePendingGroupOperator: () => void;
   onCancel: () => void;
   onNext: () => void;
 }
@@ -34,21 +38,23 @@ export function StepFilterCriteria({
   currentFilterCat,
   currentBlockEntries,
   catOptions,
+  pendingValuesOperators,
+  pendingGroupOperator,
   onSelectCat,
   onToggleVal,
   onConfirmBlock,
   onRemoveBlock,
   onRemoveEntry,
+  onTogglePendingValuesOperator,
+  onTogglePendingGroupOperator,
   onCancel,
   onNext,
 }: StepFilterCriteriaProps) {
   const categoryItems = TARGET_FILTER_CATEGORIES.map((c) => ({ id: c.id, label: c.label }));
   const valueItems = catOptions.map((o) => ({ id: o.label, label: o.label, value: o.value }));
 
-  // Catégories qui ont au moins une entrée dans le bloc courant (indicateur visuel ambre)
   const catsWithEntries = [...new Set(currentBlockEntries.map((e) => e.categoryId))];
 
-  // Valeurs sélectionnées dans la catégorie active (pour le panneau de droite)
   const selectedValueIds = currentFilterCat
     ? currentBlockEntries
         .filter((e) => e.categoryId === currentFilterCat)
@@ -58,10 +64,24 @@ export function StepFilterCriteria({
   const KIND_LABELS: Record<string, string> = { ENEMY: 'Ennemi', ALLY: 'Allié', SELF: 'Moi-même' };
   const kindLabel = KIND_LABELS[localKind ?? ''] ?? localKind;
 
-  const headerText = [
-    ...filterBlocks.map((g) => `(${formatOrGroup(g)})`),
-    ...(currentBlockEntries.length > 0 ? [`(${formatOrGroup(currentBlockEntries)})`] : []),
-  ].join(' ET ');
+  // Construire le texte du banner avec parenthèses pour le bloc pending multi-catégories
+  const confirmedParts = filterBlocks.map((g) => `(${formatOrGroup(g)})`);
+  let pendingText = '';
+  if (currentBlockEntries.length > 0) {
+    const byCat = new Map<CategoryId, FilterEntry[]>();
+    for (const e of currentBlockEntries) {
+      const arr = byCat.get(e.categoryId) ?? [];
+      arr.push(e);
+      byCat.set(e.categoryId, arr);
+    }
+    const catParts = Array.from(byCat.entries()).map(([, entries]) =>
+      entries.map((e) => formatBlockValue(e.categoryId, e.value)).join(' OU '),
+    );
+    const sep = pendingGroupOperator === 'AND' ? ' ET ' : ' OU ';
+    pendingText = catParts.length > 1 ? `(${catParts.join(sep)})` : `(${catParts[0] ?? ''})`;
+  }
+  const allParts = [...confirmedParts, ...(pendingText ? [pendingText] : [])];
+  const headerText = allParts.join(' ET ');
 
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className={Styles.container}>
@@ -80,13 +100,16 @@ export function StepFilterCriteria({
             orGroups={filterBlocks}
             currentBlockEntries={currentBlockEntries}
             currentFilterCat={currentFilterCat}
+            pendingValuesOperators={pendingValuesOperators}
+            pendingGroupOperator={pendingGroupOperator}
             onConfirmBlock={onConfirmBlock}
             onRemoveBlock={onRemoveBlock}
             onRemoveEntry={onRemoveEntry}
+            onTogglePendingValuesOperator={onTogglePendingValuesOperator}
+            onTogglePendingGroupOperator={onTogglePendingGroupOperator}
           />
         </div>
 
-        {/* Panneau catégories : focusedIds = catégorie active (bleu), selectedIds = cat avec entrées (ambre) */}
         <CriteriaListPane
           items={categoryItems}
           selectedIds={catsWithEntries.filter((c) => c !== currentFilterCat)}
@@ -98,6 +121,7 @@ export function StepFilterCriteria({
           <CriteriaListPane
             items={valueItems}
             selectedIds={selectedValueIds}
+            showIcons={false}
             onSelect={(id) => {
               const opt = valueItems.find((v) => v.id === id);
               if (opt) onToggleVal(opt.value);

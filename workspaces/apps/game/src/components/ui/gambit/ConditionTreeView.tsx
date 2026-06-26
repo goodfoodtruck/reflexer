@@ -19,10 +19,13 @@ type NodeProps<T extends ConditionGroup = ConditionGroup> = {
 /* ─── LogicConnector ─────────────────────────────────────────────────── */
 
 function LogicConnector({ op }: { op: string }) {
+  const isAnd = op === 'AND';
   return (
     <div className={Styles_gambit_row.logicConnectorArea}>
       <div className={Styles_gambit_row.logicConnectorLine} />
-      <span className={Styles_gambit_row.logicConnectorText}>{op === 'AND' ? 'ET' : 'OU'}</span>
+      <span className={isAnd ? Styles_gambit_row.opBadgeAnd : Styles_gambit_row.opBadgeOr}>
+        {isAnd ? 'ET' : 'OU'}
+      </span>
     </div>
   );
 }
@@ -55,7 +58,7 @@ export function ExistsContextDisplay({
       </span>
       {filters.map((filter, i) => (
         <span key={i} className="flex items-center gap-1.5">
-          {i > 0 && <span className={Styles_gambit_row.logicConnectorText}>ET</span>}
+          {i > 0 && <span className={Styles_gambit_row.opBadgeAnd}>ET</span>}
           <span className={Styles_gambit_row.filterText}>{filterToLabel(filter)}</span>
         </span>
       ))}

@@ -25,10 +25,10 @@ import {
   type FilterOrGroup,
   type Scope,
 } from './filters/filterRegistry';
-import { sortLabelToSort, sortToLabel } from './sorts/sortRegistry';
+import { sortLabelToSort, sortToLabel, sortToFullLabel, sortToCategoryLabel } from './sorts/sortRegistry';
 import type { StoredGambit } from '@services/gambit.service';
 
-export { sortLabelToSort, sortToLabel };
+export { sortLabelToSort, sortToLabel, sortToFullLabel, sortToCategoryLabel };
 
 /* ────────────────────────────────────────────────────────────────────────────
  * DRAFT → MOTEUR
