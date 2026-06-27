@@ -35,9 +35,10 @@ interface Props {
   scope: Scope;
   onRemove: (id: string) => void;
   onToggleOperator?: (id: string) => void;
+  onToggleValuesOperator?: (id: string) => void;
 }
 
-export function ConditionList({ conditions, scope, onRemove, onToggleOperator }: Props) {
+export function ConditionList({ conditions, scope, onRemove, onToggleOperator, onToggleValuesOperator }: Props) {
   if (conditions.length === 0) {
     return (
       <p className="text-[10px] text-slate-600 italic py-2">
@@ -54,10 +55,7 @@ export function ConditionList({ conditions, scope, onRemove, onToggleOperator }:
         const style = CAT_STYLE[cond.filterTypeCategory] ?? DEFAULT_STYLE;
         const prev = conditions[i - 1];
         const op = prev?.scopeOperator ?? 'AND';
-        const valuesSep = (cond.valuesOperator ?? 'OR') === 'AND' ? ' ET ' : ' OU ';
-        const valuesText = cond.blockValues
-          .map((v) => formatBlockValue(cond.filterTypeCategory, v))
-          .join(valuesSep);
+        const vop = cond.valuesOperator ?? 'OR';
 
         return (
           <Fragment key={cond.id}>
@@ -85,8 +83,31 @@ export function ConditionList({ conditions, scope, onRemove, onToggleOperator }:
                   {CAT_LABEL[cond.filterTypeCategory] ?? cond.filterTypeCategory}
                 </span>
               </div>
-              <div className="flex items-center px-2.5 py-1.5">
-                <span className="text-xs font-semibold">{valuesText}</span>
+              <div className="flex items-center gap-1 px-2.5 py-1.5">
+                {cond.blockValues.map((v, vi) => (
+                  <Fragment key={vi}>
+                    {vi > 0 && (
+                      onToggleValuesOperator ? (
+                        <button
+                          onClick={() => onToggleValuesOperator(cond.id)}
+                          title="Cliquer pour basculer ET / OU"
+                          className={`px-1.5 py-0.5 rounded border text-[9px] font-black uppercase tracking-widest transition-all duration-150 ${
+                            vop === 'AND'
+                              ? 'border-sky-500/40 bg-sky-500/10 text-sky-400 hover:bg-sky-500/25'
+                              : 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/25'
+                          }`}
+                        >
+                          {vop === 'AND' ? 'ET' : 'OU'}
+                        </button>
+                      ) : (
+                        <span className={`text-[9px] font-black px-0.5 ${vop === 'AND' ? 'text-sky-400' : 'text-amber-400'}`}>
+                          {vop === 'AND' ? 'ET' : 'OU'}
+                        </span>
+                      )
+                    )}
+                    <span className="text-xs font-semibold">{formatBlockValue(cond.filterTypeCategory, v)}</span>
+                  </Fragment>
+                ))}
               </div>
               <button
                 onClick={() => onRemove(cond.id)}

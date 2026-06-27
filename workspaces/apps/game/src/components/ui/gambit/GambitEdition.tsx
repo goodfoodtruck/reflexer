@@ -6,6 +6,7 @@ import { SituationStep } from './addGambit/Step1';
 import { ConditionStep } from './addGambit/Step2';
 import { IntentStep } from './addGambit/Step3/IntentStep';
 import { TargetStep } from './addGambit/Step4/TargetStep';
+import { RecapStep } from './addGambit/Step5/RecapStep';
 import { buildInitialDraft } from './gambit.adapter';
 import type { StoredGambit } from '@services/gambit.service';
 
@@ -13,7 +14,8 @@ const STEPS = [
   { num: 1, label: 'Situation' },
   { num: 2, label: 'Conditions' },
   { num: 3, label: 'Intention' },
-  { num: 4, label: 'Cible' }
+  { num: 4, label: 'Cible' },
+  { num: 5, label: 'Récap' },
 ];
 
 interface Props {
@@ -36,7 +38,7 @@ export function GambitEdition({ initialGambit, onCancel, onSave }: Props) {
     (currentStep === 4 && draft.targetSort === '');
 
   const handleNextOrSave = () => {
-    if (currentStep < 4) setCurrentStep((prev) => prev + 1);
+    if (currentStep < 5) setCurrentStep((prev) => prev + 1);
     else onSave(draft);
   };
 
@@ -44,7 +46,8 @@ export function GambitEdition({ initialGambit, onCancel, onSave }: Props) {
     1: <SituationStep draft={draft} updateDraft={updateDraft} />,
     2: <ConditionStep draft={draft} updateDraft={updateDraft} />,
     3: <IntentStep draft={draft} updateDraft={updateDraft} />,
-    4: <TargetStep draft={draft} updateDraft={updateDraft} />
+    4: <TargetStep draft={draft} updateDraft={updateDraft} />,
+    5: <RecapStep draft={draft} />,
   };
 
   return (
@@ -99,7 +102,7 @@ export function GambitEdition({ initialGambit, onCancel, onSave }: Props) {
             disabled={isDisabled}
             className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnNext}`}
           >
-            {currentStep === 4 ? 'Terminer & Sauvegarder' : 'Étape suivante'}
+            {currentStep === 5 ? 'Confirmer & Sauvegarder' : currentStep === 4 ? 'Voir le récapitulatif' : 'Étape suivante'}
           </button>
         </div>
       </div>

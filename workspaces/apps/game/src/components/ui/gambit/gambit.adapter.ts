@@ -208,17 +208,20 @@ export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
  * ────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Construit un ConditionGroup depuis un tableau de groupes OU (FilterOrGroup[]).
- * Chaque groupe OU peut contenir des entrées de catégories différentes.
- * Plusieurs groupes → ET de OU.
+ * Construit un ConditionGroup depuis un tableau de groupes (FilterOrGroup[]).
+ * groupOps[i] = opérateur entre group[i] et group[i+1] (AND par défaut).
+ * valuesOps[i] = opérateur entre les valeurs du group[i] (OR par défaut).
  */
 function buildTargetCondition(
   scope: Scope,
   orGroups: FilterOrGroup[],
+  groupOps: ('AND' | 'OR')[] = [],
+  valuesOps: ('AND' | 'OR')[] = [],
 ): ConditionGroup | undefined {
   if (orGroups.length === 0) return undefined;
 
-  const groupToNode = (group: FilterOrGroup): ConditionGroup => {
+  const groupToNode = (group: FilterOrGroup, gi: number): ConditionGroup => {
+    const vop = valuesOps[gi] ?? 'OR';
     const exists = group
       .map((e) => {
         const filter = getCategory(e.categoryId).blockValueToFilter(e.value, scope);
@@ -227,21 +230,45 @@ function buildTargetCondition(
       .filter((e): e is ExistsCondition => e !== null);
 
     if (exists.length === 0) return buildExistsForScope(scope, []);
-    if (exists.length === 1) return exists[0];
-    return { operator: 'OR', conditions: exists };
+    if (exists.length === 1) return exists[0]!;
+    return { operator: vop, conditions: exists };
   };
 
-  if (orGroups.length === 1) return groupToNode(orGroups[0]!);
-  return { operator: 'AND', conditions: orGroups.map(groupToNode) };
+  if (orGroups.length === 1) return groupToNode(orGroups[0]!, 0);
+
+  const operators = orGroups.slice(0, -1).map((_, i) => groupOps[i] ?? 'AND');
+
+  if (operators.every((op) => op === operators[0])) {
+    return { operator: operators[0]!, conditions: orGroups.map((g, i) => groupToNode(g, i)) };
+  }
+
+  // Mixed operators: AND has priority — group AND-consecutive blocks, then OR between groups
+  const orSections: ConditionGroup[][] = [];
+  let current: ConditionGroup[] = [groupToNode(orGroups[0]!, 0)];
+  for (let i = 0; i < operators.length; i++) {
+    const next = groupToNode(orGroups[i + 1]!, i + 1);
+    if (operators[i] === 'AND') {
+      current.push(next);
+    } else {
+      orSections.push(current);
+      current = [next];
+    }
+  }
+  orSections.push(current);
+
+  const andGroups: ConditionGroup[] = orSections.map((g) =>
+    g.length === 1 ? g[0]! : { operator: 'AND' as const, conditions: g },
+  );
+  return andGroups.length === 1 ? andGroups[0]! : { operator: 'OR' as const, conditions: andGroups };
 }
 
 export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
   const sort = sortLabelToSort(draft.targetSort);
   switch (draft.targetKind) {
     case 'SELF':  return { context: { targetType: ETargetType.SELF }, sort };
-    case 'ALLY':  return { context: { targetType: ETargetType.ALLY,  condition: buildTargetCondition('ALLY',  draft.targetFilters) }, sort };
+    case 'ALLY':  return { context: { targetType: ETargetType.ALLY,  condition: buildTargetCondition('ALLY',  draft.targetFilters, draft.targetFilterGroupOps, draft.targetFilterValuesOps) }, sort };
     case 'ENEMY':
-    default:      return { context: { targetType: ETargetType.ENEMY, condition: buildTargetCondition('ENEMY', draft.targetFilters) }, sort };
+    default:      return { context: { targetType: ETargetType.ENEMY, condition: buildTargetCondition('ENEMY', draft.targetFilters, draft.targetFilterGroupOps, draft.targetFilterValuesOps) }, sort };
   }
 };
 
@@ -316,6 +343,8 @@ export function buildInitialDraft(initialGambit?: StoredGambit): DraftGambit {
       targetKind: 'ENEMY',
       targetSort: '',
       targetFilters: [],
+      targetFilterGroupOps: [],
+      targetFilterValuesOps: [],
     };
   }
 
@@ -337,5 +366,7 @@ export function buildInitialDraft(initialGambit?: StoredGambit): DraftGambit {
     targetKind: initialGambit.targetSelector.context.targetType,
     targetSort: initialGambit.targetSelector.sort || 'NEAREST',
     targetFilters: targetFiltersToDraft(initialGambit.targetSelector),
+    targetFilterGroupOps: [],
+    targetFilterValuesOps: [],
   };
 }

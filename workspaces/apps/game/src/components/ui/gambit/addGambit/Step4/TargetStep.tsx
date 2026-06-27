@@ -20,6 +20,8 @@ export function TargetStep({ draft, updateDraft }: Props) {
     handleSelectKind,
     handleAddFilters,
     handleRemoveFilter,
+    handleToggleGroupOp,
+    handleToggleValuesOp,
     handleSelectSort,
     openPicker,
     closePicker,
@@ -57,7 +59,11 @@ export function TargetStep({ draft, updateDraft }: Props) {
 
             <TargetFilterList
               filters={draft.targetFilters}
+              groupOps={draft.targetFilterGroupOps}
+              valuesOps={draft.targetFilterValuesOps}
               onRemove={handleRemoveFilter}
+              onToggleGroupOp={handleToggleGroupOp}
+              onToggleValuesOp={handleToggleValuesOp}
             />
 
             {!pickerOpen ? (

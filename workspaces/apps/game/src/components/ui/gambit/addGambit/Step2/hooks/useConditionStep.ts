@@ -63,6 +63,24 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     });
   };
 
+  const handleToggleValuesOp = (id: string) => {
+    updateDraft({
+      conditions: draft.conditions.map((c) =>
+        c.id === id
+          ? { ...c, valuesOperator: (c.valuesOperator ?? 'OR') === 'OR' ? 'AND' : 'OR' }
+          : c,
+      ),
+    });
+  };
+
+  const handleToggleGlobalOp = () => {
+    updateDraft({ operator: draft.operator === 'AND' ? 'OR' : 'AND' });
+  };
+
+  const scopesWithConditions = (['SELF', 'ALLY', 'ENEMY'] as Scope[]).filter(
+    (s) => draft.conditions.some((c) => c.scopeKind === s),
+  );
+
   const openPicker = () => {
     setPickerOpen(true);
     setPickerCat(null);
@@ -82,9 +100,12 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     availableCategories,
     conditionsForScope,
     conditionCounts,
+    scopesWithConditions,
     handleAddConditions,
     handleRemoveCondition,
     handleToggleScopeOp,
+    handleToggleValuesOp,
+    handleToggleGlobalOp,
     openPicker,
     closePicker,
   };

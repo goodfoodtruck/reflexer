@@ -26,10 +26,21 @@ const DEFAULT_STYLE = { chip: 'border-slate-600/40 text-slate-200', header: 'bg-
 
 interface Props {
   filters: FilterOrGroup[];
+  groupOps?: ('AND' | 'OR')[];
+  valuesOps?: ('AND' | 'OR')[];
   onRemove: (index: number) => void;
+  onToggleGroupOp?: (index: number) => void;
+  onToggleValuesOp?: (index: number) => void;
 }
 
-export function TargetFilterList({ filters, onRemove }: Props) {
+export function TargetFilterList({
+  filters,
+  groupOps = [],
+  valuesOps = [],
+  onRemove,
+  onToggleGroupOp,
+  onToggleValuesOp,
+}: Props) {
   if (filters.length === 0) return null;
 
   return (
@@ -37,17 +48,29 @@ export function TargetFilterList({ filters, onRemove }: Props) {
       {filters.map((group, gi) => {
         const firstCat = group[0]?.categoryId ?? 'health';
         const style = CAT_STYLE[firstCat] ?? DEFAULT_STYLE;
-
-        const valuesText = group
-          .map((e) => formatBlockValue(e.categoryId, e.value))
-          .join(' OU ');
+        const groupOp = groupOps[gi - 1] ?? 'AND';
+        const vop = valuesOps[gi] ?? 'OR';
 
         return (
           <Fragment key={gi}>
             {gi > 0 && (
-              <span className="px-2.5 py-1 rounded-md border border-sky-500/40 bg-sky-500/10 text-[9px] font-black uppercase tracking-widest text-sky-400">
-                ET
-              </span>
+              onToggleGroupOp ? (
+                <button
+                  onClick={() => onToggleGroupOp(gi - 1)}
+                  title="Cliquer pour basculer ET / OU"
+                  className={`px-2.5 py-1 rounded-md border text-[9px] font-black uppercase tracking-widest transition-all duration-150 ${
+                    groupOp === 'AND'
+                      ? 'border-sky-500/40 bg-sky-500/10 text-sky-400 hover:bg-sky-500/25'
+                      : 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/25'
+                  }`}
+                >
+                  {groupOp === 'AND' ? 'ET' : 'OU'}
+                </button>
+              ) : (
+                <span className="px-2.5 py-1 rounded-md border border-sky-500/40 bg-sky-500/10 text-[9px] font-black uppercase tracking-widest text-sky-400">
+                  ET
+                </span>
+              )
             )}
 
             <div className={`group flex items-stretch rounded-lg border overflow-hidden bg-slate-900/60 ${style.chip}`}>
@@ -56,8 +79,33 @@ export function TargetFilterList({ filters, onRemove }: Props) {
                   {CAT_LABEL[firstCat] ?? firstCat}
                 </span>
               </div>
-              <div className="flex items-center px-2.5 py-1.5">
-                <span className="text-xs font-semibold">{valuesText}</span>
+              <div className="flex items-center gap-1 px-2.5 py-1.5">
+                {group.map((entry, ei) => (
+                  <Fragment key={ei}>
+                    {ei > 0 && (
+                      onToggleValuesOp ? (
+                        <button
+                          onClick={() => onToggleValuesOp(gi)}
+                          title="Cliquer pour basculer ET / OU"
+                          className={`px-1.5 py-0.5 rounded border text-[9px] font-black uppercase tracking-widest transition-all duration-150 ${
+                            vop === 'AND'
+                              ? 'border-sky-500/40 bg-sky-500/10 text-sky-400 hover:bg-sky-500/25'
+                              : 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/25'
+                          }`}
+                        >
+                          {vop === 'AND' ? 'ET' : 'OU'}
+                        </button>
+                      ) : (
+                        <span className={`text-[9px] font-black px-0.5 ${vop === 'AND' ? 'text-sky-400' : 'text-amber-400'}`}>
+                          {vop === 'AND' ? 'ET' : 'OU'}
+                        </span>
+                      )
+                    )}
+                    <span className="text-xs font-semibold">
+                      {formatBlockValue(entry.categoryId, entry.value)}
+                    </span>
+                  </Fragment>
+                ))}
               </div>
               <button
                 onClick={() => onRemove(gi)}

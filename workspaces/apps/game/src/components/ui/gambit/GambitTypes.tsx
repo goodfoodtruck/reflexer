@@ -28,6 +28,10 @@ export type DraftGambit = {
   targetKind: Scope;
   targetSort: string;
   targetFilters: FilterOrGroup[];
+  /** Operator between each consecutive filter group pair. Index i = operator between group i and group i+1. */
+  targetFilterGroupOps: ('AND' | 'OR')[];
+  /** Operator between values within each filter group. Index i = valuesOperator for group i. */
+  targetFilterValuesOps: ('AND' | 'OR')[];
 };
 
 export type ActionItem = {

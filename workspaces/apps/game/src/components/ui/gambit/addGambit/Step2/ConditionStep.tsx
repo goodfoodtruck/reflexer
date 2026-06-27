@@ -20,9 +20,12 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     availableCategories,
     conditionsForScope,
     conditionCounts,
+    scopesWithConditions,
     handleAddConditions,
     handleRemoveCondition,
     handleToggleScopeOp,
+    handleToggleValuesOp,
+    handleToggleGlobalOp,
     openPicker,
     closePicker,
   } = useConditionStep({ draft, updateDraft });
@@ -46,6 +49,8 @@ export function ConditionStep({ draft, updateDraft }: Props) {
         activeScope={activeScope}
         onSelect={setActiveScope}
         conditionCounts={conditionCounts}
+        globalOp={draft.operator}
+        onToggleGlobalOp={handleToggleGlobalOp}
       />
 
       <div className="mt-5 flex flex-col gap-4 flex-1">
@@ -54,6 +59,7 @@ export function ConditionStep({ draft, updateDraft }: Props) {
           scope={activeScope}
           onRemove={handleRemoveCondition}
           onToggleOperator={handleToggleScopeOp}
+          onToggleValuesOperator={handleToggleValuesOp}
         />
 
         {!pickerOpen ? (
