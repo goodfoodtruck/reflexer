@@ -13,6 +13,8 @@ export type DraftCondition = {
   scopeKind: Scope;
   filterTypeCategory: CategoryId;
   blockValues: BlockValue[];
+  /** Inverse la condition via l'opérateur NOT du moteur. */
+  negated?: boolean;
   /** Opérateur entre les blocs de ce scope (ET par défaut). */
   scopeOperator?: 'AND' | 'OR';
   /** Opérateur entre les valeurs de ce bloc (OU par défaut). */
@@ -32,6 +34,8 @@ export type DraftGambit = {
   targetFilterGroupOps: ('AND' | 'OR')[];
   /** Operator between values within each filter group. Index i = valuesOperator for group i. */
   targetFilterValuesOps: ('AND' | 'OR')[];
+  /** Whether each filter group is negated (NOT). Index i = negated for group i. */
+  targetFilterGroupNegated: boolean[];
 };
 
 export type ActionItem = {

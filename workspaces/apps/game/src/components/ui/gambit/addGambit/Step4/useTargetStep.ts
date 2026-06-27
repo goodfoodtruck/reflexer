@@ -64,6 +64,7 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
       targetFilters: [...draft.targetFilters, ...newGroups],
       targetFilterGroupOps: newGroupOps,
       targetFilterValuesOps: [...draft.targetFilterValuesOps, ...newValuesOps],
+      targetFilterGroupNegated: [...draft.targetFilterGroupNegated, ...Array(addedCount).fill(false)],
     });
     setPickerOpen(false);
     setPickerCat(null);
@@ -71,14 +72,14 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
 
   const handleRemoveFilter = (index: number) => {
     const newFilters = draft.targetFilters.filter((_, i) => i !== index);
-    // Remove the group op for this pair: if removing group i, remove op at i-1 (between i-1 and i)
-    // or op at i (between i and i+1), keeping the rest intact.
     const newGroupOps = draft.targetFilterGroupOps.filter((_, i) => i !== Math.max(0, index - 1) || (index === 0 && draft.targetFilterGroupOps.length > 0 ? false : true));
     const newValuesOps = draft.targetFilterValuesOps.filter((_, i) => i !== index);
+    const newGroupNegated = draft.targetFilterGroupNegated.filter((_, i) => i !== index);
     updateDraft({
       targetFilters: newFilters,
       targetFilterGroupOps: newGroupOps.slice(0, Math.max(0, newFilters.length - 1)),
       targetFilterValuesOps: newValuesOps,
+      targetFilterGroupNegated: newGroupNegated,
     });
   };
 
@@ -92,6 +93,12 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     const ops = [...draft.targetFilterValuesOps];
     ops[index] = (ops[index] ?? 'OR') === 'OR' ? 'AND' : 'OR';
     updateDraft({ targetFilterValuesOps: ops });
+  };
+
+  const handleToggleGroupNegated = (index: number) => {
+    const negated = [...draft.targetFilterGroupNegated];
+    negated[index] = !(negated[index] ?? false);
+    updateDraft({ targetFilterGroupNegated: negated });
   };
 
   const handleSelectSort = (sortId: string) => {
@@ -118,6 +125,7 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
     handleRemoveFilter,
     handleToggleGroupOp,
     handleToggleValuesOp,
+    handleToggleGroupNegated,
     handleSelectSort,
     openPicker,
     closePicker,

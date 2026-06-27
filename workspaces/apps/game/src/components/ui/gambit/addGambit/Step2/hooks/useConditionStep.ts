@@ -73,6 +73,14 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     });
   };
 
+  const handleToggleNegated = (id: string) => {
+    updateDraft({
+      conditions: draft.conditions.map((c) =>
+        c.id === id ? { ...c, negated: !c.negated } : c,
+      ),
+    });
+  };
+
   const handleToggleGlobalOp = () => {
     updateDraft({ operator: draft.operator === 'AND' ? 'OR' : 'AND' });
   };
@@ -105,6 +113,7 @@ export function useConditionStep({ draft, updateDraft }: UseConditionStepProps) 
     handleRemoveCondition,
     handleToggleScopeOp,
     handleToggleValuesOp,
+    handleToggleNegated,
     handleToggleGlobalOp,
     openPicker,
     closePicker,

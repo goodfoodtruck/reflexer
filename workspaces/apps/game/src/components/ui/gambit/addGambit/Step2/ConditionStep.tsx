@@ -25,6 +25,7 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     handleRemoveCondition,
     handleToggleScopeOp,
     handleToggleValuesOp,
+    handleToggleNegated,
     handleToggleGlobalOp,
     openPicker,
     closePicker,
@@ -60,6 +61,7 @@ export function ConditionStep({ draft, updateDraft }: Props) {
           onRemove={handleRemoveCondition}
           onToggleOperator={handleToggleScopeOp}
           onToggleValuesOperator={handleToggleValuesOp}
+          onToggleNegated={handleToggleNegated}
         />
 
         {!pickerOpen ? (

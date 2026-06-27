@@ -82,16 +82,22 @@ function buildScopeCondition(scope: Scope, conditions: DraftCondition[]): Condit
   return andGroups.length === 1 ? andGroups[0]! : { operator: 'OR' as const, conditions: andGroups };
 }
 
-/** 1 valeur → EXISTS simple ; N valeurs → ET/OU d'EXISTS selon valuesOperator. */
+/** 1 valeur → EXISTS simple ; N valeurs → ET/OU d'EXISTS selon valuesOperator. Wrap dans NOT si negated. */
 function blockToCondition(scope: Scope, c: DraftCondition): ConditionGroup {
   const cat = getCategory(c.filterTypeCategory);
   const filters = c.blockValues
     .map((v) => cat.blockValueToFilter(v, scope))
     .filter((f): f is AnyFilter => f !== null);
 
-  if (filters.length <= 1) return buildExistsForScope(scope, filters);
-  const op = c.valuesOperator ?? 'OR';
-  return { operator: op, conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+  let node: ConditionGroup;
+  if (filters.length <= 1) {
+    node = buildExistsForScope(scope, filters);
+  } else {
+    const op = c.valuesOperator ?? 'OR';
+    node = { operator: op, conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
+  }
+
+  return c.negated ? { operator: 'NOT', condition: node } : node;
 }
 
 function buildExistsForScope(scope: Scope, filters: AnyFilter[]): ExistsCondition {
@@ -108,13 +114,14 @@ function buildExistsForScope(scope: Scope, filters: AnyFilter[]): ExistsConditio
 
 let reverseCounter = 0;
 
-function makeDraftCondition(scope: Scope, categoryId: CategoryId, blockValues: BlockValue[], valuesOperator?: 'AND' | 'OR'): DraftCondition {
+function makeDraftCondition(scope: Scope, categoryId: CategoryId, blockValues: BlockValue[], valuesOperator?: 'AND' | 'OR', negated?: boolean): DraftCondition {
   return {
     id: `loaded-${scope}-${categoryId}-${reverseCounter++}-${Math.random().toString(36).slice(2, 9)}`,
     scopeKind: scope,
     filterTypeCategory: categoryId,
     blockValues,
     valuesOperator,
+    negated,
   };
 }
 
@@ -180,7 +187,9 @@ function tryParseCrossCategoryOrBlock(conditions: ConditionGroup[]): DraftCondit
 }
 
 export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
-  if ('operator' in cond && cond.operator === 'NOT') return conditionsToDraft(cond.condition);
+  if ('operator' in cond && cond.operator === 'NOT') {
+    return conditionsToDraft(cond.condition).map((c) => ({ ...c, negated: true }));
+  }
 
   if ('operator' in cond && (cond.operator === 'AND' || cond.operator === 'OR')) {
     const asBlock = tryParseMultiValueBlock(cond.operator, cond.conditions);
@@ -217,6 +226,7 @@ function buildTargetCondition(
   orGroups: FilterOrGroup[],
   groupOps: ('AND' | 'OR')[] = [],
   valuesOps: ('AND' | 'OR')[] = [],
+  groupNegated: boolean[] = [],
 ): ConditionGroup | undefined {
   if (orGroups.length === 0) return undefined;
 
@@ -229,9 +239,12 @@ function buildTargetCondition(
       })
       .filter((e): e is ExistsCondition => e !== null);
 
-    if (exists.length === 0) return buildExistsForScope(scope, []);
-    if (exists.length === 1) return exists[0]!;
-    return { operator: vop, conditions: exists };
+    let node: ConditionGroup;
+    if (exists.length === 0) node = buildExistsForScope(scope, []);
+    else if (exists.length === 1) node = exists[0]!;
+    else node = { operator: vop, conditions: exists };
+
+    return groupNegated[gi] ? { operator: 'NOT', condition: node } : node;
   };
 
   if (orGroups.length === 1) return groupToNode(orGroups[0]!, 0);
@@ -266,9 +279,9 @@ export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
   const sort = sortLabelToSort(draft.targetSort);
   switch (draft.targetKind) {
     case 'SELF':  return { context: { targetType: ETargetType.SELF }, sort };
-    case 'ALLY':  return { context: { targetType: ETargetType.ALLY,  condition: buildTargetCondition('ALLY',  draft.targetFilters, draft.targetFilterGroupOps, draft.targetFilterValuesOps) }, sort };
+    case 'ALLY':  return { context: { targetType: ETargetType.ALLY,  condition: buildTargetCondition('ALLY',  draft.targetFilters, draft.targetFilterGroupOps, draft.targetFilterValuesOps, draft.targetFilterGroupNegated) }, sort };
     case 'ENEMY':
-    default:      return { context: { targetType: ETargetType.ENEMY, condition: buildTargetCondition('ENEMY', draft.targetFilters, draft.targetFilterGroupOps, draft.targetFilterValuesOps) }, sort };
+    default:      return { context: { targetType: ETargetType.ENEMY, condition: buildTargetCondition('ENEMY', draft.targetFilters, draft.targetFilterGroupOps, draft.targetFilterValuesOps, draft.targetFilterGroupNegated) }, sort };
   }
 };
 
@@ -345,6 +358,7 @@ export function buildInitialDraft(initialGambit?: StoredGambit): DraftGambit {
       targetFilters: [],
       targetFilterGroupOps: [],
       targetFilterValuesOps: [],
+      targetFilterGroupNegated: [],
     };
   }
 
@@ -368,5 +382,6 @@ export function buildInitialDraft(initialGambit?: StoredGambit): DraftGambit {
     targetFilters: targetFiltersToDraft(initialGambit.targetSelector),
     targetFilterGroupOps: [],
     targetFilterValuesOps: [],
+    targetFilterGroupNegated: [],
   };
 }

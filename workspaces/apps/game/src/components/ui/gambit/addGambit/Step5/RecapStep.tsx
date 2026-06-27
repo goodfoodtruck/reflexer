@@ -76,7 +76,12 @@ function ConditionLine({ cond }: { cond: DraftCondition }) {
       <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border shrink-0 ${scopeColor}`}>
         {SCOPE_LABEL[cond.scopeKind]}
       </span>
-      <span className="text-sm font-semibold text-slate-200">
+      {cond.negated && (
+        <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-rose-500/40 bg-rose-500/10 text-rose-400 shrink-0">
+          NON
+        </span>
+      )}
+      <span className={`text-sm font-semibold ${cond.negated ? 'text-slate-400 line-through decoration-rose-500/50' : 'text-slate-200'}`}>
         {cond.blockValues.map((v, i) => (
           <Fragment key={i}>
             {i > 0 && (
@@ -217,27 +222,43 @@ export function RecapStep({ draft }: Props) {
 
             {draft.targetKind !== 'SELF' && draft.targetFilters.length > 0 && (
               <div className="flex flex-col gap-1.5 mt-0.5">
-                {draft.targetFilters.map((group, gi) => (
-                  <div key={gi} className="flex items-center gap-1.5 flex-wrap">
-                    {gi > 0 && (
-                      <span className="text-[9px] font-black uppercase tracking-widest border border-slate-700 text-slate-500 px-1.5 py-0.5 rounded">
-                        ET
-                      </span>
-                    )}
-                    {group.map((entry, ei) => (
-                      <Fragment key={ei}>
-                        {ei > 0 && (
-                          <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest border border-amber-500/30 bg-amber-500/8 px-1.5 py-0.5 rounded">
-                            OU
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-300 font-medium">
-                          {formatBlockValue(entry.categoryId, entry.value)}
+                {draft.targetFilters.map((group, gi) => {
+                  const gop = draft.targetFilterGroupOps[gi - 1] ?? 'AND';
+                  const vop = draft.targetFilterValuesOps[gi] ?? 'OR';
+                  const isNegated = draft.targetFilterGroupNegated[gi] ?? false;
+                  return (
+                    <div key={gi} className="flex items-center gap-1.5 flex-wrap">
+                      {gi > 0 && (
+                        <span className={`text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${
+                          gop === 'AND'
+                            ? 'border-slate-700 text-slate-500'
+                            : 'border-amber-500/30 bg-amber-500/8 text-amber-400'
+                        }`}>
+                          {gop === 'AND' ? 'ET' : 'OU'}
                         </span>
-                      </Fragment>
-                    ))}
-                  </div>
-                ))}
+                      )}
+                      {isNegated && (
+                        <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border border-rose-500/40 bg-rose-500/10 text-rose-400">
+                          NON
+                        </span>
+                      )}
+                      <div className={isNegated ? 'opacity-60' : ''}>
+                        {group.map((entry, ei) => (
+                          <Fragment key={ei}>
+                            {ei > 0 && (
+                              <span className={`text-[9px] font-black mx-1.5 uppercase tracking-widest ${vop === 'AND' ? 'text-sky-400' : 'text-amber-400'}`}>
+                                {vop === 'AND' ? 'ET' : 'OU'}
+                              </span>
+                            )}
+                            <span className="text-xs text-slate-300 font-medium">
+                              {formatBlockValue(entry.categoryId, entry.value)}
+                            </span>
+                          </Fragment>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

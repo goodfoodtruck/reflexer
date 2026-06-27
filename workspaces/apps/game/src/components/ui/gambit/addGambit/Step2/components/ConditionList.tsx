@@ -36,9 +36,10 @@ interface Props {
   onRemove: (id: string) => void;
   onToggleOperator?: (id: string) => void;
   onToggleValuesOperator?: (id: string) => void;
+  onToggleNegated?: (id: string) => void;
 }
 
-export function ConditionList({ conditions, scope, onRemove, onToggleOperator, onToggleValuesOperator }: Props) {
+export function ConditionList({ conditions, scope, onRemove, onToggleOperator, onToggleValuesOperator, onToggleNegated }: Props) {
   if (conditions.length === 0) {
     return (
       <p className="text-[10px] text-slate-600 italic py-2">
@@ -77,45 +78,64 @@ export function ConditionList({ conditions, scope, onRemove, onToggleOperator, o
               )
             )}
 
-            <div className={`group flex items-stretch rounded-lg border overflow-hidden bg-slate-900/60 ${style.chip}`}>
-              <div className={`flex items-center px-2.5 py-1.5 ${style.header} border-r border-current/20`}>
-                <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
-                  {CAT_LABEL[cond.filterTypeCategory] ?? cond.filterTypeCategory}
-                </span>
+            {/* NON toggle + chip — grouped so qu'ils restent solidaires dans le flex-wrap */}
+            <div className="flex items-center gap-1.5">
+              {onToggleNegated && (
+                <button
+                  onClick={() => onToggleNegated(cond.id)}
+                  title={cond.negated ? 'Retirer la négation' : 'Inverser cette condition'}
+                  className={`shrink-0 px-2.5 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all duration-150 ${
+                    cond.negated
+                      ? 'border-rose-500/50 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30'
+                      : 'border-dashed border-slate-700 text-slate-600 hover:border-rose-500/40 hover:text-rose-400 hover:bg-rose-500/8'
+                  }`}
+                >
+                  NON
+                </button>
+              )}
+
+              <div className={`group flex items-stretch rounded-lg border overflow-hidden bg-slate-900/60 transition-all duration-150 ${
+                cond.negated ? 'border-rose-500/30 opacity-60' : style.chip
+              }`}>
+                <div className={`flex items-center px-2.5 py-1.5 border-r border-current/20 ${style.header}`}>
+                  <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+                    {CAT_LABEL[cond.filterTypeCategory] ?? cond.filterTypeCategory}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 px-2.5 py-1.5">
+                  {cond.blockValues.map((v, vi) => (
+                    <Fragment key={vi}>
+                      {vi > 0 && (
+                        onToggleValuesOperator ? (
+                          <button
+                            onClick={() => onToggleValuesOperator(cond.id)}
+                            title="Cliquer pour basculer ET / OU"
+                            className={`px-1.5 py-0.5 rounded border text-[9px] font-black uppercase tracking-widest transition-all duration-150 ${
+                              vop === 'AND'
+                                ? 'border-sky-500/40 bg-sky-500/10 text-sky-400 hover:bg-sky-500/25'
+                                : 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/25'
+                            }`}
+                          >
+                            {vop === 'AND' ? 'ET' : 'OU'}
+                          </button>
+                        ) : (
+                          <span className={`text-[9px] font-black px-0.5 ${vop === 'AND' ? 'text-sky-400' : 'text-amber-400'}`}>
+                            {vop === 'AND' ? 'ET' : 'OU'}
+                          </span>
+                        )
+                      )}
+                      <span className="text-xs font-semibold">{formatBlockValue(cond.filterTypeCategory, v)}</span>
+                    </Fragment>
+                  ))}
+                </div>
+                <button
+                  onClick={() => onRemove(cond.id)}
+                  className="flex items-center px-2 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 text-xs transition-all duration-150 border-l border-current/10"
+                  title="Supprimer"
+                >
+                  ×
+                </button>
               </div>
-              <div className="flex items-center gap-1 px-2.5 py-1.5">
-                {cond.blockValues.map((v, vi) => (
-                  <Fragment key={vi}>
-                    {vi > 0 && (
-                      onToggleValuesOperator ? (
-                        <button
-                          onClick={() => onToggleValuesOperator(cond.id)}
-                          title="Cliquer pour basculer ET / OU"
-                          className={`px-1.5 py-0.5 rounded border text-[9px] font-black uppercase tracking-widest transition-all duration-150 ${
-                            vop === 'AND'
-                              ? 'border-sky-500/40 bg-sky-500/10 text-sky-400 hover:bg-sky-500/25'
-                              : 'border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/25'
-                          }`}
-                        >
-                          {vop === 'AND' ? 'ET' : 'OU'}
-                        </button>
-                      ) : (
-                        <span className={`text-[9px] font-black px-0.5 ${vop === 'AND' ? 'text-sky-400' : 'text-amber-400'}`}>
-                          {vop === 'AND' ? 'ET' : 'OU'}
-                        </span>
-                      )
-                    )}
-                    <span className="text-xs font-semibold">{formatBlockValue(cond.filterTypeCategory, v)}</span>
-                  </Fragment>
-                ))}
-              </div>
-              <button
-                onClick={() => onRemove(cond.id)}
-                className="flex items-center px-2 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 text-xs transition-all duration-150 border-l border-current/10"
-                title="Supprimer"
-              >
-                ×
-              </button>
             </div>
           </Fragment>
         );
