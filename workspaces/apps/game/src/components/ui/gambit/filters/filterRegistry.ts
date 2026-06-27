@@ -239,6 +239,15 @@ export const formatBlockValue = (categoryId: CategoryId, value: BlockValue): str
   return found?.label ?? '?';
 };
 
+/**
+ * Libellé compact, sans répéter le nom de la catégorie (pour affichage inline
+ * quand la catégorie est déjà visible en en-tête de chip).
+ */
+export const formatBlockValueShort = (categoryId: CategoryId, value: BlockValue): string => {
+  if (value.kind === 'threshold') return `${value.op} ${value.value}%`;
+  return formatBlockValue(categoryId, value);
+};
+
 export const sameBlockValue = (a: BlockValue, b: BlockValue): boolean => {
   if (a.kind !== b.kind) return false;
   if (a.kind === 'threshold' && b.kind === 'threshold') return a.op === b.op && a.value === b.value;
