@@ -18,6 +18,20 @@ const STEPS = [
   { num: 5, label: 'Récap' },
 ];
 
+const TOTAL_STEPS = STEPS.length;
+
+const STEP_VALIDATION: Partial<Record<number, (draft: DraftGambit) => boolean>> = {
+  1: (draft) => draft.name === '',
+  3: (draft) => draft.intentValue === '',
+  4: (draft) => draft.targetSort === '',
+};
+
+function getNextButtonLabel(currentStep: number): string {
+  if (currentStep === TOTAL_STEPS)     return 'Confirmer & Sauvegarder';
+  if (currentStep === TOTAL_STEPS - 1) return 'Voir le récapitulatif';
+  return 'Étape suivante';
+}
+
 interface Props {
   initialGambit?: StoredGambit;
   onCancel: () => void;
@@ -32,22 +46,19 @@ export function GambitEdition({ initialGambit, onCancel, onSave }: Props) {
     setDraft((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const isDisabled =
-    (currentStep === 1 && draft.name === '') ||
-    (currentStep === 3 && draft.intentValue === '') ||
-    (currentStep === 4 && draft.targetSort === '');
+  const isNextDisabled = STEP_VALIDATION[currentStep]?.(draft) ?? false;
 
-  const handleNextOrSave = () => {
-    if (currentStep < 5) setCurrentStep((prev) => prev + 1);
+  const handleNext = () => {
+    if (currentStep < TOTAL_STEPS) setCurrentStep((prev) => prev + 1);
     else onSave(draft);
   };
 
   const stepComponents: Record<number, React.ReactNode> = {
     1: <SituationStep draft={draft} updateDraft={updateDraft} />,
     2: <ConditionStep draft={draft} updateDraft={updateDraft} />,
-    3: <IntentStep draft={draft} updateDraft={updateDraft} />,
-    4: <TargetStep draft={draft} updateDraft={updateDraft} />,
-    5: <RecapStep draft={draft} />,
+    3: <IntentStep    draft={draft} updateDraft={updateDraft} />,
+    4: <TargetStep    draft={draft} updateDraft={updateDraft} />,
+    5: <RecapStep     draft={draft} />,
   };
 
   return (
@@ -57,14 +68,10 @@ export function GambitEdition({ initialGambit, onCancel, onSave }: Props) {
           <div className={Style_gambit_edition.timeline} />
           {STEPS.map((s) => (
             <div key={s.num} className={Style_gambit_edition.stepWrapper}>
-              <div
-                className={`${Style_gambit_edition.circle} ${currentStep >= s.num ? Style_gambit_edition.circleActive : Style_gambit_edition.circlePending}`}
-              >
+              <div className={`${Style_gambit_edition.circle} ${currentStep >= s.num ? Style_gambit_edition.circleActive : Style_gambit_edition.circlePending}`}>
                 {s.num}
               </div>
-              <span
-                className={`${Style_gambit_edition.label} ${currentStep >= s.num ? Style_gambit_edition.labelActive : Style_gambit_edition.labelPending}`}
-              >
+              <span className={`${Style_gambit_edition.label} ${currentStep >= s.num ? Style_gambit_edition.labelActive : Style_gambit_edition.labelPending}`}>
                 {s.label}
               </span>
             </div>
@@ -74,35 +81,23 @@ export function GambitEdition({ initialGambit, onCancel, onSave }: Props) {
 
       <div className={Style_gambit_edition.body}>
         <div className={Style_gambit_edition.glow} />
-        <div
-          className={`${Style_gambit_edition.content} ${currentStep >= 2 ? 'max-w-7xl' : 'max-w-xl'}`}
-        >
+        <div className={`${Style_gambit_edition.content} ${currentStep >= 2 ? 'max-w-7xl' : 'max-w-xl'}`}>
           <AnimatePresence mode="wait">{stepComponents[currentStep]}</AnimatePresence>
         </div>
       </div>
 
       <div className={Style_gambit_edition.footer}>
-        <button
-          onClick={onCancel}
-          className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnCancel}`}
-        >
+        <button onClick={onCancel} className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnCancel}`}>
           Annuler
         </button>
         <div className={Style_gambit_edition.footerRight}>
           {currentStep > 1 && (
-            <button
-              onClick={() => setCurrentStep((p) => p - 1)}
-              className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnBack}`}
-            >
+            <button onClick={() => setCurrentStep((p) => p - 1)} className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnBack}`}>
               Retour
             </button>
           )}
-          <button
-            onClick={handleNextOrSave}
-            disabled={isDisabled}
-            className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnNext}`}
-          >
-            {currentStep === 5 ? 'Confirmer & Sauvegarder' : currentStep === 4 ? 'Voir le récapitulatif' : 'Étape suivante'}
+          <button onClick={handleNext} disabled={isNextDisabled} className={`${Style_gambit_edition.btnBase} ${Style_gambit_edition.btnNext}`}>
+            {getNextButtonLabel(currentStep)}
           </button>
         </div>
       </div>

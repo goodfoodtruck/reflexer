@@ -13,14 +13,61 @@ export type { FilterEntry, FilterOrGroup };
 
 type PickerBatch = { categoryId: CategoryId; values: BlockValue[]; valuesOp: 'AND' | 'OR' };
 
-interface UseTargetStepProps {
+interface Props {
   draft: DraftGambit;
   updateDraft: (updates: Partial<DraftGambit>) => void;
 }
 
-export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
+function buildGroupsFromBatch(batch: PickerBatch[]): { groups: FilterOrGroup[]; valuesOps: ('AND' | 'OR')[] } {
+  const groups: FilterOrGroup[] = [];
+  const valuesOps: ('AND' | 'OR')[] = [];
+
+  for (const { categoryId, values, valuesOp } of batch) {
+    if (valuesOp === 'AND') {
+      for (const value of values) {
+        groups.push([{ categoryId, value }]);
+        valuesOps.push('OR');
+      }
+    } else {
+      groups.push(values.map((value) => ({ categoryId, value })));
+      valuesOps.push('OR');
+    }
+  }
+
+  return { groups, valuesOps };
+}
+
+function rebuildGroupOps(
+  existingOps: ('AND' | 'OR')[],
+  previousGroupCount: number,
+  totalGroupCount: number,
+): ('AND' | 'OR')[] {
+  const newOps: ('AND' | 'OR')[] = Array(Math.max(0, totalGroupCount - 1)).fill('AND');
+  for (let i = 0; i < existingOps.length && i < newOps.length; i++) {
+    newOps[i] = existingOps[i]!;
+  }
+  return newOps;
+}
+
+function removeAtIndex<T>(arr: T[], index: number): T[] {
+  return arr.filter((_, i) => i !== index);
+}
+
+function removeGroupOpForRemovedItem(ops: ('AND' | 'OR')[], removedIndex: number, totalAfter: number): ('AND' | 'OR')[] {
+  const opIndexToRemove = Math.max(0, removedIndex - 1);
+  const filtered = ops.filter((_, i) => i !== opIndexToRemove || (removedIndex === 0 && ops.length > 0 ? false : true));
+  return filtered.slice(0, Math.max(0, totalAfter - 1));
+}
+
+function toggleArrayEntry<T>(arr: T[], index: number, toggle: (current: T) => T): T[] {
+  const next = [...arr];
+  next[index] = toggle(next[index] as T);
+  return next;
+}
+
+export function useTargetStep({ draft, updateDraft }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [pickerCat, setPickerCat] = useState<CategoryId | null>(null);
+  const [pickerCat,  setPickerCat]  = useState<CategoryId | null>(null);
 
   const filterCategories = useMemo<readonly CategoryDefinition[]>(
     () => (draft.targetKind ? categoriesForScope(draft.targetKind as Scope) : []),
@@ -38,82 +85,66 @@ export function useTargetStep({ draft, updateDraft }: UseTargetStepProps) {
   };
 
   const handleAddFilters = (batch: PickerBatch[]) => {
-    const newGroups: FilterOrGroup[] = [];
-    const newValuesOps: ('AND' | 'OR')[] = [];
-    for (const { categoryId, values, valuesOp } of batch) {
-      if (valuesOp === 'AND') {
-        for (const value of values) {
-          newGroups.push([{ categoryId, value }]);
-          newValuesOps.push('OR');
-        }
-      } else {
-        newGroups.push(values.map((value) => ({ categoryId, value })));
-        newValuesOps.push('OR');
-      }
-    }
+    const { groups: newGroups, valuesOps: newValuesOps } = buildGroupsFromBatch(batch);
     if (newGroups.length === 0) return;
-    const addedCount = newGroups.length;
-    const newGroupOps: ('AND' | 'OR')[] = Array(
-      Math.max(0, draft.targetFilters.length + addedCount - 1),
-    ).fill('AND');
-    // Preserve existing group ops
-    for (let i = 0; i < draft.targetFilterGroupOps.length && i < newGroupOps.length; i++) {
-      newGroupOps[i] = draft.targetFilterGroupOps[i]!;
-    }
+
+    const totalGroupCount = draft.targetFilters.length + newGroups.length;
+    const newGroupOps = rebuildGroupOps(draft.targetFilterGroupOps, draft.targetFilters.length, totalGroupCount);
+
     updateDraft({
-      targetFilters: [...draft.targetFilters, ...newGroups],
-      targetFilterGroupOps: newGroupOps,
-      targetFilterValuesOps: [...draft.targetFilterValuesOps, ...newValuesOps],
-      targetFilterGroupNegated: [...draft.targetFilterGroupNegated, ...Array(addedCount).fill(false)],
+      targetFilters:           [...draft.targetFilters, ...newGroups],
+      targetFilterGroupOps:    newGroupOps,
+      targetFilterValuesOps:   [...draft.targetFilterValuesOps, ...newValuesOps],
+      targetFilterGroupNegated: [...draft.targetFilterGroupNegated, ...Array(newGroups.length).fill(false)],
     });
     setPickerOpen(false);
     setPickerCat(null);
   };
 
   const handleRemoveFilter = (index: number) => {
-    const newFilters = draft.targetFilters.filter((_, i) => i !== index);
-    const newGroupOps = draft.targetFilterGroupOps.filter((_, i) => i !== Math.max(0, index - 1) || (index === 0 && draft.targetFilterGroupOps.length > 0 ? false : true));
-    const newValuesOps = draft.targetFilterValuesOps.filter((_, i) => i !== index);
-    const newGroupNegated = draft.targetFilterGroupNegated.filter((_, i) => i !== index);
+    const newFilters = removeAtIndex(draft.targetFilters, index);
     updateDraft({
-      targetFilters: newFilters,
-      targetFilterGroupOps: newGroupOps.slice(0, Math.max(0, newFilters.length - 1)),
-      targetFilterValuesOps: newValuesOps,
-      targetFilterGroupNegated: newGroupNegated,
+      targetFilters:            newFilters,
+      targetFilterGroupOps:     removeGroupOpForRemovedItem(draft.targetFilterGroupOps, index, newFilters.length),
+      targetFilterValuesOps:    removeAtIndex(draft.targetFilterValuesOps, index),
+      targetFilterGroupNegated: removeAtIndex(draft.targetFilterGroupNegated, index),
     });
   };
 
   const handleToggleGroupOp = (index: number) => {
-    const ops = [...draft.targetFilterGroupOps];
-    ops[index] = (ops[index] ?? 'AND') === 'AND' ? 'OR' : 'AND';
-    updateDraft({ targetFilterGroupOps: ops });
+    updateDraft({
+      targetFilterGroupOps: toggleArrayEntry(
+        draft.targetFilterGroupOps,
+        index,
+        (op) => ((op ?? 'AND') === 'AND' ? 'OR' : 'AND'),
+      ),
+    });
   };
 
   const handleToggleValuesOp = (index: number) => {
-    const ops = [...draft.targetFilterValuesOps];
-    ops[index] = (ops[index] ?? 'OR') === 'OR' ? 'AND' : 'OR';
-    updateDraft({ targetFilterValuesOps: ops });
+    updateDraft({
+      targetFilterValuesOps: toggleArrayEntry(
+        draft.targetFilterValuesOps,
+        index,
+        (op) => ((op ?? 'OR') === 'OR' ? 'AND' : 'OR'),
+      ),
+    });
   };
 
   const handleToggleGroupNegated = (index: number) => {
-    const negated = [...draft.targetFilterGroupNegated];
-    negated[index] = !(negated[index] ?? false);
-    updateDraft({ targetFilterGroupNegated: negated });
+    updateDraft({
+      targetFilterGroupNegated: toggleArrayEntry(
+        draft.targetFilterGroupNegated,
+        index,
+        (negated) => !(negated ?? false),
+      ),
+    });
   };
 
-  const handleSelectSort = (sortId: string) => {
-    updateDraft({ targetSort: sortId });
-  };
+  const handleSelectSort = (sortId: string) => updateDraft({ targetSort: sortId });
 
-  const openPicker = () => {
-    setPickerOpen(true);
-    setPickerCat(null);
-  };
-
-  const closePicker = () => {
-    setPickerOpen(false);
-    setPickerCat(null);
-  };
+  const openPicker  = () => { setPickerOpen(true);  setPickerCat(null); };
+  const closePicker = () => { setPickerOpen(false); setPickerCat(null); };
 
   return {
     pickerOpen,
