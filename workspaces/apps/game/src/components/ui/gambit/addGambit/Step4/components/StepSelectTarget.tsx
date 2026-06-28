@@ -2,9 +2,9 @@ import { motion } from 'framer-motion';
 import { IconEnemy } from '@assets/icons/IconEnemy';
 import { IconCharacter } from '@assets/icons/IconCharacter';
 import { IconSelf } from '@assets/icons/IconSelf';
-import type { ConfiguredTarget } from '../useTargetStep';
-import type { DraftGambit } from '../../../GambitTypes';
-import { Styles } from '../Target.styles';
+import type { ConfiguredTarget } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import type { DraftGambit } from '@components/ui/gambit/GambitTypes';
+import { Styles } from '@components/ui/gambit/addGambit/Step4/Target.styles';
 import { TargetRecap } from './TargetRecap';
 
 const TARGET_KINDS = [

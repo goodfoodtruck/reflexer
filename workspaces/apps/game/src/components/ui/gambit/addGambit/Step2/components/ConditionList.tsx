@@ -1,5 +1,5 @@
-import type { DraftCondition, Scope } from '../../../GambitTypes';
-import { FilterGroupList, type FilterGroupItem } from '../../shared/FilterGroupList';
+import type { DraftCondition, Scope } from '@components/ui/gambit/GambitTypes';
+import { FilterGroupList, type FilterGroupItem } from '@components/ui/gambit/addGambit/shared/FilterGroupList';
 
 const SCOPE_LABEL: Record<Scope, string> = {
   SELF:  'Moi',

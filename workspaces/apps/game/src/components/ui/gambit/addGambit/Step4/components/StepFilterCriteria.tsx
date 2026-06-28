@@ -5,11 +5,11 @@ import {
   type BlockValueOption,
   type CategoryId,
 } from '@components/ui/gambit/filters/filterRegistry';
-import { CriteriaListPane } from '../../Step2/components/CriteriaListPane';
+import { CriteriaListPane } from '@components/ui/gambit/addGambit/Step2/components/CriteriaListPane';
 import { TargetFilterStack } from './TargetFilterStack';
-import type { FilterEntry, FilterOrGroup } from '../useTargetStep';
-import { formatOrGroup } from '../useTargetStep';
-import { Styles } from '../Target.styles';
+import type { FilterEntry, FilterOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import { formatOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import { Styles } from '@components/ui/gambit/addGambit/Step4/Target.styles';
 
 interface StepFilterCriteriaProps {
   localKind: string | null;

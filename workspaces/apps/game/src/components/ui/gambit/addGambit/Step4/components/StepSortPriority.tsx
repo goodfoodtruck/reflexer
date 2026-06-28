@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { SORT_CATEGORIES } from '../../../sorts/sortRegistry';
+import { SORT_CATEGORIES } from '@components/ui/gambit/sorts/sortRegistry';
 import { getCategoryIconConfig } from '@components/ui/gambit/filters/categoryIcons';
-import { Styles } from '../Target.styles';
+import { Styles } from '@components/ui/gambit/addGambit/Step4/Target.styles';
 
 interface StepSortPriorityProps {
   localKind: string | null;

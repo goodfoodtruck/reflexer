@@ -1,9 +1,9 @@
 import { IconTrash } from '@assets/icons/IconTrash';
 import type { CategoryId } from '@components/ui/gambit/filters/filterRegistry';
-import type { FilterEntry, FilterOrGroup } from '../useTargetStep';
-import { formatOrGroup } from '../useTargetStep';
-import { Styles_conditionStack } from '../../shared/blockStack.styles';
-import { PendingBlockView } from '../../shared/PendingBlockView';
+import type { FilterEntry, FilterOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import { formatOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import { Styles_conditionStack } from '@components/ui/gambit/addGambit/shared/blockStack.styles';
+import { PendingBlockView } from '@components/ui/gambit/addGambit/shared/PendingBlockView';
 
 interface TargetFilterStackProps {
   orGroups: FilterOrGroup[];

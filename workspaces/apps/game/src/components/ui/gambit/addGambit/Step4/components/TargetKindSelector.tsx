@@ -1,4 +1,4 @@
-import type { Scope } from '../../../GambitTypes';
+import type { Scope } from '@components/ui/gambit/GambitTypes';
 import { IconEnemy } from '@assets/icons/IconEnemy';
 import { IconCharacter } from '@assets/icons/IconCharacter';
 import { IconSelf } from '@assets/icons/IconSelf';

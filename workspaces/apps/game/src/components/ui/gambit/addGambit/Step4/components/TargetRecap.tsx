@@ -4,11 +4,11 @@ import { IconCharacter } from '@assets/icons/IconCharacter';
 import { IconSelf } from '@assets/icons/IconSelf';
 import { IconEdit } from '@assets/icons/IconEdit';
 import { IconTrash } from '@assets/icons/IconTrash';
-import type { DraftGambit, DraftCondition, Scope } from '../../../GambitTypes';
-import { ACTION_CATEGORIES } from '../../../actionCatalog';
-import { sortToFullLabel, sortToCategoryLabel } from '../../../gambit.adapter';
-import { formatBlockText } from '../../Step2/utils';
-import { formatOrGroup } from '../useTargetStep';
+import type { DraftGambit, DraftCondition, Scope } from '@components/ui/gambit/GambitTypes';
+import { ACTION_CATEGORIES } from '@components/ui/gambit/actionCatalog';
+import { sortToFullLabel, sortToCategoryLabel } from '@components/ui/gambit/gambit.adapter';
+import { formatBlockText } from '@components/ui/gambit/addGambit/Step2/utils';
+import { formatOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
 
 /* ──────────────────────────────────────────────────────────── */
 

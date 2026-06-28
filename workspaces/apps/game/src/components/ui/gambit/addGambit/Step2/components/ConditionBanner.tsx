@@ -5,9 +5,9 @@ import {
   type CategoryId,
   type FilterEntry,
 } from '@components/ui/gambit/filters/filterRegistry';
-import type { ConditionBlock } from '../../../GambitTypes';
-import { Styles } from '../Condition.styles';
-import { computeAndGroups, buildPendingBlocks } from '../utils/bannerFormatters';
+import type { ConditionBlock } from '@components/ui/gambit/GambitTypes';
+import { Styles } from '@components/ui/gambit/addGambit/Step2/Condition.styles';
+import { computeAndGroups, buildPendingBlocks } from '@components/ui/gambit/addGambit/Step2/utils/bannerFormatters';
 
 const SCOPE_LABELS: Record<string, string> = {
   SELF:  'Moi-même',

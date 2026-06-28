@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import type { DraftGambit, Scope } from '../../GambitTypes';
+import type { DraftGambit, Scope } from '@components/ui/gambit/GambitTypes';
 import { useTargetStep } from './useTargetStep';
 import { TargetKindSelector } from './components/TargetKindSelector';
 import { TargetFilterList } from './components/TargetFilterList';
-import { ConditionInlinePicker } from '../shared/ConditionInlinePicker';
-import { SortFlatPicker } from '../shared/SortFlatPicker';
+import { ConditionInlinePicker } from '@components/ui/gambit/addGambit/shared/ConditionInlinePicker';
+import { SortFlatPicker } from '@components/ui/gambit/addGambit/shared/SortFlatPicker';
 
 interface Props {
   draft: DraftGambit;

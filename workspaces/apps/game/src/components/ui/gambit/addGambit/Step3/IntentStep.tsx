@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
-import type { DraftGambit } from '../../GambitTypes';
+import type { DraftGambit } from '@components/ui/gambit/GambitTypes';
 import { Styles } from './Intent.styles';
 import { useIntentStep } from './useIntentStep';
 import { CategoryList } from './components/CategoryList';
 import { ActionDetailPanel } from './components/ActionDetailPanel';
-import { PlaceholderIcon } from '../../../../../assets/icons/IconPlaceholder';
+import { PlaceholderIcon } from '@assets/icons/IconPlaceholder';
 
 const ANIMATION = {
   key: 'step3',

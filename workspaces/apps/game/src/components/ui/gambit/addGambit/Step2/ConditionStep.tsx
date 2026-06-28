@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import type { DraftGambit } from '../../GambitTypes';
+import type { DraftGambit } from '@components/ui/gambit/GambitTypes';
 import { useConditionStep } from './hooks/useConditionStep';
-import { ScopeTabs } from '../shared/ScopeTabs';
+import { ScopeTabs } from '@components/ui/gambit/addGambit/shared/ScopeTabs';
 import { ConditionList } from './components/ConditionList';
-import { ConditionInlinePicker } from '../shared/ConditionInlinePicker';
+import { ConditionInlinePicker } from '@components/ui/gambit/addGambit/shared/ConditionInlinePicker';
 
 interface Props {
   draft: DraftGambit;
@@ -20,7 +20,6 @@ export function ConditionStep({ draft, updateDraft }: Props) {
     availableCategories,
     conditionsForScope,
     conditionCounts,
-    scopesWithConditions,
     handleAddConditions,
     handleRemoveCondition,
     handleToggleScopeOp,

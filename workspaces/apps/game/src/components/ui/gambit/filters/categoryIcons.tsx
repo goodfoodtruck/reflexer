@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import type { CategoryId } from './filterRegistry';
 
 /** Icône cœur — PV / Santé */

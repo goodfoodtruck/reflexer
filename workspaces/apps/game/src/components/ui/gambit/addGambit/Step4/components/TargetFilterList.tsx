@@ -1,5 +1,5 @@
-import type { FilterOrGroup } from '../../../GambitTypes';
-import { FilterGroupList, type FilterGroupItem } from '../../shared/FilterGroupList';
+import type { FilterOrGroup } from '@components/ui/gambit/GambitTypes';
+import { FilterGroupList, type FilterGroupItem } from '@components/ui/gambit/addGambit/shared/FilterGroupList';
 
 interface Props {
   filters: FilterOrGroup[];
@@ -23,7 +23,7 @@ export function TargetFilterList({
   onToggleGroupNegated,
 }: Props) {
   const items: FilterGroupItem[] = filters
-    .map((group, gi) => {
+    .map((group, gi): FilterGroupItem | null => {
       const firstEntry = group[0];
       if (!firstEntry) return null;
       return {
@@ -32,8 +32,8 @@ export function TargetFilterList({
         values: group.map((e) => e.value),
         isNegated: groupNegated[gi] ?? false,
         valuesOp: valuesOps[gi] ?? 'OR',
-        precedingOp: gi > 0 ? (groupOps[gi - 1] ?? 'AND') : undefined,
-      } satisfies FilterGroupItem;
+        ...(gi > 0 ? { precedingOp: groupOps[gi - 1] ?? 'AND' } : {}),
+      };
     })
     .filter((item): item is FilterGroupItem => item !== null);
 

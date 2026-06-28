@@ -38,7 +38,7 @@ export function useGambitEditor(userId: string) {
             setGambits(characterData?.gambits ?? [])
         })
         .catch((err) => console.error("Erreur chargement gambits:", err))
-  }, [characterId]);
+  }, [characterId, userId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),

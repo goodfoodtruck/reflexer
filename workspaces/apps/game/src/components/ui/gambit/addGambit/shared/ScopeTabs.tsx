@@ -1,4 +1,4 @@
-import type { Scope } from '../../GambitTypes';
+import type { Scope } from '@components/ui/gambit/GambitTypes';
 import { OperatorButton } from './OperatorButton';
 
 const SCOPE_CONFIG: Record<Scope, { label: string; activeClass: string; dotClass: string }> = {

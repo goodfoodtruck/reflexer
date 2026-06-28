@@ -1,5 +1,5 @@
-import type { DraftGambit } from '../../GambitTypes';
-import { formatConditionSummary, formatIntentSummary, formatTargetSummary } from '../../gambit.summary';
+import type { DraftGambit } from '@components/ui/gambit/GambitTypes';
+import { formatConditionSummary, formatIntentSummary, formatTargetSummary } from '@components/ui/gambit/gambit.summary';
 
 interface Section {
   label: string;

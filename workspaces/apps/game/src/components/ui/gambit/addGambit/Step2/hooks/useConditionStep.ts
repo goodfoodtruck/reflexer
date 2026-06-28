@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { DraftCondition, DraftGambit, Scope } from '../../../GambitTypes';
+import type { DraftCondition, DraftGambit, Scope } from '@components/ui/gambit/GambitTypes';
 import {
   categoriesForScope,
   type CategoryDefinition,

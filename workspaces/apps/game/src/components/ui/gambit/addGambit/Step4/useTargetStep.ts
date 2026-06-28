@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import type { DraftGambit, Scope } from '../../GambitTypes';
+import type { DraftGambit, Scope } from '@components/ui/gambit/GambitTypes';
 import {
   categoriesForScope,
+  formatBlockValue,
   type CategoryDefinition,
   type CategoryId,
   type BlockValue,
@@ -10,6 +11,12 @@ import {
 } from '@components/ui/gambit/filters/filterRegistry';
 
 export type { FilterEntry, FilterOrGroup };
+
+export type ConfiguredTarget = { kind: Scope };
+
+export function formatOrGroup(group: FilterOrGroup): string {
+  return group.map((e) => formatBlockValue(e.categoryId, e.value)).join(' OU ');
+}
 
 type PickerBatch = { categoryId: CategoryId; values: BlockValue[]; valuesOp: 'AND' | 'OR' };
 
@@ -39,7 +46,7 @@ function buildGroupsFromBatch(batch: PickerBatch[]): { groups: FilterOrGroup[]; 
 
 function rebuildGroupOps(
   existingOps: ('AND' | 'OR')[],
-  previousGroupCount: number,
+  _previousGroupCount: number,
   totalGroupCount: number,
 ): ('AND' | 'OR')[] {
   const newOps: ('AND' | 'OR')[] = Array(Math.max(0, totalGroupCount - 1)).fill('AND');

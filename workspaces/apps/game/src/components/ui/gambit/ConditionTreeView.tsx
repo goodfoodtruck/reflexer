@@ -127,6 +127,7 @@ function ConditionNodeRenderer({ node, index = 0, parentOp }: NodeProps) {
 
 /* ─── Public API ─────────────────────────────────────────────────────── */
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function renderConditionNode(node: ConditionGroup): React.ReactNode {
   return <ConditionNodeRenderer node={node} index={0} />;
 }

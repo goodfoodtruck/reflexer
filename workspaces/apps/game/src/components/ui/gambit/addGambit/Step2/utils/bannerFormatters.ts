@@ -1,4 +1,4 @@
-import type { ConditionBlock } from '../../../GambitTypes';
+import type { ConditionBlock } from '@components/ui/gambit/GambitTypes';
 import { type CategoryId, type FilterEntry } from '@components/ui/gambit/filters/filterRegistry';
 
 /**

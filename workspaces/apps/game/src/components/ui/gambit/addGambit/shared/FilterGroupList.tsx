@@ -1,4 +1,4 @@
-import type { BlockValue, CategoryId } from '../../filters/filterRegistry';
+import type { BlockValue, CategoryId } from '@components/ui/gambit/filters/filterRegistry';
 import { FilterChip } from './FilterChip';
 import { OperatorButton } from './OperatorButton';
 

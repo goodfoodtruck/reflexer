@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
-import type { ConditionBlock } from '../../GambitTypes';
+import type { ConditionBlock } from '@components/ui/gambit/GambitTypes';
 import { formatBlockValue, type CategoryId } from '@components/ui/gambit/filters/filterRegistry';
 import { Styles_conditionStack } from './blockStack.styles';
-import { formatBlockText } from '../Step2/utils';
+import { formatBlockText } from '@components/ui/gambit/addGambit/Step2/utils';
 
 interface BlockItemProps {
   block: ConditionBlock;

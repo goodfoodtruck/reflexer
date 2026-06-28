@@ -1,5 +1,5 @@
-import { ACTION_CATEGORIES } from '../../../actionCatalog';
-import { Styles } from '../Intent.styles';
+import { ACTION_CATEGORIES } from '@components/ui/gambit/actionCatalog';
+import { Styles } from '@components/ui/gambit/addGambit/Step3/Intent.styles';
 
 interface CategoryListProps {
   activeCategoryId: string;

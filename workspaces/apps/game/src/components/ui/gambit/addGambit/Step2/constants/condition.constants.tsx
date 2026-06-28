@@ -1,7 +1,7 @@
-import { IconCharacter } from "../../../../../../assets/icons/IconCharacter";
-import { IconEnemy } from "../../../../../../assets/icons/IconEnemy";
-import { IconOther } from "../../../../../../assets/icons/IconOther";
-import { IconSelf } from "../../../../../../assets/icons/IconSelf";
+import { IconCharacter } from "@assets/icons/IconCharacter";
+import { IconEnemy } from "@assets/icons/IconEnemy";
+import { IconOther } from "@assets/icons/IconOther";
+import { IconSelf } from "@assets/icons/IconSelf";
 
 
 export const TARGET_OPTIONS = [

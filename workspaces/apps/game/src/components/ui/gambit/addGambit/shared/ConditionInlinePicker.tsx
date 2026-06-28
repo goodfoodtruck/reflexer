@@ -1,7 +1,7 @@
 import { useState, Fragment } from 'react';
-import type { Scope } from '../../GambitTypes';
-import type { CategoryDefinition, CategoryId, BlockValue } from '../../filters/filterRegistry';
-import { formatBlockValue, sameBlockValue } from '../../filters/filterRegistry';
+import type { Scope } from '@components/ui/gambit/GambitTypes';
+import type { CategoryDefinition, CategoryId, BlockValue } from '@components/ui/gambit/filters/filterRegistry';
+import { formatBlockValue, sameBlockValue } from '@components/ui/gambit/filters/filterRegistry';
 import { CATEGORY_CHIP_STYLES, DEFAULT_CHIP_STYLE } from './filterChip.constants';
 import { OperatorButton } from './OperatorButton';
 

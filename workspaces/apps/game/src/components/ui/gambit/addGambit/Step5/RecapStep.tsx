@@ -1,9 +1,9 @@
 import { Fragment } from 'react';
 import { motion } from 'framer-motion';
-import type { DraftGambit, DraftCondition } from '../../GambitTypes';
-import { formatBlockValue } from '../../filters/filterRegistry';
-import { sortToFullLabel } from '../../gambit.adapter';
-import { ACTION_CATEGORIES } from '../../actionCatalog';
+import type { DraftGambit, DraftCondition } from '@components/ui/gambit/GambitTypes';
+import { formatBlockValue } from '@components/ui/gambit/filters/filterRegistry';
+import { sortToFullLabel } from '@components/ui/gambit/gambit.adapter';
+import { ACTION_CATEGORIES } from '@components/ui/gambit/actionCatalog';
 
 /* ── Constants ─────────────────────────────────────────────────────────── */
 

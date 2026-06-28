@@ -1,5 +1,5 @@
-import { TARGET_OPTIONS } from '../constants/condition.constants';
-import { Styles } from '../Condition.styles';
+import { TARGET_OPTIONS } from '@components/ui/gambit/addGambit/Step2/constants/condition.constants';
+import { Styles } from '@components/ui/gambit/addGambit/Step2/Condition.styles';
 
 interface FocusTargetIconProps {
   targetId: string | null;

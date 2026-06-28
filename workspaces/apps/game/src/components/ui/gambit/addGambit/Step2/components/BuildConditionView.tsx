@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import type { ConditionBlock } from '../../../GambitTypes';
+import type { ConditionBlock } from '@components/ui/gambit/GambitTypes';
 import {
   type BlockValueOption,
   type CategoryDefinition,
@@ -7,15 +7,15 @@ import {
   type FilterEntry,
   formatBlockValue,
 } from '@components/ui/gambit/filters/filterRegistry';
-import { ANIMATIONS } from '../constants/condition.constants';
-import { Styles } from '../Condition.styles';
+import { ANIMATIONS } from '@components/ui/gambit/addGambit/Step2/constants/condition.constants';
+import { Styles } from '@components/ui/gambit/addGambit/Step2/Condition.styles';
 import { ConditionBreadcrumb } from './ConditionBreadcrumb';
 import { ConditionBanner } from './ConditionBanner';
 import { FocusTargetIcon } from './FocusTargetIcon';
 import { ConditionStack } from './ConditionStack';
 import { CriteriaListPane } from './CriteriaListPane';
 import { StepFooter } from './StepFooter';
-import { IconArrows } from '../../../../../../assets/icons/IconArrows';
+import { IconArrows } from '@assets/icons/IconArrows';
 
 interface BuildConditionViewProps {
   activeTargetContext: string | null;

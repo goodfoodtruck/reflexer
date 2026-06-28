@@ -1,15 +1,15 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import bgHomeImage from '../../../assets/images/bg-home.png';
+import bgHomeImage from '@assets/images/bg-home.png';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Header } from '../header/Header';
+import { Header } from '@components/ui/header/Header';
 import { TacticalMemo } from './tacticalMemo/TacticalMemo';
 import { GambitListPanel } from './GambitListPanel';
 import { GambitEdition } from './GambitEdition';
 import { Styles_gambit_editor } from './Gambit.styles';
-import { useGambitEditor } from './useGambitEditor';
 import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../guide";
 import { useAuth } from '@hooks/useAuth';
-import { resolveCharacterImages } from '../images/characterImages';
+import { resolveCharacterImages } from '@components/ui/images/characterImages';
+import { useGambitEditor } from './UseGambitEditor';
 
 export function GambitEditorPage() {
     const { user } = useAuth()

@@ -1,9 +1,9 @@
-import type { ConditionBlock } from '../../../GambitTypes';
+import type { ConditionBlock } from '@components/ui/gambit/GambitTypes';
 import { type CategoryId, type FilterEntry } from '@components/ui/gambit/filters/filterRegistry';
-import { Styles_conditionStack } from '../../shared/blockStack.styles';
-import { PendingBlockView } from '../../shared/PendingBlockView';
-import { BlockItem } from '../../shared/BlockItem';
-import { OpToggle } from '../../shared/OpToggle';
+import { Styles_conditionStack } from '@components/ui/gambit/addGambit/shared/blockStack.styles';
+import { PendingBlockView } from '@components/ui/gambit/addGambit/shared/PendingBlockView';
+import { BlockItem } from '@components/ui/gambit/addGambit/shared/BlockItem';
+import { OpToggle } from '@components/ui/gambit/addGambit/shared/OpToggle';
 
 interface ConditionStackProps {
   blocks: ConditionBlock[];

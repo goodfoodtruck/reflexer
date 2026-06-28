@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
-import type { BlockValue, CategoryId } from '../../filters/filterRegistry';
-import { formatBlockValueShort } from '../../filters/filterRegistry';
+import type { BlockValue, CategoryId } from '@components/ui/gambit/filters/filterRegistry';
+import { formatBlockValueShort } from '@components/ui/gambit/filters/filterRegistry';
 import { CATEGORY_CHIP_STYLES, CATEGORY_LABELS, DEFAULT_CHIP_STYLE } from './filterChip.constants';
 import { OperatorButton, StaticOperatorLabel } from './OperatorButton';
 

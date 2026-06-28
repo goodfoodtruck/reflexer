@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { SORT_CATEGORIES, SORTS_ALL } from '../../sorts/sortRegistry';
-import type { SortCategoryId } from '../../sorts/sortRegistry';
+import { SORT_CATEGORIES, SORTS_ALL } from '@components/ui/gambit/sorts/sortRegistry';
+import type { SortCategoryId } from '@components/ui/gambit/sorts/sortRegistry';
 
 interface Props {
   value: string | null;

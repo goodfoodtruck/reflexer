@@ -1,5 +1,5 @@
 import type { DraftGambit } from './GambitTypes';
-import { formatConditionSummary, formatIntentSummary, formatTargetSummary } from './gambit.summary';
+import { formatConditionSummary } from './gambit.summary';
 import { ACTION_CATEGORIES } from './actionCatalog';
 import { sortToFullLabel } from './sorts/sortRegistry';
 import { formatBlockValue } from './filters/filterRegistry';
@@ -23,7 +23,6 @@ function resolveActionItem(draft: DraftGambit) {
 export function GambitConfirmModal({ draft, onConfirm, onCancel }: Props) {
   const action = resolveActionItem(draft);
   const conditionSummary = formatConditionSummary(draft);
-  const targetSummary = formatTargetSummary(draft);
 
   const byScope = new Map<string, { cat: string; value: string }[]>();
   for (const c of draft.conditions) {

@@ -53,4 +53,4 @@ export const Styles = {
     'text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] disabled:opacity-50 border border-orange-400/50'
 };
 
-export { Styles_conditionStack } from '../shared/blockStack.styles';
+export { Styles_conditionStack } from '@components/ui/gambit/addGambit/shared/blockStack.styles';
