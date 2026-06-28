@@ -1,8 +1,10 @@
 [
     {
         "id": "map_lake_1",
+        "name": "Lac féerique",
         "size": "LONG_RANGE",
         "background": "lake.gif",
+        "thumbnail": "lake.png",
         "dimensions": { "width": 12, "height": 12 },
         "cells": [
             [ "WALL",  "WALL", "FLOOR", "FLOOR", "FLOOR",  "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
@@ -43,8 +45,10 @@
     },
     {
         "id": "map_chemin_1",
+        "name": "Chemin des oubliés",
         "size": "LONG_RANGE",
         "background": "chemin.png",
+        "thumbnail": "chemin.png",
         "dimensions": { "width": 14, "height": 14 },
         "cells": [
             ["FLOOR", "FLOOR", "WALL", "WALL", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "FLOOR", "WALL", "FLOOR", "FLOOR", "FLOOR", "FLOOR"],
