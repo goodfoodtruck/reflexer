@@ -154,7 +154,7 @@ export function RecapStep({ draft }: Props) {
                   {/* conditions within this scope */}
                   {conds.map((cond, ci) => (
                     <Fragment key={cond.id}>
-                      {ci > 0 && <OpBadge op={cond.scopeOperator ?? 'AND'} />}
+                      {ci > 0 && <OpBadge op={conds[ci - 1]!.scopeOperator ?? 'AND'} />}
                       <ConditionLine cond={cond} />
                     </Fragment>
                   ))}

@@ -210,7 +210,17 @@ export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
       if (asCrossCategory) return asCrossCategory;
     }
 
-    return cond.conditions.flatMap(conditionsToDraft);
+    // Flatten children and propagate the parent operator between child groups
+    const groups = cond.conditions.map(conditionsToDraft);
+    const result: DraftCondition[] = [];
+    for (let i = 0; i < groups.length; i++) {
+      const group = [...groups[i]!];
+      if (i < groups.length - 1 && group.length > 0) {
+        group[group.length - 1] = { ...group[group.length - 1]!, scopeOperator: cond.operator };
+      }
+      result.push(...group);
+    }
+    return result;
   }
 
   if ('type' in cond && cond.type === 'EXISTS') return existsNodeToBlocks(cond);

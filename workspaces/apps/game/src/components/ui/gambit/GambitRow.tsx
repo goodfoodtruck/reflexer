@@ -168,7 +168,7 @@ function GambitDetails({ gambit }: { gambit: StoredGambit }) {
                 <div className="flex flex-col gap-2">
                   {conds.map((cond, ci) => (
                     <Fragment key={cond.id}>
-                      {ci > 0 && <OpDivider op={cond.scopeOperator ?? 'AND'} />}
+                      {ci > 0 && <OpDivider op={conds[ci - 1]!.scopeOperator ?? 'AND'} />}
                       <ConditionLine cond={cond} />
                     </Fragment>
                   ))}
@@ -234,7 +234,7 @@ function GambitDetails({ gambit }: { gambit: StoredGambit }) {
             <div className="flex flex-col gap-2">
               {targetFilters.map((cond, ci) => (
                 <Fragment key={cond.id}>
-                  {ci > 0 && <OpDivider op={cond.scopeOperator ?? 'AND'} />}
+                  {ci > 0 && <OpDivider op={targetFilters[ci - 1]!.scopeOperator ?? 'AND'} />}
                   <ConditionLine cond={cond} showScope={false} />
                 </Fragment>
               ))}

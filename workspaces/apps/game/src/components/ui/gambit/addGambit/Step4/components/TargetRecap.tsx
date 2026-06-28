@@ -50,7 +50,7 @@ function ScopeBadge({ scope }: { scope: string }) {
 
 /* ──────────────────────────────────────────────────────────── */
 
-function ConditionSection({ conditions }: { conditions: DraftCondition[] }) {
+function ConditionSection({ conditions, globalOp = 'AND' }: { conditions: DraftCondition[]; globalOp?: 'AND' | 'OR' }) {
   if (conditions.length === 0) {
     return (
       <p className="text-[11px] text-slate-500 italic">Aucune condition — déclenché à chaque tour.</p>
@@ -69,12 +69,12 @@ function ConditionSection({ conditions }: { conditions: DraftCondition[] }) {
     <div className="flex flex-col gap-3">
       {scopes.map(([scope, blocks], si) => (
         <Fragment key={scope}>
-          {si > 0 && <OpBadge op="AND" />}
+          {si > 0 && <OpBadge op={globalOp} />}
           <div className="flex flex-col gap-2 pl-3 border-l-2 border-slate-700/60">
             <ScopeBadge scope={scope} />
             {blocks.map((block, bi) => (
               <Fragment key={bi}>
-                {bi > 0 && <OpBadge op={block.scopeOperator ?? 'AND'} />}
+                {bi > 0 && <OpBadge op={blocks[bi - 1]!.scopeOperator ?? 'AND'} />}
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[11px] font-semibold text-slate-300">
                     {formatBlockText(block.filterTypeCategory, block.blockValues, block.valuesOperator ?? 'OR')}
@@ -241,7 +241,7 @@ export function TargetRecap({ draft, onEdit, onReset, onRemoveFilter }: TargetRe
       <div className="flex flex-col gap-4">
         <RecapSection label="Quand">
           <div className="bg-[#0F111A] border border-slate-800/80 rounded-xl p-4">
-            <ConditionSection conditions={draft.conditions} />
+            <ConditionSection conditions={draft.conditions} globalOp={draft.operator} />
           </div>
         </RecapSection>
 
