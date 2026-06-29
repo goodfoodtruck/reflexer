@@ -48,8 +48,8 @@ export function createGameEngine(): GameEngine {
     // Résolution des gambits (ciblage)
     const filterApplier = new FilterApplier(buildFilterRegistry())
     const entityScopeResolver = new EntityScopeResolver()
-    const targetResolver = new GambitTargetResolver(filterApplier, entityScopeResolver)
     const conditionResolver = new ConditionResolver(filterApplier, entityScopeResolver)
+    const targetResolver = new GambitTargetResolver(conditionResolver, entityScopeResolver)
     const actionGambitResolver = new ActionGambitResolver(conditionResolver, targetResolver)
     const movementResolver = new EntityMovementResolver(targetResolver, conditionResolver)
 

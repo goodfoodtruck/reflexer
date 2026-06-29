@@ -1,5 +1,5 @@
-import { TARGET_OPTIONS } from '../constants/condition.constants';
-import { Styles } from '../Condition.styles';
+import { TARGET_OPTIONS } from '@components/ui/gambit/addGambit/Step2/constants/condition.constants';
+import { Styles } from '@components/ui/gambit/addGambit/Step2/Condition.styles';
 
 interface FocusTargetIconProps {
   targetId: string | null;
@@ -14,7 +14,7 @@ export function FocusTargetIcon({ targetId }: FocusTargetIconProps) {
       <div className={Styles.focusIconBox}>
         {target?.icon}
         <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-          {targetId}
+          {target?.label ?? targetId}
         </span>
       </div>
     </div>

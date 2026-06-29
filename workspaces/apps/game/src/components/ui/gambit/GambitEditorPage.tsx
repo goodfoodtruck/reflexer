@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import bgHomeImage from '../../../assets/images/bg-home.png';
-import { Header } from '../header/Header';
+import bgHomeImage from '@assets/images/bg-home.png';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Header } from '@components/ui/header/Header';
 import { TacticalMemo } from './tacticalMemo/TacticalMemo';
 import { GambitListPanel } from './GambitListPanel';
 import { GambitEdition } from './GambitEdition';
 import { Styles_gambit_editor } from './Gambit.styles';
-import { useGambitEditor } from './UseGambitEditor';
 import { useGuide, GuideOverlay, GuideButton, GUIDES } from "../../guide";
 import { useAuth } from '@hooks/useAuth';
-import { resolveCharacterImages } from '../images/characterImages';
+import { resolveCharacterImages } from '@components/ui/images/characterImages';
+import { useGambitEditor } from './UseGambitEditor';
 
 export function GambitEditorPage() {
     const { user } = useAuth()
@@ -56,22 +57,34 @@ export function GambitEditorPage() {
         />
 
         <div className={Styles_gambit_editor.workspace}>
-          <div className="h-full flex">
-            <GambitListPanel
-              caracterName={character?.characterName ?? ''}
-              gambits={gambits}
-              isEditing={isEditing}
-              onAddClick={handleAddClick}
-              onEdit={handleEditClick}
-              onDelete={handleDeleteGambit}
-              sensors={sensors}
-              onDragEnd={handleDragEnd}
-            />
-          </div>
+          <AnimatePresence>
+            {!isEditing && (
+              <motion.div
+                key="gambit-list"
+                className="h-full flex shrink-0"
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+              >
+                <GambitListPanel
+                  caracterName={character?.characterName ?? ''}
+                  gambits={gambits}
+                  isEditing={isEditing}
+                  onAddClick={handleAddClick}
+                  onEdit={handleEditClick}
+                  onDelete={handleDeleteGambit}
+                  sensors={sensors}
+                  onDragEnd={handleDragEnd}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {isEditing ? (
             <section className={Styles_gambit_editor.rightPanelWizard}>
               <GambitEdition
+                key={gambitToEdit?._id ?? 'new'}
                 initialGambit={gambitToEdit}
                 onCancel={handleCancelEdit}
                 onSave={handleSaveGambit}

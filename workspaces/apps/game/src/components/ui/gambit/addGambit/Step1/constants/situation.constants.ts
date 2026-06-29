@@ -1,3 +1,8 @@
+/** Suggestions d'inspiration pour nommer un gambit. */
+export const INSPIRATIONS = [
+  "Soin d'urgence", 'Sortie tactique', 'Coup de grâce', 'Riposte', 'Premier sang', 'Embuscade',
+] as const;
+
 export const SITUATION_CONSTANTS = {
   MAX_CHARS: 40,
   STEP_KEY: "step1",

@@ -1,4 +1,4 @@
-import { Styles } from '../Condition.styles';
+import { Styles } from '@components/ui/gambit/addGambit/Step2/Condition.styles';
 
 interface StepFooterProps {
   onCancel: () => void;

@@ -40,4 +40,25 @@ export class ConditionResolver {
 
         return matchingEntities.length >= 1
     }
+
+    /**
+     * Évalue un ConditionGroup comme prédicat sur une entité candidate spécifique.
+     * Utilisé pour le filtrage des cibles de gambit : chaque candidat est testé
+     * individuellement contre la condition (EXISTS = les filtres s'appliquent à lui,
+     * AND/OR/NOT récursivement).
+     */
+    evaluateConditionForCandidate(
+        condition: ConditionGroup,
+        candidate: Readonly<PlayingEntity>,
+        context: FilterEvaluationContext
+    ): boolean {
+        if (isExistsCondition(condition)) {
+            return this.filterApplier.applyAll([candidate as PlayingEntity], condition.context.filters, context).length > 0
+        }
+        switch (condition.operator) {
+            case "AND": return condition.conditions.every(c => this.evaluateConditionForCandidate(c, candidate, context))
+            case "OR":  return condition.conditions.some(c  => this.evaluateConditionForCandidate(c, candidate, context))
+            case "NOT": return !this.evaluateConditionForCandidate(condition.condition, candidate, context)
+        }
+    }
 }

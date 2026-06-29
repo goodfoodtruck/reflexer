@@ -1,69 +1,150 @@
-import { IconPlus } from '../../../../../../assets/icons/IconPlus';
-import { IconTrash } from '../../../../../../assets/icons/IconTrash';
-import type { ConditionBlock } from '../../../GambitTypes';
-import { Styles_conditionStack } from '../Condition.styles';
-import { formatBlockText } from '../utils';
+import type { ConditionBlock } from '@components/ui/gambit/GambitTypes';
+import { type CategoryId, type FilterEntry } from '@components/ui/gambit/filters/filterRegistry';
+import { Styles_conditionStack } from '@components/ui/gambit/addGambit/shared/blockStack.styles';
+import { PendingBlockView } from '@components/ui/gambit/addGambit/shared/PendingBlockView';
+import { BlockItem } from '@components/ui/gambit/addGambit/shared/BlockItem';
+import { OpToggle } from '@components/ui/gambit/addGambit/shared/OpToggle';
 
 interface ConditionStackProps {
   blocks: ConditionBlock[];
-  currentCat: string | null;
-  currentValues: string[];
+  blockOperators?: ('AND' | 'OR')[];
+  currentBlockEntries: FilterEntry[];
+  pendingValuesOperators: Record<string, 'AND' | 'OR'>;
+  pendingGroupOperator: 'AND' | 'OR';
   onConfirmBlock: () => void;
   onRemoveBlock: (index: number) => void;
-  onRemoveCurrentValue: (v: string) => void;
+  onRemoveCurrentEntry: (entry: FilterEntry) => void;
+  onToggleBlockOperator?: (index: number) => void;
+  onToggleBlockValuesOperator?: (index: number) => void;
+  onTogglePendingValuesOperator: (categoryId: CategoryId) => void;
+  onTogglePendingGroupOperator: () => void;
 }
 
 export function ConditionStack({
   blocks,
-  currentValues,
+  blockOperators = [],
+  currentBlockEntries,
+  pendingValuesOperators,
+  pendingGroupOperator,
   onConfirmBlock,
   onRemoveBlock,
-  onRemoveCurrentValue
+  onRemoveCurrentEntry,
+  onToggleBlockOperator,
+  onToggleBlockValuesOperator,
+  onTogglePendingValuesOperator,
+  onTogglePendingGroupOperator,
 }: ConditionStackProps) {
+  const interBlockOps = blockOperators.slice(0, blocks.length - 1);
+  const hasMixedOps =
+    interBlockOps.length > 0 && interBlockOps.some((op) => op !== interBlockOps[0]);
+
+  const andGroups: number[][] = [];
+  const orSepIndices: number[] = [];
+  if (blocks.length > 0) {
+    let cur: number[] = [0];
+    for (let i = 0; i < blocks.length - 1; i++) {
+      if ((interBlockOps[i] ?? 'AND') === 'OR') {
+        andGroups.push(cur);
+        orSepIndices.push(i);
+        cur = [i + 1];
+      } else {
+        cur.push(i + 1);
+      }
+    }
+    andGroups.push(cur);
+  }
+
+  const pendingSepOp = blockOperators[blocks.length - 1] ?? 'AND';
+
   return (
     <div className={Styles_conditionStack.stackWrapper}>
-      {blocks.map((b, i) => (
-        <div key={i} className="flex flex-col items-center gap-3">
-          <div className={`${Styles_conditionStack.stackItem} ${Styles_conditionStack.stackItemWithDelete}`}>
-            <span>{formatBlockText(b.categoryId, b.values)}</span>
-            <button
-              onClick={() => onRemoveBlock(i)}
-              className={Styles_conditionStack.stackDeleteBtn}
-              title="Supprimer ce bloc"
-            >
-              <IconTrash />
-            </button>
-          </div>
-          <span className={Styles_conditionStack.stackAnd}>ET</span>
-        </div>
-      ))}
+      {hasMixedOps ? (
+        andGroups.map((groupIndices, gi) => (
+          <div key={gi} className="flex flex-col items-center gap-3 w-full">
+            {gi > 0 && onToggleBlockOperator ? (
+              <OpToggle op="OR" onClick={() => onToggleBlockOperator(orSepIndices[gi - 1]!)} />
+            ) : gi > 0 ? (
+              <span className={`${Styles_conditionStack.stackOperatorBtn} ${Styles_conditionStack.stackOperatorOr}`}>OU</span>
+            ) : null}
 
-      {currentValues.length > 0 ? (
-        <div className="flex flex-col items-center gap-3 w-full">
-          <div
-            className={`${Styles_conditionStack.stackItem} ${Styles_conditionStack.stackItemActive} ${Styles_conditionStack.stackActiveBlock}`}
-          >
-            {currentValues.map((v) => (
-              <div key={v} className={Styles_conditionStack.stackActiveRow}>
-                <span className={Styles_conditionStack.stackActiveText}>{v}</span>
-                <button
-                  onClick={() => onRemoveCurrentValue(v)}
-                  className={Styles_conditionStack.stackActiveDelete}
-                  title="Retirer cette valeur"
-                >
-                  <IconTrash />
-                </button>
-              </div>
-            ))}
+            <div
+              className={
+                groupIndices.length > 1
+                  ? 'w-full border border-sky-900/40 rounded-xl bg-sky-500/5 p-2 flex flex-col items-center gap-2'
+                  : 'w-full flex flex-col items-center gap-2'
+              }
+            >
+              {groupIndices.map((blockIdx, li) => (
+                <div key={blockIdx} className="flex flex-col items-center gap-2 w-full">
+                  {li > 0 && onToggleBlockOperator ? (
+                    <OpToggle op="AND" onClick={() => onToggleBlockOperator(blockIdx - 1)} />
+                  ) : li > 0 ? (
+                    <span className={`${Styles_conditionStack.stackOperatorBtn} ${Styles_conditionStack.stackOperatorAnd}`}>ET</span>
+                  ) : null}
+                  <BlockItem
+                    block={blocks[blockIdx]!}
+                    index={blockIdx}
+                    onRemove={onRemoveBlock}
+                    onToggleValuesOperator={onToggleBlockValuesOperator}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <button className={Styles_conditionStack.stackAddBtn} onClick={onConfirmBlock}>
-            <IconPlus />
-          </button>
-        </div>
+        ))
       ) : (
-        <div className={`${Styles_conditionStack.stackItem} ${Styles_conditionStack.stackItemEmpty}`}>
-          (Choisissez une catégorie)
-        </div>
+        blocks.map((b, i) => {
+          const op = blockOperators[i] ?? 'AND';
+          return (
+            <div key={i} className="flex flex-col items-center gap-3">
+              <BlockItem
+                block={b}
+                index={i}
+                onRemove={onRemoveBlock}
+                onToggleValuesOperator={onToggleBlockValuesOperator}
+              />
+              {onToggleBlockOperator ? (
+                <OpToggle op={op} onClick={() => onToggleBlockOperator(i)} />
+              ) : (
+                <span className={Styles_conditionStack.stackAnd}>ET</span>
+              )}
+            </div>
+          );
+        })
+      )}
+
+      {currentBlockEntries.length > 0 ? (
+        <>
+          {blocks.length > 0 && hasMixedOps && (
+            onToggleBlockOperator ? (
+              <OpToggle op={pendingSepOp} onClick={() => onToggleBlockOperator(blocks.length - 1)} />
+            ) : (
+              <span className={Styles_conditionStack.stackAnd}>ET</span>
+            )
+          )}
+          <PendingBlockView
+            entries={currentBlockEntries}
+            pendingValuesOperators={pendingValuesOperators}
+            pendingGroupOperator={pendingGroupOperator}
+            onRemoveEntry={onRemoveCurrentEntry}
+            onConfirmBlock={onConfirmBlock}
+            onTogglePendingValuesOperator={onTogglePendingValuesOperator}
+            onTogglePendingGroupOperator={onTogglePendingGroupOperator}
+          />
+        </>
+      ) : (
+        <>
+          {blocks.length > 0 && hasMixedOps && (
+            onToggleBlockOperator ? (
+              <OpToggle op={pendingSepOp} onClick={() => onToggleBlockOperator(blocks.length - 1)} />
+            ) : (
+              <span className={Styles_conditionStack.stackAnd}>ET</span>
+            )
+          )}
+          <div className={`${Styles_conditionStack.stackItem} ${Styles_conditionStack.stackItemEmpty}`}>
+            {blocks.length > 0 ? '(Nouveau groupe)' : '(Choisissez une catégorie)'}
+          </div>
+        </>
       )}
     </div>
   );

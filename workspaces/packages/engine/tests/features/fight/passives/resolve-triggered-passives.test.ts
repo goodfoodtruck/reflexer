@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest"
-import { GambitTargetResolver, EntityScopeResolver, FilterApplier, FilterEvaluatorRegistry, ETargetType } from "@fight/gambits"
+import { GambitTargetResolver, EntityScopeResolver, FilterApplier, ETargetType } from "@fight/gambits"
+import { ConditionResolver } from "@fight/gambits/resolvers/conditions/ConditionResolver"
+import { buildFilterRegistry } from "@fight/gambits/resolvers/filters/FilterApplier"
 import { ModifierPassive, TriggeredPassive } from "@fight/passives/passives.types"
 import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { buildPlayingEntity } from "@tests/builders/fight/PlayingEntityBuilder"
@@ -8,10 +10,10 @@ import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolv
 describe("Les passifs déclenchés retournent les contextes d'exécution correspondants", () => {
 
     const buildResolver = () => {
-        const filterEvaluatorRegistry = new FilterEvaluatorRegistry()
-        const filterApplier = new FilterApplier(filterEvaluatorRegistry)
+        const filterApplier = new FilterApplier(buildFilterRegistry())
         const entityScopeResolver = new EntityScopeResolver()
-        const targetResolver = new GambitTargetResolver(filterApplier, entityScopeResolver)
+        const conditionResolver = new ConditionResolver(filterApplier, entityScopeResolver)
+        const targetResolver = new GambitTargetResolver(conditionResolver, entityScopeResolver)
         return new TriggeredPassiveResolver(targetResolver)
     }
 
@@ -21,7 +23,7 @@ describe("Les passifs déclenchés retournent les contextes d'exécution corresp
         config: { duration: "PERMANENT", applicationStrategy: { type: "RESET" } },
         triggerType: "damage_dealt",
         triggeredActionId: "thorns_retaliation",
-        targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" },
+        targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" },
         ...overrides
     })
 
@@ -123,7 +125,7 @@ describe("Les passifs déclenchés retournent les contextes d'exécution corresp
     it("ignore les passifs dont la cible ne peut être résolue", () => {
         const resolver = buildResolver()
         const passive = buildTriggeredPassive({
-            targetSelector: { context: { targetType: ETargetType.ALLY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ALLY }, sort: "LOWEST_HP" }
         })
 
         const gobelin = buildPlayingEntity({

@@ -1,20 +1,32 @@
 import { motion } from 'framer-motion';
-import { IconPlus } from '../../../../../../assets/icons/IconPlus';
-import { FILTER_CATEGORIES } from '../../../gambitEditorOptions';
-import type { FilterBlock } from '../useTargetStep';
-import { formatBlockText } from '../useTargetStep';
-import { Styles } from '../Target.styles';
+import {
+  formatBlockValue,
+  TARGET_FILTER_CATEGORIES,
+  type BlockValueOption,
+  type CategoryId,
+} from '@components/ui/gambit/filters/filterRegistry';
+import { CriteriaListPane } from '@components/ui/gambit/addGambit/Step2/components/CriteriaListPane';
+import { TargetFilterStack } from './TargetFilterStack';
+import type { FilterEntry, FilterOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import { formatOrGroup } from '@components/ui/gambit/addGambit/Step4/useTargetStep';
+import { Styles } from '@components/ui/gambit/addGambit/Step4/Target.styles';
 
 interface StepFilterCriteriaProps {
   localKind: string | null;
   activeIcon: React.ReactNode;
-  filterBlocks: FilterBlock[];
-  currentFilterCat: string | null;
-  currentFilterVals: string[];
-  catOptions: readonly string[];
-  onSelectCat: (id: string) => void;
-  onToggleVal: (val: string) => void;
+  filterBlocks: FilterOrGroup[];
+  currentFilterCat: CategoryId | null;
+  currentBlockEntries: FilterEntry[];
+  catOptions: readonly BlockValueOption[];
+  pendingValuesOperators: Record<string, 'AND' | 'OR'>;
+  pendingGroupOperator: 'AND' | 'OR';
+  onSelectCat: (id: CategoryId) => void;
+  onToggleVal: (val: FilterEntry['value']) => void;
   onConfirmBlock: () => void;
+  onRemoveBlock: (index: number) => void;
+  onRemoveEntry: (entry: FilterEntry) => void;
+  onTogglePendingValuesOperator: (categoryId: CategoryId) => void;
+  onTogglePendingGroupOperator: () => void;
   onCancel: () => void;
   onNext: () => void;
 }
@@ -24,79 +36,98 @@ export function StepFilterCriteria({
   activeIcon,
   filterBlocks,
   currentFilterCat,
-  currentFilterVals,
+  currentBlockEntries,
   catOptions,
+  pendingValuesOperators,
+  pendingGroupOperator,
   onSelectCat,
   onToggleVal,
   onConfirmBlock,
+  onRemoveBlock,
+  onRemoveEntry,
+  onTogglePendingValuesOperator,
+  onTogglePendingGroupOperator,
   onCancel,
-  onNext
+  onNext,
 }: StepFilterCriteriaProps) {
+  const categoryItems = TARGET_FILTER_CATEGORIES.map((c) => ({ id: c.id, label: c.label }));
+  const valueItems = catOptions.map((o) => ({ id: o.label, label: o.label, value: o.value }));
+
+  const catsWithEntries = [...new Set(currentBlockEntries.map((e) => e.categoryId))];
+
+  const selectedValueIds = currentFilterCat
+    ? currentBlockEntries
+        .filter((e) => e.categoryId === currentFilterCat)
+        .map((e) => formatBlockValue(currentFilterCat, e.value))
+    : [];
+
+  const KIND_LABELS: Record<string, string> = { ENEMY: 'Ennemi', ALLY: 'Allié', SELF: 'Moi-même' };
+  const kindLabel = KIND_LABELS[localKind ?? ''] ?? localKind;
+
+  // Construire le texte du banner avec parenthèses pour le bloc pending multi-catégories
+  const confirmedParts = filterBlocks.map((g) => `(${formatOrGroup(g)})`);
+  let pendingText = '';
+  if (currentBlockEntries.length > 0) {
+    const byCat = new Map<CategoryId, FilterEntry[]>();
+    for (const e of currentBlockEntries) {
+      const arr = byCat.get(e.categoryId) ?? [];
+      arr.push(e);
+      byCat.set(e.categoryId, arr);
+    }
+    const catParts = Array.from(byCat.entries()).map(([, entries]) =>
+      entries.map((e) => formatBlockValue(e.categoryId, e.value)).join(' OU '),
+    );
+    const sep = pendingGroupOperator === 'AND' ? ' ET ' : ' OU ';
+    pendingText = catParts.length > 1 ? `(${catParts.join(sep)})` : `(${catParts[0] ?? ''})`;
+  }
+  const allParts = [...confirmedParts, ...(pendingText ? [pendingText] : [])];
+  const headerText = allParts.join(' ET ');
+
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className={Styles.container}
-    >
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className={Styles.container}>
       <div className={Styles.breadcrumb}>
         Cible &gt; <span className={Styles.activeBread}>Critères</span>
       </div>
       <div className={Styles.headerBar}>
-        {localKind}:{' '}
-        <span className="text-slate-300">
-          {filterBlocks.map((b) => `(${formatBlockText(b.categoryId, b.values)})`).join(' ET ')}
-        </span>
+        {kindLabel}:{' '}
+        <span className="text-slate-300">{headerText || '(Aucun filtre sélectionné)'}</span>
       </div>
 
       <div className={Styles.layoutCols}>
-        <div className="flex flex-col items-center gap-2 min-w-[200px]">
+        <div className="flex flex-col items-center gap-4">
           <div className={Styles.smallIconBox}>{activeIcon}</div>
-          <div className="flex flex-col gap-2 w-full">
-            {filterBlocks.map((b, i) => (
-              <div key={i} className={`${Styles.blockContainer} ${Styles.blockSolid}`}>
-                {formatBlockText(b.categoryId, b.values)}
-              </div>
-            ))}
-            {currentFilterVals.length > 0 ? (
-              <>
-                <div className={`${Styles.blockContainer} ${Styles.blockSolid}`}>
-                  {formatBlockText(currentFilterCat!, currentFilterVals)}
-                </div>
-                <button onClick={onConfirmBlock} className={Styles.btnAdd}>
-                  <IconPlus />
-                </button>
-              </>
-            ) : (
-              <div className={`${Styles.blockContainer} ${Styles.blockDashed}`}>
-                Filtre Optionnel
-              </div>
-            )}
-          </div>
+          <TargetFilterStack
+            orGroups={filterBlocks}
+            currentBlockEntries={currentBlockEntries}
+            currentFilterCat={currentFilterCat}
+            pendingValuesOperators={pendingValuesOperators}
+            pendingGroupOperator={pendingGroupOperator}
+            onConfirmBlock={onConfirmBlock}
+            onRemoveBlock={onRemoveBlock}
+            onRemoveEntry={onRemoveEntry}
+            onTogglePendingValuesOperator={onTogglePendingValuesOperator}
+            onTogglePendingGroupOperator={onTogglePendingGroupOperator}
+          />
         </div>
 
-        <div className={Styles.colList}>
-          {FILTER_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCat(cat.id)}
-              className={`${Styles.listItem} ${currentFilterCat === cat.id ? Styles.listItemActive : Styles.listItemIdle}`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        <CriteriaListPane
+          items={categoryItems}
+          selectedIds={catsWithEntries.filter((c) => c !== currentFilterCat)}
+          focusedIds={currentFilterCat ? [currentFilterCat] : []}
+          onSelect={(id) => onSelectCat(id as CategoryId)}
+        />
 
-        <div className={Styles.colList}>
-          {catOptions.map((val) => (
-            <button
-              key={val}
-              onClick={() => onToggleVal(val)}
-              className={`${Styles.listItem} ${currentFilterVals.includes(val) ? Styles.listItemActive : Styles.listItemIdle}`}
-            >
-              {val}
-            </button>
-          ))}
-        </div>
+        {currentFilterCat && (
+          <CriteriaListPane
+            items={valueItems}
+            selectedIds={selectedValueIds}
+            showIcons={false}
+            onSelect={(id) => {
+              const opt = valueItems.find((v) => v.id === id);
+              if (opt) onToggleVal(opt.value);
+            }}
+          />
+        )}
       </div>
 
       <div className={Styles.footer}>

@@ -38,10 +38,10 @@ export function useGambitEditor(userId: string) {
             setGambits(characterData?.gambits ?? [])
         })
         .catch((err) => console.error("Erreur chargement gambits:", err))
-  }, [characterId]);
+  }, [characterId, userId]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -102,7 +102,7 @@ export function useGambitEditor(userId: string) {
 
     try {
       if (editingGambitId) {
-        const updated = await GambitService.update(editingGambitId, {
+        await GambitService.update(editingGambitId, {
           name: draft.name,
           conditions: finalConditions,
           targetSelector,
@@ -111,14 +111,7 @@ export function useGambitEditor(userId: string) {
         setGambits((prev) =>
           prev.map((g) =>
             g._id === editingGambitId
-              ? {
-                  _id: updated.id,
-                  name: updated.name,
-                  priority: updated.priority,
-                  conditions: updated.conditions,
-                  targetSelector: updated.targetSelector,
-                  intent: updated.intent
-                }
+              ? { ...g, name: draft.name, conditions: finalConditions, targetSelector, intent }
               : g
           )
         );

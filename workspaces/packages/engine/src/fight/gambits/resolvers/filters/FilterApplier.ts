@@ -1,10 +1,18 @@
 import { PlayingEntity } from "@fight/fight.types"
 import { AnyFilter, FilterEvaluationContext } from "@fight/gambits/resolvers/filters/entityFilters.types"
-import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/HpBelowEvaluator"
-import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/HpAboveEvaluator"
-import { evaluateHasPassive } from "@fight/gambits/resolvers/filters/evaluators/HasPassiveEvaluator"
-import { evaluateInRange } from "@fight/gambits/resolvers/filters/evaluators/InRangeEvaluator"
+import { evaluateHpBelow } from "@fight/gambits/resolvers/filters/evaluators/hp/HpBelowEvaluator"
+import { evaluateHpAbove } from "@fight/gambits/resolvers/filters/evaluators/hp/HpAboveEvaluator"
+import { evaluateHasPassive } from "@fight/gambits/resolvers/filters/evaluators/passive/HasPassiveEvaluator"
+import { evaluateInRange } from "@fight/gambits/resolvers/filters/evaluators/range/InRangeEvaluator"
 import { FilterEvaluatorRegistry } from "@fight/gambits"
+import { evaluateArmorAbove } from "@fight/gambits/resolvers/filters/evaluators/armor/ArmorAboveEvaluator"
+import { evaluateArmorBelow } from "@fight/gambits/resolvers/filters/evaluators/armor/ArmorBelowEvaluator"
+import { evaluateEnergyAbove } from "@fight/gambits/resolvers/filters/evaluators/energy/EnergyAboveEvaluator"
+import { evaluateEnergyBelow } from "@fight/gambits/resolvers/filters/evaluators/energy/EnergyBelowEvaluator"
+import { evaluateCharacterInRangeOfAnother } from "@fight/gambits/resolvers/filters/evaluators/range/CharacterInRangeOfAnother"
+import { evaluateCharacterInRangeOfEnemy } from "@fight/gambits/resolvers/filters/evaluators/range/CharacterInRangeOfEnemy"
+import { evaluateEnemyInRangeOfAnother } from "@fight/gambits/resolvers/filters/evaluators/range/EnemyInRangeOfAnother"
+import { evaluateEnemyInRangeOfCharacter } from "@fight/gambits/resolvers/filters/evaluators/range/EnemyInRangeOfCharacter"
 
 export class FilterApplier {
 
@@ -57,8 +65,22 @@ export const buildFilterRegistry = (): FilterEvaluatorRegistry => {
 
     registry.register("HP_BELOW",   evaluateHpBelow)
     registry.register("HP_ABOVE",   evaluateHpAbove)
+
+    registry.register("ARMOR_BELOW",   evaluateArmorBelow)
+    registry.register("ARMOR_ABOVE",   evaluateArmorAbove)
+
+    registry.register("ENERGY_BELOW",   evaluateEnergyBelow)
+    registry.register("ENERGY_ABOVE",   evaluateEnergyAbove)
+
     registry.register("HAS_PASSIVE", evaluateHasPassive)
+
     registry.register("IN_RANGE",    evaluateInRange)
+
+    registry.register("CHARACTER_IN_RANGE_OF_ANOTHER", evaluateCharacterInRangeOfAnother)
+    registry.register("CHARACTER_IN_RANGE_OF_ENEMY", evaluateCharacterInRangeOfEnemy)
+
+    registry.register("ENEMY_IN_RANGE_OF_ANOTHER", evaluateEnemyInRangeOfAnother)
+    registry.register("ENEMY_IN_RANGE_OF_CHARACTER", evaluateEnemyInRangeOfCharacter)
 
     return registry
 }

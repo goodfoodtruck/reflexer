@@ -3,7 +3,7 @@ import { buildFightContext } from "@tests/builders/fight/FightContextBuilder"
 import { EntityMovementExecutor } from "@fight/turn-executors/EntityMovementExecutor"
 import { ActionChainExecutor } from "@fight/turn-executors/ActionChainExecutor"
 import { ProcessorChain, ProcessorFactory } from "@fight/processors"
-import { FilterEvaluatorRegistry, FilterApplier, EntityScopeResolver, GambitTargetResolver } from "@fight/gambits"
+import { FilterApplier, EntityScopeResolver, GambitTargetResolver, ConditionResolver, buildFilterRegistry } from "@fight/gambits"
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver"
 import { Position } from "@helpers/types/helpers.types"
 import { EObstacleType } from "@fight/map/fight.map.types"
@@ -11,10 +11,10 @@ import { EObstacleType } from "@fight/map/fight.map.types"
 describe("Exécution d'un mouvement", () => {
 
     const buildExecutor = () => {
-        const filterEvaluatorRegistry = new FilterEvaluatorRegistry()
-        const filterApplier = new FilterApplier(filterEvaluatorRegistry)
+        const filterApplier = new FilterApplier(buildFilterRegistry())
         const entityScopeResolver = new EntityScopeResolver()
-        const targetResolver = new GambitTargetResolver(filterApplier, entityScopeResolver)
+        const conditionResolver = new ConditionResolver(filterApplier, entityScopeResolver)
+        const targetResolver = new GambitTargetResolver(conditionResolver, entityScopeResolver)
         const triggeredPassiveResolver = new TriggeredPassiveResolver(targetResolver)
         const processorFactory = new ProcessorFactory({ getPassive: () => { throw new Error("not implemented") } })
         const processorChain = new ProcessorChain()

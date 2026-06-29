@@ -1,224 +1,391 @@
-import { ERange, ETargetType } from '@reflexer/engine';
+/**
+ * Conversion bidirectionnelle entre l'éditeur (DraftGambit) et les types du moteur.
+ *
+ * Responsabilités :
+ *  - draftToConditions / conditionsToDraft  → arbre de conditions de déclenchement
+ *  - draftToTargetSelector / targetFiltersToDraft → sélecteur de cible
+ *  - draftToIntent → intention (action ou mouvement)
+ *  - buildInitialDraft → état initial de l'éditeur depuis un gambit sauvegardé ou vide
+ */
+import { ETargetType } from '@reflexer/engine';
 import type {
-  AnyFilter,
-  CharacterFilter,
-  ConditionGroup,
-  EnemyFilter,
-  ExistsCondition,
-  GambitIntent,
-  HasPassiveFilter,
-  HpAboveFilter,
-  HpBelowFilter,
-  InRangeFilter,
-  SelfFilter,
-  TargetSelector,
-  TargetSort
+  AnyFilter, CharacterFilter, ConditionGroup, EnemyFilter,
+  ExistsCondition, GambitIntent, SelfFilter, TargetSelector,
 } from '@reflexer/engine';
 import type { DraftCondition, DraftGambit } from './GambitTypes';
+import {
+  filterToCategory,
+  getCategory,
+  type BlockValue,
+  type CategoryId,
+  type FilterEntry,
+  type FilterOrGroup,
+  type Scope,
+} from './filters/filterRegistry';
+import { sortLabelToSort, sortToLabel, sortToFullLabel, sortToCategoryLabel } from './sorts/sortRegistry';
+import type { StoredGambit } from '@services/gambit.service';
+
+export { sortLabelToSort, sortToLabel, sortToFullLabel, sortToCategoryLabel };
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Primitives partagées
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+function buildExistsForScope(scope: Scope, filters: AnyFilter[]): ExistsCondition {
+  switch (scope) {
+    case 'SELF':  return { type: 'EXISTS', context: { targetType: ETargetType.SELF,  filters: filters as SelfFilter[] } };
+    case 'ALLY':  return { type: 'EXISTS', context: { targetType: ETargetType.ALLY,  filters: filters as CharacterFilter[] } };
+    case 'ENEMY': return { type: 'EXISTS', context: { targetType: ETargetType.ENEMY, filters: filters as EnemyFilter[] } };
+  }
+}
 
 /**
- * Couche de conversion entre les données de l'éditeur (libellés affichés au
- * joueur, DraftGambit) et les formes canoniques du moteur, persistées telles
- * quelles en base. Toute correspondance UI <-> moteur vit ici.
+ * Regroupe des ConditionGroup consécutifs en blocs AND, puis OR entre eux.
+ * Utilisé quand les opérateurs ne sont pas tous identiques (opérateurs mixtes).
+ * AND est prioritaire sur OR.
  */
+function groupByMixedOperators(nodes: ConditionGroup[], operators: ('AND' | 'OR')[]): ConditionGroup {
+  const orSections: ConditionGroup[][] = [];
+  let currentAndBlock: ConditionGroup[] = [nodes[0]!];
 
-/** Passifs réellement définis dans le moteur, avec leur libellé joueur */
-export const STATUS_OPTIONS = [
-  { passiveId: 'bleed', label: 'SAIGNEMENT' },
-  { passiveId: 'vulnerable', label: 'VULNÉRABLE' },
-  { passiveId: 'thorns', label: 'ÉPINES' }
-] as const;
-
-export const statusLabelToPassiveId = (label: string): string | null =>
-  STATUS_OPTIONS.find((s) => s.label === label)?.passiveId ?? null;
-
-export const passiveIdToStatusLabel = (passiveId: string): string =>
-  STATUS_OPTIONS.find((s) => s.passiveId === passiveId)?.label ?? passiveId;
-
-const SORT_LABEL_TO_SORT: Record<string, TargetSort> = {
-  'LE PLUS PROCHE': 'NEAREST',
-  'LE PLUS ELOIGNE': 'FURTHEST',
-  'LES PLUS ELEVES': 'HIGHEST_HP',
-  'LES MOINS ELEVES': 'LOWEST_HP'
-};
-
-const KNOWN_SORTS: TargetSort[] = [
-  'LOWEST_HP', 'HIGHEST_HP', 'NEAREST', 'FURTHEST',
-  'NEAREST_FROM_ALLY', 'NEAREST_FROM_ENEMY', 'FURTHEST_FROM_ALLY', 'FURTHEST_FROM_ENEMY'
-];
-
-/** Libellé du picker de tri -> valeur moteur. Accepte aussi une valeur moteur déjà convertie. */
-export const sortLabelToSort = (value: string | null): TargetSort => {
-  if (!value) return 'NEAREST';
-  if (KNOWN_SORTS.includes(value as TargetSort)) return value as TargetSort;
-  return SORT_LABEL_TO_SORT[value] ?? 'NEAREST';
-};
-
-export const sortToLabel = (sort: string): string => {
-  const entry = Object.entries(SORT_LABEL_TO_SORT).find(([, v]) => v === sort);
-  return entry ? entry[0] : sort;
-};
-
-const RANGE_LABEL_TO_RANGE: Record<string, ERange> = {
-  'FAIBLE DISTANCE': ERange.SHORT,
-  'MOYENNE DISTANCE': ERange.MEDIUM,
-  'LONGUE DISTANCE': ERange.LONG
-};
-
-export const rangeLabelToRange = (label: string): ERange =>
-  RANGE_LABEL_TO_RANGE[label] ?? ERange.LONG;
-
-export const rangeToLabel = (range: number): string => {
-  const entry = Object.entries(RANGE_LABEL_TO_RANGE).find(([, v]) => v === range);
-  return entry ? entry[0] : `PORTÉE ${range}`;
-};
-
-/** 'PV < 25%' / 'PV > 50%' -> filtre HP moteur */
-const parseHpLabel = (label: string): HpBelowFilter | HpAboveFilter | null => {
-  const match = label.match(/PV\s*([<>])\s*(\d+)/);
-  if (!match) return null;
-  const threshold = parseInt(match[2]!, 10);
-  return match[1] === '<'
-    ? { type: 'HP_BELOW', threshold }
-    : { type: 'HP_ABOVE', threshold };
-};
-
-type CommonFilter = HpBelowFilter | HpAboveFilter | HasPassiveFilter | InRangeFilter;
-
-const draftConditionToFilters = (c: DraftCondition): CommonFilter[] => {
-  switch (c.filterType) {
-    case 'HP_BELOW': return [{ type: 'HP_BELOW', threshold: Number(c.value) }];
-    case 'HP_ABOVE': return [{ type: 'HP_ABOVE', threshold: Number(c.value) }];
-    case 'IN_RANGE': return [{ type: 'IN_RANGE', range: Number(c.value) }];
-    case 'HAS_PASSIVE':
-      return String(c.value)
-        .split(',')
-        .filter(Boolean)
-        .map((passiveId) => ({ type: 'HAS_PASSIVE', passiveId }));
+  for (let i = 0; i < operators.length; i++) {
+    const next = nodes[i + 1]!;
+    if (operators[i] === 'AND') {
+      currentAndBlock.push(next);
+    } else {
+      orSections.push(currentAndBlock);
+      currentAndBlock = [next];
+    }
   }
-};
+  orSections.push(currentAndBlock);
 
-const toExistsCondition = (c: DraftCondition): ExistsCondition => {
-  const filters = draftConditionToFilters(c);
-  switch (c.scopeKind) {
-    case 'SELF':
-      // SELF n'accepte pas IN_RANGE (distance à soi-même sans objet)
-      return {
-        type: 'EXISTS',
-        context: {
-          targetType: ETargetType.SELF,
-          filters: filters.filter((f): f is Exclude<CommonFilter, InRangeFilter> => f.type !== 'IN_RANGE') as SelfFilter[]
-        }
-      };
-    case 'ALLY':
-      return { type: 'EXISTS', context: { targetType: ETargetType.ALLY, filters: filters as CharacterFilter[] } };
-    case 'ENEMY':
-      return { type: 'EXISTS', context: { targetType: ETargetType.ENEMY, filters: filters as EnemyFilter[] } };
+  const andGroups: ConditionGroup[] = orSections.map((block) =>
+    block.length === 1 ? block[0]! : { operator: 'AND' as const, conditions: block },
+  );
+  return andGroups.length === 1 ? andGroups[0]! : { operator: 'OR' as const, conditions: andGroups };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Draft → Moteur : conditions de déclenchement
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+function blockValuesToCondition(scope: Scope, condition: DraftCondition): ConditionGroup {
+  const cat = getCategory(condition.filterTypeCategory);
+  const filters = condition.blockValues
+    .map((v) => cat.blockValueToFilter(v, scope))
+    .filter((f): f is AnyFilter => f !== null);
+
+  let node: ConditionGroup;
+  if (filters.length <= 1) {
+    node = buildExistsForScope(scope, filters);
+  } else {
+    const op = condition.valuesOperator ?? 'OR';
+    node = { operator: op, conditions: filters.map((f) => buildExistsForScope(scope, [f])) };
   }
-};
+
+  return condition.negated ? { operator: 'NOT', condition: node } : node;
+}
+
+function scopeConditionsToGroup(scope: Scope, conditions: DraftCondition[]): ConditionGroup {
+  const nodes = conditions.map((c) => blockValuesToCondition(scope, c));
+  if (nodes.length === 1) return nodes[0]!;
+
+  const operators = conditions.slice(0, -1).map((c) => c.scopeOperator ?? 'AND');
+
+  if (operators.every((op) => op === operators[0])) {
+    return { operator: operators[0]!, conditions: nodes };
+  }
+
+  return groupByMixedOperators(nodes, operators);
+}
 
 export const draftToConditions = (draft: DraftGambit): ConditionGroup => {
-  const exists = draft.conditions.map(toExistsCondition);
-  return exists.length === 1
-    ? exists[0]!
-    : { operator: draft.operator, conditions: exists };
+  const byScope = new Map<Scope, DraftCondition[]>();
+  for (const c of draft.conditions) {
+    const group = byScope.get(c.scopeKind) ?? [];
+    group.push(c);
+    byScope.set(c.scopeKind, group);
+  }
+
+  const scopeNodes = Array.from(byScope.entries()).map(
+    ([scope, conditions]) => scopeConditionsToGroup(scope, conditions),
+  );
+
+  if (scopeNodes.length === 1) return scopeNodes[0]!;
+  return { operator: draft.operator, conditions: scopeNodes };
 };
 
-/** Blocs de filtres de cible (categoryId + libellés) -> filtres moteur */
-const targetFiltersToEngine = (
-  targetFilters: DraftGambit['targetFilters']
-): CommonFilter[] =>
-  targetFilters.flatMap((block) =>
-    block.values.flatMap((label): CommonFilter[] => {
-      if (block.categoryId === 'health') {
-        const filter = parseHpLabel(label);
-        return filter ? [filter] : [];
-      }
-      if (block.categoryId === 'status') {
-        const passiveId = statusLabelToPassiveId(label);
-        return passiveId ? [{ type: 'HAS_PASSIVE', passiveId }] : [];
-      }
-      return [];
-    })
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Moteur → Draft : conditions de déclenchement
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+let loadCounter = 0;
+
+function makeDraftCondition(
+  scope: Scope,
+  categoryId: CategoryId,
+  blockValues: BlockValue[],
+  valuesOperator?: 'AND' | 'OR',
+  negated?: boolean,
+): DraftCondition {
+  return {
+    id: `loaded-${scope}-${categoryId}-${loadCounter++}-${Math.random().toString(36).slice(2, 9)}`,
+    scopeKind: scope,
+    filterTypeCategory: categoryId,
+    blockValues,
+    valuesOperator,
+    negated,
+  };
+}
+
+function existsNodeToBlocks(exists: ExistsCondition): DraftCondition[] {
+  const scope = exists.context.targetType as Scope;
+  const byCat = new Map<CategoryId, BlockValue[]>();
+
+  for (const filter of exists.context.filters) {
+    const found = filterToCategory(filter);
+    if (!found) continue;
+    const values = byCat.get(found.categoryId) ?? [];
+    values.push(found.value);
+    byCat.set(found.categoryId, values);
+  }
+
+  return Array.from(byCat.entries()).map(([categoryId, values]) =>
+    makeDraftCondition(scope, categoryId, values),
   );
+}
+
+/**
+ * Détecte AND/OR([EXISTS, EXISTS, …]) où tous les EXISTS partagent
+ * le même scope et la même catégorie → un seul bloc multi-valeurs.
+ */
+function tryParseAsMultiValueBlock(operator: 'AND' | 'OR', nodes: ConditionGroup[]): DraftCondition | null {
+  const parsed: { scope: Scope; categoryId: CategoryId; value: BlockValue }[] = [];
+
+  for (const child of nodes) {
+    if (!('type' in child) || child.type !== 'EXISTS') return null;
+    if (child.context.filters.length !== 1) return null;
+    const found = filterToCategory(child.context.filters[0]!);
+    if (!found) return null;
+    parsed.push({ scope: child.context.targetType as Scope, categoryId: found.categoryId, value: found.value });
+  }
+
+  if (parsed.length === 0) return null;
+  const { scope, categoryId } = parsed[0]!;
+  if (!parsed.every((p) => p.scope === scope && p.categoryId === categoryId)) return null;
+
+  return makeDraftCondition(scope, categoryId, parsed.map((p) => p.value), operator);
+}
+
+/**
+ * Détecte OR([EXISTS, EXISTS, …]) où tous partagent le même scope
+ * mais ont des catégories différentes → plusieurs blocs reliés par OR.
+ */
+function tryParseAsCrossCategoryOrBlock(nodes: ConditionGroup[]): DraftCondition[] | null {
+  for (const child of nodes) {
+    if (!('type' in child) || child.type !== 'EXISTS') return null;
+  }
+  const scopes = nodes.map((c) => ('type' in c && c.type === 'EXISTS' ? (c.context.targetType as Scope) : null));
+  if (scopes.length === 0 || !scopes.every((s) => s === scopes[0]) || scopes[0] === null) return null;
+
+  const result: DraftCondition[] = [];
+  for (const c of nodes) {
+    if (!('type' in c) || c.type !== 'EXISTS') return null;
+    result.push(...existsNodeToBlocks(c).map((b) => ({ ...b, scopeOperator: 'OR' as const })));
+  }
+  return result;
+}
+
+export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
+  if ('operator' in cond && cond.operator === 'NOT') {
+    return conditionsToDraft(cond.condition).map((c) => ({ ...c, negated: true }));
+  }
+
+  if ('operator' in cond && (cond.operator === 'AND' || cond.operator === 'OR')) {
+    const asMultiValue = tryParseAsMultiValueBlock(cond.operator, cond.conditions);
+    if (asMultiValue) return [asMultiValue];
+
+    if (cond.operator === 'OR') {
+      const asCrossCategory = tryParseAsCrossCategoryOrBlock(cond.conditions);
+      if (asCrossCategory) return asCrossCategory;
+    }
+
+    // Flatten children and propagate the parent operator between child groups
+    const groups = cond.conditions.map(conditionsToDraft);
+    const result: DraftCondition[] = [];
+    for (let i = 0; i < groups.length; i++) {
+      const group = [...groups[i]!];
+      if (i < groups.length - 1 && group.length > 0) {
+        group[group.length - 1] = { ...group[group.length - 1]!, scopeOperator: cond.operator };
+      }
+      result.push(...group);
+    }
+    return result;
+  }
+
+  if ('type' in cond && cond.type === 'EXISTS') return existsNodeToBlocks(cond);
+
+  return [];
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Draft → Moteur : sélecteur de cible
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+function filterGroupToConditionNode(
+  scope: Scope,
+  group: FilterOrGroup,
+  valuesOp: 'AND' | 'OR',
+  isNegated: boolean,
+): ConditionGroup {
+  const existsNodes = group
+    .map((entry: FilterEntry) => {
+      const filter = getCategory(entry.categoryId).blockValueToFilter(entry.value, scope);
+      return filter ? buildExistsForScope(scope, [filter]) : null;
+    })
+    .filter((e): e is ExistsCondition => e !== null);
+
+  let node: ConditionGroup;
+  if (existsNodes.length === 0) node = buildExistsForScope(scope, []);
+  else if (existsNodes.length === 1) node = existsNodes[0]!;
+  else node = { operator: valuesOp, conditions: existsNodes };
+
+  return isNegated ? { operator: 'NOT', condition: node } : node;
+}
+
+function buildTargetCondition(
+  scope: Scope,
+  groups: FilterOrGroup[],
+  groupOps: ('AND' | 'OR')[],
+  valuesOps: ('AND' | 'OR')[],
+  groupNegated: boolean[],
+): ConditionGroup | undefined {
+  if (groups.length === 0) return undefined;
+
+  const toNode = (group: FilterOrGroup, i: number) =>
+    filterGroupToConditionNode(scope, group, valuesOps[i] ?? 'OR', groupNegated[i] ?? false);
+
+  if (groups.length === 1) return toNode(groups[0]!, 0);
+
+  const operators = groups.slice(0, -1).map((_, i) => groupOps[i] ?? 'AND');
+  const nodes = groups.map(toNode);
+
+  if (operators.every((op) => op === operators[0])) {
+    return { operator: operators[0]!, conditions: nodes };
+  }
+
+  return groupByMixedOperators(nodes, operators);
+}
 
 export const draftToTargetSelector = (draft: DraftGambit): TargetSelector => {
   const sort = sortLabelToSort(draft.targetSort);
+  const { targetFilters: groups, targetFilterGroupOps: groupOps, targetFilterValuesOps: valuesOps, targetFilterGroupNegated: negated } = draft;
+
   switch (draft.targetKind) {
-    case 'SELF':
-      return { context: { targetType: ETargetType.SELF }, sort };
-    case 'ALLY':
-      return {
-        context: { targetType: ETargetType.ALLY, filters: targetFiltersToEngine(draft.targetFilters) as CharacterFilter[] },
-        sort
-      };
-    // targetKind vient de chaînes UI : tout inattendu retombe sur ENEMY
-    // plutôt que de produire un selector invalide rejeté par l'API
+    case 'SELF':  return { context: { targetType: ETargetType.SELF }, sort };
+    case 'ALLY':  return { context: { targetType: ETargetType.ALLY,  condition: buildTargetCondition('ALLY',  groups, groupOps, valuesOps, negated) }, sort };
     case 'ENEMY':
-    default:
-      return {
-        context: { targetType: ETargetType.ENEMY, filters: targetFiltersToEngine(draft.targetFilters) as EnemyFilter[] },
-        sort
-      };
+    default:      return { context: { targetType: ETargetType.ENEMY, condition: buildTargetCondition('ENEMY', groups, groupOps, valuesOps, negated) }, sort };
   }
 };
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Moteur → Draft : sélecteur de cible
+ * ───────────────────────────────────────────────────────────────────────────── */
+
+function conditionNodeToFilterGroups(condition: ConditionGroup): FilterOrGroup[] {
+  if ('type' in condition && condition.type === 'EXISTS') {
+    const entries: FilterEntry[] = condition.context.filters
+      .map((f) => filterToCategory(f))
+      .filter((r): r is NonNullable<typeof r> => r !== null)
+      .map((r) => ({ categoryId: r.categoryId, value: r.value }));
+    return entries.length > 0 ? [entries] : [];
+  }
+
+  if ('operator' in condition && condition.operator === 'OR') {
+    const entries: FilterEntry[] = condition.conditions.flatMap((child) => {
+      if (!('type' in child) || child.type !== 'EXISTS') return [];
+      return child.context.filters
+        .map((f) => filterToCategory(f))
+        .filter((r): r is NonNullable<typeof r> => r !== null)
+        .map((r) => ({ categoryId: r.categoryId, value: r.value }));
+    });
+    return entries.length > 0 ? [entries] : [];
+  }
+
+  if ('operator' in condition && condition.operator === 'AND') {
+    return condition.conditions.flatMap(conditionNodeToFilterGroups);
+  }
+
+  return [];
+}
+
+export const targetFiltersToDraft = (selector: TargetSelector): FilterOrGroup[] => {
+  if (selector.context.targetType === ETargetType.SELF || !selector.context.condition) return [];
+  return conditionNodeToFilterGroups(selector.context.condition);
+};
+
+export const targetSelectorToConditionGroup = (selector: TargetSelector): ConditionGroup => {
+  if (selector.context.targetType === ETargetType.SELF || !selector.context.condition)
+    return buildExistsForScope(selector.context.targetType as Scope, []);
+  return selector.context.condition;
+};
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Draft → Moteur : intention
+ * ───────────────────────────────────────────────────────────────────────────── */
 
 const MOVEMENT_STRATEGIES = ['APPROACH', 'FLEE', 'STAY'] as const;
 type MovementStrategy = (typeof MOVEMENT_STRATEGIES)[number];
 
-const isMovementStrategy = (value: string): value is MovementStrategy =>
-  (MOVEMENT_STRATEGIES as readonly string[]).includes(value);
+const isMovementStrategy = (v: string): v is MovementStrategy =>
+  (MOVEMENT_STRATEGIES as readonly string[]).includes(v);
 
 export const draftToIntent = (draft: DraftGambit): GambitIntent =>
   draft.intentKind === 'MOVEMENT'
-    ? {
-        kind: 'MOVEMENT',
-        strategy: isMovementStrategy(draft.intentValue) ? draft.intentValue : 'APPROACH'
-      }
+    ? { kind: 'MOVEMENT', strategy: isMovementStrategy(draft.intentValue) ? draft.intentValue : 'APPROACH' }
     : { kind: 'ACTION', actionId: draft.intentValue };
 
-/* ------------------------------------------------------------------ */
-/* Sens inverse : formes moteur -> draft, pour rouvrir un gambit en édition */
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Initialisation du draft
+ * ───────────────────────────────────────────────────────────────────────────── */
 
-const filterToDraftFields = (
-  filter: AnyFilter
-): Pick<DraftCondition, 'filterType' | 'value'> | null => {
-  switch (filter.type) {
-    case 'HP_BELOW': return { filterType: 'HP_BELOW', value: filter.threshold };
-    case 'HP_ABOVE': return { filterType: 'HP_ABOVE', value: filter.threshold };
-    case 'IN_RANGE': return { filterType: 'IN_RANGE', value: filter.range };
-    case 'HAS_PASSIVE': return { filterType: 'HAS_PASSIVE', value: filter.passiveId };
-    default: return null;
-  }
+const EMPTY_DRAFT: DraftGambit = {
+  name:                    '',
+  operator:                'AND',
+  conditions:              [],
+  intentKind:              'ACTION',
+  intentValue:             '',
+  targetKind:              'ENEMY',
+  targetSort:              '',
+  targetFilters:           [],
+  targetFilterGroupOps:    [],
+  targetFilterValuesOps:   [],
+  targetFilterGroupNegated: [],
 };
 
-export const conditionsToDraft = (cond: ConditionGroup): DraftCondition[] => {
-  if ('type' in cond && cond.type === 'EXISTS') {
-    return cond.context.filters.flatMap((filter, i) => {
-      const fields = filterToDraftFields(filter);
-      if (!fields) return [];
-      return [{
-        id: `loaded-${cond.context.targetType}-${filter.type}-${i}-${Math.random().toString(36).slice(2, 9)}`,
-        scopeKind: cond.context.targetType,
-        ...fields
-      }];
-    });
-  }
-  if ('operator' in cond && cond.operator === 'NOT') return conditionsToDraft(cond.condition);
-  if ('operator' in cond) return cond.conditions.flatMap(conditionsToDraft);
-  return [];
-};
+export function buildInitialDraft(initialGambit?: StoredGambit): DraftGambit {
+  if (!initialGambit) return { ...EMPTY_DRAFT };
 
-export const targetFiltersToDraft = (
-  selector: TargetSelector
-): DraftGambit['targetFilters'] => {
-  if (!('filters' in selector.context)) return [];
-  return selector.context.filters.flatMap((filter) => {
-    switch (filter.type) {
-      case 'HP_BELOW': return [{ categoryId: 'health', values: [`PV < ${filter.threshold}%`] }];
-      case 'HP_ABOVE': return [{ categoryId: 'health', values: [`PV > ${filter.threshold}%`] }];
-      case 'HAS_PASSIVE': return [{ categoryId: 'status', values: [passiveIdToStatusLabel(filter.passiveId)] }];
-      default: return [];
-    }
-  });
-};
+  const conditions = initialGambit.conditions;
+  const operator =
+    'operator' in conditions && (conditions.operator === 'AND' || conditions.operator === 'OR')
+      ? conditions.operator
+      : 'AND';
+
+  return {
+    name:                    initialGambit.name,
+    operator,
+    conditions:              conditionsToDraft(conditions),
+    intentKind:              initialGambit.intent.kind,
+    intentValue:             initialGambit.intent.kind === 'MOVEMENT'
+                               ? initialGambit.intent.strategy || ''
+                               : initialGambit.intent.actionId || '',
+    targetKind:              initialGambit.targetSelector.context.targetType,
+    targetSort:              initialGambit.targetSelector.sort || 'NEAREST',
+    targetFilters:           targetFiltersToDraft(initialGambit.targetSelector),
+    targetFilterGroupOps:    [],
+    targetFilterValuesOps:   [],
+    targetFilterGroupNegated: [],
+  };
+}

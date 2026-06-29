@@ -1,7 +1,9 @@
 import { IActionRegistry } from "@data/IActionRegistry";
 import { IPassiveRegistry } from "@data/IPassiveRegistry";
 import { Action, ActionID, PlayingEntityID } from "@fight/fight.types";
-import { EntityScopeResolver, ETargetType, FilterApplier, FilterEvaluatorRegistry, GambitTargetResolver } from "@fight/gambits";
+import { EntityScopeResolver, ETargetType, FilterApplier, GambitTargetResolver } from "@fight/gambits";
+import { buildFilterRegistry } from "@fight/gambits/resolvers/filters/FilterApplier";
+import { ConditionResolver } from "@fight/gambits/resolvers/conditions/ConditionResolver";
 import { ActivePassive, ModifierPassive, PassiveConfig, TriggeredPassive } from "@fight/passives/passives.types";
 import { TriggeredPassiveResolver } from "@fight/passives/TriggeredPassiveResolver";
 import { ProcessorFactory, ProcessorChain } from "@fight/processors";
@@ -28,13 +30,13 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
         targetResolver?: GambitTargetResolver
         passiveRegistry?: IPassiveRegistry
     } = {}) => {
-        const filterEvaluatorRegistry = new FilterEvaluatorRegistry()
-        const filterApplier = new FilterApplier(filterEvaluatorRegistry)
+        const filterApplier = new FilterApplier(buildFilterRegistry())
         const entityScopeResolver = new EntityScopeResolver()
+        const conditionResolver = new ConditionResolver(filterApplier, entityScopeResolver)
 
         const passiveRegistry = overrides.passiveRegistry ?? { getPassive: () => { throw new Error("not implemented") } }
         const actionRegistry  = overrides.actionRegistry  ?? { get: () => { throw new Error("action not found") } }
-        const targetResolver  = overrides.targetResolver  ?? new GambitTargetResolver(filterApplier, entityScopeResolver)
+        const targetResolver  = overrides.targetResolver  ?? new GambitTargetResolver(conditionResolver, entityScopeResolver)
 
         const processorFactory = new ProcessorFactory(passiveRegistry)
         const processorChain   = new ProcessorChain()
@@ -104,7 +106,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: {
-                context: { targetType: ETargetType.ENEMY, filters: [] },
+                context: { targetType: ETargetType.ENEMY },
                 sort: "LOWEST_HP"
             }
         }
@@ -179,7 +181,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {
@@ -242,7 +244,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "entity_died",
             triggeredActionId: "death_explosion",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {
@@ -306,7 +308,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
             targetSelector: {
-                context: { targetType: ETargetType.ALLY, filters: [] },
+                context: { targetType: ETargetType.ALLY },
                 sort: "LOWEST_HP"
             }
         }
@@ -369,7 +371,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {
@@ -437,7 +439,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {
@@ -499,7 +501,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {
@@ -574,7 +576,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const ragePassive: TriggeredPassive = {
@@ -583,7 +585,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "rage_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {
@@ -663,7 +665,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "damage_dealt",
             triggeredActionId: "thorns_retaliation",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const explosionPassive: TriggeredPassive = {
@@ -672,7 +674,7 @@ describe("Exécuter une action et gérer ses effets de bord", () => {
             config: permanentConfig,
             triggerType: "entity_died",
             triggeredActionId: "death_explosion",
-            targetSelector: { context: { targetType: ETargetType.ENEMY, filters: [] }, sort: "LOWEST_HP" }
+            targetSelector: { context: { targetType: ETargetType.ENEMY }, sort: "LOWEST_HP" }
         }
 
         const actionRegistry: IActionRegistry = {

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import type { DraftGambit } from '../../GambitTypes';
-import { ACTION_CATEGORIES } from '../../actionCatalog';
+import type { DraftGambit } from '@components/ui/gambit/GambitTypes';
+import { ACTION_CATEGORIES } from '@components/ui/gambit/actionCatalog';
 
 interface UseIntentStepProps {
   draft: DraftGambit;

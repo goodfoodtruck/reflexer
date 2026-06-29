@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { ANIMATIONS } from '../constants/condition.constants';
-import { Styles } from '../Condition.styles';
+import { ANIMATIONS } from '@components/ui/gambit/addGambit/Step2/constants/condition.constants';
+import { Styles } from '@components/ui/gambit/addGambit/Step2/Condition.styles';
 import { ConditionBreadcrumb } from './ConditionBreadcrumb';
 import { TargetSummaryBar } from './TargetSummaryBar';
 import { TargetGrid } from './TargetGrid';
@@ -17,7 +17,7 @@ export function SelectTargetView({
   onRemoveTarget
 }: SelectTargetViewProps) {
   return (
-    <motion.div {...ANIMATIONS.selectTarget} className={Styles.container}>
+    <motion.div key="step2" {...ANIMATIONS.selectTarget} className={Styles.container}>
       <ConditionBreadcrumb backLabel="RAJOUTER UNE CONDITION" activeLabel="CIBLE" />
       <TargetSummaryBar
         configuredTargets={configuredTargets}

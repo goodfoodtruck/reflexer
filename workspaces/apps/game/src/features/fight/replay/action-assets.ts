@@ -1,26 +1,16 @@
-/**
- * Pont entre le chemin logique d'icône porté par la donnée moteur
- * (`Action.icon`, ex. "attaque/Boule-feu.png") et l'URL réelle de l'asset
- * bundlé par Vite. Même principe que `sprite-assets.ts` : `import.meta.glob`
- * embarque tout `assets/images/actions/**` au build et fournit la table de
- * correspondance chemin-de-module → URL.
- */
-const ACTIONS_ROOT = "images/actions/"
-
-const modules = import.meta.glob("../../../assets/images/actions/**/*.png", {
-    eager: true,
-    query: "?url",
-    import: "default",
-}) as Record<string, string>
-
-const urlByLogicalPath = new Map<string, string>()
-for (const [moduleKey, url] of Object.entries(modules)) {
-    const at = moduleKey.indexOf(ACTIONS_ROOT)
-    if (at === -1) continue
-    urlByLogicalPath.set(moduleKey.slice(at + ACTIONS_ROOT.length), url)
+const ACTION_ICON_URLS: Record<string, string> = {
+    'attaque/Attaque-Cinglant.png':      new URL('../../../assets/images/actions/attaque/Attaque-Cinglant.png', import.meta.url).href,
+    'attaque/Boule-feu.png':             new URL('../../../assets/images/actions/attaque/Boule-feu.png', import.meta.url).href,
+    'boost/Force-de-la-Terre.png':       new URL('../../../assets/images/actions/boost/Force-de-la-Terre.png', import.meta.url).href,
+    'boost/Bénédiction-du-magicien.png': new URL('../../../assets/images/actions/boost/Bénédiction-du-magicien.png', import.meta.url).href,
+    'soin/Soins palliatifs.png':         new URL('../../../assets/images/actions/soin/Soins palliatifs.png', import.meta.url).href,
+    'soin/Renforts.png':                 new URL('../../../assets/images/actions/soin/Renforts.png', import.meta.url).href,
+    'mouvement/Flee.png':                new URL('../../../assets/images/actions/mouvement/Flee.png', import.meta.url).href,
+    'mouvement/Charge.png':              new URL('../../../assets/images/actions/mouvement/Charge.png', import.meta.url).href,
+    'mouvement/Teleport.png':            new URL('../../../assets/images/actions/mouvement/Teleport.png', import.meta.url).href,
+    'défense/Barricade.png':             new URL('../../../assets/images/actions/défense/Barricade.png', import.meta.url).href,
 }
 
-/** Résout un chemin logique d'icône d'action vers l'URL bundlée, ou `null` si absent. */
 export function resolveActionIconUrl(logicalPath: string): string | null {
-    return urlByLogicalPath.get(logicalPath) ?? null
+    return ACTION_ICON_URLS[logicalPath] ?? null
 }

@@ -1,7 +1,7 @@
 
-import { EmptyDetailsIcon } from '../../../../../../assets/icons/IconEmptyDetails';
-import { PlaceholderIcon } from '../../../../../../assets/icons/IconPlaceholder';
-import { Styles } from '../Intent.styles';
+import { EmptyDetailsIcon } from '@assets/icons/IconEmptyDetails';
+import { PlaceholderIcon } from '@assets/icons/IconPlaceholder';
+import { Styles } from '@components/ui/gambit/addGambit/Step3/Intent.styles';
 
 interface ActionDetails {
   name: string;

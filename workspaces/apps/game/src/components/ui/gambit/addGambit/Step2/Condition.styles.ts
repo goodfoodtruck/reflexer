@@ -41,6 +41,8 @@ export const Styles = {
     'relative w-full px-5 py-3.5 rounded-xl text-[11px] font-black cursor-pointer transition-all border overflow-hidden group tracking-[0.1em] uppercase',
   listSelected:
     'bg-amber-500 border-amber-400 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]',
+  listFocused:
+    'bg-sky-500/20 border-sky-500/50 text-sky-300 shadow-[0_0_12px_rgba(14,165,233,0.2)]',
   listIdle:
     'bg-[#161925] border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-200 hover:bg-slate-800/50',
   footer: 'flex justify-end gap-4 mt-auto pt-8 border-t border-slate-800/50',
@@ -51,21 +53,4 @@ export const Styles = {
     'text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] disabled:opacity-50 border border-orange-400/50'
 };
 
-export const Styles_conditionStack = {
-  stackWrapper: 'flex flex-col items-center gap-3 shrink-0',
-  stackItem:
-    'px-5 py-3.5 rounded-xl text-[11px] font-black bg-[#161925] border border-slate-700/50 text-slate-300 text-center min-w-[160px] shadow-lg',
-  stackItemActive: 'border-amber-500/40 bg-amber-500/10 text-amber-500 border-dashed',
-  stackItemEmpty: 'border-dashed border-slate-700 bg-transparent text-slate-500 opacity-50',
-  stackItemWithDelete: 'group relative flex items-center justify-between gap-2 pr-2',
-  stackAnd: 'text-[10px] font-black text-slate-600 tracking-[0.2em] uppercase',
-  stackAddBtn:
-    'w-full py-3 rounded-xl border border-dashed border-slate-600 text-slate-500 bg-[#0F111A] hover:bg-[#161925] hover:border-amber-500/50 hover:text-amber-500 hover:shadow-[0_0_15px_rgba(245,158,11,0.1)] transition-all flex justify-center items-center cursor-pointer',
-  stackDeleteBtn:
-    'opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition-all shrink-0',
-  stackActiveBlock: 'flex flex-col gap-1.5 items-start',
-  stackActiveRow: 'flex items-center justify-between w-full gap-2 group/val',
-  stackActiveText: 'text-[11px]',
-  stackActiveDelete:
-    'opacity-0 group-hover/val:opacity-100 text-amber-700 hover:text-rose-400 transition-all shrink-0'
-};
+export { Styles_conditionStack } from '@components/ui/gambit/addGambit/shared/blockStack.styles';

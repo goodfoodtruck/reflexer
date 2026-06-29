@@ -1,33 +1,12 @@
-import type { Gambit } from "@reflexer/engine"
+import type { ConditionGroup, Gambit } from "@reflexer/engine"
 import type { CombatLogLine } from "../../../features/fight/replay/combat-view.types"
-
-// Le moteur expose les conditions/cibles sous une forme typée ; on en fait ici
-// une lecture « best effort » pour l'affichage (les champs sont des chaînes).
-type AnyNode = {
-    operator?: "AND" | "OR" | "NOT"
-    conditions?: AnyNode[]
-    condition?: AnyNode
-    type?: string
-    context?: { targetType?: string; filters?: AnyFilter[] }
-    threshold?: number
-}
-type AnyFilter = { type: string; threshold?: number; range?: number; passiveId?: string }
+import { filterToLabel, sortToLabel } from "../gambit/display"
+import { ACTION_CATEGORIES } from "../gambit/actionCatalog"
 
 const TARGET_LABELS: Record<string, string> = {
     SELF: "Soi",
     ALLY: "Allié",
     ENEMY: "Ennemi",
-}
-
-const SORT_LABELS: Record<string, string> = {
-    LOWEST_HP: "PV les plus bas",
-    HIGHEST_HP: "PV les plus hauts",
-    NEAREST: "le plus proche",
-    FURTHEST: "le plus éloigné",
-    NEAREST_FROM_ALLY: "le plus proche d'un allié",
-    NEAREST_FROM_ENEMY: "le plus proche d'un ennemi",
-    FURTHEST_FROM_ALLY: "le plus éloigné d'un allié",
-    FURTHEST_FROM_ENEMY: "le plus éloigné d'un ennemi",
 }
 
 const STRATEGY_LABELS: Record<string, string> = {
@@ -36,20 +15,6 @@ const STRATEGY_LABELS: Record<string, string> = {
     STAY: "rester sur place",
 }
 
-function filterText(filter: AnyFilter): string {
-    switch (filter.type) {
-        case "HP_BELOW": return `PV < ${filter.threshold}%`
-        case "HP_ABOVE": return `PV > ${filter.threshold}%`
-        case "HAS_PASSIVE": return `a le statut ${filter.passiveId}`
-        case "IN_RANGE": return `à portée ${filter.range}`
-        case "ALLY_IN_RANGE_OF_ENEMY": return `à portée ${filter.range} d'un ennemi`
-        case "ALLY_IN_RANGE_OF_ALLY": return `à portée ${filter.range} d'un allié`
-        case "ENEMY_IN_RANGE_OF_ALLY": return `à portée ${filter.range} d'un allié`
-        case "IS_ATTACKING_ALLY": return "attaque un allié"
-        case "IS_ATTACKING_SELF": return "attaque soi-même"
-        default: return filter.type
-    }
-}
 
 const TONE_BY_TARGET: Record<string, string> = {
     SELF: "bg-sky-500/15 text-sky-300 border-sky-500/30",
@@ -58,50 +23,60 @@ const TONE_BY_TARGET: Record<string, string> = {
 }
 
 /** Une feuille EXISTS : pastille de cible + filtres lisibles. */
-function ConditionLeaf({ node }: { node: AnyNode }) {
-    const targetType = node.context?.targetType ?? "?"
-    const filters = node.context?.filters ?? []
-    const tone = TONE_BY_TARGET[targetType] ?? "bg-slate-700/40 text-slate-300 border-slate-600/40"
-    return (
-        <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${tone}`}>
-                {TARGET_LABELS[targetType] ?? targetType}
+function ConditionLeaf({ node }: { node: Extract<ConditionGroup, { type: 'EXISTS' }> }) {
+  const { targetType, filters } = node.context;
+  const tone = TONE_BY_TARGET[targetType] ?? 'bg-slate-700/40 text-slate-300 border-slate-600/40';
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded border ${tone}`}>
+        {TARGET_LABELS[targetType] ?? targetType}
+      </span>
+      {filters.length === 0
+        ? <span className="text-xs text-slate-400">existe</span>
+        : filters.map((f, i) => (
+            <span key={i} className="flex items-center gap-1.5">
+              {i > 0 && (
+                <span className="text-[9px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded border border-slate-700/60 text-slate-500 bg-transparent">ET</span>
+              )}
+              <span className="text-xs text-slate-300">{filterToLabel(f)}</span>
             </span>
-            {filters.length === 0
-                ? <span className="text-xs text-slate-400">existe</span>
-                : filters.map((f, i) => (
-                    <span key={i} className="text-xs text-slate-300">{filterText(f)}</span>
-                ))}
-        </div>
-    )
+          ))}
+    </div>
+  );
 }
 
 /** Rend récursivement l'arbre de conditions du gambit. */
-function ConditionNode({ node }: { node: AnyNode }) {
-    if (node.operator === "NOT" && node.condition) {
-        return (
-            <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-rose-400">Non</span>
-                <ConditionNode node={node.condition} />
-            </div>
-        )
-    }
-
-    if ((node.operator === "AND" || node.operator === "OR") && node.conditions) {
-        const joinLabel = node.operator === "AND" ? "ET" : "OU"
-        return (
-            <div className="flex flex-col gap-1.5">
-                {node.conditions.map((child, i) => (
-                    <div key={i} className="flex flex-col gap-1.5">
-                        {i > 0 && <span className="text-[10px] font-black uppercase tracking-wider text-amber-500/70">{joinLabel}</span>}
-                        <ConditionNode node={child} />
-                    </div>
-                ))}
-            </div>
-        )
-    }
-
-    return <ConditionLeaf node={node} />
+function ConditionNode({ node }: { node: ConditionGroup }) {
+  if ('operator' in node && node.operator === 'NOT') {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-black uppercase tracking-wider text-rose-400">Non</span>
+        <ConditionNode node={node.condition} />
+      </div>
+    );
+  }
+  if ('operator' in node && (node.operator === 'AND' || node.operator === 'OR')) {
+    const isAnd = node.operator === 'AND';
+    return (
+      <div className="flex flex-col gap-1.5">
+        {node.conditions.map((child, i) => (
+          <div key={i} className="flex flex-col gap-1.5">
+            {i > 0 && (
+              <span className={`self-start text-[9px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded border ${
+                isAnd
+                  ? 'border-slate-700/60 text-slate-500 bg-transparent'
+                  : 'border-amber-500/40 text-amber-400 bg-amber-500/10'
+              }`}>
+                {isAnd ? 'ET' : 'OU'}
+              </span>
+            )}
+            <ConditionNode node={child} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return <ConditionLeaf node={node} />; // ici node est narrow à EXISTS
 }
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
@@ -114,11 +89,10 @@ function Section({ label, children }: { label: string; children: React.ReactNode
 }
 
 function GambitDetail({ gambit }: { gambit: Gambit }) {
-    const conditions = gambit.conditions as unknown as AnyNode
-    const target = gambit.targetSelector as unknown as { context: { targetType?: string }; sort: string }
-    const intent = gambit.intent
-
-    const targetType = target.context?.targetType ?? "?"
+    const conditions = gambit.conditions;
+    const target = gambit.targetSelector;
+    const intent = gambit.intent;
+    const targetType = target.context.targetType;
 
     return (
         <div className="flex flex-col gap-4">
@@ -141,7 +115,7 @@ function GambitDetail({ gambit }: { gambit: Gambit }) {
                         {TARGET_LABELS[targetType] ?? targetType}
                     </span>
                     <span className="text-xs text-slate-400">→</span>
-                    <span className="text-xs font-bold text-amber-300">{SORT_LABELS[target.sort] ?? target.sort}</span>
+                    <span className="text-xs font-bold text-amber-300">{sortToLabel(target.sort)}</span>
                 </div>
             </Section>
 
@@ -149,7 +123,7 @@ function GambitDetail({ gambit }: { gambit: Gambit }) {
                 <span className="text-xs font-bold text-slate-200">
                     {intent.kind === "MOVEMENT"
                         ? `Déplacement — ${STRATEGY_LABELS[intent.strategy] ?? intent.strategy}`
-                        : `Action — ${intent.actionId}`}
+                        : `Action — ${ACTION_CATEGORIES.flatMap(c => c.items).find(i => i.id === intent.actionId)?.name ?? intent.actionId}`}
                 </span>
             </Section>
         </div>
