@@ -18,7 +18,7 @@ import { CharacterRequireGambit } from "../CharacterRequireGambit"
 
 const MATCHMAKING_MIN_DURATION_MS = 4000
 
-const REVEAL_DURATION_MS = 1800
+const REVEAL_DURATION_MS = 3000
 
 type MatchmakingState =
     | { status: "idle" }

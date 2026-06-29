@@ -9,7 +9,7 @@ import type { PlayRankedFightResponse } from "@services/fight/rankedFight.servic
 import { resolveMapThumbnailUrl } from "@features/fight/rendering/sprite-assets"
 
 const PLACEHOLDER_NAMES = ["Valtor", "Nyx", "Korrak", "Selene", "Drex", "Maw", "Ophir", "Vesper"]
-const ELO_OFFSETS = [-87, +45, -34, +112, -58, +77, -23, +93]
+const ELO_RATIOS = [-0.04, +0.02, -0.015, +0.048, -0.03, +0.035, -0.01, +0.045]
 const FLIP_INTERVAL_MS = 380
 
 interface MatchmakingOverlayProps {
@@ -36,7 +36,7 @@ const MatchmakingOverlay: React.FC<MatchmakingOverlayProps> = ({ playerElo, prof
         () => PLACEHOLDER_NAMES.map((name, i) => ({
             id: `p${i}`,
             name,
-            rating: playerElo + ELO_OFFSETS[i]!,
+            rating: Math.round(playerElo * (1 + ELO_RATIOS[i]!)),
         })),
         [playerElo],
     )
