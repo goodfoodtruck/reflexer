@@ -18,9 +18,12 @@ import { CharacterRequireGambit } from "../CharacterRequireGambit"
 
 const MATCHMAKING_MIN_DURATION_MS = 4000
 
+const REVEAL_DURATION_MS = 1800
+
 type MatchmakingState =
     | { status: "idle" }
     | { status: "searching" }
+    | { status: "found"; fight: PlayRankedFightResponse }
     | { status: "failed"; reason: string }
 
 interface RankedSectionProps {
@@ -34,7 +37,7 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
     const [matchmaking, setMatchmaking] = useState<MatchmakingState>({ status: "idle" })
     const [missingCharacterNames, setMissingCharacterNames] = useState<string[] | null>(null)
 
-    const onFightReady = (fight: PlayRankedFightResponse) => {
+    const navigateToFight = (fight: PlayRankedFightResponse) => {
         navigate("/fight", {
             state: {
                 playerName: fight.player.user.name,
@@ -52,7 +55,8 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
                 RankedFightService.findAndPlayMatch(user.id),
                 MATCHMAKING_MIN_DURATION_MS,
             )
-            onFightReady(result)
+            setMatchmaking({ status: "found", fight: result })
+            setTimeout(() => navigateToFight(result), REVEAL_DURATION_MS)
         } catch (err) {
             setMatchmaking({
                 status: "failed",
@@ -106,7 +110,12 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
                 <Leaderboard />
 
                 <AnimatePresence>
-                    {matchmaking.status === "searching" && <MatchmakingOverlay />}
+                    {(matchmaking.status === "searching" || matchmaking.status === "found") && (
+                        <MatchmakingOverlay
+                            playerElo={userRanking.ranking.currentElo}
+                            foundFight={matchmaking.status === "found" ? matchmaking.fight : undefined}
+                        />
+                    )}
                 </AnimatePresence>
             </div>
 

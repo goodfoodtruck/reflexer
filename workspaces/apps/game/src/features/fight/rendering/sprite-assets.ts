@@ -59,3 +59,9 @@ export function resolveMapBackgroundUrl(logicalPath: string): string {
     }
     return url
 }
+
+/** Résout un chemin logique de thumbnail de carte vers l'URL bundlée, ou null si absent. */
+export function resolveMapThumbnailUrl(logicalPath: string | null): string | null {
+    if (!logicalPath) return null
+    return urlByMapBackground.get(logicalPath) ?? null
+}

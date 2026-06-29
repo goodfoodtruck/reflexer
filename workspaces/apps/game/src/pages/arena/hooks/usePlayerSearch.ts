@@ -21,6 +21,7 @@ export const usePlayerSearch = (currentUserId: string) => {
     const [results, setResults] = useState<PlayerSearchResult[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const requestIdRef = useRef(0)
 
     useDebounce(async () => {
         if (query.trim().length < 2) {
@@ -28,18 +29,22 @@ export const usePlayerSearch = (currentUserId: string) => {
             return
         }
 
+        const requestId = ++requestIdRef.current
+
         setError(null)
         setLoading(true)
 
         try {
             const data = await UserService.search(query.trim())
+            if (requestId !== requestIdRef.current) return
             setResults(data.filter(player => player._id !== currentUserId))
         } catch (err) {
+            if (requestId !== requestIdRef.current) return
             setError(err instanceof Error ? err.message : "Erreur de recherche")
         } finally {
-            setLoading(false)
+            if (requestId === requestIdRef.current) setLoading(false)
         }
-    }, 300, [query])
+    }, 400, [query])
 
     return { query, setQuery, results, loading, error }
 }
