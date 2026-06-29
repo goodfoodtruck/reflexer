@@ -60,11 +60,30 @@ export class GambitTargetResolver {
             case "NEAREST": return getNearestTarget(sourceEntity, candidates)
             case "FURTHEST": return getFurthestTarget(sourceEntity, candidates)
 
-            case "NEAREST_FROM_ALLY": return getNearestFromGroup(candidates, fightContext.getAllies(sourceEntity))
-            case "NEAREST_FROM_ENEMY": return getNearestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
-
-            case "FURTHEST_FROM_ALLY": return getFurthestFromGroup(candidates, fightContext.getAllies(sourceEntity))
-            case "FURTHEST_FROM_ENEMY": return getFurthestFromGroup(candidates, fightContext.getEnemies(sourceEntity))
+            case "NEAREST_FROM_ALLY": {
+                const allies = fightContext.getAllies(sourceEntity)
+                return allies.length
+                    ? getNearestFromGroup(candidates, allies)
+                    : getNearestTarget(sourceEntity, candidates)
+            }
+            case "NEAREST_FROM_ENEMY": {
+                const enemies = fightContext.getEnemies(sourceEntity)
+                return enemies.length
+                    ? getNearestFromGroup(candidates, enemies)
+                    : getNearestTarget(sourceEntity, candidates)
+            }
+            case "FURTHEST_FROM_ALLY": {
+                const allies = fightContext.getAllies(sourceEntity)
+                return allies.length
+                    ? getFurthestFromGroup(candidates, allies)
+                    : getFurthestTarget(sourceEntity, candidates)
+            }
+            case "FURTHEST_FROM_ENEMY": {
+                const enemies = fightContext.getEnemies(sourceEntity)
+                return enemies.length
+                    ? getFurthestFromGroup(candidates, enemies)
+                    : getFurthestTarget(sourceEntity, candidates)
+            }
 
             case "LOWEST_ARMOR": return getLowestArmorTarget(candidates)
             case "HIGHEST_ARMOR": return getHighestArmorTarget(candidates)
