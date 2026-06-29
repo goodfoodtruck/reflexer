@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { TeamService } from '@services/team.service';
 import { useAuth } from '@hooks/useAuth';
 import { resolveCharacterImages } from '@components/ui/images/characterImages';
@@ -7,33 +7,31 @@ import { CharacterSelectScreen } from '@components/ui/team/CharacterSelectScreen
 import { TeamConfigureScreen } from '@components/ui/team/TeamConfigureScreen';
 import type { SelectedCharacter } from '@components/ui/team/type';
 
-type View = 'loading' | 'select' | 'configure';
-
 export function TeamSelectionPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
-  const [view, setView] = useState<View>('loading');
-  const [selectedCharacters, setSelectedCharacters] = useState<
-    [SelectedCharacter, SelectedCharacter] | null
-  >(null);
+  // /gambits -> écran de configuration (les 2 persos de l'équipe)
+  // /team    -> mosaïque de sélection des personnages
+  const isGambits = location.pathname.startsWith('/gambits');
 
-  // si le joueur a déjà une équipe enregistrée, on saute l'écran de sélection
+  const [team, setTeam] = useState<[SelectedCharacter, SelectedCharacter] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // on charge l'équipe enregistrée (pré-sélection mosaïque + écran gambits)
   useEffect(() => {
     if (!user) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setView('select');
+      setLoading(false);
       return;
     }
 
     TeamService.getMine()
-      .then((team) => {
-        if (!team) {
-          setView('select');
-          return;
-        }
+      .then((savedTeam) => {
+        if (!savedTeam) return;
 
-        const visuals = team.characterIds.map((char) => ({
+        const visuals = savedTeam.characterIds.map((char) => ({
           id: char._id,
           slug: char.slug,
           name: char.characterName,
@@ -42,43 +40,42 @@ export function TeamSelectionPage() {
           ...resolveCharacterImages(char.slug)
         })) as [SelectedCharacter, SelectedCharacter];
 
-        setSelectedCharacters(visuals);
-        setView('configure');
+        setTeam(visuals);
       })
       .catch((err) => {
         console.error('Erreur chargement équipe:', err);
-        setView('select');
-      });
+      })
+      .finally(() => setLoading(false));
   }, [user]);
 
-  const handleBack = () => navigate('/');
-  const handleBackToSelect = () => setView('select');
-  const handleBuildHero = (characterId: string) => navigate(`/gestion-gambits/${characterId}`);
-
-  const handleTeamConfirm = async (team: [SelectedCharacter, SelectedCharacter]) => {
-    setSelectedCharacters(team);
-    setView('configure');
+  const handleTeamConfirm = async (newTeam: [SelectedCharacter, SelectedCharacter]) => {
+    setTeam(newTeam);
     try {
-      await TeamService.save([team[0].id, team[1].id]);
+      await TeamService.save([newTeam[0].id, newTeam[1].id]);
     } catch (err) {
       console.error('Erreur sauvegarde équipe:', err);
     }
+    navigate('/gambits');
   };
 
-  if (view === 'loading') {
+  if (loading) {
     return null;
   }
 
-  if (view === 'select') {
-    return <CharacterSelectScreen onConfirm={handleTeamConfirm} onBack={handleBack} />;
+  if (isGambits) {
+    // pas d'équipe encore configurée -> on renvoie vers la mosaïque
+    if (!team) {
+      return <Navigate to="/team" replace />;
+    }
+
+    return (
+      <TeamConfigureScreen
+        team={team}
+        onChangeTeam={() => navigate('/team')}
+        onBuildHero={(characterId) => navigate(`/gestion-gambits/${characterId}`)}
+      />
+    );
   }
 
-  return (
-    <TeamConfigureScreen
-      team={selectedCharacters!}
-      onChangeTeam={handleBackToSelect}
-      onBuildHero={handleBuildHero}
-      onBack={handleBack}
-    />
-  );
+  return <CharacterSelectScreen onConfirm={handleTeamConfirm} initialSelection={team} />;
 }

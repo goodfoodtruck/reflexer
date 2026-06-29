@@ -3,29 +3,35 @@ import { type GuideStep, type GuideName } from './useGuide';
 export const GUIDES: Record<GuideName, GuideStep[]> = {
   'home': [
     {
-      target: "[data-guide='nouvelle-partie']",
-      title: 'Nouvelle partie',
-      description:
-        "Lance une nouvelle run. Chaque run repart de zéro — nouvel étage, nouveaux ennemis. Si tu meurs, c'est terminé.",
-      position: 'right'
+      target: "[data-guide='nav-arene']",
+      title: 'Arène',
+      description: 'Ton tableau de bord. Mets à l’épreuve ta stratégie contre d’autres joueurs, consulte ton classement et affronte tes amis.',
+      position: 'bottom'
     },
     {
-      target: "[data-guide='gambit']",
+      target: "[data-guide='nav-gambits']",
       title: 'Gambits',
       description:
         'Tes gambits sont le cerveau de tes agents. Définis quand agir, qui cibler, et comment frapper. Chaque gambit est une règle de combat.',
-      position: 'right'
+      position: 'bottom'
     },
     {
-      target: "[data-guide='arene']",
-      title: 'Arène',
-      description: 'Mets à l’épreuve ta stratégie contre d’autres joueurs, consulte ton classement et affronte tes amis.',
-      position: 'right'
+      target: "[data-guide='nav-equipe']",
+      title: 'Équipe',
+      description:
+        'Compose ton duo d’agents depuis la mosaïque des personnages.',
+      position: 'bottom'
     },
     {
       target: "[data-guide='notification-bell']",
       title: 'Notification',
       description: 'Tu peux recevoir des notifications importantes ici.',
+      position: 'bottom'
+    },
+    {
+      target: "[data-guide='nav-profil']",
+      title: 'Profil',
+      description: 'Gère ton compte : mot de passe et déconnexion.',
       position: 'bottom'
     }
   ],

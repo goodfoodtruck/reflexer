@@ -11,7 +11,7 @@ interface Props {
   team: [SelectedCharacter, SelectedCharacter];
   onChangeTeam: () => void;
   onBuildHero: (characterId: string) => void;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export function TeamConfigureScreen({ team, onChangeTeam, onBuildHero, onBack }: Props) {
@@ -40,7 +40,7 @@ export function TeamConfigureScreen({ team, onChangeTeam, onBuildHero, onBack }:
       <div className={TEAM_CONFIGURATION_SCREEN.scanlines} />
 
       <div className={TEAM_CONFIGURATION_SCREEN.foreground}>
-        <Header title="Configure ton duo" subtitle="Nouvelle partie" onBack={onBack} />
+        <Header title="Configure ton duo" subtitle="Gambits" onBack={onBack} />
 
         <div className={TEAM_CONFIGURATION_SCREEN.titleContainer}>
           <h2 className={TEAM_CONFIGURATION_SCREEN.mainTitle}>Configurez votre équipe</h2>

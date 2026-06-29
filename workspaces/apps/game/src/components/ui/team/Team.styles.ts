@@ -51,7 +51,7 @@ export const GRID_ITEM_COLOR_VARIANTS: Record<
 
 // CharacterSelectScreen
 export const SELECT_SCREEN_STYLES = {
-  page: 'w-screen h-screen relative overflow-hidden flex flex-col text-slate-200 bg-black',
+  page: 'w-full h-[calc(100vh-4rem)] relative overflow-hidden flex flex-col text-slate-200 bg-black',
 
   bgWrapper: 'absolute inset-0 z-0 overflow-hidden',
   bgImage:
@@ -159,7 +159,7 @@ export const STAT_ROW_STYLES = {
 
 export const TEAM_CONFIGURATION_SCREEN = {
   container:
-    'w-screen h-screen relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30',
+    'w-full h-[calc(100vh-4rem)] relative overflow-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30',
   bgContainer: 'absolute inset-0 z-0 overflow-hidden',
   bgImage:
     'w-full h-full object-cover opacity-100 blur-[1px] animate-[ambient-zoom_10s_ease-in-out_infinite_alternate]',

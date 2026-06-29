@@ -27,7 +27,7 @@ const ArenaPage: React.FC = () => {
     const error = userRankingError || friendlyFightsError || rankedFightsError
 
     return (
-        <div className="w-full min-h-screen relative overflow-x-hidden flex flex-col text-slate-200 bg-black selection:bg-amber-500/30">
+        <div className="w-full min-h-[calc(100vh-4rem)] relative overflow-x-hidden flex flex-col flex-1 text-slate-200 bg-black selection:bg-amber-500/30">
             <AnimatedBackground />
 
             <div className="absolute inset-0 z-0">
@@ -35,7 +35,7 @@ const ArenaPage: React.FC = () => {
             </div>
 
             <div className="relative z-10 flex flex-col flex-1">
-                <Header title="Arène" subtitle="PvP" onBack={() => navigate("/")} />
+                <Header title="Arène" subtitle="Tableau de bord" />
 
                 <div className="flex flex-col flex-1 p-3 gap-8">
                     {!isLoading && (

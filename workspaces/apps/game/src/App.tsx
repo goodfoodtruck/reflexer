@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HomePage } from "@pages/home/HomePage";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthPage } from "@pages/auth/AuthPage";
 import { TeamSelectionPage } from "@pages/team-selection/TeamSelectionPage";
 import { GambitEditorPage } from "@components/ui/gambit/GambitEditorPage";
 import { ProtectedRoute } from "@components/auth/ProtectedRoute";
+import { AppLayout } from "@components/layout/AppLayout";
 import ArenaPage from "@pages/arena/ArenaPage";
 import { CombatPage } from "@pages/combat/CombatPage";
 
@@ -13,9 +13,12 @@ export default function App() {
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/arena" element={<ArenaPage />} />
-          <Route path="/team" element={<TeamSelectionPage />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Navigate to="/arena" replace />} />
+            <Route path="/arena" element={<ArenaPage />} />
+            <Route path="/team" element={<TeamSelectionPage />} />
+            <Route path="/gambits" element={<TeamSelectionPage />} />
+          </Route>
           <Route path="/gestion-gambits/:characterId" element={<GambitEditorPage />} />
           <Route path="/fight" element={<CombatPage />} />
         </Route>
