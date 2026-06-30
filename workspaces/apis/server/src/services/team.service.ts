@@ -3,6 +3,7 @@ import { GambitRepository } from "@repositories/gambit.repository"
 import { CharacterRepository } from "@repositories/character.repository"
 import type { CharacterDocument } from "@models/character.model"
 import type { Gambit, TeamMemberData } from "@reflexer/engine"
+import { AppError } from "../errors/AppError"
 
 export class TeamService {
     constructor(
@@ -17,10 +18,7 @@ export class TeamService {
 
     async upsertTeam(userId: string, characterIds: string[]) {
         const validCount = await this.characterRepo.countByIds(characterIds)
-        if (validCount !== 2) throw Object.assign(
-            new Error("Un ou plusieurs personnages sont introuvables"),
-            { status: 400 }
-        )
+        if (validCount !== 2) throw new AppError(400, "INVALID_CHARACTERS", "Un ou plusieurs personnages sélectionnés sont invalides.")
         return this.teamRepo.upsert(userId, { characterIds })
     }
 

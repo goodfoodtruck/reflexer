@@ -1,5 +1,6 @@
 import { UserRepository } from "@repositories/user.repository"
 import { NotificationRepository } from "@repositories/notification.repository"
+import { AppError } from "../errors/AppError"
 
 export class UserService {
     constructor(
@@ -9,7 +10,7 @@ export class UserService {
 
     async getUserById(id: string) {
         const user = await this.userRepo.findById(id)
-        if (!user) throw Object.assign(new Error("User not found"), { status: 404 })
+        if (!user) throw new AppError(404, "USER_NOT_FOUND", "Utilisateur introuvable.")
         return { id: user._id, name: user.name }
     }
 
@@ -27,7 +28,7 @@ export class UserService {
 
     async markNotificationRead(id: string, userId: string) {
         const notification = await this.notificationRepo.markAsRead(id, userId)
-        if (!notification) throw Object.assign(new Error("Notification introuvable"), { status: 404 })
+        if (!notification) throw new AppError(404, "NOTIFICATION_NOT_FOUND", "Notification introuvable.")
         return notification
     }
 }

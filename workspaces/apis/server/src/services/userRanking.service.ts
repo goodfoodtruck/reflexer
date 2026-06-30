@@ -1,5 +1,6 @@
 import { UserRepository } from "@repositories/user.repository"
 import { UserRankingRepository } from "@repositories/ranked/userRanking.repository"
+import { AppError } from "../errors/AppError"
 
 export class UserRankingService {
     constructor(
@@ -9,10 +10,10 @@ export class UserRankingService {
 
     async getRankingByUserId(userId: string) {
         const user = await this.userRepo.findById(userId)
-        if (!user) throw Object.assign(new Error("User not found."), { status: 404 })
+        if (!user) throw new AppError(404, "USER_NOT_FOUND", "Utilisateur introuvable.")
 
         const userRanking = await this.userRankingRepo.findByUserId(userId)
-        if (!userRanking) throw Object.assign(new Error("User ranking not found."), { status: 404 })
+        if (!userRanking) throw new AppError(404, "USER_RANKING_NOT_FOUND", "Données de classement introuvables.")
 
         return {
             user: { id: user.id, name: user.name },

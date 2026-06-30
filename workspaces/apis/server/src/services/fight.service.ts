@@ -9,6 +9,7 @@ import { FightRankingRepository } from "@repositories/ranked/fightRanking.reposi
 import { NotificationRepository } from "@repositories/notification.repository"
 import { TeamService } from "./team.service"
 import { computeEloChange } from "./ranked.service"
+import { AppError } from "../errors/AppError"
 
 type GameEngine = ReturnType<typeof createGameEngine>
 
@@ -34,7 +35,7 @@ export class FightService {
 
     async getFightById(fightId: string) {
         const fight = await this.pvpFightRepo.findById(fightId)
-        if (!fight) throw Object.assign(new Error("FIGHT_NOT_FOUND"), { status: 404 })
+        if (!fight) throw new AppError(404, "FIGHT_NOT_FOUND", "Combat introuvable.")
         return fight
     }
 
@@ -55,16 +56,18 @@ export class FightService {
             this.userRepo.findById(playerId),
             this.userRepo.findById(opponentId)
         ])
-        if (!playerUser || !opponentUser) throw Object.assign(new Error("USER_NOT_FOUND"), { status: 404 })
+        if (!playerUser || !opponentUser) throw new AppError(404, "USER_NOT_FOUND", "Utilisateur introuvable.")
 
         const playerTeam   = await this.teamService.buildTeamFromUserId(playerId)
         const opponentTeam = await this.teamService.buildTeamFromUserId(opponentId)
-        if (!playerTeam.length || !opponentTeam.length) throw Object.assign(new Error("TEAM_EMPTY"), { status: 400 })
+        if (!playerTeam.length || !opponentTeam.length) {
+            throw new AppError(400, "TEAM_EMPTY", "L'équipe est incomplète, ajoutez des gambits à vos personnages.")
+        }
 
         const result: Result<FightResult, FightError> = this.engine.playPvpFight(fightMapId, playerTeam, opponentTeam)
-        if (!result.success) throw Object.assign(new Error(result.reason), { status: 400 })
+        if (!result.success) throw new AppError(400, "FIGHT_ENGINE_ERROR", "Une erreur est survenue lors du combat.")
 
-        const winnerId: string = result.value.endState.kind === "WON" ? playerId : opponentId
+        const winnerId: string      = result.value.endState.kind === "WON" ? playerId : opponentId
         const winnerTeamID: PlayingTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
 
         const fight = await this.pvpFightRepo.create({
@@ -99,27 +102,29 @@ export class FightService {
 
     async playRanked(userId: string) {
         const user = await this.userRepo.findById(userId)
-        if (!user) throw Object.assign(new Error("USER_NOT_FOUND"), { status: 404 })
+        if (!user) throw new AppError(404, "USER_NOT_FOUND", "Utilisateur introuvable.")
 
         const userRanking = await this.userRankingRepo.findByUserId(userId)
-        if (!userRanking) throw Object.assign(new Error("USER_RANKING_NOT_FOUND"), { status: 404 })
+        if (!userRanking) throw new AppError(404, "USER_RANKING_NOT_FOUND", "Données de classement introuvables.")
 
         const opponentRanking = await this.userRankingRepo.findClosestEloOpponent(userId, userRanking.currentElo)
-        if (!opponentRanking) throw Object.assign(new Error("NO_OPPONENT_FOUND"), { status: 404 })
+        if (!opponentRanking) throw new AppError(404, "NO_OPPONENT_FOUND", "Aucun adversaire disponible pour le moment.")
 
-        const opponentId = opponentRanking.userId.toString()
+        const opponentId   = opponentRanking.userId.toString()
         const opponentUser = await this.userRepo.findById(opponentId)
-        if (!opponentUser) throw Object.assign(new Error("USER_NOT_FOUND"), { status: 404 })
+        if (!opponentUser) throw new AppError(404, "USER_NOT_FOUND", "Utilisateur introuvable.")
 
-        const fightMapId = pickRandomFightMapId()
+        const fightMapId   = pickRandomFightMapId()
         const userTeam     = await this.teamService.buildTeamFromUserId(userId)
         const opponentTeam = await this.teamService.buildTeamFromUserId(opponentId)
-        if (!userTeam.length || !opponentTeam.length) throw Object.assign(new Error("TEAM_EMPTY"), { status: 400 })
+        if (!userTeam.length || !opponentTeam.length) {
+            throw new AppError(400, "TEAM_EMPTY", "L'équipe est incomplète, ajoutez des gambits à vos personnages.")
+        }
 
         const result: Result<FightResult, FightError> = this.engine.playPvpFight(fightMapId, userTeam, opponentTeam)
-        if (!result.success) throw Object.assign(new Error(result.reason), { status: 400 })
+        if (!result.success) throw new AppError(400, "FIGHT_ENGINE_ERROR", "Une erreur est survenue lors du combat.")
 
-        const winnerId: string = result.value.endState.kind === "WON" ? userId : opponentId
+        const winnerId: string      = result.value.endState.kind === "WON" ? userId : opponentId
         const winnerTeamID: PlayingTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
         const userWon = winnerId === userId
 

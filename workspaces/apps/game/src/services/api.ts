@@ -1,3 +1,5 @@
+import { ApiError } from "../errors/ApiError"
+
 const BASE_URL = import.meta.env.VITE_API_URL
 
 type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE"
@@ -15,8 +17,12 @@ async function request<T>(method: HttpMethod, path: string, body?: unknown): Pro
     })
 
     if (! response.ok) {
-        const error = await response.json().catch(() => ({ error: "Unknown error" }))
-        throw new Error(error.error ?? `HTTP ${response.status}`)
+        const data = await response.json().catch(() => ({}))
+        throw new ApiError(
+            data.code    ?? "UNKNOWN_ERROR",
+            data.message ?? `HTTP ${response.status}`,
+            response.status
+        )
     }
     
     if (response.status === 204) return undefined as T

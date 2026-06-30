@@ -8,6 +8,7 @@ import { ChallengeErrorView } from "./views/ChallengeErrorView"
 import { ChallengeLoadingView } from "./views/ChallengeLoadingView"
 import { ChallengeConfirmView } from "./views/ChallengeConfirmView"
 import { AnimatePresence, motion } from "framer-motion"
+import { getApiErrorMessage } from "@errors/apiErrorMessages"
 import { useNavigate } from "react-router-dom"
 import { CharacterRequireGambit } from "../../CharacterRequireGambit"
 
@@ -48,7 +49,7 @@ const ChallengeModal: React.FC<ChallengeModalProps> = ({ opponent, onClose }) =>
                 } 
             })
         } catch (err) {
-            setState({ step: "ERROR", message: err instanceof Error ? err.message : "Erreur" })
+            setState({ step: "ERROR", message: getApiErrorMessage(err) })
         }
     }
 

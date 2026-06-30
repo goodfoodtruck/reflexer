@@ -2,6 +2,7 @@ import { GambitRepository } from "@repositories/gambit.repository"
 import { CharacterRepository } from "@repositories/character.repository"
 import type { CharacterName, Gambit } from "@reflexer/engine"
 import type { Types } from "mongoose"
+import { AppError } from "../errors/AppError"
 
 export type GambitsByCharacter = {
     characterId: Types.ObjectId
@@ -44,12 +45,12 @@ export class GambitService {
 
     async updateGambit(id: string, data: object) {
         const gambit = await this.gambitRepo.updateById(id, data)
-        if (!gambit) throw Object.assign(new Error("Gambit not found"), { status: 404 })
+        if (!gambit) throw new AppError(404, "GAMBIT_NOT_FOUND", "Gambit introuvable.")
         return gambit
     }
 
     async deleteGambit(id: string) {
         const gambit = await this.gambitRepo.deleteById(id)
-        if (!gambit) throw Object.assign(new Error("Gambit not found"), { status: 404 })
+        if (!gambit) throw new AppError(404, "GAMBIT_NOT_FOUND", "Gambit introuvable.")
     }
 }

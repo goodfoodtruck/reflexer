@@ -1,4 +1,5 @@
 import { CharacterRepository } from "@repositories/character.repository"
+import { AppError } from "../errors/AppError"
 
 export class CharacterService {
     constructor(private readonly characterRepo: CharacterRepository) {}
@@ -9,7 +10,7 @@ export class CharacterService {
 
     async getCharacterById(id: string) {
         const character = await this.characterRepo.findById(id)
-        if (!character) throw Object.assign(new Error("Character not found"), { status: 404 })
+        if (!character) throw new AppError(404, "CHARACTER_NOT_FOUND", "Personnage introuvable.")
         return character
     }
 }

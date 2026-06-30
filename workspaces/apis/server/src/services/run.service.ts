@@ -1,5 +1,6 @@
 import { RunRepository } from "@repositories/run.repository"
 import { createGameEngine } from "@reflexer/engine"
+import { AppError } from "../errors/AppError"
 
 type GameEngine = ReturnType<typeof createGameEngine>
 
@@ -11,7 +12,7 @@ export class RunService {
 
     async startNewGame(userId: string) {
         const result = this.engine.startNewGame()
-        if (!result.success) throw Object.assign(new Error(result.reason), { status: 400 })
+        if (!result.success) throw new AppError(400, "RUN_START_ERROR", "Impossible de démarrer une nouvelle partie.")
 
         return this.runRepo.create({
             userId,
@@ -26,7 +27,7 @@ export class RunService {
 
     async getRunById(id: string) {
         const run = await this.runRepo.findById(id)
-        if (!run) throw Object.assign(new Error("Run not found"), { status: 404 })
+        if (!run) throw new AppError(404, "RUN_NOT_FOUND", "Partie introuvable.")
         return run
     }
 }
