@@ -11,7 +11,9 @@
         "@routes/*": ["./src/routes/*"],
         "@models/*": ["./src/models/*"],
         "@scripts/*": ["./src/scripts/*"],
-        "@services/*": ["./src/services/*"]
+        "@services/*": ["./src/services/*"],
+        "@controllers/*": ["./src/controllers/*"],
+        "@repositories/*": ["./src/repositories/*"]
     }
   },
   "include": ["**/*.ts"]
