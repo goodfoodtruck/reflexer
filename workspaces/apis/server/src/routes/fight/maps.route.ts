@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import { FIGHT_MAPS } from "@reflexer/engine"
 import type { FightMapConfig } from "@reflexer/engine"
 

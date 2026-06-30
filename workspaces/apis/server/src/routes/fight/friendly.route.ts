@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import type { FightError, FightMapID, FightResult, PlayingTeamID, Result, TeamMemberData } from "@reflexer/engine"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
 import { UserModel } from "@models/user.model"
@@ -8,7 +8,7 @@ import { engine } from "../.."
  
 const router = Router()
 
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { playerId, opponentId, fightMapId } = req.body as {
             playerId: string
@@ -81,8 +81,7 @@ router.post("/", async (req, res) => {
         })
 
     } catch (error) {
-        console.error("Error:", error)
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
  

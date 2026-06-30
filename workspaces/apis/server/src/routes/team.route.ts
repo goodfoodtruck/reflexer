@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import { CharacterModel, type CharacterDocument } from "@models/character.model"
 import { GambitModel } from "@models/gambit.model"
 import { TeamModel } from "@models/team.model"
@@ -8,18 +8,17 @@ const router = Router()
 
 router.use(requireAuth)
 
-router.get("/me", async (req, res) => {
+router.get("/me", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const team = await TeamModel.findOne({ userId: req.user!.userId }).populate("characterIds")
         res.json(team)
     } catch (error) {
-        console.error("Erreur GET /teams/me:", error)
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 
 // creation ou update
-router.post("/me", async (req, res) => {
+router.post("/me", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { characterIds } = req.body as { characterIds?: string[] }
         if (!Array.isArray(characterIds) || characterIds.length !== 2) {
@@ -41,16 +40,15 @@ router.post("/me", async (req, res) => {
 
         res.json(team)
     } catch (error) {
-        console.error("Erreur POST /teams/me:", error)
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 
 // Vérifie qu'au moins 1 gambit existe pour chacun des 2 personnages de l'équipe.
-router.get("/me/readiness", async (req, res) => {
+router.get("/me/readiness", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const team = await TeamModel.findOne({ userId: req.user!.userId }).populate("characterIds")
-        if (!team) {
+        if (! team) {
             res.json({ ready: false, missingCharacterNames: [] })
             return
         }
@@ -67,7 +65,7 @@ router.get("/me/readiness", async (req, res) => {
 
         res.json({ ready: missingCharacterNames.length === 0, missingCharacterNames })
     } catch (error) {
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 

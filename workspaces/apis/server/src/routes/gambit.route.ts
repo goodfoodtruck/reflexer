@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import type { Gambit } from "@reflexer/engine"
 import { GambitModel } from "@models/gambit.model"
 import { Types } from "mongoose"
@@ -6,7 +6,7 @@ import { GambitsByCharacter, getUserGambitsByCharacter } from "@services/gambits
  
 const router = Router()
  
-router.get("/", async (req, res) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.query as { userId: string }
         if (! userId) {
@@ -17,11 +17,11 @@ router.get("/", async (req, res) => {
         
         res.json(gambitsByCharacter)
     } catch (error) {
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
  
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, name, characterId, priority, conditions, targetSelector, intent } = req.body as
             { userId: string, name: string, characterId: string } & Omit<Gambit, "id">
@@ -38,11 +38,11 @@ router.post("/", async (req, res) => {
 
         res.status(201).json(gambit)
     } catch (error) {
-        res.status(400).json({ error: "Unable to create gambit", details: error })
+        next(error)
     }
 })
  
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const gambit = await GambitModel.findByIdAndUpdate(
             req.params.id,
@@ -52,17 +52,17 @@ router.patch("/:id", async (req, res) => {
         if (! gambit) return res.status(404).json({ error: "Gambit not found" })
         res.json(gambit)
     } catch (error) {
-        res.status(400).json({ error: "Unable to update gambit", details: error })
+        next(error)
     }
 })
  
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const gambit = await GambitModel.findByIdAndDelete(req.params.id)
         if (! gambit) return res.status(404).json({ error: "Gambit not found" })
         res.status(204).send()
     } catch (error) {
-        res.status(400).json({ error: "Unable to delete gambit", details: error })
+        next(error)
     }
 })
  

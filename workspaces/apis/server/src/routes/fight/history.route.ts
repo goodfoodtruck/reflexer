@@ -1,10 +1,10 @@
 import { PveFightModel } from "@models/fight/pveFight.model"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 
 const router = Router()
 
-router.get("/:fightId", async (req, res) => {
+router.get("/:fightId", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { fightId } = req.params
 
@@ -13,12 +13,12 @@ router.get("/:fightId", async (req, res) => {
 
         res.json(fight)
     } catch (error) {
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 
 // GET /fights/history/friendly/:userId
-router.get("/friendly/:userId", async (req, res) => {
+router.get("/friendly/:userId", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.params
         const fights = await PvpFightModel.find({
@@ -28,12 +28,12 @@ router.get("/friendly/:userId", async (req, res) => {
 
         res.json(fights)
     } catch (error) {
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 
 // GET /fights/history/ranked/:userId
-router.get("/ranked/:userId", async (req, res) => {
+router.get("/ranked/:userId", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.params
         
@@ -47,12 +47,12 @@ router.get("/ranked/:userId", async (req, res) => {
 
         res.json(fights)
     } catch (error) {
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 
 // GET /fights/history/training/:userId
-router.get("/training/:userId", async (req, res) => {
+router.get("/training/:userId", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.params
         const fights = await PveFightModel.find({ userId })
@@ -60,7 +60,7 @@ router.get("/training/:userId", async (req, res) => {
 
         res.json(fights)
     } catch (error) {
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 

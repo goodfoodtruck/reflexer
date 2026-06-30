@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { UserModel } from "@models/user.model"
@@ -8,7 +8,7 @@ import { requireAuth } from "../auth.middleware"
 const router      = Router()
 const JWT_SECRET  = process.env.JWT_SECRET ?? "reflexer_secret"
 const SALT_ROUNDS = 10
-router.post("/register", async (req, res) => {
+router.post("/register", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, password, secretAnswer } = req.body as {
             name:         string
@@ -50,12 +50,11 @@ router.post("/register", async (req, res) => {
 
         res.status(201).json({ token, user: { id: user._id, name: user.name } })
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Erreur lors de l'inscription" })
+        next(error)
     }
 })
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, password } = req.body as { name: string; password: string }
 
@@ -84,12 +83,11 @@ router.post("/login", async (req, res) => {
 
         res.json({ token, user: { id: user._id, name: user.name } })
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Erreur lors de la connexion" })
+        next(error)
     }
 })
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, secretAnswer, newPassword } = req.body as {
             name:         string
@@ -122,12 +120,11 @@ router.post("/reset-password", async (req, res) => {
 
         res.json({ message: "Mot de passe mis à jour avec succès" })
     } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Erreur lors de la réinitialisation" })
+        next(error)
     }
 })
 
-router.get("/me", requireAuth, async (req, res) => {
+router.get("/me", requireAuth, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await UserModel.findById(req.user!.userId, { name: 1 })
         if (! user) {
@@ -136,8 +133,7 @@ router.get("/me", requireAuth, async (req, res) => {
         }
         res.json({ id: user._id, name: user.name })
     } catch (error) {
-        console.error("Erreur GET /auth/me:", error)
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
 

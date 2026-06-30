@@ -1,4 +1,4 @@
-import { Router } from "express"
+import { Router, Request, Response, NextFunction } from "express"
 import type { FightError, FightResult, PlayingTeamID, Result, TeamMemberData } from "@reflexer/engine"
 import { pickRandomFightMapId } from "@reflexer/engine"
 import { PvpFightModel } from "@models/fight/pvpFight.model"
@@ -13,7 +13,7 @@ import { Types } from "mongoose"
  
 const router = Router()
 
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.body as { userId: string }
         const user = await UserModel.findById(userId, { name: 1 })
@@ -190,8 +190,7 @@ router.post("/", async (req, res) => {
         })
 
     } catch (error) {
-        console.error("Error:", error)
-        res.status(500).json({ error: "INTERNAL_ERROR" })
+        next(error)
     }
 })
  

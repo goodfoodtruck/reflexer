@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Logs
+logs
+
 # Build outputs
 dist/
 build/
