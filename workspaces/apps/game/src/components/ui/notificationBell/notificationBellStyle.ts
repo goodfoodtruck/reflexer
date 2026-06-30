@@ -1,5 +1,5 @@
 export const STYLES = {
-  wrapper: 'absolute top-8 right-8 z-20',
+  wrapper: 'relative z-20',
   bellBtn: 'relative w-10 h-10 flex items-center justify-center text-slate-400 hover:text-amber-400 transition-colors',
   badge: 'absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-[10px] font-black',
   panel: 'absolute top-12 right-0 w-80 bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden',
