@@ -15,14 +15,17 @@ import {
 
 interface Props {
   onConfirm: (team: [SelectedCharacter, SelectedCharacter]) => void;
-  onBack: () => void;
+  onBack?: () => void;
+  initialSelection?: [SelectedCharacter, SelectedCharacter] | null;
 }
 
-export function CharacterSelectScreen({ onConfirm, onBack }: Props) {
+export function CharacterSelectScreen({ onConfirm, onBack, initialSelection }: Props) {
   const [roster, setRoster] = useState<SelectedCharacter[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<(SelectedCharacter | null)[]>([null, null]);
+  const [selected, setSelected] = useState<(SelectedCharacter | null)[]>(
+    initialSelection ?? [null, null]
+  );
   const [hovered, setHovered] = useState<SelectedCharacter | null>(null);
 
   useEffect(() => {
@@ -78,7 +81,7 @@ export function CharacterSelectScreen({ onConfirm, onBack }: Props) {
       <div className={STYLES.bgOverlay} />
 
       <div className={STYLES.foreground}>
-        <Header title="Sélection de l'équipe" subtitle="Nouvelle partie" onBack={onBack} />
+        <Header title="Sélection de l'équipe" subtitle="Équipe" onBack={onBack} />
 
         <div className={STYLES.statusBar}>
           <p className={STYLES.statusText}>

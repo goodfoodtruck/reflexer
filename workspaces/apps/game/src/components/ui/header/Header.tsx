@@ -1,7 +1,7 @@
 type HeaderProps = {
   title: string;
   subtitle: string;
-  onBack: () => void;
+  onBack?: () => void;
 };
 
 const STYLES = {
@@ -15,11 +15,13 @@ const STYLES = {
 export function Header({ title, subtitle, onBack }: HeaderProps) {
   return (
     <header className={STYLES.header}>
-      <button onClick={onBack} aria-label="Retour" className={STYLES.backButton}>
-        <svg className={STYLES.svg} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+      {onBack && (
+        <button onClick={onBack} aria-label="Retour" className={STYLES.backButton}>
+          <svg className={STYLES.svg} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
       <div>
         <div className={STYLES.subtitle}>{subtitle}</div>
         <h1 className={STYLES.title}>{title}</h1>

@@ -53,7 +53,7 @@ export function GambitEditorPage() {
         <Header
           title="Éditeur de Gambits"
           subtitle="Configuration tactique"
-          onBack={() => navigate('/team')}
+          onBack={() => navigate('/gambits')}
         />
 
         <div className={Styles_gambit_editor.workspace}>

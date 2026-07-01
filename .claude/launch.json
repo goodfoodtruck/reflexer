@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "game",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@reflexer/game", "dev"],
+      "port": 5173
+    }
+  ]
+}
