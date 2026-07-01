@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from "framer-motion"
-import { useEffect, useState } from "react"
 
 export type MatchmakingProfile = {
     id: string
@@ -9,24 +8,14 @@ export type MatchmakingProfile = {
 
 interface MatchmakingProfileCardProps {
     profiles: MatchmakingProfile[]
-    intervalMs?: number 
+    currentIndex: number
 }
 
-const MatchmakingProfileCard: React.FC<MatchmakingProfileCardProps> = ({ profiles, intervalMs = 500 }) => {
-    const [index, setIndex] = useState(0)
-
-    useEffect(() => {
-        if (profiles.length <= 1) return
-        const id = setInterval(() => {
-            setIndex(prev => (prev + 1) % profiles.length)
-        }, intervalMs)
-        return () => clearInterval(id)
-    }, [profiles.length, intervalMs])
-
-    const profile = profiles[index]
+const MatchmakingProfileCard: React.FC<MatchmakingProfileCardProps> = ({ profiles, currentIndex }) => {
+    const profile = profiles[currentIndex % profiles.length]!
 
     return (
-        <div className="relative h-48 w-64" style={{ perspective: "1200px" }} aria-hidden>
+        <div className="relative h-72 w-80" style={{ perspective: "1200px" }} aria-hidden>
             <motion.div
                 className="absolute inset-0 rounded-2xl border border-amber-500/40"
                 animate={{ opacity: [0.2, 0.55, 0.2], scale: [0.97, 1.03, 0.97] }}
