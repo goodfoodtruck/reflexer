@@ -13,6 +13,7 @@ import type { UserRankingResponse } from "@services/userRanking.service"
 import NewGameButton from "./new-game/NewGameButton"
 import UserRankedProfile from "./user-profile/UserRankedProfile"
 import { withMinimumDuration } from "@shared/helpers/timing"
+import { getApiErrorMessage } from "@errors/apiErrorMessages"
 import MatchmakingOverlay from "./new-game/MatchMakingOverlay"
 import { CharacterRequireGambit } from "../CharacterRequireGambit"
 
@@ -60,7 +61,7 @@ const RankedSection: React.FC<RankedSectionProps> = ({ userRankedFightsHistory, 
         } catch (err) {
             setMatchmaking({
                 status: "failed",
-                reason: err instanceof Error ? err.message : "Impossible de trouver un adversaire",
+                reason: getApiErrorMessage(err, "Impossible de trouver un adversaire"),
             })
         }
     }
