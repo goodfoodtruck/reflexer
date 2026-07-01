@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 import { UserRepository } from "@repositories/user.repository"
 import { UserRankingRepository } from "@repositories/ranked/userRanking.repository"
 import { AppError } from "../errors/AppError"
+import { userRegisteredTotal, loginTotal } from "../metrics"
 
 const JWT_SECRET  = process.env.JWT_SECRET ?? "reflexer_secret"
 const SALT_ROUNDS = 10
@@ -28,21 +29,29 @@ export class AuthService {
             JWT_SECRET,
             { expiresIn: "7d" }
         )
+        userRegisteredTotal.inc()
         return { token, user: { id: user._id, name: user.name } }
     }
 
     async login(name: string, password: string) {
         const user = await this.userRepo.findByName(name)
-        if (!user) throw new AppError(401, "WRONG_CREDENTIALS", "Pseudo ou mot de passe incorrect.")
+        if (!user) {
+            loginTotal.inc({ success: 'false' })
+            throw new AppError(401, "WRONG_CREDENTIALS", "Pseudo ou mot de passe incorrect.")
+        }
 
         const passwordMatch = await bcrypt.compare(password, user.password)
-        if (!passwordMatch) throw new AppError(401, "WRONG_CREDENTIALS", "Pseudo ou mot de passe incorrect.")
+        if (!passwordMatch) {
+            loginTotal.inc({ success: 'false' })
+            throw new AppError(401, "WRONG_CREDENTIALS", "Pseudo ou mot de passe incorrect.")
+        }
 
         const token = jwt.sign(
             { userId: user._id.toString(), name: user.name },
             JWT_SECRET,
             { expiresIn: "7d" }
         )
+        loginTotal.inc({ success: 'true' })
         return { token, user: { id: user._id, name: user.name } }
     }
 

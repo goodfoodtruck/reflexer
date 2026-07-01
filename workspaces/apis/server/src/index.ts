@@ -1,4 +1,4 @@
-import express from "express"
+import express, { type Request, type Response, type NextFunction } from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import morgan from "morgan"
@@ -7,6 +7,7 @@ import { createGameEngine } from "@reflexer/engine"
 import { seedDatabase } from "@scripts/seedDatabase"
 import logger from "./logger"
 import { errorMiddleware } from "./middlewares/errorMiddleware"
+import { register, httpRequestsTotal, httpRequestDurationSeconds } from "./metrics"
 
 import { UserRepository } from "@repositories/user.repository"
 import { CharacterRepository } from "@repositories/character.repository"
@@ -113,6 +114,21 @@ const start = async () => {
     app.use(cors())
     app.use(express.json())
     app.use(morgan('combined', { stream: { write: (msg) => logger.info(msg.trim()) } }))
+
+    app.use((req: Request, res: Response, next: NextFunction) => {
+        const end = httpRequestDurationSeconds.startTimer()
+        res.on('finish', () => {
+            const route = req.route ? `${req.baseUrl}${req.route.path}` : req.path
+            httpRequestsTotal.inc({ method: req.method, route, status_code: res.statusCode })
+            end({ method: req.method, route, status_code: res.statusCode })
+        })
+        next()
+    })
+
+    app.get('/metrics', async (_req: Request, res: Response) => {
+        res.set('Content-Type', register.contentType)
+        res.end(await register.metrics())
+    })
 
     app.use("/auth",          createAuthController().getRouter())
     app.use("/users/ranking", createUserRankingController().getRouter())

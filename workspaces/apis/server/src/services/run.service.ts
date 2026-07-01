@@ -1,6 +1,7 @@
 import { RunRepository } from "@repositories/run.repository"
 import { createGameEngine } from "@reflexer/engine"
 import { AppError } from "../errors/AppError"
+import { runStartedTotal } from "../metrics"
 
 type GameEngine = ReturnType<typeof createGameEngine>
 
@@ -14,6 +15,7 @@ export class RunService {
         const result = this.engine.startNewGame()
         if (!result.success) throw new AppError(400, "RUN_START_ERROR", "Impossible de démarrer une nouvelle partie.")
 
+        runStartedTotal.inc()
         return this.runRepo.create({
             userId,
             gold: result.value.runPlayerData.gold,

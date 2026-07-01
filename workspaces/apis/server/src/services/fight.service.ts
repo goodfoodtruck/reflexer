@@ -10,6 +10,7 @@ import { NotificationRepository } from "@repositories/notification.repository"
 import { TeamService } from "./team.service"
 import { computeEloChange } from "./ranked.service"
 import { AppError } from "../errors/AppError"
+import { fightPlayedTotal, matchmakingFailedTotal } from "../metrics"
 
 type GameEngine = ReturnType<typeof createGameEngine>
 
@@ -97,6 +98,7 @@ export class FightService {
             winner: winnerTeamID
         })
 
+        fightPlayedTotal.inc({ type: 'friendly' })
         return { ...fight.toObject(), playerUser, opponentUser }
     }
 
@@ -108,7 +110,10 @@ export class FightService {
         if (!userRanking) throw new AppError(404, "USER_RANKING_NOT_FOUND", "Données de classement introuvables.")
 
         const opponentRanking = await this.userRankingRepo.findClosestEloOpponent(userId, userRanking.currentElo)
-        if (!opponentRanking) throw new AppError(404, "NO_OPPONENT_FOUND", "Aucun adversaire disponible pour le moment.")
+        if (!opponentRanking) {
+            matchmakingFailedTotal.inc({ reason: 'NO_OPPONENT_FOUND' })
+            throw new AppError(404, "NO_OPPONENT_FOUND", "Aucun adversaire disponible pour le moment.")
+        }
 
         const opponentId   = opponentRanking.userId.toString()
         const opponentUser = await this.userRepo.findById(opponentId)
@@ -118,11 +123,15 @@ export class FightService {
         const userTeam     = await this.teamService.buildTeamFromUserId(userId)
         const opponentTeam = await this.teamService.buildTeamFromUserId(opponentId)
         if (!userTeam.length || !opponentTeam.length) {
+            matchmakingFailedTotal.inc({ reason: 'TEAM_EMPTY' })
             throw new AppError(400, "TEAM_EMPTY", "L'équipe est incomplète, ajoutez des gambits à vos personnages.")
         }
 
         const result: Result<FightResult, FightError> = this.engine.playPvpFight(fightMapId, userTeam, opponentTeam)
-        if (!result.success) throw new AppError(400, "FIGHT_ENGINE_ERROR", "Une erreur est survenue lors du combat.")
+        if (!result.success) {
+            matchmakingFailedTotal.inc({ reason: 'FIGHT_ENGINE_ERROR' })
+            throw new AppError(400, "FIGHT_ENGINE_ERROR", "Une erreur est survenue lors du combat.")
+        }
 
         const winnerId: string      = result.value.endState.kind === "WON" ? userId : opponentId
         const winnerTeamID: PlayingTeamID = result.value.endState.kind === "WON" ? "PLAYER" : "ENEMY"
@@ -193,6 +202,7 @@ export class FightService {
             winner: winnerTeamID
         })
 
+        fightPlayedTotal.inc({ type: 'ranked' })
         return {
             ...fight.toObject(),
             fightRankingData: fightRankingData.toObject(),
