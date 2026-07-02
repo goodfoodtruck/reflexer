@@ -4,6 +4,7 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { SecretQuestionField } from "@components/ui/auth/SecretQuestionField";
 import { FormField } from "@components/ui/auth/FormField";
 import { AlertMessage } from "@components/ui/auth/AlertMessage";
+import { getApiErrorMessage } from "@errors/apiErrorMessages";
 import { SubmitButton } from "@components/ui/auth/SubmitButton";
 
 type Props = {
@@ -27,7 +28,7 @@ export function ResetPasswordForm({ userName, onSuccess, onBack }: Props) {
       await resetPassword(userName, secretAnswer, newPassword);
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur');
+      setError(getApiErrorMessage(err));
     }
   };
 

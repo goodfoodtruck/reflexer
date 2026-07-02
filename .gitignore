@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Logs
+logs
+
 # Build outputs
 dist/
 build/
@@ -41,3 +44,6 @@ directives.md
 
 # coverage
 coverage/
+
+# Extensions
+.claude

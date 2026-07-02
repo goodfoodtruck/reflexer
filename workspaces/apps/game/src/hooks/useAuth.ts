@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AuthService } from '../services/auth.service';
+import { getApiErrorMessage } from '../errors/apiErrorMessages';
 
 const TOKEN_KEY = 'reflexer_token';
 const USER_KEY = 'reflexer_user';
@@ -46,8 +47,7 @@ export function useAuth() {
       localStorage.setItem(USER_KEY, JSON.stringify(response.user));
       setUser(response.user);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur de connexion';
-      setError(message);
+      setError(getApiErrorMessage(err, 'Erreur de connexion'));
       throw err;
     } finally {
       setLoading(false);
@@ -63,8 +63,7 @@ export function useAuth() {
       localStorage.setItem(USER_KEY, JSON.stringify(response.user));
       setUser(response.user);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erreur d'inscription";
-      setError(message);
+      setError(getApiErrorMessage(err, "Erreur d'inscription"));
       throw err;
     } finally {
       setLoading(false);
@@ -77,8 +76,7 @@ export function useAuth() {
     try {
       await AuthService.resetPassword(name, secretAnswer, newPassword);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur de réinitialisation';
-      setError(message);
+      setError(getApiErrorMessage(err, 'Erreur de réinitialisation'));
       throw err;
     } finally {
       setLoading(false);

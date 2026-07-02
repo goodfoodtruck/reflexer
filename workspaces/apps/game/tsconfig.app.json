@@ -28,6 +28,7 @@
       "@assets/*":     ["./src/assets/*"],
       "@features/*":   ["./src/features/*"],
       "@shared/*":     ["./src/shared/*"],
+      "@errors/*":     ["./src/errors/*"],
     }
   },
   "include": ["src"]
